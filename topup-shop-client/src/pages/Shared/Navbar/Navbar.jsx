@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "../../../assets/topup-logo-crop.jpeg";
+import logo from "../../../assets/topup-logo-crop.png";
 
 const Navbar = () => {
   return (
