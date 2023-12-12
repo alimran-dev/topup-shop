@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from "../../../assets/topup-logo-crop.png";
+import "./Navbar.css"
 
 const Navbar = () => {
   return (
@@ -10,13 +11,13 @@ const Navbar = () => {
       </Link>
       <div className="flex items-center justify-center gap-5">
         <div className="hidden md:block space-x-6">
-          <Link to={"/"} className="font-semibold">
-            Home
+          <Link to={"/"} className="font-semibold navbar-link">
+              Home
           </Link>
-          <Link to={"/topup"} className="font-semibold">
+          <Link to={"/topup"} className="font-semibold navbar-link">
             Top-Up
           </Link>
-          <Link to={"/contact"} className="font-semibold">
+          <Link to={"/contact"} className="font-semibold navbar-link">
             Contact Us
           </Link>
         </div>
