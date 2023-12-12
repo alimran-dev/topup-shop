@@ -1,4 +1,5 @@
 import Banner from "./Banner/Banner";
+import FollowUs from "./FollowUs/FollowUs";
 import Services from "./Services/Services";
 
 const Home = () => {
@@ -6,6 +7,7 @@ const Home = () => {
         <div className="space-y-5">
             <Banner />
             <Services />
+            <FollowUs />
         </div>
     );
 };
