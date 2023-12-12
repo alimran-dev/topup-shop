@@ -1,6 +1,7 @@
 .navbar-link {
   position: relative;
   display: inline-block;
+  font-weight: 600;
 }
 .navbar-link:hover{
     color: #fa6023;
@@ -19,4 +20,19 @@
 }
 .navbar-link:hover::after {
   transform: scaleX(1);
+}
+.navbar-link-active {
+    position: relative;
+    display: inline-block;
+    color: #fa6023;
+    font-weight: 600;
+}
+.navbar-link-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 3px;
+    background-color: #fa6023;
 }
