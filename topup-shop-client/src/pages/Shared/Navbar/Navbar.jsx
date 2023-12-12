@@ -10,6 +10,9 @@ const Navbar = () => {
       </Link>
       <div className="flex items-center justify-center gap-5">
         <div className="hidden md:block space-x-6">
+          <Link to={"/"} className="font-semibold">
+            Home
+          </Link>
           <Link to={"/topup"} className="font-semibold">
             Top-Up
           </Link>
