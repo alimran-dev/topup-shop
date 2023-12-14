@@ -1,8 +1,19 @@
 import { Link, NavLink } from "react-router-dom";
 import logo from "../../../assets/topup-logo-crop.png";
 import "./Navbar.css";
+import useAuth from "../../../hooks/useAuth";
+import avater from "../../../assets/images/avater.png";
+import { useState } from "react";
+import { VscAccount } from "react-icons/vsc";
+import { TfiMenuAlt } from "react-icons/tfi";
+import { MdAccountBalance } from "react-icons/md";
+import { IoGridOutline } from "react-icons/io5";
+import { BiSupport } from "react-icons/bi";
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
+  console.log(isOpen);
   return (
     <div className="sticky top-0 left-0 z-20">
       <div className="flex items-center justify-between px-8 md:px-16 py-2 shadow bg-white">
@@ -48,9 +59,101 @@ const Navbar = () => {
               Contact Us
             </NavLink>
           </div>
-          <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded">
-            Login
-          </button>
+          {user ? (
+            <div>
+              <img
+                onClick={() => setIsOpen(!isOpen)}
+                src={avater}
+                alt=""
+                className="w-12 h-12 bg-slate-400 rounded-full cursor-pointer"
+              />
+              <div
+                onClick={() => setIsOpen(!isOpen)}
+                className={`absolute inset-0 w-screen h-screen flex ${
+                  isOpen ? "" : "hidden"
+                }`}
+              >
+                <span className="flex-1 bg-gray-700 opacity-60"></span>
+                <div className="w-64 md:w-72 bg-white overflow-y-scroll pb-10">
+                  <div className="flex items-center gap-2 p-3">
+                    <img
+                      src={avater}
+                      alt=""
+                      className="w-14 h-14 rounded-md bg-slate-400"
+                    />
+                    <div className="flex-1">
+                      <p className="text-lg font-bold text-gray-800">
+                        Al Imran
+                      </p>
+                      <p className="font-medium">alimran@gmail.com</p>
+                    </div>
+                  </div>
+                  <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto ">
+                    Log Out
+                  </button>
+                  <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
+                  <div>
+                    <NavLink
+                      to={"/myAccount"}
+                      className={({ isActive, isPending }) =>
+                        isPending
+                          ? "pending"
+                          : isActive
+                          ? "flex items-center gap-2 text-lg mx-4 py-3 pt-0 text-[#FA6023]"
+                          : "flex items-center gap-2 text-lg mx-4 py-3 pt-0"
+                      }
+                    >
+                      <VscAccount className="text-2xl" /> My Account
+                    </NavLink>
+                    <NavLink
+                      to={"/addBalance"}
+                      className={({ isActive, isPending }) =>
+                        isPending
+                          ? "pending"
+                          : isActive
+                          ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                          : "flex items-center gap-2 text-lg mx-4 py-3"
+                      }
+                    >
+                      <MdAccountBalance className="text-2xl" /> Add Balance
+                    </NavLink>
+                    <NavLink
+                      to={"/myOrders"}
+                      className={({ isActive, isPending }) =>
+                        isPending
+                          ? "pending"
+                          : isActive
+                          ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                          : "flex items-center gap-2 text-lg mx-4 py-3"
+                      }
+                    >
+                      <IoGridOutline className="text-2xl" /> My Orders
+                    </NavLink>
+                    <NavLink
+                      to={"myTransactions"}
+                      className={({ isActive, isPending }) =>
+                        isPending
+                          ? "pending"
+                          : isActive
+                          ? "flex items-center gap-2 text-lg mx-4 py-3 pb-0 text-[#FA6023]"
+                          : "flex items-center gap-2 text-lg mx-4 py-3 pb-0"
+                      }
+                    >
+                      <TfiMenuAlt className="text-2xl" /> My Transactions
+                    </NavLink>
+                  </div>
+                  <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
+                  <button className="flex items-center gap-2 bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit mx-auto ">
+                    <BiSupport /> Support
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded">
+              Login
+            </button>
+          )}
         </div>
       </div>
     </div>
