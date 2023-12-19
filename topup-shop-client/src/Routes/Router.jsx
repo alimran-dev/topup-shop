@@ -17,6 +17,8 @@ import AddOptions from "../AdminDashboard/AddOptions/AddOptions";
 import UpdateOptions from "../AdminDashboard/Update/UpdateOptions";
 import Orders from "../AdminDashboard/Orders/Orders";
 import Users from "../AdminDashboard/Users/Users";
+import UpdateItems from "../AdminDashboard/Update/UpdateItems";
+import UpdateDelete from "../AdminDashboard/Update/UpdateDelete";
 
 const router = createBrowserRouter([
   {
@@ -88,6 +90,14 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/updateOptions",
         element: <UpdateOptions />,
+      },
+      {
+        path: "/dashboard/updateOptions/:category",
+        element: <UpdateItems />,
+      },
+      {
+        path: "/dashboard/updateOptions/:category/:id",
+        element: <UpdateDelete />,
       },
       {
         path: "/dashboard/orders",
