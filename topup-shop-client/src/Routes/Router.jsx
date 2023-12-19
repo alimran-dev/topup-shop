@@ -11,58 +11,94 @@ import Unipin from "../pages/Unipin/Unipin";
 import Idcode from "../pages/Idcode/Idcode";
 import WeeklyMonthly from "../pages/WeeklyMonthly/WeeklyMonthly";
 import Shell from "../pages/Shell/Shell";
+import Dashboard from "../AdminDashboard/Dashboard";
+import AddCodes from "../AdminDashboard/AddCodes/AddCodes";
+import AddOptions from "../AdminDashboard/AddOptions/AddOptions";
+import UpdateOptions from "../AdminDashboard/Update/UpdateOptions";
+import Orders from "../AdminDashboard/Orders/Orders";
+import Users from "../AdminDashboard/Users/Users";
 
 const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <Root />,
-        children: [
-            {
-                path: '/',
-                element: <Home />,
-            },
-            {
-                path: '/topup',
-                element: <TopUp />,
-            },
-            {
-                path: '/unipin',
-                element: <Unipin />,
-            },
-            {
-                path: '/idcode',
-                element: <Idcode />,
-            },
-            {
-                path: '/weekly-monthly',
-                element: <WeeklyMonthly />,
-            },
-            {
-                path: '/shell',
-                element: <Shell />,
-            },
-            {
-                path: '/contact',
-                element: <ContactUs />
-            },
-            {
-                path: '/myAccount',
-                element: <MyAccount />,
-            },
-            {
-                path: '/addBalance',
-                element: <AddBalance />,
-            },
-            {
-                path: '/myOrders',
-                element: <MyOrders />,
-            },
-            {
-                path: '/myTransactions',
-                element: <MyTransactions />
-            },
-        ]
-    }
-])
+  {
+    path: "/",
+    element: <Root />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/topup",
+        element: <TopUp />,
+      },
+      {
+        path: "/unipin",
+        element: <Unipin />,
+      },
+      {
+        path: "/idcode",
+        element: <Idcode />,
+      },
+      {
+        path: "/weekly-monthly",
+        element: <WeeklyMonthly />,
+      },
+      {
+        path: "/shell",
+        element: <Shell />,
+      },
+      {
+        path: "/contact",
+        element: <ContactUs />,
+      },
+      {
+        path: "/myAccount",
+        element: <MyAccount />,
+      },
+      {
+        path: "/addBalance",
+        element: <AddBalance />,
+      },
+      {
+        path: "/myOrders",
+        element: <MyOrders />,
+      },
+      {
+        path: "/myTransactions",
+        element: <MyTransactions />,
+      },
+    ],
+  },
+  {
+    path: "/dashboard",
+    element: <Root />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "/dashboard/addCodes",
+        element: <AddCodes />,
+      },
+      {
+        path: "/dashboard/addOptions",
+        element: <AddOptions />,
+      },
+      {
+        path: "/dashboard/updateOptions",
+        element: <UpdateOptions />,
+      },
+      {
+        path: "/dashboard/orders",
+        element: <Orders />,
+      },
+      {
+        path: "/dashboard/users",
+        element: <Users />,
+      },
+    ],
+  },
+]);
 
 export default router;
