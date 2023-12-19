@@ -7,6 +7,10 @@ import MyAccount from "../pages/MyAccount/MyAccount";
 import AddBalance from "../pages/AddBalance/AddBalance";
 import MyOrders from "../pages/MyOrders/MyOrders";
 import MyTransactions from "../pages/MyTransactions/MyTransactions";
+import Unipin from "../pages/Unipin/Unipin";
+import Idcode from "../pages/Idcode/Idcode";
+import WeeklyMonthly from "../pages/WeeklyMonthly/WeeklyMonthly";
+import Shell from "../pages/Shell/Shell";
 
 const router = createBrowserRouter([
     {
@@ -20,6 +24,22 @@ const router = createBrowserRouter([
             {
                 path: '/topup',
                 element: <TopUp />,
+            },
+            {
+                path: '/unipin',
+                element: <Unipin />,
+            },
+            {
+                path: '/idcode',
+                element: <Idcode />,
+            },
+            {
+                path: '/weekly-monthly',
+                element: <WeeklyMonthly />,
+            },
+            {
+                path: '/shell',
+                element: <Shell />,
             },
             {
                 path: '/contact',

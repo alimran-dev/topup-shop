@@ -9,6 +9,7 @@ import { TfiMenuAlt } from "react-icons/tfi";
 import { MdAccountBalance } from "react-icons/md";
 import { IoGridOutline } from "react-icons/io5";
 import { BiSupport } from "react-icons/bi";
+import { TbCurrencyTaka } from "react-icons/tb";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +61,9 @@ const Navbar = () => {
             </NavLink>
           </div>
           {user ? (
-            <div>
+            <div className="flex items-center gap-3">
+              <span className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-3 text-lg text-white font-semibold rounded flex items-center"> 0 <TbCurrencyTaka />
+              </span>
               <img
                 onClick={() => setIsOpen(!isOpen)}
                 src={avater}
