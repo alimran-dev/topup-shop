@@ -19,6 +19,8 @@ import Orders from "../AdminDashboard/Orders/Orders";
 import Users from "../AdminDashboard/Users/Users";
 import UpdateItems from "../AdminDashboard/Update/UpdateItems";
 import UpdateDelete from "../AdminDashboard/Update/UpdateDelete";
+import Login from "../pages/Login/Login";
+import SignUp from "../pages/SignUp/SignUp";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +54,14 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactUs />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/signup",
+        element: <SignUp />,
       },
       {
         path: "/myAccount",

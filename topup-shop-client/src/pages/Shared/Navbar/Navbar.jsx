@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "../../../assets/topup-logo-crop.png";
 import "./Navbar.css";
 import useAuth from "../../../hooks/useAuth";
@@ -16,9 +16,19 @@ import { FaUsersCog } from "react-icons/fa";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const isAdmin = true;
-  const { user } = useAuth();
+  const isAdmin = false;
+  const { user,setUser,logOut } = useAuth();
+  const navigate = useNavigate();
   console.log(isOpen);
+  const handleLogOut = () => {
+    logOut()
+      .then(() => {
+        setUser(null);
+      })
+      .catch(err => {
+        console.error(err);
+    })
+  }
   return (
     <div className="sticky top-0 left-0 z-20">
       <div className="flex items-center justify-between px-8 md:px-16 py-2 shadow bg-white">
@@ -100,7 +110,7 @@ const Navbar = () => {
                       <p className="font-medium">alimran@gmail.com</p>
                     </div>
                   </div>
-                  <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto ">
+                  <button onClick={handleLogOut} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto ">
                     Log Out
                   </button>
                   <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
@@ -242,7 +252,7 @@ const Navbar = () => {
               </div>
             </div>
           ) : (
-            <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded">
+            <button onClick={()=>navigate('/login')} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded">
               Login
             </button>
           )}
