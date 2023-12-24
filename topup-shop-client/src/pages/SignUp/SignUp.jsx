@@ -2,11 +2,16 @@ import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const SignUp = () => {
   const [error, setError] = useState("");
   const { user, setUser, signUp, updateUser, googleLogin, auth } = useAuth();
   const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
+  const axiosPrivate = useAxiosPrivate();
+
   const handleSignUp = (e) => {
     e.preventDefault();
     setError("");
@@ -16,48 +21,72 @@ const SignUp = () => {
     const phone = form.phone.value;
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
-    const user = { name, email, phone, password, confirmPass };
+    const user = { name, email, phone };
     console.log(user);
     const passRegex = /^.{6,}$/;
     if (password !== confirmPass) {
-      setError("Password and Confirm Password must be same.")
-    }
-    else if(passRegex.test(password)) {
-      signUp(email,password)
+      setError("Password and Confirm Password must be same.");
+    } else if (passRegex.test(password)) {
+      signUp(email, password)
         .then(() => {
-        updateUser(name)
-          .then(() => {
-            setUser(auth.currentUser);
-          })
-          .catch(err => {
-            console.error(err);
-            setError("Failed to update name.")
-          })
+          updateUser(name)
+            .then(() => {
+              axiosPublic.post("/users", user).then((res) => {
+                console.log(res.data);
+                axiosPrivate
+                  .post("/jwt", { email })
+                  .then((res) => {
+                    setUser(auth.currentUser);
+                    console.log(res.data);
+                  })
+                  .catch((err) => console.log(err));
+              });
+            })
+            .catch((err) => {
+              console.error(err);
+              setError("Failed to update name.");
+            });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
-          setError("Failed to create account.Please try again later.")
-      })
-    }
-    else {
-      setError("Password must be minimum 6 digit.")
+          setError("Failed to create account.Please try again later.");
+        });
+    } else {
+      setError("Password must be minimum 6 digit.");
     }
   };
   const handleGoogle = () => {
     googleLogin()
-      .then(result => {
-      setUser(result.user)
-    })
-      .catch(err => {
+      .then((result) => {
+        const { email, displayName, phoneNumber, photoURL } = result.user;
+        const user = {
+          email: email,
+          name: displayName,
+          phone: phoneNumber,
+          photo: photoURL,
+        };
+
+        axiosPublic.post("/users", user).then((res) => {
+          console.log(res.data);
+          axiosPrivate
+            .post("/jwt", { email })
+            .then((res) => {
+              console.log(res.data);
+              setUser(result.user);
+            })
+            .catch((err) => console.log(err));
+        });
+      })
+      .catch((err) => {
         console.error(err);
-    })
-  }
+      });
+  };
   console.log(user);
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate("/");
     }
-  },[navigate, user])
+  }, [navigate, user]);
   return (
     <div>
       <form
@@ -68,7 +97,10 @@ const SignUp = () => {
           <h2 className="text-3xl text-center font-bold py-5 bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent w-fit mx-auto">
             Sign Up
           </h2>
-          <button onClick={handleGoogle} className="flex items-center justify-center w-full py-1.5 px-3 border border-[#FA6023] rounded font-medium gap-1">
+          <button
+            onClick={handleGoogle}
+            className="flex items-center justify-center w-full py-1.5 px-3 border border-[#FA6023] rounded font-medium gap-1"
+          >
             <FcGoogle className="text-xl" /> Login with Google
           </button>
           <div className="flex items-center gap-1.5">
@@ -136,7 +168,11 @@ const SignUp = () => {
             placeholder="Confirm Password"
           />
         </div>
-        {error && <p className="text-lg font-medium text-red-500 text-center mt-2">{error}</p>}
+        {error && (
+          <p className="text-lg font-medium text-red-500 text-center mt-2">
+            {error}
+          </p>
+        )}
         <button
           type="submit"
           className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-[#FA6023] to-[#E61C55] my-3 rounded-md"
@@ -145,7 +181,9 @@ const SignUp = () => {
         </button>
         <p className="text-center">
           Already have an account?
-          <Link to={'/login'} className="text-blue-500 font-semibold px-2">Login</Link>
+          <Link to={"/login"} className="text-blue-500 font-semibold px-2">
+            Login
+          </Link>
         </p>
       </form>
     </div>

@@ -2,37 +2,66 @@ import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { useEffect } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Login = () => {
   const { user, setUser, googleLogin, loginUser } = useAuth();
   const navigate = useNavigate();
+  const axiosPrivate = useAxiosPrivate();
+  const axiosPublic = useAxiosPublic();
+
   const handleLogin = (e) => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
     loginUser(email, password)
-      .then(result => {
-        setUser(result.user);
+      .then((result) => {
+        axiosPrivate
+          .post("/jwt", { email })
+          .then((res) => {
+            setUser(result.user);
+            console.log(res.data)
+          })
+          .catch((err) => console.log(err));
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
-    })
+      });
   };
   const handleGoogle = () => {
     googleLogin()
-      .then(result => {
-      setUser(result.user)
-    })
-      .catch(err => {
+      .then((result) => {
+        const { email, displayName, phoneNumber, photoURL } = result.user;
+        const user = {
+          email: email,
+          name: displayName,
+          phone: phoneNumber,
+          photo: photoURL,
+        };
+
+        axiosPublic.post("/users", user).then((res) => {
+          console.log(res.data);
+          axiosPrivate
+            .post("/jwt", { email })
+            .then((res) => {
+              setUser(result.user);
+              console.log(res.data)
+            })
+            .catch((err) => console.log(err));
+        });
+      })
+      .catch((err) => {
         console.error(err);
-    })
-  }
+      });
+  };
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate("/");
     }
-  },[navigate, user])
+  }, [navigate, user]);
+  console.log(user);
   return (
     <div>
       <form
@@ -43,7 +72,10 @@ const Login = () => {
           <h2 className="text-3xl text-center font-bold py-5 bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent w-fit mx-auto">
             Login
           </h2>
-          <button onClick={handleGoogle} className="flex items-center justify-center w-full py-1.5 px-3 border border-[#FA6023] rounded font-medium gap-1">
+          <button
+            onClick={handleGoogle}
+            className="flex items-center justify-center w-full py-1.5 px-3 border border-[#FA6023] rounded font-medium gap-1"
+          >
             <FcGoogle className="text-xl" /> Login with Google
           </button>
           <div className="flex items-center gap-1.5">

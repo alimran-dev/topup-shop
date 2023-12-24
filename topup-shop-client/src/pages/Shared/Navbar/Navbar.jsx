@@ -13,17 +13,21 @@ import { TbCurrencyTaka, TbTableOptions } from "react-icons/tb";
 import { FiEdit } from "react-icons/fi";
 import { LuListTodo } from "react-icons/lu";
 import { FaUsersCog } from "react-icons/fa";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isAdmin = false;
   const { user,setUser,logOut } = useAuth();
   const navigate = useNavigate();
+  const axiosPrivate = useAxiosPrivate();
   console.log(isOpen);
   const handleLogOut = () => {
     logOut()
       .then(() => {
         setUser(null);
+        axiosPrivate.post("/logout")
+        .then(res=>console.log(res.data))
       })
       .catch(err => {
         console.error(err);
