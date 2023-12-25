@@ -17,7 +17,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const isAdmin = false;
+  const isAdmin = true;
   const { user,setUser,logOut } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
