@@ -1,15 +1,19 @@
+import { useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Swal from "sweetalert2";
 
 const AddOptions = () => {
+  const [error, setError] = useState("");
   const axiosPrivate = useAxiosPrivate();
   const handleAdd = (e) => {
     e.preventDefault();
+    setError("");
     const form = e.target;
     const name = form.name.value;
     const price = parseInt(form.price.value) || 0;
+    const uc = parseInt(form.uc.value) || 0;
     const category = form.category.value;
-    const option = { name, price, category };
+    const option = { name, price, category, uc };
     console.log(option);
     axiosPrivate.post(`/addOption/${category}`, option).then((res) => {
       if (res.data.insertedId) {
@@ -22,6 +26,8 @@ const AddOptions = () => {
           toast: true,
         });
         form.reset();
+      } else {
+        setError(res.data.message);
       }
     });
   };
@@ -31,7 +37,7 @@ const AddOptions = () => {
         Add Options
       </h1>
       <form onSubmit={handleAdd} className="space-y-5">
-        <div className="flex flex-col md:flex-row gap-5 md:w-2/3 mx-auto items-center justify-center">
+        <div className="grid md:grid-cols-2 gap-5 md:w-2/3 mx-auto items-center justify-center">
           <div className="space-y-2">
             <label
               htmlFor="name"
@@ -42,6 +48,7 @@ const AddOptions = () => {
             <input
               type="text"
               name="name"
+              required
               className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
               placeholder="Example: 20 UC"
             />
@@ -56,8 +63,24 @@ const AddOptions = () => {
             <input
               type="text"
               name="price"
+              required
               className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
               placeholder="Example: 50"
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="uc"
+              className="block text-xl font-medium text-gray-700"
+            >
+              UC
+            </label>
+            <input
+              type="text"
+              name="uc"
+              required
+              className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+              placeholder="UC"
             />
           </div>
           <div className="space-y-2">
@@ -99,12 +122,15 @@ const AddOptions = () => {
             </select>
           </div>
         </div>
-        <button
-          type="submit"
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
-        >
-          Add
-        </button>
+        <div>
+          <p className="text-center font-medium text-red-500 pb-2">{error}</p>
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+          >
+            Add
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import AddModal from "./AddModal";
 
 const AddCodes = () => {
   const [selected, setSelected] = useState("unipin");
   const [inputs, setInputs] = useState("");
-  const [ucCodesArray, setUcCodesArray] = useState([
+  const [isOpen, setIsOpen] = useState(false);
+  const [codesArray, setCodesArray] = useState([
     { uc: 20, codes: [] },
     { uc: 36, codes: [] },
     { uc: 80, codes: [] },
@@ -16,6 +18,8 @@ const AddCodes = () => {
     { uc: 1626, codes: [] },
     { uc: 2000, codes: [] },
   ]);
+  const textareaRef = useRef(null);
+
   // console.log(ucCodesArray);
   const handleCheck = () => {
     const separatedInputs = inputs
@@ -29,7 +33,7 @@ const AddCodes = () => {
       .filter((message) => /^(BDMB|UPBD)/.test(message));
 
     const uniqueInputs = [...new Set(separatedInputs)];
-    const newCodes = ucCodesArray.map((item) => ({ uc: item.uc, codes: [] }));
+    const newCodes = codesArray.map((item) => ({ uc: item.uc, codes: [] }));
     uniqueInputs.forEach((input) => {
       if (input.startsWith("BDMB-T-S") || input.startsWith("UPBD-Q-S")) {
         newCodes[0].codes.push(input);
@@ -55,18 +59,35 @@ const AddCodes = () => {
         newCodes[10].codes.push(input);
       }
     });
-    setUcCodesArray(newCodes);
+    setCodesArray(newCodes);
     console.log(newCodes);
+    setIsOpen(true);
+  };
+  const resetTextarea = () => {
+    if (textareaRef.current) {
+      textareaRef.current.value = "";
+    }
   };
   return (
     <div className="-mt-5">
+      <AddModal
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        codesArray={codesArray}
+        selected={selected}
+        resetTextarea={resetTextarea}
+        setInputs={setInputs}
+      />
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
         Add Codes
       </h1>
       <div className="space-y-3 py-3">
         <textarea
           onChange={(e) => setInputs(e.target.value)}
+          ref={textareaRef}
           className="border-2 focus:outline-[#FA6023] w-full md:w-2/3 h-40 md:h-60 block mx-auto rounded-md px-3 py-2"
+          placeholder={`BDMB-T-S-00000000 0000-0000-0000-0000
+UPBD-Q-S-00000000 0000-0000-0000-0000`}
         ></textarea>
         <div className="flex items-center justify-center mx-auto">
           <button
