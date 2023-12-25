@@ -55,6 +55,10 @@ const client = new MongoClient(uri, {
 
 const database = client.db("mezbaGamingDB");
 const userCollection = database.collection("users");
+const unipinCollection = database.collection("unipins");
+const idcodeCollection = database.collection("idcodes");
+const weeklyMonthlyCollection = database.collection("weeklyMonthly");
+const shellCollection = database.collection("shells");
 
 async function run() {
   try {
@@ -97,6 +101,29 @@ async function run() {
     })
 
 
+    // option and code admin api
+    app.post('/addOption/:category', async (req, res) => {
+      const category = req.params.category;
+      const { name, price } = req.body;
+      const option = { name, price, codes: [] };
+      let result;
+      if (category === "unipin") {
+        result = await unipinCollection.insertOne(option);
+      }
+      else if (category === "idcode") {
+        result = await idcodeCollection.insertOne(option);
+      }
+      else if (category === "weekly") {
+        result = await weeklyMonthlyCollection.insertOne(option);
+      }
+      else if (category === "shell") {
+        result = await shellCollection.insertOne(option);
+      }
+      else {
+        return res.send({ message: "category not matched" });
+      }
+      res.send(result);
+    })
 
 
     await client.db("admin").command({ ping: 1 });
