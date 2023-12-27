@@ -7,7 +7,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const SignUp = () => {
   const [error, setError] = useState("");
-  const { user, setUser, signUp, updateUser, googleLogin, auth } = useAuth();
+  const { user, setUser, signUp, updateUser, googleLogin } = useAuth();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
@@ -36,7 +36,10 @@ const SignUp = () => {
                 axiosPrivate
                   .post("/jwt", { email })
                   .then((res) => {
-                    setUser(auth.currentUser);
+                    axiosPrivate.get("/user").then((res) => {
+                      setUser(res.data);
+                      console.log(res.data);
+                    });
                     console.log(res.data);
                   })
                   .catch((err) => console.log(err));
@@ -72,7 +75,10 @@ const SignUp = () => {
             .post("/jwt", { email })
             .then((res) => {
               console.log(res.data);
-              setUser(result.user);
+              axiosPrivate.get("/user").then((res) => {
+                setUser(res.data);
+                console.log(res.data);
+              });
             })
             .catch((err) => console.log(err));
         });

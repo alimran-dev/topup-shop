@@ -20,14 +20,19 @@ app.use(cookieParser());
 
 // custom middleware
 const verifyToken = async (req, res, next) => {
-  const token = req.cookies?.token;
+  const {"access-token":token} = req.cookies;
+  console.log(token);
   if (!token) {
     return res.status(401).send({ message: "not authorized" });
   }
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
-      return res.status(401).send({ message: "unauthorized" });
+      return res.clearCookie("access-token", {
+        maxAge: 0,
+        secure: true,
+        sameSite: "none",
+      }).status(401).send({ message: "unauthorized000" });
     }
     req.user = decoded;
     next();
@@ -85,6 +90,12 @@ async function run() {
     });
 
     // user related api
+    app.get("/user",verifyToken, async (req, res) => {
+      const email = req.user.email;
+      const filter = { email };
+      const result = await userCollection.findOne(filter);
+      res.send(result)
+    })
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
@@ -107,6 +118,30 @@ async function run() {
     });
 
     // option and code admin api
+    app.get("/options", async (req, res) => {
+      const { category } = req.query;
+      console.log(category);
+      const filterOption = {
+        sort: { uc: 1 },
+        projection: {
+          name: 1,
+          price: 1,
+          uc: 1,
+          stock: {
+            $cond: {
+              if: { $lt: [{ $size: "$codes" }, 10] },
+              then: { $size: "$codes" },
+              else: null,
+            },
+          },
+        },
+      };
+      let result;
+      if (category === "unipin") {
+        result = await unipinCollection.find({},filterOption).toArray();
+      }
+      res.send(result);
+    });
     app.post("/addOption/:category", async (req, res) => {
       const category = req.params.category;
       const { name, price, uc } = req.body;

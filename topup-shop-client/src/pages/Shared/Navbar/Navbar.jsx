@@ -2,7 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "../../../assets/topup-logo-crop.png";
 import "./Navbar.css";
 import useAuth from "../../../hooks/useAuth";
-import avater from "../../../assets/images/avater.png";
+import avatar from "../../../assets/images/avater.png";
 import { useState } from "react";
 import { VscAccount } from "react-icons/vsc";
 import { TfiMenuAlt } from "react-icons/tfi";
@@ -17,7 +17,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const isAdmin = true;
+  const isAdmin = false;
   const { user,setUser,logOut } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
@@ -83,13 +83,13 @@ const Navbar = () => {
               {isAdmin || (
                 <span className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-3 text-lg text-white font-semibold rounded flex items-center">
                   {" "}
-                  0 <TbCurrencyTaka />
+                  {user?.balance || 0} <TbCurrencyTaka />
                 </span>
               )}
 
               <img
                 onClick={() => setIsOpen(!isOpen)}
-                src={avater}
+                src={user?.photo || avatar}
                 alt=""
                 className="w-12 h-12 bg-slate-400 rounded-full cursor-pointer"
               />
@@ -103,15 +103,15 @@ const Navbar = () => {
                 <div className="w-64 md:w-72 bg-white overflow-y-scroll pb-10">
                   <div className="flex items-center gap-2 p-3">
                     <img
-                      src={avater}
+                      src={user?.photo || avatar}
                       alt=""
                       className="w-14 h-14 rounded-md bg-slate-400"
                     />
                     <div className="flex-1">
                       <p className="text-lg font-bold text-gray-800">
-                        Al Imran
+                        {user?.name}
                       </p>
-                      <p className="font-medium">alimran@gmail.com</p>
+                      <p className="font-medium overflow-hidden">{ user?.email }</p>
                     </div>
                   </div>
                   <button onClick={handleLogOut} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto ">

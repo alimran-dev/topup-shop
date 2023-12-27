@@ -1,16 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import unipin from "../../assets/images/unipin.jpg";
 import {
+  TbCurrencyTaka,
   TbSquareRoundedNumber1Filled,
   TbSquareRoundedNumber2Filled,
 } from "react-icons/tb";
 import { FaMinus, FaPlus } from "react-icons/fa";
+import { IoInformationCircleOutline } from "react-icons/io5";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import CategoryOption from "../../components/CategoryOption";
+import Loader from "../../components/Loader";
+import useAuth from "../../hooks/useAuth";
+import { Link, useLocation } from "react-router-dom";
 
 const Unipin = () => {
-  const [selected, setSelected] = useState(true);
+  const [selected, setSelected] = useState({ _id: "", price: 0 });
   const [quantity, setQuantity] = useState(1);
+  const [options, setOptions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [price, setPrice] = useState(0);
+  const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    axiosPublic.get(`/options?category=unipin`).then((res) => {
+      console.log(res.data);
+      setOptions(res.data);
+      setIsLoading(false);
+    });
+    setPrice(selected.price * quantity);
+  }, [axiosPublic, quantity, selected.price]);
   return (
     <div className="space-y-5">
+      <Loader isLoading={isLoading} />
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img
           src={unipin}
@@ -31,49 +54,14 @@ const Unipin = () => {
             Category
           </h1>
           <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
-            <div
-              className={`flex items-center gap-3 py-2 px-3 rounded ${
-                selected
-                  ? "border-2 border-[#FA6023]"
-                  : "border-2 border-gray-400"
-              }`}
-            >
-              <span
-                className={`border-[5px] rounded-full p-0.5 ${
-                  selected ? "border-[#FA6023]" : ""
-                }`}
-              ></span>
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
-            <div className="flex items-center gap-3 border border-gray-400 py-2 px-5 rounded">
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
-            <div className="flex items-center gap-3 border border-gray-400 py-2 px-5 rounded">
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
-            <div className="flex items-center gap-3 border border-gray-400 py-2 px-5 rounded">
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
-            <div className="flex items-center gap-3 border border-gray-400 py-2 px-5 rounded">
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
-            <div className="flex items-center gap-3 border border-gray-400 py-2 px-5 rounded">
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
-            <div className="flex items-center gap-3 border border-gray-400 py-2 px-5 rounded">
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
-            <div className="flex items-center gap-3 border border-gray-400 py-2 px-5 rounded">
-              <span className="font-bold flex-1 text-gray-500">20 UC</span>
-              <span className="text-[#FA6023] font-bold">17 TK</span>
-            </div>
+            {options?.map((option) => (
+              <CategoryOption
+                option={option}
+                selected={selected}
+                setSelected={setSelected}
+                key={option._id}
+              />
+            ))}
           </div>
         </div>
         <div>
@@ -101,8 +89,39 @@ const Unipin = () => {
               </span>
             </div>
           </div>
-          <div>
-            
+          <div className="border-2 rounded mt-3">
+            <h2 className="text-xl text-center font-semibold border-b-2 py-2">
+              Summary
+            </h2>
+            <div className="px-5 py-4 space-y-3">
+              {user && (
+                <p className="text-sm flex gap-1">
+                  <IoInformationCircleOutline className="text-lg" />
+                  আপনার ব্যালেন্সঃ{" "}
+                  <span className="flex items-center font-semibold text-red-600">
+                    <TbCurrencyTaka />
+                    {user?.balance}
+                  </span>
+                </p>
+              )}
+              <p className="text-sm flex gap-1">
+                <IoInformationCircleOutline className="text-lg" />
+                প্রোডাক্টের মোট মূল্যঃ
+                <span className="flex items-center font-semibold text-red-600">
+                  <TbCurrencyTaka />
+                  {price}
+                </span>
+              </p>
+              {user ? (
+                <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white">
+                  Purchase
+                </button>
+              ) : (
+                <Link to={'/login'} state={location.pathname} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white">
+                  Login
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>

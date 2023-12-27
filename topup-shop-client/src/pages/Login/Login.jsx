@@ -1,36 +1,55 @@
 import { FcGoogle } from "react-icons/fc";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
+import Loader from "../../components/Loader";
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const { user, setUser, googleLogin, loginUser } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const axiosPublic = useAxiosPublic();
+  const location = useLocation();
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
     loginUser(email, password)
-      .then((result) => {
+      .then(() => {
         axiosPrivate
           .post("/jwt", { email })
           .then((res) => {
-            setUser(result.user);
+            axiosPrivate.get("/user")
+                .then(res => {
+                  setUser(res.data);
+                  setIsLoading(false);
+                  console.log(res.data);
+              })
             console.log(res.data)
           })
-          .catch((err) => console.log(err));
+          .catch((err) => {
+            setError("Server Error. Try later.");
+            setIsLoading(false);
+            console.error(err);
+          });
       })
       .catch((err) => {
         console.error(err);
+        setError("Wrong email or password.");
+        setIsLoading(false);
       });
   };
   const handleGoogle = () => {
+    setError("");
+    setIsLoading(true);
     googleLogin()
       .then((result) => {
         const { email, displayName, phoneNumber, photoURL } = result.user;
@@ -46,24 +65,36 @@ const Login = () => {
           axiosPrivate
             .post("/jwt", { email })
             .then((res) => {
-              setUser(result.user);
-              console.log(res.data)
+              axiosPrivate.get("/user")
+                .then(res => {
+                  setUser(res.data);
+                  console.log(res.data);
+                  setIsLoading(false);
+              })
+              console.log(res.data);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              console.error(err);
+              setIsLoading(false);
+              setError("Authentication failed")
+            });
         });
       })
       .catch((err) => {
         console.error(err);
+        setError("Authentication failed.");
+        setIsLoading(false);
       });
   };
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate(`${location.state || "/"}`);
     }
-  }, [navigate, user]);
+  }, [location.state, navigate, user]);
   console.log(user);
   return (
     <div>
+      <Loader isLoading={isLoading} />
       <form
         onSubmit={handleLogin}
         className="w-full md:w-96 border block mx-auto px-5 pb-5 shadow-md"
@@ -108,6 +139,11 @@ const Login = () => {
             placeholder="Password"
           />
         </div>
+        {error && (
+          <p className="text-lg font-medium text-red-500 text-center mt-2">
+            {error}
+          </p>
+        )}
         <button
           type="submit"
           className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-[#FA6023] to-[#E61C55] my-3 rounded-md"
@@ -116,7 +152,7 @@ const Login = () => {
         </button>
         <p className="text-center">
           Don&apos;t have an account?
-          <Link to={"/signup"} className="text-blue-500 font-semibold px-2">
+          <Link state={location.state} to={"/signup"} className="text-blue-500 font-semibold px-2">
             Sign Up
           </Link>
         </p>

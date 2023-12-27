@@ -4,7 +4,6 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   getAuth,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -12,6 +11,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import app from "../firebase/firebase.config";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 export const AuthContext = createContext(null);
 const auth = getAuth(app);
@@ -19,6 +19,7 @@ const googleProvider = new GoogleAuthProvider();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
+  const axiosPrivate = useAxiosPrivate();
 
   const signUp = (email, password) => {
     setLoading(true);
@@ -41,18 +42,19 @@ const AuthProvider = ({ children }) => {
   const logOut = () => {
     setLoading(true);
     return signOut(auth);
-    };
-    useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setUser(auth.currentUser);
-                setLoading(false);
-            }
-            else {
-                setLoading(false);
-            }
-        })
-    },[])
+  };
+  useEffect(() => {
+    axiosPrivate.get("/user")
+      .then(res => {
+      console.log(res.data);
+        setUser(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+    })
+  }, [axiosPrivate]);
 
   const AuthInfo = {
     user,
@@ -63,7 +65,7 @@ const AuthProvider = ({ children }) => {
     updateUser,
     updatePass,
     googleLogin,
-      logOut,
+    logOut,
     auth,
   };
   return (

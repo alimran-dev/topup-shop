@@ -5,21 +5,23 @@ import { HiOutlineInformationCircle } from "react-icons/hi";
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 import { useState } from "react";
+import useAuth from "../../hooks/useAuth";
 
 const MyAccount = () => {
   const [eye, setEye] = useState(true);
   const [eye2, setEye2] = useState(true);
   const [eye3, setEye3] = useState(true);
+  const { user } = useAuth();
   return (
     <div>
       <div className="w-fit mx-auto space-y-2 flex flex-col items-center justify-center">
         <img
-          src={avater}
+          src={user?.photo || avater}
           alt=""
           className="w-28 h-28 gradient-border rounded-full bg-slate-400"
         />
         <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
-          Al Imran
+          {user?.name}
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 my-8">
@@ -28,7 +30,7 @@ const MyAccount = () => {
             Balance
           </p>
           <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-            100
+            {user?.balance || 0}
             <TbCurrencyTaka className="text-[#FA6023]" />
           </p>
         </div>
@@ -37,7 +39,7 @@ const MyAccount = () => {
             Total Spent
           </p>
           <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-            100
+            {user?.spent || 0 }
             <TbCurrencyTaka className="text-[#FA6023]" />
           </p>
         </div>
@@ -46,7 +48,7 @@ const MyAccount = () => {
             Total Orders
           </p>
           <p className="text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-            100
+            {user?.orders || 0}
           </p>
         </div>
       </div>
@@ -57,13 +59,13 @@ const MyAccount = () => {
         </h2>
         <div className="px-8 py-5 space-y-2">
           <p>
-            <span className="font-semibold">Name: </span>Al Imran
+            <span className="font-semibold">Name: </span>{user?.name}
           </p>
           <p>
-            <span className="font-semibold">Email: </span>alimran@gmail.com
+            <span className="font-semibold">Email: </span>{user?.email}
           </p>
           <p>
-            <span className="font-semibold">Phone: </span>01234567891
+            <span className="font-semibold">Phone: </span>{user?.phone || "017XXXXXXXX"}
           </p>
         </div>
       </div>
@@ -81,28 +83,31 @@ const MyAccount = () => {
               <input
                 type="text"
                 name="name"
+                defaultValue={user?.name}
                 className="block border border-gray-500 px-3 py-2 rounded-md w-full font-medium"
                 placeholder="Your Name"
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="name" className="block text-lg font-semibold">
+              <label htmlFor="email" className="block text-lg font-semibold">
                 Email:
               </label>
               <input
                 type="text"
-                name="name"
+                name="email"
+                defaultValue={user?.email}
                 className="block border border-gray-500 px-3 py-2 rounded-md w-full font-medium"
                 placeholder="Your Email"
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="name" className="block text-lg font-semibold">
+              <label htmlFor="phone" className="block text-lg font-semibold">
                 Phone:
               </label>
               <input
                 type="text"
-                name="name"
+                name="phone"
+                defaultValue={user?.phone}
                 className="block border border-gray-500 px-3 py-2 rounded-md w-full font-medium"
                 placeholder="Your Phone"
               />
