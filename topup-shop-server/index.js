@@ -3,7 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,19 +20,21 @@ app.use(cookieParser());
 
 // custom middleware
 const verifyToken = async (req, res, next) => {
-  const {"access-token":token} = req.cookies;
-  console.log(token);
+  const { "access-token": token } = req.cookies;
   if (!token) {
     return res.status(401).send({ message: "not authorized" });
   }
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
-      return res.clearCookie("access-token", {
-        maxAge: 0,
-        secure: true,
-        sameSite: "none",
-      }).status(401).send({ message: "unauthorized000" });
+      return res
+        .clearCookie("access-token", {
+          maxAge: 0,
+          secure: true,
+          sameSite: "none",
+        })
+        .status(401)
+        .send({ message: "unauthorized" });
     }
     req.user = decoded;
     next();
@@ -56,6 +58,7 @@ const client = new MongoClient(uri, {
 
 const database = client.db("mezbaGamingDB");
 const userCollection = database.collection("users");
+const orderCollection = database.collection("orders");
 const unipinCollection = database.collection("unipins");
 const idcodeCollection = database.collection("idcodes");
 const weeklyMonthlyCollection = database.collection("weeklyMonthly");
@@ -90,12 +93,12 @@ async function run() {
     });
 
     // user related api
-    app.get("/user",verifyToken, async (req, res) => {
+    app.get("/user", verifyToken, async (req, res) => {
       const email = req.user.email;
       const filter = { email };
       const result = await userCollection.findOne(filter);
-      res.send(result)
-    })
+      res.send(result);
+    });
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
@@ -115,6 +118,92 @@ async function run() {
       console.log(newUser);
       const result = await userCollection.insertOne(newUser);
       res.send(result);
+    });
+
+    // order related api
+    app.get("/orders", verifyToken, async (req, res) => {
+      const { email, page, limit } = req.query;
+      const pageInt = parseInt(page);
+      const limitInt = parseInt(limit);
+      console.log({ email, pageInt, limitInt });
+      const emailDecoded = req.user?.email;
+      if (email !== emailDecoded) {
+        return res.status(401).send({ error: "unauthorized" });
+      }
+      const totalOrders = await orderCollection.countDocuments({ email: email });
+      const result = await orderCollection.find({ email: email },{sort: {updateTime: -1}}).skip((pageInt-1)*limitInt).limit(parseInt(limitInt)).toArray();
+      res.send({orders: result,total: totalOrders});
+    })
+    app.post("/purchase/unipin", verifyToken, async (req, res) => {
+      const { id, email, quantity } = req.body;
+      const orderTime = new Date();
+      // const email = req.query?.email;
+      // const id = req.query?.id;
+      // const quantity = req.query?.quantity;
+      if (!id || !email || !quantity) {
+        return res.status(400).send({ error: "Item not found" });
+      }
+      const emailInToken = req.user?.email;
+      if (email !== emailInToken) {
+        return res
+          .clearCookie("access-token", {
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+          })
+          .status(401)
+          .send({ message: "unauthorized" });
+      }
+      const filter = { _id: new ObjectId(id) };
+      const option = await unipinCollection.findOne(filter);
+      if (!option) {
+        return res.status(404).send({ error: "Item not Found" });
+      } else if (quantity > option.codes.length) {
+        return res
+          .status(400)
+          .send({ error: "Requested quantity exceeds available codes" });
+      }
+      const orderPrice = option.price * quantity;
+      const user = await userCollection.findOne({ email: email });
+      if (!user) {
+        return res.status(401).send({ error: "User Not Found" });
+      } else if (user.balance < orderPrice) {
+        return res.status(400).send({ error: "You don't have enough balance" });
+      }
+      const userUpdate = await userCollection.updateOne(
+        { email: email },
+        {
+          $set: {
+            balance: user.balance - orderPrice,
+            spent: user.spent + orderPrice,
+            orders: user.orders + 1,
+          },
+        }
+      );
+
+      if (userUpdate.modifiedCount > 0) {
+        const takenCodes = option.codes.slice(0, quantity);
+        await unipinCollection.updateOne(filter, {
+          $pull: { codes: { $in: takenCodes } },
+        });
+        const ordersCount = await orderCollection.countDocuments();
+        const order = {
+          optionID: new ObjectId(id),
+          orderID: ordersCount + 1000,
+          email: email,
+          category: "unipin",
+          name: `${option.name} (${quantity} codes)`,
+          price: orderPrice,
+          orderTime: orderTime,
+          updateTime: new Date(),
+          codes: takenCodes,
+          status: "complete",
+          feedback: "",
+        };
+        console.log(order);
+        const result = await orderCollection.insertOne(order);
+        res.status(201).send({orderID:result.insertedId,price:orderPrice});
+      }
     });
 
     // option and code admin api
@@ -138,7 +227,7 @@ async function run() {
       };
       let result;
       if (category === "unipin") {
-        result = await unipinCollection.find({},filterOption).toArray();
+        result = await unipinCollection.find({}, filterOption).toArray();
       }
       res.send(result);
     });

@@ -11,7 +11,8 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import CategoryOption from "../../components/CategoryOption";
 import Loader from "../../components/Loader";
 import useAuth from "../../hooks/useAuth";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const Unipin = () => {
   const [selected, setSelected] = useState({ _id: "", price: 0 });
@@ -19,10 +20,35 @@ const Unipin = () => {
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [price, setPrice] = useState(0);
+  const [error, setError] = useState("");
   const axiosPublic = useAxiosPublic();
-  const { user } = useAuth();
+  const axiosPrivate = useAxiosPrivate();
+  const { user,setUser } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
+  const handlePurchase = () => {
+    setError("");
+    setIsLoading(true);
+    if (!selected._id || !selected.price || !quantity) {
+      setError("Please select option and quantity");
+      setIsLoading(false)
+      return;
+    }
+    const order = { id: selected._id, email: user?.email, quantity };
+    axiosPrivate
+      .post("/purchase/unipin", order)
+      .then((res) => {
+        console.log(res.data);
+        setIsLoading(false);
+        setUser({ ...user, balance: user?.balance - res.data?.price, orders: user?.orders + 1, spent: user?.spent + price });
+        navigate('/myOrders');
+      })
+      .catch((err) => {
+        setError(err.response.data.error);
+        setIsLoading(false)
+      });
+  };
   useEffect(() => {
     axiosPublic.get(`/options?category=unipin`).then((res) => {
       console.log(res.data);
@@ -32,7 +58,7 @@ const Unipin = () => {
     setPrice(selected.price * quantity);
   }, [axiosPublic, quantity, selected.price]);
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-5">
       <Loader isLoading={isLoading} />
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img
@@ -95,14 +121,16 @@ const Unipin = () => {
             </h2>
             <div className="px-5 py-4 space-y-3">
               {user && (
-                <p className="text-sm flex gap-1">
-                  <IoInformationCircleOutline className="text-lg" />
-                  আপনার ব্যালেন্সঃ{" "}
-                  <span className="flex items-center font-semibold text-red-600">
-                    <TbCurrencyTaka />
-                    {user?.balance}
-                  </span>
-                </p>
+                <>
+                  <p className="text-sm flex gap-1">
+                    <IoInformationCircleOutline className="text-lg" />
+                    আপনার ব্যালেন্সঃ{" "}
+                    <span className="flex items-center font-semibold text-red-600">
+                      <TbCurrencyTaka />
+                      {user?.balance}
+                    </span>
+                  </p>
+                </>
               )}
               <p className="text-sm flex gap-1">
                 <IoInformationCircleOutline className="text-lg" />
@@ -112,12 +140,36 @@ const Unipin = () => {
                   {price}
                 </span>
               </p>
+              {user && (
+                <>
+                  <p className="text-sm flex gap-1">
+                    <IoInformationCircleOutline className="text-lg" />
+                    আপনার অবশিষ্ট ব্যালেন্সঃ{" "}
+                    <span className="flex items-center font-semibold text-red-600">
+                      <TbCurrencyTaka />
+                      {user?.balance - price}
+                    </span>
+                  </p>
+                </>
+              )}
+              {error && (
+                <p className="text-xl font-semibold text-red-500 text-center">
+                  {error}
+                </p>
+              )}
               {user ? (
-                <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white">
+                <button
+                  onClick={handlePurchase}
+                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                >
                   Purchase
                 </button>
               ) : (
-                <Link to={'/login'} state={location.pathname} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white">
+                <Link
+                  to={"/login"}
+                  state={location.pathname}
+                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                >
                   Login
                 </Link>
               )}

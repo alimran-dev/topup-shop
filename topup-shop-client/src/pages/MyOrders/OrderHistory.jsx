@@ -1,22 +1,124 @@
-const OrderHistory = () => {
-    return (
-        <div>
-            <table className="w-full">
-                <thead>
-                    <tr>
-                        <th className="border py-2">#</th>
-                        <th className="border py-2">Category</th>
-                        <th className="border py-2">Package</th>
-                        <th className="border py-2">Price</th>
-                        <th className="border py-2">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
+import { useRef } from "react";
+import { TbCurrencyTaka } from "react-icons/tb";
+import Swal from "sweetalert2";
+import { MdContentCopy } from "react-icons/md";
+import PropTypes from "prop-types";
 
-                </tbody>
-            </table>
+const OrderHistory = ({ order }) => {
+  const codesRef = useRef(null);
+  const {
+    orderID,
+    category,
+    name,
+    price,
+    status,
+    orderTime,
+    updateTime,
+    codes,
+    feedback,
+  } = order || {};
+  const handleCopy = async () => {
+    if (codesRef.current) {
+      try {
+        await navigator.clipboard.writeText(codesRef.current.value);
+        Swal.fire({
+          title: "Text Copied",
+          icon: "success",
+          toast: true,
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top",
+        });
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          title: "Failed to Copy",
+          icon: "error",
+          toast: true,
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top",
+        });
+      }
+    }
+  };
+  const orderTimeDate = new Date(orderTime);
+  const updateTimeDate = new Date(updateTime);
+  return (
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-between px-4 py-5 border-2 rounded">
+        <div className="w-full">
+          <p className="">
+            <span className="font-bold">Order ID: </span>
+            {orderID}
+          </p>
+          <p className="capitalize">
+            <span className="font-bold">Category: </span>
+            {category}
+          </p>
+          <p className="">
+            <span className="font-bold">Package: </span>
+            {name}
+          </p>
+          <p className="flex items-center">
+            <span className="font-bold pr-1">Price:</span> {price}{" "}
+            <TbCurrencyTaka />
+          </p>
         </div>
-    );
+        <div className="w-full">
+          <p className="capitalize">
+            <span className="font-bold">Status:</span>{" "}
+            <span
+              className={`font-bold ${
+                status === "complete"
+                  ? "text-green-800"
+                  : status === "pending"
+                  ? "text-yellow-500"
+                  : status === "cancel"
+                  ? "text-red-500"
+                  : ""
+              }`}
+            >
+              {status}
+            </span>
+          </p>
+          <p>
+            <span className="font-bold">Order Time: </span>
+            {orderTimeDate?.toLocaleDateString()} (
+            {orderTimeDate?.toLocaleTimeString()})
+          </p>
+          <p>
+            <span className="font-bold">Update Time: </span>
+            {updateTimeDate?.toLocaleDateString()} (
+            {updateTimeDate?.toLocaleTimeString()})
+          </p>
+        </div>
+        <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
+          {category === "unipin" &&  (
+            <div>
+              <textarea
+                ref={codesRef}
+                disabled
+                value={codes.join("\n")}
+                name=""
+                className="border-2 h-24 w-full rounded px-2 py-0.5"
+              ></textarea>
+              <button
+                onClick={handleCopy}
+                className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
+              >
+                <MdContentCopy className="inline-block" /> Copy All
+              </button>
+            </div>
+                  )}
+                  
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default OrderHistory;
+OrderHistory.propTypes = {
+  order: PropTypes.object.isRequired,
+};
