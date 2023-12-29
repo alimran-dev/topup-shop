@@ -74,7 +74,7 @@ const OrderHistory = ({ order }) => {
                   ? "text-green-800"
                   : status === "pending"
                   ? "text-yellow-500"
-                  : status === "cancel"
+                  : status === "cancelled"
                   ? "text-red-500"
                   : ""
               }`}
@@ -94,7 +94,7 @@ const OrderHistory = ({ order }) => {
           </p>
         </div>
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" &&  (
+          {category === "unipin" && (
             <div>
               <textarea
                 ref={codesRef}
@@ -110,8 +110,27 @@ const OrderHistory = ({ order }) => {
                 <MdContentCopy className="inline-block" /> Copy All
               </button>
             </div>
-                  )}
-                  
+          )}
+          {category === "idcode" || category === "weekly & monthly" ? (
+            status === "pending" ? (
+              <div className="flex items-center justify-center h-full w-full">
+                <p className="text-xl font-semibold text-center">
+                  অনুগ্রহপূর্বক অপেক্ষা করুন
+                </p>
+              </div>
+            ) : status === "cancelled" ? (
+              <div className="h-full w-full">
+                <p className="text-center font-semibold">
+                  অর্ডার বাতিল হওয়ার কারনঃ
+                </p>
+                <p className="text-center">{feedback}</p>
+              </div>
+            ) : (
+              ""
+            )
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </div>

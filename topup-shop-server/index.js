@@ -45,7 +45,8 @@ app.get("/", (req, res) => {
   res.send("game shop server is running");
 });
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tklaef2.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tklaef2.mongodb.net/?retryWrites=true&w=majority`;
+const uri = "mongodb://127.0.0.1:27017/";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -119,6 +120,28 @@ async function run() {
       const result = await userCollection.insertOne(newUser);
       res.send(result);
     });
+    app.patch("/updateUser", verifyToken, async (req, res) => {
+      const { name, email, phone, photo } = req.body;
+      const emailDecoded = req.user?.email;
+      if (email !== emailDecoded) {
+        return res.status(401).send({ error: "Unauthorized" });
+      }
+      const updateUser = {
+        $set: {
+          name: name,
+          phone: phone,
+          photo: photo,
+        }
+      }
+      const isUpdated = await userCollection.updateOne({ email: email }, updateUser);
+      if (isUpdated.modifiedCount > 0) {
+        const user = await userCollection.findOne({ email: email });
+        res.send(user);
+      }
+      else {
+        res.status(501).send({error: "Internal server Error"})
+      }
+    })
 
     // order related api
     app.get("/orders", verifyToken, async (req, res) => {
@@ -130,10 +153,16 @@ async function run() {
       if (email !== emailDecoded) {
         return res.status(401).send({ error: "unauthorized" });
       }
-      const totalOrders = await orderCollection.countDocuments({ email: email });
-      const result = await orderCollection.find({ email: email },{sort: {updateTime: -1}}).skip((pageInt-1)*limitInt).limit(parseInt(limitInt)).toArray();
-      res.send({orders: result,total: totalOrders});
-    })
+      const totalOrders = await orderCollection.countDocuments({
+        email: email,
+      });
+      const result = await orderCollection
+        .find({ email: email }, { sort: { updateTime: -1 } })
+        .skip((pageInt - 1) * limitInt)
+        .limit(parseInt(limitInt))
+        .toArray();
+      res.send({ orders: result, total: totalOrders });
+    });
     app.post("/purchase/unipin", verifyToken, async (req, res) => {
       const { id, email, quantity } = req.body;
       const orderTime = new Date();
@@ -202,7 +231,123 @@ async function run() {
         };
         console.log(order);
         const result = await orderCollection.insertOne(order);
-        res.status(201).send({orderID:result.insertedId,price:orderPrice});
+        res.status(201).send({ orderID: result.insertedId, price: orderPrice });
+      }
+    });
+    app.post("/purchase/idcode", verifyToken, async (req, res) => {
+      const { id, email, uid } = req.body;
+      const orderTime = new Date();
+      if (!id || !email || !uid) {
+        return res.status(400).send({ error: "Item Not Found" });
+      }
+      const emailInToken = req.user?.email;
+      if (email !== emailInToken) {
+        return res
+          .clearCookie("access-token", {
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+          })
+          .status(401)
+          .send({ message: "unauthorized" });
+      }
+      const filter = { _id: new ObjectId(id) };
+      const option = await idcodeCollection.findOne(filter);
+      if (!option) {
+        return res.status(400).send({ error: "Item Not Found" });
+      }
+      const orderPrice = option.price;
+      const user = await userCollection.findOne({ email: email });
+      if (!user) {
+        return res.status(401).send({ error: "User Not Found" });
+      } else if (user.balance < orderPrice) {
+        return res.status(400).send({ error: "You don't have enough balance" });
+      }
+      const userUpdate = await userCollection.updateOne(
+        { email: email },
+        {
+          $set: {
+            balance: user.balance - orderPrice,
+            spent: user.spent + orderPrice,
+            orders: user.orders + 1,
+          },
+        }
+      );
+      if (userUpdate.modifiedCount > 0) {
+        const ordersCount = await orderCollection.countDocuments();
+        const order = {
+          optionID: new ObjectId(id),
+          orderID: ordersCount + 1000,
+          email: email,
+          category: "idcode",
+          name: `${option.name} (UID: ${uid})`,
+          price: orderPrice,
+          orderTime: orderTime,
+          updateTime: new Date(),
+          status: "pending",
+          feedback: "",
+        };
+        console.log(order);
+        const result = await orderCollection.insertOne(order);
+        res.status(201).send({ orderID: result.insertedId, price: orderPrice });
+      }
+    });
+    app.post("/purchase/weekly", verifyToken, async (req, res) => {
+      const { id, email, uid } = req.body;
+      const orderTime = new Date();
+      if (!id || !email || !uid) {
+        return res.status(400).send({ error: "Item Not Found" });
+      }
+      const emailInToken = req.user?.email;
+      if (email !== emailInToken) {
+        return res
+          .clearCookie("access-token", {
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+          })
+          .status(401)
+          .send({ message: "unauthorized" });
+      }
+      const filter = { _id: new ObjectId(id) };
+      const option = await weeklyMonthlyCollection.findOne(filter);
+      if (!option) {
+        return res.status(400).send({ error: "Item Not Found" });
+      }
+      const orderPrice = option.price;
+      const user = await userCollection.findOne({ email: email });
+      if (!user) {
+        return res.status(401).send({ error: "User Not Found" });
+      } else if (user.balance < orderPrice) {
+        return res.status(400).send({ error: "You don't have enough balance" });
+      }
+      const userUpdate = await userCollection.updateOne(
+        { email: email },
+        {
+          $set: {
+            balance: user.balance - orderPrice,
+            spent: user.spent + orderPrice,
+            orders: user.orders + 1,
+          },
+        }
+      );
+      if (userUpdate.modifiedCount > 0) {
+        const ordersCount = await orderCollection.countDocuments();
+        const order = {
+          optionID: new ObjectId(id),
+          orderID: ordersCount + 1000,
+          email: email,
+          category: "weekly & monthly",
+          name: `${option.name} (UID: ${uid})`,
+          price: orderPrice,
+          orderTime: orderTime,
+          updateTime: new Date(),
+          status: "pending",
+          feedback: "",
+        };
+        console.log(order);
+        const result = await orderCollection.insertOne(order);
+        res.status(201).send({ orderID: result.insertedId, price: orderPrice });
       }
     });
 
@@ -216,11 +361,23 @@ async function run() {
           name: 1,
           price: 1,
           uc: 1,
+          category: 1,
           stock: {
             $cond: {
-              if: { $lt: [{ $size: "$codes" }, 10] },
-              then: { $size: "$codes" },
-              else: null,
+              if: {
+                $or: [
+                  { $eq: ["$category", "idcode"] },
+                  { $eq: ["$category", "weekly"] },
+                ],
+              },
+              then: "$stock",
+              else: {
+                $cond: {
+                  if: { $lt: [{ $size: "$codes" }, 10] },
+                  then: { $size: "$codes" },
+                  else: null,
+                },
+              },
             },
           },
         },
@@ -228,13 +385,22 @@ async function run() {
       let result;
       if (category === "unipin") {
         result = await unipinCollection.find({}, filterOption).toArray();
+      } else if (category === "idcode") {
+        result = await idcodeCollection.find({}, filterOption).toArray();
+      } else if (category === "weekly") {
+        result = await weeklyMonthlyCollection.find({}, filterOption).toArray();
+      } else if (category === "shell") {
+        result = await shellCollection.find({}, filterOption).toArray();
+      } else {
+        return res.status(400).send({ error: "Bad Request" });
       }
       res.send(result);
     });
     app.post("/addOption/:category", async (req, res) => {
       const category = req.params.category;
       const { name, price, uc } = req.body;
-      const option = { name, price, uc, codes: [] };
+      const option = { category, name, price, uc, codes: [] };
+      const optionManual = { category, name, price, uc, stock: true };
       let result;
       if (category === "unipin") {
         const isAvailable = await unipinCollection.findOne({ uc: uc });
@@ -248,14 +414,14 @@ async function run() {
         if (isAvailable) {
           return res.send({ message: "Option available for this UC." });
         } else {
-          result = await idcodeCollection.insertOne(option);
+          result = await idcodeCollection.insertOne(optionManual);
         }
       } else if (category === "weekly") {
         const isAvailable = await weeklyMonthlyCollection.findOne({ uc: uc });
         if (isAvailable) {
           return res.send({ message: "Option available for this UC." });
         } else {
-          result = await weeklyMonthlyCollection.insertOne(option);
+          result = await weeklyMonthlyCollection.insertOne(optionManual);
         }
       } else if (category === "shell") {
         const isAvailable = await shellCollection.findOne({ uc: uc });
