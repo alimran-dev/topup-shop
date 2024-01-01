@@ -449,6 +449,40 @@ async function run() {
       res.send({ message: "Updated successfully" });
     });
 
+    // TODO: jwt middleware verify 
+    // order related admin api
+    app.get("/admin/orders", async (req, res) => {
+      const { page, limit } = req.query;
+      const pageInt = parseInt(page);
+      const limitInt = parseInt(limit);
+      console.log(pageInt,limitInt);
+      const totalOrders = await orderCollection.countDocuments();
+      const result = await orderCollection.find({},{sort: {updateTime: -1}}).skip((pageInt-1)*limitInt).limit(limitInt).toArray();
+      res.send({orders: result, totalOrders});
+    })
+    app.get("/admin/orders/pending", async (req, res) => {
+      const { page, limit } = req.query;
+      const pageInt = parseInt(page);
+      const limitInt = parseInt(limit);
+      console.log(pageInt,limitInt);
+      const totalOrders = await orderCollection.countDocuments({status: "pending"});
+      const result = await orderCollection.find({status: "pending"},{sort: {updateTime: -1}}).skip((pageInt-1)*limitInt).limit(limitInt).toArray();
+      res.send({orders: result, totalOrders});
+    })
+    app.patch("/admin/orders/processing", async (req, res) => {
+      const { id, status: newStatus, feedback: newFeedback } = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateOrder = {
+        $set: {
+          status: newStatus,
+          feedback: newFeedback || "",
+          updateTime: new Date(),
+        }
+      }
+      const result = await orderCollection.updateOne(filter, updateOrder);
+      res.send(result)
+    })
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
