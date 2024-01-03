@@ -67,6 +67,7 @@ const shellCollection = database.collection("shells");
 
 async function run() {
   try {
+    // client.connect(uri)
     // auth related api
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -98,6 +99,16 @@ async function run() {
       const email = req.user.email;
       const filter = { email };
       const result = await userCollection.findOne(filter);
+      if (result.isBanned) {
+        return res
+          .clearCookie("access-token", {
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+          })
+          .status(401)
+          .send({ error: "User Blocked" });
+      }
       res.send(result);
     });
     app.post("/users", async (req, res) => {
@@ -112,6 +123,8 @@ async function run() {
         name: user.name,
         phone: user.phone,
         photo: user.photo,
+        role: "user",
+        isBanned: false,
         balance: 0,
         spent: 0,
         orders: 0,
@@ -131,17 +144,19 @@ async function run() {
           name: name,
           phone: phone,
           photo: photo,
-        }
-      }
-      const isUpdated = await userCollection.updateOne({ email: email }, updateUser);
+        },
+      };
+      const isUpdated = await userCollection.updateOne(
+        { email: email },
+        updateUser
+      );
       if (isUpdated.modifiedCount > 0) {
         const user = await userCollection.findOne({ email: email });
         res.send(user);
+      } else {
+        res.status(501).send({ error: "Internal server Error" });
       }
-      else {
-        res.status(501).send({error: "Internal server Error"})
-      }
-    })
+    });
 
     // order related api
     app.get("/orders", verifyToken, async (req, res) => {
@@ -449,26 +464,45 @@ async function run() {
       res.send({ message: "Updated successfully" });
     });
 
-    // TODO: jwt middleware verify 
+    // TODO: jwt middleware verify
     // order related admin api
     app.get("/admin/orders", async (req, res) => {
-      const { page, limit } = req.query;
+      const { page, limit,search } = req.query;
       const pageInt = parseInt(page);
       const limitInt = parseInt(limit);
-      console.log(pageInt,limitInt);
+      console.log(pageInt, limitInt);
       const totalOrders = await orderCollection.countDocuments();
-      const result = await orderCollection.find({},{sort: {updateTime: -1}}).skip((pageInt-1)*limitInt).limit(limitInt).toArray();
-      res.send({orders: result, totalOrders});
-    })
+      if (search) {
+        const result = await orderCollection
+          .find({ email: { $regex: new RegExp(search, "i") } },{sort: {updateTime: -1}})
+          .toArray();
+        res.send({orders: result,totalOrders: result.length});
+      }
+      else {
+        const result = await orderCollection
+        .find({}, { sort: { updateTime: -1 } })
+        .skip((pageInt - 1) * limitInt)
+        .limit(limitInt)
+        .toArray();
+      res.send({ orders: result, totalOrders });
+      }
+      
+    });
     app.get("/admin/orders/pending", async (req, res) => {
       const { page, limit } = req.query;
       const pageInt = parseInt(page);
       const limitInt = parseInt(limit);
-      console.log(pageInt,limitInt);
-      const totalOrders = await orderCollection.countDocuments({status: "pending"});
-      const result = await orderCollection.find({status: "pending"},{sort: {updateTime: -1}}).skip((pageInt-1)*limitInt).limit(limitInt).toArray();
-      res.send({orders: result, totalOrders});
-    })
+      console.log(pageInt, limitInt);
+      const totalOrders = await orderCollection.countDocuments({
+        status: "pending",
+      });
+      const result = await orderCollection
+        .find({ status: "pending" }, { sort: { updateTime: -1 } })
+        .skip((pageInt - 1) * limitInt)
+        .limit(limitInt)
+        .toArray();
+      res.send({ orders: result, totalOrders });
+    });
     app.patch("/admin/orders/processing", async (req, res) => {
       const { id, status: newStatus, feedback: newFeedback } = req.body;
       const filter = { _id: new ObjectId(id) };
@@ -477,10 +511,96 @@ async function run() {
           status: newStatus,
           feedback: newFeedback || "",
           updateTime: new Date(),
-        }
-      }
+        },
+      };
       const result = await orderCollection.updateOne(filter, updateOrder);
-      res.send(result)
+      res.send(result);
+    });
+
+    // TODO: verify admin
+    // user related admin api
+    app.get("/admin/users", async (req, res) => {
+      const searchEmail = req.query?.email;
+      console.log(searchEmail);
+      if (searchEmail) {
+        const result = await userCollection
+          .find({ email: { $regex: new RegExp(searchEmail, "i") } })
+          .toArray();
+        res.send(result);
+      } else {
+        const result = await userCollection.find({role: "user"}).toArray();
+        res.send(result);
+      }
+    });
+    app.patch("/admin/user/status", async (req, res) => {
+      const { isBanned, email } = req.body;
+      const updatedUser = {
+        $set: {
+          isBanned: isBanned,
+        },
+      };
+      const result = await userCollection.updateOne(
+        { email: email },
+        updatedUser
+      );
+      res.send(result);
+    });
+    app.patch("/admin/user/balance", async (req, res) => {
+      const { email, addBalance } = req.body;
+      const addBalanceInt = parseInt(addBalance);
+      if (!addBalance) {
+        return res.status(400).send({error: "Not Possible"})
+      }
+      const user = await userCollection.findOne({ email: email });
+      if (user?.balance + addBalanceInt < 0) {
+        return res.status(400).send({ error: "Not enough balance" });
+      }
+      const result = await userCollection.updateOne({ email: email }, { $inc: { balance: addBalanceInt } });
+      res.send(result);
+    })
+
+    // admin dashboard api
+    app.get("/admin/dashboard", async (req, res) => {
+      const balanceMetrics = await userCollection.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalBalance: { $sum: '$balance' },
+            totalSpent: { $sum: '$spent' },
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            totalBalance: 1,
+            totalSpent: 1,
+            available: { $subtract: ['$totalBalance', '$totalSpent'] },
+          }
+        }
+      ]).toArray();
+      const orderMetrics = await orderCollection.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalOrders: { $sum: 1 },
+            pendingOrders: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+            completedOrders: { $sum: { $cond: [{ $eq: ['$status', 'complete'] }, 1, 0] } }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            totalOrders: 1,
+            pendingOrders: 1,
+            completedOrders: 1,
+          }
+        }
+      ]).toArray();
+      const result = {
+        balance: balanceMetrics,
+        orders: orderMetrics,
+      }
+      res.send(result);
     })
 
     await client.db("admin").command({ ping: 1 });

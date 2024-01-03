@@ -4,9 +4,11 @@ import useAuth from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import Loader from "../../components/Loader";
 
 const SignUp = () => {
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { user, setUser, signUp, updateUser, googleLogin } = useAuth();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
@@ -15,6 +17,7 @@ const SignUp = () => {
   const handleSignUp = (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
@@ -38,27 +41,35 @@ const SignUp = () => {
                   .then((res) => {
                     axiosPrivate.get("/user").then((res) => {
                       setUser(res.data);
+                      setIsLoading(false);
                       console.log(res.data);
                     });
                     console.log(res.data);
                   })
-                  .catch((err) => console.log(err));
+                  .catch((err) => {
+                    console.log(err)
+                    setIsLoading(false);
+                  });
               });
             })
             .catch((err) => {
               console.error(err);
               setError("Failed to update name.");
+              setIsLoading(false);
             });
         })
         .catch((err) => {
           console.error(err);
+          setIsLoading(false);
           setError("Failed to create account.Please try again later.");
         });
     } else {
       setError("Password must be minimum 6 digit.");
+      setIsLoading(false);
     }
   };
   const handleGoogle = () => {
+    setIsLoading(true);
     googleLogin()
       .then((result) => {
         const { email, displayName, phoneNumber, photoURL } = result.user;
@@ -78,12 +89,17 @@ const SignUp = () => {
               axiosPrivate.get("/user").then((res) => {
                 setUser(res.data);
                 console.log(res.data);
+                setIsLoading(false);
               });
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              setIsLoading(false);
+              console.log(err)
+            });
         });
       })
       .catch((err) => {
+        setIsLoading(false);
         console.error(err);
       });
   };
@@ -95,6 +111,7 @@ const SignUp = () => {
   }, [navigate, user]);
   return (
     <div>
+      <Loader isLoading={isLoading} />
       <form
         onSubmit={handleSignUp}
         className="w-full md:w-96 border block mx-auto px-5 pb-5 shadow-md"

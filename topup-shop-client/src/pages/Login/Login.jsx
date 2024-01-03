@@ -32,7 +32,12 @@ const Login = () => {
                   setUser(res.data);
                   setIsLoading(false);
                   console.log(res.data);
-              })
+                })
+              .catch(err => {
+                console.error(err);
+                setError("Authentication Failed");
+                setIsLoading(false);
+            })
             console.log(res.data)
           })
           .catch((err) => {
