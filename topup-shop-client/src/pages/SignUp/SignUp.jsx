@@ -9,7 +9,7 @@ import Loader from "../../components/Loader";
 const SignUp = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, setUser, signUp, updateUser, googleLogin } = useAuth();
+  const { user, setUser, signUp, updateUser, googleLogin,setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
@@ -42,6 +42,7 @@ const SignUp = () => {
                     axiosPrivate.get("/user").then((res) => {
                       setUser(res.data);
                       setIsLoading(false);
+                      setLoading(false);
                       console.log(res.data);
                     });
                     console.log(res.data);
@@ -70,6 +71,7 @@ const SignUp = () => {
   };
   const handleGoogle = () => {
     setIsLoading(true);
+    setError("");
     googleLogin()
       .then((result) => {
         const { email, displayName, phoneNumber, photoURL } = result.user;
@@ -90,7 +92,13 @@ const SignUp = () => {
                 setUser(res.data);
                 console.log(res.data);
                 setIsLoading(false);
-              });
+                setLoading(false);
+              })
+                .catch(err => {
+                  setIsLoading(false);
+                  console.error(err);
+                  setError("Authentication Failed");
+              })
             })
             .catch((err) => {
               setIsLoading(false);

@@ -18,17 +18,16 @@ const CategoryOption = ({ option, selected, setSelected }) => {
         stock === 0 || stock === false ? "cursor-not-allowed" : "cursor-pointer"
       }`}
     >
-      {category === "unipin" ||
-        (category === "shell" && (
+      {category === "unipin" || category === "shell" ? (
           <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 text-sm rounded bg-[#FA6023] text-white w-max">
             {stock ? `In Stock: ${stock}` : stock === 0 ? "Stock Out" : ""}
           </span>
-        ))}
-      {category === "idcode" && (
+        ):<></>}
+      {category === "idcode" ||category==="weekly"? (
         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 text-sm rounded bg-[#FA6023] text-white w-max">
           {stock ? "" : "Stock Out"}
         </span>
-      )}
+      ):<></>}
 
       <span
         className={`border-[5px] rounded-full p-0.5 ${

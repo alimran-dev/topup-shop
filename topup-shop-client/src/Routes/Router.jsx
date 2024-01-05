@@ -21,6 +21,8 @@ import UpdateItems from "../AdminDashboard/Update/UpdateItems";
 import UpdateDelete from "../AdminDashboard/Update/UpdateDelete";
 import Login from "../pages/Login/Login";
 import SignUp from "../pages/SignUp/SignUp";
+import AdminRoute from "./AdminRoute";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -65,25 +67,25 @@ const router = createBrowserRouter([
       },
       {
         path: "/myAccount",
-        element: <MyAccount />,
+        element: <PrivateRoute><MyAccount /></PrivateRoute>,
       },
       {
         path: "/addBalance",
-        element: <AddBalance />,
+        element: <PrivateRoute><AddBalance /></PrivateRoute>,
       },
       {
         path: "/myOrders",
-        element: <MyOrders />,
+        element: <PrivateRoute><MyOrders /></PrivateRoute>,
       },
       {
         path: "/myTransactions",
-        element: <MyTransactions />,
+        element: <PrivateRoute><MyTransactions /></PrivateRoute>,
       },
     ],
   },
   {
     path: "/dashboard",
-    element: <Root />,
+    element: <AdminRoute><Root /></AdminRoute>,
     children: [
       {
         path: "/dashboard",

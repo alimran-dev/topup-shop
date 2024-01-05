@@ -9,7 +9,7 @@ const UpdateOptions = () => {
   const navigate = useNavigate();
   return (
     <div className="-mt-5">
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
+      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
         Select to Update
       </h1>
       <div className="flex flex-wrap justify-center gap-5 my-5">

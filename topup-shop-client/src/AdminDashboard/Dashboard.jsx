@@ -1,8 +1,23 @@
+import { useEffect, useState } from "react";
 import { TbCurrencyTaka } from "react-icons/tb";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import Loader from "../components/Loader"
 
 const Dashboard = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState([]);
+  const axiosPrivate = useAxiosPrivate();
+  useEffect(() => {
+    axiosPrivate.get("/admin/dashboard")
+      .then(res => {
+        setIsLoading(false);
+        setData(res.data);
+    })
+  }, [axiosPrivate])
+  console.log(data);
   return (
     <div>
+      <Loader isLoading={isLoading} />
       {/* Balance Statistics */}
       <div className="-mt-4">
         <h1 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
@@ -13,7 +28,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Total Added</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                100 <TbCurrencyTaka />
+                {data?.balance?.totalBalance || 0} <TbCurrencyTaka />
               </p>
             </div>
           </div>
@@ -21,7 +36,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Total Spent</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                100 <TbCurrencyTaka />
+                {data?.balance?.totalSpent || 0} <TbCurrencyTaka />
               </p>
             </div>
           </div>
@@ -29,7 +44,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Available</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                100 <TbCurrencyTaka />
+                {data?.balance?.available || 0} <TbCurrencyTaka />
               </p>
             </div>
           </div>
@@ -45,7 +60,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Total Order</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                100
+                {data?.orders?.totalOrders || 0}
               </p>
             </div>
           </div>
@@ -55,7 +70,7 @@ const Dashboard = () => {
                 Pending Order
               </h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                100
+                {data?.orders?.pendingOrders || 0}
               </p>
             </div>
           </div>
@@ -65,7 +80,7 @@ const Dashboard = () => {
                 Completed Order
               </h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                100
+                {data?.orders?.completedOrders || 0}
               </p>
             </div>
           </div>

@@ -40,7 +40,7 @@ const AuthProvider = ({ children }) => {
     return signInWithPopup(auth, googleProvider);
   };
   const logOut = () => {
-    setLoading(true);
+    setLoading(false);
     return signOut(auth);
   };
   useEffect(() => {
@@ -60,6 +60,7 @@ const AuthProvider = ({ children }) => {
     user,
     setUser,
     loading,
+    setLoading,
     signUp,
     loginUser,
     updateUser,

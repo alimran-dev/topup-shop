@@ -53,7 +53,7 @@ const WeeklyMonthly = () => {
     }
   };
   useEffect(() => {
-    axiosPublic.get(`/options?category=weekly`).then((res) => {
+    axiosPublic.get(`/options?category=weekly-monthly`).then((res) => {
       console.log(res.data);
       setOptions(res.data);
       setIsLoading(false);

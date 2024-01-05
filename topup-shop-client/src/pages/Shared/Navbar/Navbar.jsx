@@ -14,10 +14,11 @@ import { FiEdit } from "react-icons/fi";
 import { LuListTodo } from "react-icons/lu";
 import { FaUsersCog } from "react-icons/fa";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import useIsAdmin from "../../../hooks/useIsAdmin";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const isAdmin = true;
+  const {isAdmin,isAdminLoading} = useIsAdmin();
   const { user,setUser,logOut } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
@@ -27,7 +28,10 @@ const Navbar = () => {
       .then(() => {
         setUser(null);
         axiosPrivate.post("/logout")
-        .then(res=>console.log(res.data))
+          .then(res => {
+            navigate('/');
+            console.log(res.data)
+          })
       })
       .catch(err => {
         console.error(err);
@@ -80,12 +84,12 @@ const Navbar = () => {
           </div>
           {user ? (
             <div className="flex items-center gap-3">
-              {isAdmin || (
+              {!isAdmin && !isAdminLoading? (
                 <span className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-3 text-lg text-white font-semibold rounded flex items-center">
                   {" "}
                   {user?.balance || 0} <TbCurrencyTaka />
                 </span>
-              )}
+              ):<></>}
 
               <img
                 onClick={() => setIsOpen(!isOpen)}
