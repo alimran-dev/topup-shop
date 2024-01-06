@@ -253,7 +253,7 @@ const Navbar = () => {
                   )}
 
                   <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
-                  <button className="flex items-center gap-2 bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit mx-auto ">
+                  <button onClick={()=>navigate("https://wa.me/+8801643204362")} className="flex items-center gap-2 bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit mx-auto ">
                     <BiSupport /> Support
                   </button>
                 </div>

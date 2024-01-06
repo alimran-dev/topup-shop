@@ -27,6 +27,10 @@ const Idcode = () => {
   const handlePurchase = () => {
     setIsLoading(true);
     setError("");
+    if (user.balance < selected.price) {
+      setIsLoading(false);
+      setError("Not enough balance.")
+    }
     if (uidRef.current?.value && selected._id) {
       const uid = uidRef.current.value;
       const order = { id: selected._id, email: user?.email, uid: uid };

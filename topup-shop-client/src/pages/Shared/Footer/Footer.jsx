@@ -31,7 +31,7 @@ const Footer = () => {
       <div className="flex-1 space-y-3">
         <h2 className="text-2xl font-bold opacity-90">Support</h2>
         <Link
-          to={"https://wa.me/+8801910841245"}
+          to={"https://wa.me/+8801643204362"}
           className="flex items-center gap-5 border border-gray-400 py-2 px-5 font-semibold"
         >
           <div className="text-3xl">
@@ -39,7 +39,7 @@ const Footer = () => {
           </div>
           <div className="border-l border-gray-400 pl-5">
             <p>9AM-12AM</p>
-            <p>01910841245</p>
+            <p>01643204362</p>
           </div>
         </Link>
       </div>

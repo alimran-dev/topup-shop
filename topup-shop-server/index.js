@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 // middlewares
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://mezbashop.com","https://www.mezbashop.com","http://localhost:5173"],
     credentials: true,
   })
 );
@@ -27,12 +27,13 @@ const verifyToken = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
-      return res
-        .clearCookie("access-token", {
-          maxAge: 0,
-          secure: true,
-          sameSite: "none",
-        })
+      return res.cookie("access-token","", {
+        httpOnly: true,
+        maxAge: 0,
+        secure: true,
+        sameSite: "none",
+        domain: '.mezbashop.com',
+      })
         .status(401)
         .send({ message: "unauthorized" });
     }
@@ -48,22 +49,24 @@ const verifyAdmin = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
-      return res
-        .clearCookie("access-token", {
+      return res.cookie("access-token","", {
+          httpOnly: true,
           maxAge: 0,
           secure: true,
           sameSite: "none",
+          domain: '.mezbashop.com',
         })
         .status(401)
         .send({ message: "unauthorized" });
     }
     if (decoded.role !== "admin") {
-      return res
-        .clearCookie("access-token", {
-          maxAge: 0,
-          secure: true,
-          sameSite: "none",
-        })
+      return res.cookie("access-token","", {
+        httpOnly: true,
+        maxAge: 0,
+        secure: true,
+        sameSite: "none",
+        domain: '.mezbashop.com',
+      })
         .status(401)
         .send({ message: "unauthorized" });
     }
@@ -152,6 +155,7 @@ async function run() {
           secure: true,
           sameSite: "none",
           maxAge: 1000 * 60 * 60 * 24 * 30,
+          domain: '.mezbashop.com',
         });
         res.send({ success: true });
       } catch (err) {
@@ -161,14 +165,16 @@ async function run() {
           .send({ success: false, error: "Internal Server Error" });
       }
     });
-    app.post("/logout", (req, res) => {
+    app.post("/logout",verifyToken, (req, res) => {
       try {
         const user = req.body;
         console.log(user);
-        res.clearCookie("access-token", {
+        res.cookie("access-token","", {
+          httpOnly: true,
           maxAge: 0,
           secure: true,
           sameSite: "none",
+          domain: '.mezbashop.com',
         });
         res.send({ success: true });
       } catch (err) {
@@ -186,12 +192,13 @@ async function run() {
         const filter = { email };
         const result = await userCollection.findOne(filter);
         if (result.isBanned) {
-          return res
-            .clearCookie("access-token", {
-              maxAge: 0,
-              secure: true,
-              sameSite: "none",
-            })
+          return res.cookie("access-token","", {
+            httpOnly: true,
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+            domain: '.mezbashop.com',
+          })
             .status(401)
             .send({ error: "User Blocked" });
         }
@@ -303,12 +310,13 @@ async function run() {
         }
         const emailInToken = req.user?.email;
         if (email !== emailInToken) {
-          return res
-            .clearCookie("access-token", {
-              maxAge: 0,
-              secure: true,
-              sameSite: "none",
-            })
+          return res.cookie("access-token","", {
+            httpOnly: true,
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+            domain: '.mezbashop.com',
+          })
             .status(401)
             .send({ message: "unauthorized" });
         }
@@ -382,12 +390,13 @@ async function run() {
         }
         const emailInToken = req.user?.email;
         if (email !== emailInToken) {
-          return res
-            .clearCookie("access-token", {
-              maxAge: 0,
-              secure: true,
-              sameSite: "none",
-            })
+          return res.cookie("access-token","", {
+            httpOnly: true,
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+            domain: '.mezbashop.com',
+          })
             .status(401)
             .send({ message: "unauthorized" });
         }
@@ -451,12 +460,13 @@ async function run() {
         }
         const emailInToken = req.user?.email;
         if (email !== emailInToken) {
-          return res
-            .clearCookie("access-token", {
-              maxAge: 0,
-              secure: true,
-              sameSite: "none",
-            })
+          return res.cookie("access-token","", {
+            httpOnly: true,
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+            domain: '.mezbashop.com',
+          })
             .status(401)
             .send({ message: "unauthorized" });
         }
