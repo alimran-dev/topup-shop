@@ -7,6 +7,8 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import banner1 from "../../../assets/images/banner1.png";
 import banner2 from "../../../assets/images/banner2.jpg";
 import banner3 from "../../../assets/images/banner3.jpg";
+import banner4 from "../../../assets/images/banner4.jpeg";
+import banner5 from "../../../assets/images/banner5.jpeg";
 
 const Banner = () => {
   return (
@@ -33,7 +35,21 @@ const Banner = () => {
         </SwiperSlide>
         <SwiperSlide>
           <img
+            src={banner4}
+            alt=""
+            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
+          />
+        </SwiperSlide>
+        <SwiperSlide>
+          <img
             src={banner2}
+            alt=""
+            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
+          />
+        </SwiperSlide>
+        <SwiperSlide>
+          <img
+            src={banner5}
             alt=""
             className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
           />

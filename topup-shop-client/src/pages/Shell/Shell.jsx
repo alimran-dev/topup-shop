@@ -55,6 +55,9 @@ const Shell = () => {
       });
   };
   useEffect(() => {
+    window.scrollTo(0, 0);
+  },[])
+  useEffect(() => {
     axiosPublic.get(`/options?category=shell`).then((res) => {
       console.log(res.data);
       setOptions(res.data);
@@ -84,7 +87,7 @@ const Shell = () => {
             <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
             Category
           </h1>
-          <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+          <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
               <CategoryOption
                 option={option}

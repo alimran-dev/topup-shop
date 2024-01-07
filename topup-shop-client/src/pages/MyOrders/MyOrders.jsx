@@ -34,6 +34,7 @@ const MyOrders = () => {
     }
   };
   useEffect(() => {
+    window.scrollTo(0, 0);
     getOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, loading, user?.email, limit]);

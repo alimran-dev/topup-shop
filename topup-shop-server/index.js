@@ -80,7 +80,8 @@ app.get("/", (req, res) => {
 });
 
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tklaef2.mongodb.net/?retryWrites=true&w=majority`;
-const uri = "mongodb://127.0.0.1:27017/";
+const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@127.0.0.1:27017/`;
+// const uri = `mongodb://127.0.0.1:27017/`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -545,7 +546,7 @@ async function run() {
                 then: "$stock",
                 else: {
                   $cond: {
-                    if: { $lt: [{ $size: "$codes" }, 10] },
+                    if: { $lt: [{ $size: "$codes" }, 30] },
                     then: { $size: "$codes" },
                     else: null,
                   },
@@ -595,7 +596,7 @@ async function run() {
                 then: "$stock",
                 else: {
                   $cond: {
-                    if: { $lt: [{ $size: "$codes" }, 10] },
+                    if: { $lt: [{ $size: "$codes" }, 30] },
                     then: { $size: "$codes" },
                     else: null,
                   },
@@ -684,12 +685,14 @@ async function run() {
       try {
         const category = req.params.category;
         const codesArray = req.body;
+        console.log(codesArray);
         codesArray.forEach(async (item) => {
           if (category === "unipin") {
             const filter = { uc: item.uc };
             const result = await unipinCollection.updateOne(filter, {
               $addToSet: { codes: { $each: item.codes } },
             });
+            console.log(result);
           }
         });
         res.send({ message: "Updated successfully" });
@@ -707,7 +710,7 @@ async function run() {
         const updatedOption = {
           $set: {
             name: name,
-            price: price,
+            price: parseInt(price),
           },
         };
         let result;
@@ -980,6 +983,9 @@ async function run() {
                 _id: 0,
               },
             },
+            {
+              $sort: {uc: 1}
+            }
           ])
           .toArray();
         const result = {

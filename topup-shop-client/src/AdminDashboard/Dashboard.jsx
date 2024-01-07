@@ -86,6 +86,50 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      {/* unipins stats */}
+      <div>
+      <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+          Unipins Statistics
+        </h2>
+        <table className="w-full my-3">
+          <thead>
+            <tr className="text-center">
+              <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+                UC
+              </th>
+              <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+                Quantity
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.unipins?.map((item) => {
+              if (item.codes) {
+                return <>
+                <tr className="text-center">
+                  <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+                    {item.uc} UC
+                  </td>
+                  <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+                    {item.codes}
+                  </td>
+                </tr>
+              </>;
+              }
+            })}
+            <tr className="text-center">
+              <td className="border-2 border-[#FA6023] w-1/2 font-bold py-1.5 border-collapse">
+                Total
+              </td>
+              <td className="border-2 border-[#FA6023] w-1/2 font-bold py-1.5 border-collapse">
+                {data?.unipins?.reduce((acc, item) => {
+                  return acc + item.codes;
+                }, 0)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

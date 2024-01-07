@@ -139,7 +139,7 @@ const UpdateDelete = () => {
           />
         </div>
       </div>
-      <div className="block w-fit space-x-5 mt-3 mx-auto">
+      <div className="flex flex-wrap items-center justify-center gap-5 w-fit mt-3 mx-auto">
         <button
           onClick={handleDelete}
           className="text-lg font-semibold bg-red-600 py-1.5 px-3 text-white rounded"

@@ -1,8 +1,12 @@
 import { IoCall } from "react-icons/io5";
 import { FaFacebookMessenger, FaWhatsapp } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { useEffect } from "react";
 
 const ContactUs = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  },[])
   return (
     <div className="lg:w-2/3 mx-auto border rounded-lg p-8">
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 pb-5">

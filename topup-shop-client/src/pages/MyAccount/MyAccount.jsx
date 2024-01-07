@@ -4,7 +4,7 @@ import { TbCurrencyTaka } from "react-icons/tb";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import axios from "axios";
@@ -110,13 +110,13 @@ const MyAccount = () => {
           if (result.user) {
             updatePass(password)
               .then(() => {
-                setIsLoading(false);
                 Swal.fire({
                   title: "Password change successful",
                   timer: 1500,
                   icon: "success",
                   showConfirmButton: false,
                 });
+                setIsLoading(false);
                 form.reset();
               })
               .catch(() => {
@@ -131,6 +131,9 @@ const MyAccount = () => {
         });
     }
   };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  },[])
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -140,7 +143,7 @@ const MyAccount = () => {
           alt=""
           className="w-28 h-28 gradient-border rounded-full bg-slate-400"
         />
-        <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+        <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
           {user?.name}
         </p>
       </div>

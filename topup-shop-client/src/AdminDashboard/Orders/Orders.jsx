@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AllOrders from "./AllOrders";
 import PendingOrders from "./PendingOrders";
 
 const Orders = () => {
   const [isAll, setIsAll] = useState(true);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  },[])
   return (
     <div className="md:-mt-5">
       <div className="flex items-center justify-center">

@@ -29,7 +29,8 @@ const Idcode = () => {
     setError("");
     if (user.balance < selected.price) {
       setIsLoading(false);
-      setError("Not enough balance.")
+      setError("Not enough balance.");
+      return;
     }
     if (uidRef.current?.value && selected._id) {
       const uid = uidRef.current.value;
@@ -57,6 +58,7 @@ const Idcode = () => {
     }
   };
   useEffect(() => {
+    window.scrollTo(0, 0);
     axiosPublic.get(`/options?category=idcode`).then((res) => {
       console.log(res.data);
       setOptions(res.data);
@@ -89,7 +91,7 @@ const Idcode = () => {
               <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
               Category
             </h1>
-            <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+            <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
               {options?.map((option) => (
                 <CategoryOption
                   option={option}

@@ -36,7 +36,7 @@ const PendingOrders = () => {
       <Loader isLoading={isLoading} />
       {orders.length <= 0 ? (
         <div className="h-[40vh] w-full flex items-center justify-center">
-          <p className="text-4xl font-semibold">No Pending Orders Now</p>
+          <p className="text-4xl font-semibold text-center">No Pending Orders Now</p>
         </div>
       ) : (
         <></>

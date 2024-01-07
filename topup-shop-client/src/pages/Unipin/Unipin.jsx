@@ -13,6 +13,7 @@ import Loader from "../../components/Loader";
 import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { HiOutlineInformationCircle } from "react-icons/hi";
 
 const Unipin = () => {
   const [selected, setSelected] = useState({ _id: "", price: 0 });
@@ -23,7 +24,7 @@ const Unipin = () => {
   const [error, setError] = useState("");
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
-  const { user,setUser } = useAuth();
+  const { user, setUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -32,7 +33,7 @@ const Unipin = () => {
     setIsLoading(true);
     if (!selected._id || !selected.price || !quantity) {
       setError("Please select option and quantity");
-      setIsLoading(false)
+      setIsLoading(false);
       return;
     }
     const order = { id: selected._id, email: user?.email, quantity };
@@ -41,14 +42,22 @@ const Unipin = () => {
       .then((res) => {
         console.log(res.data);
         setIsLoading(false);
-        setUser({ ...user, balance: user?.balance - res.data?.price, orders: user?.orders + 1, spent: user?.spent + price });
-        navigate('/myOrders');
+        setUser({
+          ...user,
+          balance: user?.balance - res.data?.price,
+          orders: user?.orders + 1,
+          spent: user?.spent + price,
+        });
+        navigate("/myOrders");
       })
       .catch((err) => {
         setError(err.response.data.error);
-        setIsLoading(false)
+        setIsLoading(false);
       });
   };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  },[])
   useEffect(() => {
     axiosPublic.get(`/options?category=unipin`).then((res) => {
       console.log(res.data);
@@ -79,7 +88,7 @@ const Unipin = () => {
             <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
             Category
           </h1>
-          <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+          <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
               <CategoryOption
                 option={option}
@@ -175,6 +184,29 @@ const Unipin = () => {
               )}
             </div>
           </div>
+        </div>
+      </div>
+      <div className="border rounded-md">
+        <h2 className="flex items-center gap-1 text-2xl font-semibold border rounded-md py-2 px-3">
+          <HiOutlineInformationCircle className="mt-0.5" /> Rules & Conditions
+        </h2>
+        <div className="px-8 py-5 space-y-2">
+          <p className="text-lg font-semibold">
+            অর্ডার করার আগে ভালো ভাবে পড়ে নিন
+          </p>
+          <p>⦿ শুধুমাত্র BD সার্ভারে VOUCHER দিয়ে টপ আপ হবে</p>
+          <p>
+            ⦿ কোড রিডিম করুন{" "}
+            <span className="font-medium">shop.garena.my </span> থেকে ।
+          </p>
+          <p>
+            ⦿ UPBD দেখালে <span className="font-medium">Unipin Gift Card</span>{" "}
+            এ ব্যবহার করতে হবে
+          </p>
+          <p>
+            ⦿ BDMB দেখালে <span className="font-medium">Unipin Voucher</span> এ
+            ব্যবহার করতে হবে
+          </p>
         </div>
       </div>
     </div>

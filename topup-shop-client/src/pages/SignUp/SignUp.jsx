@@ -29,6 +29,7 @@ const SignUp = () => {
     const passRegex = /^.{6,}$/;
     if (password !== confirmPass) {
       setError("Password and Confirm Password must be same.");
+      setIsLoading(false);
     } else if (passRegex.test(password)) {
       signUp(email, password)
         .then(() => {

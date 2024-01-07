@@ -18,8 +18,8 @@ import useIsAdmin from "../../../hooks/useIsAdmin";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const {isAdmin,isAdminLoading} = useIsAdmin();
-  const { user,setUser,logOut } = useAuth();
+  const { isAdmin, isAdminLoading } = useIsAdmin();
+  const { user, setUser, logOut } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   console.log(isOpen);
@@ -27,16 +27,15 @@ const Navbar = () => {
     logOut()
       .then(() => {
         setUser(null);
-        axiosPrivate.post("/logout")
-          .then(res => {
-            navigate('/');
-            console.log(res.data)
-          })
+        axiosPrivate.post("/logout").then((res) => {
+          navigate("/");
+          console.log(res.data);
+        });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
-    })
-  }
+      });
+  };
   return (
     <div className="sticky top-0 left-0 z-20">
       <div className="flex items-center justify-between px-8 md:px-16 py-2 shadow bg-white">
@@ -84,12 +83,14 @@ const Navbar = () => {
           </div>
           {user ? (
             <div className="flex items-center gap-3">
-              {!isAdmin && !isAdminLoading? (
+              {!isAdmin && !isAdminLoading ? (
                 <span className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-3 text-lg text-white font-semibold rounded flex items-center">
                   {" "}
                   {user?.balance || 0} <TbCurrencyTaka />
                 </span>
-              ):<></>}
+              ) : (
+                <></>
+              )}
 
               <img
                 onClick={() => setIsOpen(!isOpen)}
@@ -115,10 +116,15 @@ const Navbar = () => {
                       <p className="text-lg font-bold text-gray-800">
                         {user?.name}
                       </p>
-                      <p className="font-medium overflow-hidden">{ user?.email }</p>
+                      <p className="font-medium overflow-hidden">
+                        {user?.email}
+                      </p>
                     </div>
                   </div>
-                  <button onClick={handleLogOut} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto ">
+                  <button
+                    onClick={handleLogOut}
+                    className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto "
+                  >
                     Log Out
                   </button>
                   <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
@@ -137,6 +143,18 @@ const Navbar = () => {
                         }
                       >
                         <IoGridOutline className="text-2xl" /> Dashboard
+                      </NavLink>
+                      <NavLink
+                        to={"/dashboard/orders"}
+                        className={({ isActive, isPending }) =>
+                          isPending
+                            ? "pending"
+                            : isActive
+                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                            : "flex items-center gap-2 text-lg mx-4 py-3"
+                        }
+                      >
+                        <LuListTodo className="text-2xl" /> Orders
                       </NavLink>
                       <NavLink
                         to={"/dashboard/addCodes"}
@@ -175,18 +193,6 @@ const Navbar = () => {
                         <FiEdit className="text-2xl" /> Update Options
                       </NavLink>
                       <NavLink
-                        to={"/dashboard/orders"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <LuListTodo className="text-2xl" /> Orders
-                      </NavLink>
-                      <NavLink
                         to={"/dashboard/users"}
                         className={({ isActive, isPending }) =>
                           isPending
@@ -197,6 +203,18 @@ const Navbar = () => {
                         }
                       >
                         <FaUsersCog className="text-2xl" /> Manage Users
+                      </NavLink>
+                      <NavLink
+                        to={"/myAccount"}
+                        className={({ isActive, isPending }) =>
+                          isPending
+                            ? "pending"
+                            : isActive
+                            ? "flex items-center gap-2 text-lg mx-4 py-3 pb-0 text-[#FA6023]"
+                            : "flex items-center gap-2 text-lg mx-4 py-3 pb-0"
+                        }
+                      >
+                        <VscAccount className="text-2xl" /> My Account
                       </NavLink>
                     </div>
                   ) : (
@@ -253,14 +271,20 @@ const Navbar = () => {
                   )}
 
                   <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
-                  <button onClick={()=>navigate("https://wa.me/+8801643204362")} className="flex items-center gap-2 bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit mx-auto ">
+                  <Link
+                    to={"https://wa.me/+8801643204362"}
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit mx-auto "
+                  >
                     <BiSupport /> Support
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
           ) : (
-            <button onClick={()=>navigate('/login')} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded">
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded"
+            >
               Login
             </button>
           )}
