@@ -40,7 +40,7 @@ const Unipin = () => {
     axiosPrivate
       .post("/purchase/unipin", order)
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         setIsLoading(false);
         setUser({
           ...user,
@@ -60,7 +60,7 @@ const Unipin = () => {
   },[])
   useEffect(() => {
     axiosPublic.get(`/options?category=unipin`).then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       setOptions(res.data);
       setIsLoading(false);
     });

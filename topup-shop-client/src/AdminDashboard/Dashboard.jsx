@@ -14,7 +14,6 @@ const Dashboard = () => {
         setData(res.data);
     })
   }, [axiosPrivate])
-  console.log(data);
   return (
     <div>
       <Loader isLoading={isLoading} />

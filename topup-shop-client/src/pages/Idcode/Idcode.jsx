@@ -38,7 +38,7 @@ const Idcode = () => {
       axiosPrivate
         .post("/purchase/idcode", order)
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           setIsLoading(false);
           setUser({
             ...user,
@@ -60,7 +60,7 @@ const Idcode = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     axiosPublic.get(`/options?category=idcode`).then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       setOptions(res.data);
       setIsLoading(false);
     });

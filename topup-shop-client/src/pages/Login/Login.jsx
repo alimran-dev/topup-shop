@@ -32,14 +32,14 @@ const Login = () => {
                   setUser(res.data);
                   setIsLoading(false);
                   setLoading(false);
-                  console.log(res.data);
+                  // console.log(res.data);
                 })
               .catch(err => {
                 console.error(err);
                 setError("Authentication Failed");
                 setIsLoading(false);
             })
-            console.log(res.data)
+            // console.log(res.data)
           })
           .catch((err) => {
             setError("Server Error. Try later.");
@@ -67,14 +67,14 @@ const Login = () => {
         };
 
         axiosPublic.post("/users", user).then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           axiosPrivate
             .post("/jwt", { email })
             .then((res) => {
               axiosPrivate.get("/user")
                 .then(res => {
                   setUser(res.data);
-                  console.log(res.data);
+                  // console.log(res.data);
                   setIsLoading(false);
                 })
                 .catch(err => {
@@ -82,7 +82,7 @@ const Login = () => {
                   console.error(err);
                   setError("Authentication Failed")
               })
-              console.log(res.data);
+              // console.log(res.data);
             })
             .catch((err) => {
               console.error(err);
@@ -102,7 +102,7 @@ const Login = () => {
       navigate(`${location.state || "/"}`);
     }
   }, [location.state, navigate, user]);
-  console.log(user);
+  // console.log(user);
   return (
     <div>
       <Loader isLoading={isLoading} />

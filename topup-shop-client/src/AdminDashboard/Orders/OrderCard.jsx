@@ -60,7 +60,7 @@ const OrderCard = ({
       }
     }
   };
-  console.log(newStatus, newFeedback);
+  // console.log(newStatus, newFeedback);
   const handleUpdate = () => {
     const updatedOrder = { id: _id, status: newStatus, feedback: newFeedback };
     axiosPrivate

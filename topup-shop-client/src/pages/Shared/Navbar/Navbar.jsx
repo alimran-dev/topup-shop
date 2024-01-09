@@ -22,14 +22,14 @@ const Navbar = () => {
   const { user, setUser, logOut } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
-  console.log(isOpen);
+  // console.log(isOpen);
   const handleLogOut = () => {
     logOut()
       .then(() => {
         setUser(null);
         axiosPrivate.post("/logout").then((res) => {
           navigate("/");
-          console.log(res.data);
+          // console.log(res.data);
         });
       })
       .catch((err) => {

@@ -19,7 +19,7 @@ const UpdateDelete = () => {
       const name = nameRef.current?.value;
       const price = priceRef.current?.value;
       const updatedOption = { id, category, name, price };
-      console.log(updatedOption);
+      // console.log(updatedOption);
       axiosPrivate.patch("/admin/update/option", updatedOption).then((res) => {
         setIsLoading(false);
         if (res.data?.modifiedCount > 0) {
@@ -49,7 +49,7 @@ const UpdateDelete = () => {
         axiosPrivate
           .delete(`/admin/delete/option?id=${id}&category=${category}`)
           .then((res) => {
-            console.log(res.data);
+            // console.log(res.data);
             if (res.data?.deletedCount > 0) {
               navigate(-1);
               Swal.fire({
@@ -98,7 +98,7 @@ const UpdateDelete = () => {
       setStock(res.data?.stock);
     });
   }, [axiosPrivate, category, id]);
-  console.log(stock);
+  // console.log(stock);
   return (
     <div className="-mt-5">
       <Loader isLoading={isLoading} />

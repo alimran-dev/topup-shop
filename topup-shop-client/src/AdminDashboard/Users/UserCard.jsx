@@ -54,7 +54,7 @@ const UserCard = ({ user, setIsLoading }) => {
           icon: "error"
         })
     })
-    console.log(addBalance);
+    // console.log(addBalance);
   }
   return (
     <div className="border w-64 py-4 px-4 rounded shadow">
@@ -64,7 +64,7 @@ const UserCard = ({ user, setIsLoading }) => {
         className="w-14 h-14 block mx-auto rounded-full"
       />
       <h3 className="text-center font-bold text-lg">{name}</h3>
-      <p className="">
+      <p className="overflow-auto">
         <span className="font-bold">Email: </span>
         {email}
       </p>

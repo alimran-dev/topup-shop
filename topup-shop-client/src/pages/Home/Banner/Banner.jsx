@@ -7,8 +7,8 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import banner1 from "../../../assets/images/banner1.png";
 import banner2 from "../../../assets/images/banner2.jpg";
 import banner3 from "../../../assets/images/banner3.jpg";
-import banner4 from "../../../assets/images/banner4.jpeg";
-import banner5 from "../../../assets/images/banner5.jpeg";
+import banner4 from "../../../assets/images/recharge-card.jpeg";
+import banner5 from "../../../assets/images/recharge-offer.jpeg";
 
 const Banner = () => {
   return (

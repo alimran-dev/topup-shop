@@ -43,7 +43,7 @@ const MyAccount = () => {
           }
         )
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           if (res.data?.data?.display_url) {
             const updateUser = {
               name,
@@ -100,7 +100,7 @@ const MyAccount = () => {
     const oldPass = form.oldPass.value;
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
-    console.log(oldPass, password, confirmPass);
+    // console.log(oldPass, password, confirmPass);
     if (password !== confirmPass) {
       setChangePassError("Password and confirm password must be the same");
       setIsLoading(false);

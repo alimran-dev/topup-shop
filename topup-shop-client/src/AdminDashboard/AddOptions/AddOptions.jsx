@@ -14,7 +14,7 @@ const AddOptions = () => {
     const uc = parseInt(form.uc.value) || 0;
     const category = form.category.value;
     const option = { name, price, category, uc };
-    console.log(option);
+    // console.log(option);
     axiosPrivate.post(`/addOption/${category}`, option).then((res) => {
       if (res.data.insertedId) {
         Swal.fire({

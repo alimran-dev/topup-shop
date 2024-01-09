@@ -18,7 +18,7 @@ const AllOrders = () => {
     axiosPrivate
       .get(`/admin/orders?page=${page}&limit=${limit}&search=${search}`)
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         setOrders([...orders, ...res.data.orders]);
         setTotalOrders(res.data?.totalOrders);
         setIsLoading(false);

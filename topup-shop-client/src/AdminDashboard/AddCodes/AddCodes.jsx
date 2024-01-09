@@ -60,7 +60,7 @@ const AddCodes = () => {
       }
     });
     setCodesArray(newCodes);
-    console.log(newCodes);
+    // console.log(newCodes);
     setIsOpen(true);
   };
   const resetTextarea = () => {

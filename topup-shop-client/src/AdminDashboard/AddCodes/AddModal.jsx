@@ -15,7 +15,7 @@ const AddModal = ({
   const axiosPrivate = useAxiosPrivate();
   const handleAddCodes = () => {
     axiosPrivate.post(`/addCodes/${selected}`, codesArray).then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       Swal.fire({
         position: "top",
         icon: "success",

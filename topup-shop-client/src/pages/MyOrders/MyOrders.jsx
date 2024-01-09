@@ -38,7 +38,7 @@ const MyOrders = () => {
     getOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, loading, user?.email, limit]);
-  console.log(orders);
+  // console.log(orders);
   return (
     <div>
       <Loader isLoading={isLoading} />

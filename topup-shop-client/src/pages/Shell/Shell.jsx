@@ -39,7 +39,7 @@ const Shell = () => {
     axiosPrivate
       .post("/purchase/shell", order)
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         setIsLoading(false);
         setUser({
           ...user,
@@ -59,7 +59,7 @@ const Shell = () => {
   },[])
   useEffect(() => {
     axiosPublic.get(`/options?category=shell`).then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       setOptions(res.data);
       setIsLoading(false);
     });

@@ -3,8 +3,8 @@ import unipin from "../../../assets/images/unipin.jpg";
 import idcode from "../../../assets/images/idcode.png";
 import weekly from "../../../assets/images/weekly.png";
 import shell from "../../../assets/images/shell.jpg";
-import offer1 from "../../../assets/images/banner4.jpeg";
-import offer2 from "../../../assets/images/banner5.jpeg";
+import rechargeCard from "../../../assets/images/recharge-card.jpeg";
+import rechargeOffer from "../../../assets/images/recharge-offer.jpeg";
 import { useNavigate } from "react-router-dom";
 
 const Services = () => {
@@ -32,10 +32,10 @@ const Services = () => {
           <ServiceCard image={shell} title="Garena Shell Code (MY)" />
         </div>
         <div className="flex-1">
-          <ServiceCard image={offer1} title="Recharge Card [All sim]" />
+          <ServiceCard image={rechargeCard} title="Recharge Card [All sim]" />
         </div>
         <div className="flex-1">
-          <ServiceCard image={offer2} title="Minutes & MB offer [All sim]" />
+          <ServiceCard image={rechargeOffer} title="Minutes & MB offer [All sim]" />
         </div>
       </div>
     </>

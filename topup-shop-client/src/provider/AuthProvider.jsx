@@ -46,7 +46,7 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     axiosPrivate.get("/user")
       .then(res => {
-      console.log(res.data);
+      // console.log(res.data);
         setUser(res.data);
         setLoading(false);
       })

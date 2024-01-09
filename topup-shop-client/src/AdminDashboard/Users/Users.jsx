@@ -9,7 +9,7 @@ const Users = () => {
   const axiosPrivate = useAxiosPrivate();
 
   const handleSearch = e => {
-    console.log(e.target.value);
+    // console.log(e.target.value);
     setIsLoading(true);
     axiosPrivate.get(`/admin/users?email=${e.target.value}`)
       .then(res => {

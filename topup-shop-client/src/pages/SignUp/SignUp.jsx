@@ -25,7 +25,7 @@ const SignUp = () => {
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
     const user = { name, email, phone };
-    console.log(user);
+    // console.log(user);
     const passRegex = /^.{6,}$/;
     if (password !== confirmPass) {
       setError("Password and Confirm Password must be same.");
@@ -36,7 +36,7 @@ const SignUp = () => {
           updateUser(name)
             .then(() => {
               axiosPublic.post("/users", user).then((res) => {
-                console.log(res.data);
+                // console.log(res.data);
                 axiosPrivate
                   .post("/jwt", { email })
                   .then((res) => {
@@ -44,9 +44,9 @@ const SignUp = () => {
                       setUser(res.data);
                       setIsLoading(false);
                       setLoading(false);
-                      console.log(res.data);
+                      // console.log(res.data);
                     });
-                    console.log(res.data);
+                    // console.log(res.data);
                   })
                   .catch((err) => {
                     console.log(err)
@@ -84,14 +84,14 @@ const SignUp = () => {
         };
 
         axiosPublic.post("/users", user).then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           axiosPrivate
             .post("/jwt", { email })
             .then((res) => {
-              console.log(res.data);
+              // console.log(res.data);
               axiosPrivate.get("/user").then((res) => {
                 setUser(res.data);
-                console.log(res.data);
+                // console.log(res.data);
                 setIsLoading(false);
                 setLoading(false);
               })
@@ -112,7 +112,7 @@ const SignUp = () => {
         console.error(err);
       });
   };
-  console.log(user);
+  // console.log(user);
   useEffect(() => {
     if (user) {
       navigate("/");

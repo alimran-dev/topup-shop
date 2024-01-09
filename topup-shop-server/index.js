@@ -191,8 +191,9 @@ async function run() {
       try {
         const email = req.user.email;
         const filter = { email };
+        console.log("user email in cookie: ", email);
         const result = await userCollection.findOne(filter);
-        if (result.isBanned) {
+        if (result?.isBanned) {
           return res.cookie("access-token","", {
             httpOnly: true,
             maxAge: 0,
