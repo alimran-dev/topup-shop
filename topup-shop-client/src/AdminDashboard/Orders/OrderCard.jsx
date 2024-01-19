@@ -15,6 +15,7 @@ const OrderCard = ({
 }) => {
   const [newStatus, setNewStatus] = useState(order?.status);
   const [newFeedback, setNewFeedback] = useState(order?.feedback);
+  const [isDisable, setIsDisable] = useState(order?.status === "cancelled");
   const axiosPrivate = useAxiosPrivate();
   const {
     _id,
@@ -62,10 +63,12 @@ const OrderCard = ({
   };
   // console.log(newStatus, newFeedback);
   const handleUpdate = () => {
+    setIsDisable(true);
     const updatedOrder = { id: _id, status: newStatus, feedback: newFeedback };
     axiosPrivate
       .patch("/admin/orders/processing", updatedOrder)
       .then((res) => {
+        setIsDisable(newStatus === "cancelled");
         if (res.data?.modifiedCount) {
           Swal.fire({
             title: "Order Updated Successfully",
@@ -162,7 +165,7 @@ const OrderCard = ({
           </p>
         </div>
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" && (
+          {category === "unipin" || category==="shell" ? (
             <div>
               <textarea
                 disabled
@@ -174,7 +177,7 @@ const OrderCard = ({
                 Copy All
               </button>
             </div>
-          )}
+          ):<></>}
           {category === "idcode" || category === "weekly & monthly" ? (
             <div className="w-full h-full">
               {" "}
@@ -186,7 +189,8 @@ const OrderCard = ({
               ></textarea>
               <button
                 onClick={handleUpdate}
-                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto"
+                disabled={isDisable}
+                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Update
               </button>

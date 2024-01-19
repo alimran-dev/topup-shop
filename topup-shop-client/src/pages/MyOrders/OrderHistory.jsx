@@ -94,7 +94,7 @@ const OrderHistory = ({ order }) => {
           </p>
         </div>
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" && (
+          {category === "unipin" || category==="shell" ? (
             <div>
               <textarea
                 ref={codesRef}
@@ -110,7 +110,7 @@ const OrderHistory = ({ order }) => {
                 <MdContentCopy className="inline-block" /> Copy All
               </button>
             </div>
-          )}
+          ):<></>}
           {category === "idcode" || category === "weekly & monthly" ? (
             status === "pending" ? (
               <div className="flex items-center justify-center h-full w-full">

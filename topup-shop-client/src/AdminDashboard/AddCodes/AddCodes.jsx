@@ -1,10 +1,16 @@
 import { useRef, useState } from "react";
 import AddModal from "./AddModal";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import ShellModal from "./ShellModal";
+import Loader from "../../components/Loader";
 
 const AddCodes = () => {
   const [selected, setSelected] = useState("unipin");
   const [inputs, setInputs] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenShell, setIsOpenShell] = useState(false);
+  const [shellOptions, setShellOptions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [codesArray, setCodesArray] = useState([
     { uc: 20, codes: [] },
     { uc: 36, codes: [] },
@@ -18,10 +24,12 @@ const AddCodes = () => {
     { uc: 1626, codes: [] },
     { uc: 2000, codes: [] },
   ]);
+  const [shellCodes, setShellCodes] = useState([]);
   const textareaRef = useRef(null);
+  const axiosPublic = useAxiosPublic();
 
   // console.log(ucCodesArray);
-  const handleCheck = () => {
+  const handleUnipin = () => {
     const separatedInputs = inputs
       .split("\n")
       .map((code) =>
@@ -68,8 +76,31 @@ const AddCodes = () => {
       textareaRef.current.value = "";
     }
   };
+  const handleShell = () => {
+    const separatedInputs = inputs
+      .split("\n")
+      .map((line) => line.trim().replace(/^[^\w\d-]+|[^\w\d-]+$/g, ""));
+    const filterInputs = separatedInputs.filter((input) => input !== "");
+    const uniqueInputs = [...new Set(filterInputs)];
+    console.log(uniqueInputs);
+    setShellCodes(uniqueInputs);
+    setIsLoading(true);
+    axiosPublic.get(`/options?category=shell`).then((res) => {
+      setShellOptions(res.data);
+      setIsLoading(false);
+      setIsOpenShell(true);
+    });
+  };
+  const handleCheck = () => {
+    if (selected === "unipin") {
+      handleUnipin();
+    } else if (selected === "shell") {
+      handleShell();
+    }
+  };
   return (
     <div className="-mt-5">
+      <Loader isLoading={isLoading} />
       <AddModal
         isOpen={isOpen}
         setIsOpen={setIsOpen}
@@ -77,6 +108,14 @@ const AddCodes = () => {
         selected={selected}
         resetTextarea={resetTextarea}
         setInputs={setInputs}
+      />
+      <ShellModal
+        isOpenShell={isOpenShell}
+        setIsOpenShell={setIsOpenShell}
+        resetTextarea={resetTextarea}
+        setInputs={setInputs}
+        shellOptions={shellOptions}
+        shellCodes={shellCodes}
       />
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
         Add Codes

@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 // middlewares
 app.use(
   cors({
-    origin: ["https://mezbashop.com","https://www.mezbashop.com","http://localhost:5173"],
+    origin: ["https://mezbashop.com","https://www.mezbashop.com","https://demo.mezbashop.com","http://localhost:5173"],
     credentials: true,
   })
 );
@@ -523,6 +523,89 @@ async function run() {
           .send({ success: false, error: "Internal Server Error" });
       }
     });
+    app.post("/purchase/shell", verifyToken, async (req, res) => {
+      try {
+        const { id, email, quantity } = req.body;
+        const orderTime = new Date();
+        // const email = req.query?.email;
+        // const id = req.query?.id;
+        // const quantity = req.query?.quantity;
+        if (!id || !email || !quantity) {
+          return res.status(400).send({ error: "Item not found" });
+        }
+        const emailInToken = req.user?.email;
+        if (email !== emailInToken) {
+          return res.cookie("access-token","", {
+            httpOnly: true,
+            maxAge: 0,
+            secure: true,
+            sameSite: "none",
+            domain: '.mezbashop.com',
+          })
+            .status(401)
+            .send({ message: "unauthorized" });
+        }
+        const filter = { _id: new ObjectId(id) };
+        const option = await shellCollection.findOne(filter);
+        if (!option) {
+          return res.status(404).send({ error: "Item not Found" });
+        } else if (quantity > option.codes.length) {
+          return res
+            .status(400)
+            .send({ error: "Requested quantity exceeds available codes" });
+        }
+        const orderPrice = option.price * quantity;
+        const user = await userCollection.findOne({ email: email });
+        if (!user) {
+          return res.status(401).send({ error: "User Not Found" });
+        } else if (user.balance < orderPrice) {
+          return res
+            .status(400)
+            .send({ error: "You don't have enough balance" });
+        }
+        const userUpdate = await userCollection.updateOne(
+          { email: email },
+          {
+            $set: {
+              balance: user.balance - orderPrice,
+              spent: user.spent + orderPrice,
+              orders: user.orders + 1,
+            },
+          }
+        );
+
+        if (userUpdate.modifiedCount > 0) {
+          const takenCodes = option.codes.slice(0, quantity);
+          await shellCollection.updateOne(filter, {
+            $pull: { codes: { $in: takenCodes } },
+          });
+          const ordersCount = await orderCollection.countDocuments();
+          const order = {
+            optionID: new ObjectId(id),
+            orderID: ordersCount + 1000,
+            email: email,
+            category: "shell",
+            name: `${option.name} (${quantity} codes)`,
+            price: orderPrice,
+            orderTime: orderTime,
+            updateTime: new Date(),
+            codes: takenCodes,
+            status: "complete",
+            feedback: "",
+          };
+          console.log(order);
+          const result = await orderCollection.insertOne(order);
+          res
+            .status(201)
+            .send({ orderID: result.insertedId, price: orderPrice });
+        }
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
 
     // option and code admin api
     app.get("/options", async (req, res) => {
@@ -682,20 +765,26 @@ async function run() {
           .send({ success: false, error: "Internal Server Error" });
       }
     });
-    app.post("/addCodes/:category", verifyAdmin, async (req, res) => {
+    app.post("/addCodes/:category/:id?", verifyAdmin, async (req, res) => {
       try {
         const category = req.params.category;
+        const id = req.params.id;
         const codesArray = req.body;
-        console.log(codesArray);
+        console.log(codesArray, id);
+        if (category === "unipin") {
         codesArray.forEach(async (item) => {
-          if (category === "unipin") {
             const filter = { uc: item.uc };
             const result = await unipinCollection.updateOne(filter, {
               $addToSet: { codes: { $each: item.codes } },
             });
             console.log(result);
-          }
-        });
+          });
+        } 
+        else if (category === "shell") {
+          const filter = { _id: new ObjectId(id) };
+          const result = await shellCollection.updateOne(filter, { $addToSet: { codes: { $each: codesArray } } });
+          console.log(result);
+        }
         res.send({ message: "Updated successfully" });
       } catch (err) {
         console.error("Error: ", err.message);
@@ -847,7 +936,11 @@ async function run() {
             updateTime: new Date(),
           },
         };
+        const order = await orderCollection.findOne(filter);
         const result = await orderCollection.updateOne(filter, updateOrder);
+        if (newStatus === "cancelled") {
+          await userCollection.updateOne({email: order.email},{$inc: {balance: order.price, spent: -order.price}})
+        }
         res.send(result);
       } catch (err) {
         console.error("Error: ", err.message);
@@ -861,16 +954,25 @@ async function run() {
     // user related admin api
     app.get("/admin/users", verifyAdmin, async (req, res) => {
       try {
-        const searchEmail = req.query?.email;
-        console.log(searchEmail);
-        if (searchEmail) {
+        const { page, limit, search } = req.query;
+        const pageInt = parseInt(page);
+        const limitInt = parseInt(limit);
+        console.log(pageInt, limitInt);
+        const totalUsers = await userCollection.countDocuments();
+        if (search) {
           const result = await userCollection
-            .find({ email: { $regex: new RegExp(searchEmail, "i") } })
+            .find(
+              { email: { $regex: new RegExp(search, "i") } }
+            )
             .toArray();
-          res.send(result);
+          res.send({ users: result, totalUsers: result.length });
         } else {
-          const result = await userCollection.find({ role: "user" }).toArray();
-          res.send(result);
+          const result = await userCollection
+            .find({})
+            .skip((pageInt - 1) * limitInt)
+            .limit(limitInt)
+            .toArray();
+          res.send({ users: result, totalUsers });
         }
       } catch (err) {
         console.error("Error: ", err.message);
@@ -989,10 +1091,28 @@ async function run() {
             }
           ])
           .toArray();
+        const shellMetrics = await shellCollection
+          .aggregate([
+            {
+              $group: {
+                _id: "$name",
+                codesCount: { $sum: { $size: "$codes" } },
+              },
+            },
+            {
+              $project: {
+                name: "$_id",
+                codes: "$codesCount",
+                _id: 0,
+              },
+            }
+          ])
+          .toArray();
         const result = {
           balance: balanceMetrics[0],
           orders: orderMetrics[0],
           unipins: unipinMetrics,
+          shells: shellMetrics,
         };
         res.send(result);
       } catch (err) {
