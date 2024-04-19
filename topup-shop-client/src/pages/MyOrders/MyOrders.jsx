@@ -42,10 +42,19 @@ const MyOrders = () => {
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <div className="w-fit mx-auto">
-        <h2 className={`order-tab-border`}>
-          <span className={`order-active-tab`}>Order History</span>
-        </h2>
+      <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-5">
+        <div className="w-fit">
+          <h2 className={`order-tab-border`}>
+            <span className={`order-active-tab`}>Order History</span>
+          </h2>
+        </div>
+        <Link
+          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit block"
+          target="_blank"
+          to={"https://shop.garena.my/app/100067/idlogin"}
+        >
+          Redeem Code
+        </Link>
       </div>
       <div className="my-8">
         <InfiniteScroll

@@ -11,7 +11,12 @@ const PORT = process.env.PORT || 5000;
 // middlewares
 app.use(
   cors({
-    origin: ["https://mezbashop.com","https://www.mezbashop.com","https://demo.mezbashop.com","http://localhost:5173"],
+    origin: [
+      "https://mezbashop.com",
+      "https://www.mezbashop.com",
+      "https://demo.mezbashop.com",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
@@ -27,13 +32,14 @@ const verifyToken = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
-      return res.cookie("access-token","", {
-        httpOnly: true,
-        maxAge: 0,
-        secure: true,
-        sameSite: "none",
-        domain: '.mezbashop.com',
-      })
+      return res
+        .cookie("access-token", "", {
+          httpOnly: true,
+          maxAge: 0,
+          secure: true,
+          sameSite: "none",
+          domain: ".mezbashop.com",
+        })
         .status(401)
         .send({ message: "unauthorized" });
     }
@@ -49,24 +55,26 @@ const verifyAdmin = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
-      return res.cookie("access-token","", {
+      return res
+        .cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
           secure: true,
           sameSite: "none",
-          domain: '.mezbashop.com',
+          domain: ".mezbashop.com",
         })
         .status(401)
         .send({ message: "unauthorized" });
     }
     if (decoded.role !== "admin") {
-      return res.cookie("access-token","", {
-        httpOnly: true,
-        maxAge: 0,
-        secure: true,
-        sameSite: "none",
-        domain: '.mezbashop.com',
-      })
+      return res
+        .cookie("access-token", "", {
+          httpOnly: true,
+          maxAge: 0,
+          secure: true,
+          sameSite: "none",
+          domain: ".mezbashop.com",
+        })
         .status(401)
         .send({ message: "unauthorized" });
     }
@@ -100,6 +108,7 @@ const unipinCollection = database.collection("unipins");
 const idcodeCollection = database.collection("idcodes");
 const weeklyMonthlyCollection = database.collection("weeklyMonthly");
 const shellCollection = database.collection("shells");
+const specialOfferCollection = database.collection("specialOffer");
 
 const connectToDB = async () => {
   try {
@@ -156,7 +165,7 @@ async function run() {
           secure: true,
           sameSite: "none",
           maxAge: 1000 * 60 * 60 * 24 * 30,
-          domain: '.mezbashop.com',
+          domain: ".mezbashop.com",
         });
         res.send({ success: true });
       } catch (err) {
@@ -166,16 +175,16 @@ async function run() {
           .send({ success: false, error: "Internal Server Error" });
       }
     });
-    app.post("/logout",verifyToken, (req, res) => {
+    app.post("/logout", verifyToken, (req, res) => {
       try {
         const user = req.body;
         console.log(user);
-        res.cookie("access-token","", {
+        res.cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
           secure: true,
           sameSite: "none",
-          domain: '.mezbashop.com',
+          domain: ".mezbashop.com",
         });
         res.send({ success: true });
       } catch (err) {
@@ -194,13 +203,14 @@ async function run() {
         console.log("user email in cookie: ", email);
         const result = await userCollection.findOne(filter);
         if (result?.isBanned) {
-          return res.cookie("access-token","", {
-            httpOnly: true,
-            maxAge: 0,
-            secure: true,
-            sameSite: "none",
-            domain: '.mezbashop.com',
-          })
+          return res
+            .cookie("access-token", "", {
+              httpOnly: true,
+              maxAge: 0,
+              secure: true,
+              sameSite: "none",
+              domain: ".mezbashop.com",
+            })
             .status(401)
             .send({ error: "User Blocked" });
         }
@@ -249,12 +259,17 @@ async function run() {
           return res.status(401).send({ error: "Unauthorized" });
         }
         const updateUser = {
-          $set: {
-            name: name,
-            phone: phone,
-            photo: photo,
-          },
+          $set: {},
         };
+        if (name) {
+          updateUser.$set.name = name;
+        }
+        if (phone) {
+          updateUser.$set.phone = phone;
+        }
+        if (photo) {
+          updateUser.$set.photo = photo;
+        }
         const isUpdated = await userCollection.updateOne(
           { email: email },
           updateUser
@@ -312,13 +327,14 @@ async function run() {
         }
         const emailInToken = req.user?.email;
         if (email !== emailInToken) {
-          return res.cookie("access-token","", {
-            httpOnly: true,
-            maxAge: 0,
-            secure: true,
-            sameSite: "none",
-            domain: '.mezbashop.com',
-          })
+          return res
+            .cookie("access-token", "", {
+              httpOnly: true,
+              maxAge: 0,
+              secure: true,
+              sameSite: "none",
+              domain: ".mezbashop.com",
+            })
             .status(401)
             .send({ message: "unauthorized" });
         }
@@ -392,13 +408,14 @@ async function run() {
         }
         const emailInToken = req.user?.email;
         if (email !== emailInToken) {
-          return res.cookie("access-token","", {
-            httpOnly: true,
-            maxAge: 0,
-            secure: true,
-            sameSite: "none",
-            domain: '.mezbashop.com',
-          })
+          return res
+            .cookie("access-token", "", {
+              httpOnly: true,
+              maxAge: 0,
+              secure: true,
+              sameSite: "none",
+              domain: ".mezbashop.com",
+            })
             .status(401)
             .send({ message: "unauthorized" });
         }
@@ -462,13 +479,14 @@ async function run() {
         }
         const emailInToken = req.user?.email;
         if (email !== emailInToken) {
-          return res.cookie("access-token","", {
-            httpOnly: true,
-            maxAge: 0,
-            secure: true,
-            sameSite: "none",
-            domain: '.mezbashop.com',
-          })
+          return res
+            .cookie("access-token", "", {
+              httpOnly: true,
+              maxAge: 0,
+              secure: true,
+              sameSite: "none",
+              domain: ".mezbashop.com",
+            })
             .status(401)
             .send({ message: "unauthorized" });
         }
@@ -535,13 +553,14 @@ async function run() {
         }
         const emailInToken = req.user?.email;
         if (email !== emailInToken) {
-          return res.cookie("access-token","", {
-            httpOnly: true,
-            maxAge: 0,
-            secure: true,
-            sameSite: "none",
-            domain: '.mezbashop.com',
-          })
+          return res
+            .cookie("access-token", "", {
+              httpOnly: true,
+              maxAge: 0,
+              secure: true,
+              sameSite: "none",
+              domain: ".mezbashop.com",
+            })
             .status(401)
             .send({ message: "unauthorized" });
         }
@@ -772,17 +791,18 @@ async function run() {
         const codesArray = req.body;
         console.log(codesArray, id);
         if (category === "unipin") {
-        codesArray.forEach(async (item) => {
+          codesArray.forEach(async (item) => {
             const filter = { uc: item.uc };
             const result = await unipinCollection.updateOne(filter, {
               $addToSet: { codes: { $each: item.codes } },
             });
             console.log(result);
           });
-        } 
-        else if (category === "shell") {
+        } else if (category === "shell") {
           const filter = { _id: new ObjectId(id) };
-          const result = await shellCollection.updateOne(filter, { $addToSet: { codes: { $each: codesArray } } });
+          const result = await shellCollection.updateOne(filter, {
+            $addToSet: { codes: { $each: codesArray } },
+          });
           console.log(result);
         }
         res.send({ message: "Updated successfully" });
@@ -871,6 +891,108 @@ async function run() {
       }
     });
 
+    // special offer related api
+    app.get("/offers/:server", async (req, res) => {
+      try {
+        const server = req.params.server;
+        console.log(server);
+        if (server === "indonesia") {
+          const result = await specialOfferCollection
+            .find({ server: "indonesia" })
+            .sort({ inStock: -1, price: 1 })
+            .toArray();
+          res.send(result);
+        } else if (server === "all") {
+          const result = await specialOfferCollection
+            .find({ server: "all" })
+            .sort({ inStock: -1, price: 1 })
+            .toArray();
+          res.send(result);
+        } else res.status(400).send({ message: "Wrong query" });
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.get("/offer/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const result = await specialOfferCollection.findOne(filter);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/offer/update", verifyAdmin, async (req, res) => {
+      try {
+        const { id, name, price, description } = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const option = {
+          $set: {
+            name: name,
+            price: parseInt(price),
+            description: description,
+          },
+        };
+        const result = await specialOfferCollection.updateOne(filter, option);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/offers/updateStock", verifyAdmin, async (req, res) => {
+      try {
+        const { id, inStock } = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const option = {
+          $set: {
+            inStock: inStock,
+          },
+        };
+        const result = await specialOfferCollection.updateOne(filter, option);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.post("/offer", verifyAdmin, async (req, res) => {
+      try {
+        const { name, server, price, description } = req.body;
+        const option = { name, server, price, description, inStock: true };
+        const result = await specialOfferCollection.insertOne(option);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.delete("/offer/delete", verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.query;
+        const filter = { _id: new ObjectId(id) };
+        const result = await specialOfferCollection.deleteOne(filter);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
     // TODO: jwt middleware verify
     // order related admin api
     app.get("/admin/orders", verifyAdmin, async (req, res) => {
@@ -939,7 +1061,10 @@ async function run() {
         const order = await orderCollection.findOne(filter);
         const result = await orderCollection.updateOne(filter, updateOrder);
         if (newStatus === "cancelled") {
-          await userCollection.updateOne({email: order.email},{$inc: {balance: order.price, spent: -order.price}})
+          await userCollection.updateOne(
+            { email: order.email },
+            { $inc: { balance: order.price, spent: -order.price } }
+          );
         }
         res.send(result);
       } catch (err) {
@@ -961,9 +1086,7 @@ async function run() {
         const totalUsers = await userCollection.countDocuments();
         if (search) {
           const result = await userCollection
-            .find(
-              { email: { $regex: new RegExp(search, "i") } }
-            )
+            .find({ email: { $regex: new RegExp(search, "i") } })
             .toArray();
           res.send({ users: result, totalUsers: result.length });
         } else {
@@ -1005,7 +1128,7 @@ async function run() {
       try {
         const { email, addBalance } = req.body;
         const addBalanceInt = parseInt(addBalance);
-        if (!addBalance) {
+        if (!addBalanceInt) {
           return res.status(400).send({ error: "Not Possible" });
         }
         const user = await userCollection.findOne({ email: email });
@@ -1087,8 +1210,8 @@ async function run() {
               },
             },
             {
-              $sort: {uc: 1}
-            }
+              $sort: { uc: 1 },
+            },
           ])
           .toArray();
         const shellMetrics = await shellCollection
@@ -1105,7 +1228,7 @@ async function run() {
                 codes: "$codesCount",
                 _id: 0,
               },
-            }
+            },
           ])
           .toArray();
         const result = {
@@ -1132,10 +1255,9 @@ async function run() {
     // await client.close();
   }
 }
-connectToDB()
-  .then(async () => {
-    run().catch(console.dir);
-  })
+connectToDB().then(async () => {
+  run().catch(console.dir);
+});
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
 });

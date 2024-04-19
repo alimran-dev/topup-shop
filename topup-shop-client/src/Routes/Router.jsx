@@ -24,6 +24,10 @@ import SignUp from "../pages/SignUp/SignUp";
 import AdminRoute from "./AdminRoute";
 import PrivateRoute from "./PrivateRoute";
 import ErrorPage from "../pages/ErrorPage/ErrorPage";
+import ServerList from "../pages/SpecialOffer/ServerList";
+import ServerOptions from "../pages/SpecialOffer/ServerOptions";
+import UpdateSpecialOption from "../AdminDashboard/Update/UpdateSpecialOption";
+import UpdateSpOptionItem from "../AdminDashboard/Update/UpdateSpOptionItem";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +58,14 @@ const router = createBrowserRouter([
       {
         path: "/shell",
         element: <Shell />,
+      },
+      {
+        path: "/special-offer",
+        element: <ServerList />,
+      },
+      {
+        path: "/special-offer/:server",
+        element: <ServerOptions />
       },
       {
         path: "/contact",
@@ -104,6 +116,18 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/updateOptions",
         element: <UpdateOptions />,
+      },
+      {
+        path: "/dashboard/updateSpecialOption",
+        element: <ServerList />
+      },
+      {
+        path: "/dashboard/updateSpecialOption/:server",
+        element: <UpdateSpecialOption />,
+      },
+      {
+        path: "/dashboard/updateSpecialOption/:server/:id",
+        element: <UpdateSpOptionItem />,
       },
       {
         path: "/dashboard/updateOptions/:category",

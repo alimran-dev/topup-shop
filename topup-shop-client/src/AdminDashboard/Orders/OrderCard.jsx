@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MdContentCopy } from "react-icons/md";
 import { TbCurrencyTaka } from "react-icons/tb";
 import Swal from "sweetalert2";
@@ -16,6 +16,7 @@ const OrderCard = ({
   const [newStatus, setNewStatus] = useState(order?.status);
   const [newFeedback, setNewFeedback] = useState(order?.feedback);
   const [isDisable, setIsDisable] = useState(order?.status === "cancelled");
+  const codesRef = useRef(null);
   const axiosPrivate = useAxiosPrivate();
   const {
     _id,
@@ -87,6 +88,35 @@ const OrderCard = ({
       .catch((err) => {
         console.log(err);
       });
+  };
+  const handleCopy = async () => {
+    if (codesRef.current) {
+      try {
+        const allCodes = codesRef.current.value.split("\n");
+        const firstCode = allCodes[0].substring(5);
+        allCodes[0] = firstCode;
+        const allCodesMod = allCodes.join("\n");
+        await navigator.clipboard.writeText(allCodesMod);
+        Swal.fire({
+          title: "Text Copied",
+          icon: "success",
+          toast: true,
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top",
+        });
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          title: "Failed to Copy",
+          icon: "error",
+          toast: true,
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top",
+        });
+      }
+    }
   };
   return (
     <div>
@@ -171,10 +201,11 @@ const OrderCard = ({
                 disabled
                 value={codes.join("\n")}
                 name=""
+                ref={codesRef}
                 className="border-2 h-24 w-full rounded px-2 py-0.5"
               ></textarea>
-              <button className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto">
-                Copy All
+              <button onClick={handleCopy} className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto">
+              <MdContentCopy className="inline-block" /> Copy All
               </button>
             </div>
           ):<></>}

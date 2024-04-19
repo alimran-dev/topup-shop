@@ -20,7 +20,11 @@ const OrderHistory = ({ order }) => {
   const handleCopy = async () => {
     if (codesRef.current) {
       try {
-        await navigator.clipboard.writeText(codesRef.current.value);
+        const allCodes = codesRef.current.value.split("\n");
+        const firstCode = allCodes[0].substring(5);
+        allCodes[0] = firstCode;
+        const allCodesMod = allCodes.join("\n");
+        await navigator.clipboard.writeText(allCodesMod);
         Swal.fire({
           title: "Text Copied",
           icon: "success",
@@ -94,7 +98,7 @@ const OrderHistory = ({ order }) => {
           </p>
         </div>
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" || category==="shell" ? (
+          {category === "unipin" || category === "shell" ? (
             <div>
               <textarea
                 ref={codesRef}
@@ -110,7 +114,9 @@ const OrderHistory = ({ order }) => {
                 <MdContentCopy className="inline-block" /> Copy All
               </button>
             </div>
-          ):<></>}
+          ) : (
+            <></>
+          )}
           {category === "idcode" || category === "weekly & monthly" ? (
             status === "pending" ? (
               <div className="flex items-center justify-center h-full w-full">

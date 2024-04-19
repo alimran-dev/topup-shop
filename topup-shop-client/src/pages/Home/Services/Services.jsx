@@ -5,10 +5,9 @@ import weekly from "../../../assets/images/weekly.png";
 import shell from "../../../assets/images/shell.jpg";
 import rechargeCard from "../../../assets/images/recharge-card.jpeg";
 import rechargeOffer from "../../../assets/images/recharge-offer.jpeg";
-import { useNavigate } from "react-router-dom";
+import specialOffer from "../../../assets/images/special_offer.jpeg";
 
 const Services = () => {
-  const navigate = useNavigate();
   return (
     <>
       <div className="flex items-center justify-center">
@@ -19,23 +18,26 @@ const Services = () => {
         <span className="block border-t-2 border-[#FA6023] flex-1"></span>
       </div>
       <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-5 my-5">
-        <div onClick={()=>navigate('/unipin')} className="flex-1">
-          <ServiceCard image={unipin} title="Unipin Voucher(BDT)" />
-        </div>
-        <div onClick={()=>navigate('/idcode')} className="flex-1">
-          <ServiceCard image={idcode} title="IDCODE Topup [BD SERVER]" />
-        </div>
-        <div onClick={()=>navigate('/weekly-monthly')} className="flex-1">
-          <ServiceCard image={weekly} title="Weekly & Monthly [Offer]" />
-        </div>
-        <div onClick={()=> navigate('/shell')} className="flex-1">
-          <ServiceCard image={shell} title="Garena Shell Code (MY)" />
+        <div className="flex-1">
+          <ServiceCard image={unipin} path="/unipin" title="Unipin Voucher(BDT)" />
         </div>
         <div className="flex-1">
-          <ServiceCard image={rechargeCard} title="Recharge Card [All sim]" />
+          <ServiceCard image={specialOffer} path="/special-offer" title="All Special Offer" />
         </div>
         <div className="flex-1">
-          <ServiceCard image={rechargeOffer} title="Minutes & MB offer [All sim]" />
+          <ServiceCard image={idcode} path="/idcode" title="IDCODE Topup [BD SERVER]" />
+        </div>
+        <div className="flex-1">
+          <ServiceCard image={weekly} path="/weekly-monthly" title="Weekly & Monthly [Offer]" />
+        </div>
+        <div className="flex-1">
+          <ServiceCard image={shell} path="/shell" title="Garena Shell Code (MY)" />
+        </div>
+        <div className="flex-1">
+          <ServiceCard image={rechargeCard} path="#" title="Recharge Card [All sim]" />
+        </div>
+        <div className="flex-1">
+          <ServiceCard image={rechargeOffer} path="#" title="Minutes & MB offer [All sim]" />
         </div>
       </div>
     </>
