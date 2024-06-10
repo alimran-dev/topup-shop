@@ -2,7 +2,7 @@ import axios from "axios";
 
 const axiosPrivate = axios.create({
     // baseURL: "http://localhost:5000/",
-    baseURL: "https://api.mezbashop.com/",
+    baseURL: import.meta.env.VITE_PROJECTENV==="production" ? "https://api.mezbashop.com/":"http://localhost:5000/",
     withCredentials: true,
 })
 

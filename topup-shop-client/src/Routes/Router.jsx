@@ -28,6 +28,7 @@ import ServerList from "../pages/SpecialOffer/ServerList";
 import ServerOptions from "../pages/SpecialOffer/ServerOptions";
 import UpdateSpecialOption from "../AdminDashboard/Update/UpdateSpecialOption";
 import UpdateSpOptionItem from "../AdminDashboard/Update/UpdateSpOptionItem";
+import Method from "../pages/AddBalance/Method";
 
 const router = createBrowserRouter([
   {
@@ -86,6 +87,10 @@ const router = createBrowserRouter([
       {
         path: "/addBalance",
         element: <PrivateRoute><AddBalance /></PrivateRoute>,
+      },
+      {
+        path: "/addBalance/method",
+        element: <PrivateRoute><Method /></PrivateRoute>
       },
       {
         path: "/myOrders",

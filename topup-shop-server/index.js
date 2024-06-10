@@ -36,9 +36,9 @@ const verifyToken = (req, res, next) => {
         .cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: true,
-          sameSite: "none",
-          domain: ".mezbashop.com",
+          secure: process.env.PROJECT_ENV==="production",
+          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
         })
         .status(401)
         .send({ message: "unauthorized" });
@@ -59,9 +59,9 @@ const verifyAdmin = (req, res, next) => {
         .cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: true,
-          sameSite: "none",
-          domain: ".mezbashop.com",
+          secure: process.env.PROJECT_ENV==="production",
+          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
         })
         .status(401)
         .send({ message: "unauthorized" });
@@ -71,9 +71,9 @@ const verifyAdmin = (req, res, next) => {
         .cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: true,
-          sameSite: "none",
-          domain: ".mezbashop.com",
+          secure: process.env.PROJECT_ENV==="production",
+          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
         })
         .status(401)
         .send({ message: "unauthorized" });
@@ -88,8 +88,12 @@ app.get("/", (req, res) => {
 });
 
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tklaef2.mongodb.net/?retryWrites=true&w=majority`;
-const uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@127.0.0.1:27017/`;
-// const uri = `mongodb://127.0.0.1:27017/`;
+let uri;
+if (process.env.PROJECT_ENV === "production") {
+  uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@127.0.0.1:27017/`;
+} else {
+  uri = `mongodb://127.0.0.1:27017/`;
+}
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -101,7 +105,7 @@ const client = new MongoClient(uri, {
   maxPoolSize: 10,
 });
 
-const database = client.db("mezbaGamingDB");
+const database = process.env.PROJECT_ENV === "production" ? client.db("mezbaGamingDB"):client.db("topupDB");
 const userCollection = database.collection("users");
 const orderCollection = database.collection("orders");
 const unipinCollection = database.collection("unipins");
@@ -130,8 +134,8 @@ async function run() {
           return res
             .clearCookie("access-token", {
               maxAge: 0,
-              secure: true,
-              sameSite: "none",
+              secure: process.env.PROJECT_ENV==="production",
+              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -152,7 +156,9 @@ async function run() {
     app.post("/jwt", async (req, res) => {
       try {
         const { email } = req.body;
+        console.log(email);
         const userInDb = await userCollection.findOne({ email: email });
+        console.log(userInDb);
         if (!userInDb) {
           return res.status(401).send({ error: "Unauthorized" });
         }
@@ -162,10 +168,10 @@ async function run() {
         });
         res.cookie("access-token", token, {
           httpOnly: true,
-          secure: true,
-          sameSite: "none",
+          secure: process.env.PROJECT_ENV==="production",
+          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
           maxAge: 1000 * 60 * 60 * 24 * 30,
-          domain: ".mezbashop.com",
+          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
         });
         res.send({ success: true });
       } catch (err) {
@@ -182,9 +188,9 @@ async function run() {
         res.cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: true,
-          sameSite: "none",
-          domain: ".mezbashop.com",
+          secure: process.env.PROJECT_ENV==="production",
+          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
         });
         res.send({ success: true });
       } catch (err) {
@@ -207,9 +213,9 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: true,
-              sameSite: "none",
-              domain: ".mezbashop.com",
+              secure: process.env.PROJECT_ENV==="production",
+              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
             })
             .status(401)
             .send({ error: "User Blocked" });
@@ -331,9 +337,9 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: true,
-              sameSite: "none",
-              domain: ".mezbashop.com",
+              secure: process.env.PROJECT_ENV==="production",
+              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -412,9 +418,9 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: true,
-              sameSite: "none",
-              domain: ".mezbashop.com",
+              secure: process.env.PROJECT_ENV==="production",
+              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -483,9 +489,9 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: true,
-              sameSite: "none",
-              domain: ".mezbashop.com",
+              secure: process.env.PROJECT_ENV==="production",
+              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -557,9 +563,9 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: true,
-              sameSite: "none",
-              domain: ".mezbashop.com",
+              secure: process.env.PROJECT_ENV==="production",
+              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
