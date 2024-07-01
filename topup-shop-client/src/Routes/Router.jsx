@@ -28,7 +28,13 @@ import ServerList from "../pages/SpecialOffer/ServerList";
 import ServerOptions from "../pages/SpecialOffer/ServerOptions";
 import UpdateSpecialOption from "../AdminDashboard/Update/UpdateSpecialOption";
 import UpdateSpOptionItem from "../AdminDashboard/Update/UpdateSpOptionItem";
-import Method from "../pages/AddBalance/Method";
+import Method from "../pages/AddBalance/Method/Method";
+import Pay from "../pages/AddBalance/Pay/Pay";
+import Payments from "../AdminDashboard/Payments/Payments";
+import Transactions from "../AdminDashboard/Transactions/Transactions";
+import Notice from "../AdminDashboard/Notice/Notice";
+import Devices from "../AdminDashboard/Devices/Devices";
+import BlockTrx from "../AdminDashboard/BlockTrx/BlockTrx";
 
 const router = createBrowserRouter([
   {
@@ -90,7 +96,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/addBalance/method",
-        element: <PrivateRoute><Method /></PrivateRoute>
+        element: <PrivateRoute><Method /></PrivateRoute>,
+      },
+      {
+        path: "/addBalance/pay",
+        element: <PrivateRoute><Pay /></PrivateRoute>,
       },
       {
         path: "/myOrders",
@@ -105,6 +115,7 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <AdminRoute><Root /></AdminRoute>,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: "/dashboard",
@@ -150,6 +161,26 @@ const router = createBrowserRouter([
         path: "/dashboard/users",
         element: <Users />,
       },
+      {
+        path: "/dashboard/payments",
+        element: <Payments />,
+      },
+      {
+        path: "/dashboard/transactions",
+        element: <Transactions />,
+      },
+      {
+        path: "/dashboard/notice",
+        element: <Notice />
+      },
+      {
+        path: "/dashboard/devices",
+        element: <Devices />
+      },
+      {
+        path: "/dashboard/blockedTrx",
+        element: <BlockTrx />
+      }
     ],
   },
 ]);

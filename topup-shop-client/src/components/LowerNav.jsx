@@ -108,7 +108,7 @@ const LowerNav = () => {
             >
               <div className="flex flex-col items-center">
                 <MdAccountBalance className="text-2xl" />
-                <p className="text-xs font-medium">Add Balance</p>
+                <p className="text-xs font-medium text-center">Add Balance</p>
               </div>
             </NavLink>
             <NavLink
@@ -134,7 +134,7 @@ const LowerNav = () => {
                   alt="photo"
                   className="w-9 h-7 rounded-full"
                 />
-                <p className="text-xs font-medium">My Account</p>
+                <p className="text-xs font-medium text-center">My Account</p>
               </div>
             </NavLink>
           </>

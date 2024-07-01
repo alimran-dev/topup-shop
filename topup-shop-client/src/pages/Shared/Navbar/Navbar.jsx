@@ -6,7 +6,9 @@ import avatar from "../../../assets/images/avater.png";
 import { useState } from "react";
 import { VscAccount } from "react-icons/vsc";
 import { TfiMenuAlt } from "react-icons/tfi";
-import { MdAccountBalance, MdOutlinePostAdd } from "react-icons/md";
+import { GrAnnounce, GrTransaction } from "react-icons/gr";
+import { MdAccountBalance, MdDevices, MdOutlinePostAdd, MdPayment } from "react-icons/md";
+import { ImBlocked } from "react-icons/im";
 import { IoGridOutline } from "react-icons/io5";
 import { BiSupport } from "react-icons/bi";
 import { TbCurrencyTaka, TbTableOptions } from "react-icons/tb";
@@ -157,6 +159,30 @@ const Navbar = () => {
                         <LuListTodo className="text-2xl" /> Orders
                       </NavLink>
                       <NavLink
+                        to={"/dashboard/payments"}
+                        className={({ isActive, isPending }) =>
+                          isPending
+                            ? "pending"
+                            : isActive
+                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                            : "flex items-center gap-2 text-lg mx-4 py-3"
+                        }
+                      >
+                        <MdPayment className="text-2xl" /> Payments
+                      </NavLink>
+                      <NavLink
+                        to={"/dashboard/transactions"}
+                        className={({ isActive, isPending }) =>
+                          isPending
+                            ? "pending"
+                            : isActive
+                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                            : "flex items-center gap-2 text-lg mx-4 py-3"
+                        }
+                      >
+                        <GrTransaction className="text-2xl" /> Transactions
+                      </NavLink>
+                      <NavLink
                         to={"/dashboard/addCodes"}
                         className={({ isActive, isPending }) =>
                           isPending
@@ -203,6 +229,42 @@ const Navbar = () => {
                         }
                       >
                         <FaUsersCog className="text-2xl" /> Manage Users
+                      </NavLink>
+                      <NavLink
+                        to={"/dashboard/notice"}
+                        className={({ isActive, isPending }) =>
+                          isPending
+                            ? "pending"
+                            : isActive
+                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                            : "flex items-center gap-2 text-lg mx-4 py-3"
+                        }
+                      >
+                        <GrAnnounce className="text-2xl" /> Notice
+                      </NavLink>
+                      <NavLink
+                        to={"/dashboard/devices"}
+                        className={({ isActive, isPending }) =>
+                          isPending
+                            ? "pending"
+                            : isActive
+                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                            : "flex items-center gap-2 text-lg mx-4 py-3"
+                        }
+                      >
+                        <MdDevices className="text-2xl" /> Devices
+                      </NavLink>
+                      <NavLink
+                        to={"/dashboard/blockedTrx"}
+                        className={({ isActive, isPending }) =>
+                          isPending
+                            ? "pending"
+                            : isActive
+                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
+                            : "flex items-center gap-2 text-lg mx-4 py-3"
+                        }
+                      >
+                        <ImBlocked className="text-2xl" /> Block Trx
                       </NavLink>
                       <NavLink
                         to={"/myAccount"}

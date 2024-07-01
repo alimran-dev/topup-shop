@@ -16,7 +16,7 @@ const FollowUs = () => {
             নতুন নতুন সব অফার পেতে আমাদের ফেইসবুক পেজ Folllow করুন।
           </p>
         </Link>
-        <Link to={"https://youtube.com/@Mezbashop?si=exCN836nk1eFLDJk"} className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
+        <Link to={"https://youtu.be/n2vD7oK0pfo?si=1qDBsKuOU-UnTOM0"} className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
           <span>
             <FaYoutube className="text-4xl text-red-600" />
           </span>

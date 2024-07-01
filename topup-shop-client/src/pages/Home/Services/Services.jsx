@@ -17,7 +17,7 @@ const Services = () => {
         </h1>
         <span className="block border-t-2 border-[#FA6023] flex-1"></span>
       </div>
-      <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center gap-5 my-5">
+      <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center items-stretch gap-5 my-5">
         <div className="flex-1">
           <ServiceCard image={unipin} path="/unipin" title="Unipin Voucher(BDT)" />
         </div>

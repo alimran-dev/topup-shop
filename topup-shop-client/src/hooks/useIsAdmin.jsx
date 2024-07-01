@@ -9,12 +9,15 @@ const useIsAdmin = () => {
     const { user, loading } = useAuth();
     
     useEffect(() => {
-        if (user && !loading) {
+        if (!loading && !user) {
+            setIsAdminLoading(false);
+        }
+        if (!loading && user) {
             axiosPrivate.get("/isAdmin")
             .then(res => {
                 setIsAdmin(res.data?.isAdmin);
                 setIsAdminLoading(false);
-        })
+            })
         }
         
     }, [axiosPrivate, loading, user])

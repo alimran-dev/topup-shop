@@ -47,7 +47,9 @@ const AuthProvider = ({ children }) => {
     axiosPrivate.get("/user")
       .then(res => {
       // console.log(res.data);
-        setUser(res.data);
+        const currentUser = res.data;
+        currentUser.balance = parseFloat(currentUser.balance.toFixed(2));
+        setUser(currentUser);
         setLoading(false);
       })
       .catch(err => {

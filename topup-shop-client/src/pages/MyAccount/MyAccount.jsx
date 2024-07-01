@@ -153,13 +153,13 @@ const MyAccount = () => {
             Balance
           </p>
           <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-            {user?.balance || 0}
+            {parseFloat(user?.balance).toFixed(2) || 0}
             <TbCurrencyTaka className="text-[#FA6023]" />
           </p>
         </div>
         <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
           <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
-            Total Spent
+            Last Month Spent
           </p>
           <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
             {user?.spent || 0}

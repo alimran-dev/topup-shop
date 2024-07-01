@@ -9,7 +9,7 @@ import Loader from "../../components/Loader";
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user, setUser, googleLogin, loginUser,setLoading } = useAuth();
+  const { user, setUser, googleLogin, loginUser, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const axiosPublic = useAxiosPublic();
@@ -27,18 +27,23 @@ const Login = () => {
         axiosPrivate
           .post("/jwt", { email })
           .then((res) => {
-            axiosPrivate.get("/user")
-                .then(res => {
-                  setUser(res.data);
-                  setIsLoading(false);
-                  setLoading(false);
-                  // console.log(res.data);
-                })
-              .catch(err => {
-                console.error(err);
-                setError("Authentication Failed");
+            axiosPrivate
+              .get("/user")
+              .then((res) => {
+                const currentUser = res.data;
+                currentUser.balance = parseFloat(
+                  currentUser.balance.toFixed(2)
+                );
+                setUser(currentUser);
                 setIsLoading(false);
-            })
+                setLoading(false);
+                // console.log(res.data);
+              })
+              .catch((err) => {
+                console.error(err);
+                setError(err.response?.data?.error || "Authentication Failed");
+                setIsLoading(false);
+              });
             // console.log(res.data)
           })
           .catch((err) => {
@@ -71,23 +76,30 @@ const Login = () => {
           axiosPrivate
             .post("/jwt", { email })
             .then((res) => {
-              axiosPrivate.get("/user")
-                .then(res => {
-                  setUser(res.data);
+              axiosPrivate
+                .get("/user")
+                .then((res) => {
+                  const currentUser = res.data;
+                  currentUser.balance = parseFloat(
+                    currentUser.balance.toFixed(2)
+                  );
+                  setUser(currentUser);
                   // console.log(res.data);
                   setIsLoading(false);
                 })
-                .catch(err => {
+                .catch((err) => {
                   setIsLoading(false);
                   console.error(err);
-                  setError("Authentication Failed")
-              })
+                  setError(
+                    err.response?.data?.error || "Authentication Failed"
+                  );
+                });
               // console.log(res.data);
             })
             .catch((err) => {
               console.error(err);
               setIsLoading(false);
-              setError("Authentication failed")
+              setError("Authentication failed");
             });
         });
       })
@@ -163,7 +175,11 @@ const Login = () => {
         </button>
         <p className="text-center">
           Don&apos;t have an account?
-          <Link state={location.state} to={"/signup"} className="text-blue-500 font-semibold px-2">
+          <Link
+            state={location.state}
+            to={"/signup"}
+            className="text-blue-500 font-semibold px-2"
+          >
             Sign Up
           </Link>
         </p>

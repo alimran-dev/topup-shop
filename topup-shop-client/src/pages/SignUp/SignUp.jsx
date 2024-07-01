@@ -9,7 +9,8 @@ import Loader from "../../components/Loader";
 const SignUp = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, setUser, signUp, updateUser, googleLogin,setLoading } = useAuth();
+  const { user, setUser, signUp, updateUser, googleLogin, setLoading } =
+    useAuth();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
@@ -41,7 +42,11 @@ const SignUp = () => {
                   .post("/jwt", { email })
                   .then((res) => {
                     axiosPrivate.get("/user").then((res) => {
-                      setUser(res.data);
+                      const currentUser = res.data;
+                      currentUser.balance = parseFloat(
+                        currentUser.balance.toFixed(2)
+                      );
+                      setUser(currentUser);
                       setIsLoading(false);
                       setLoading(false);
                       // console.log(res.data);
@@ -49,7 +54,7 @@ const SignUp = () => {
                     // console.log(res.data);
                   })
                   .catch((err) => {
-                    console.log(err)
+                    console.log(err);
                     setIsLoading(false);
                   });
               });
@@ -89,21 +94,27 @@ const SignUp = () => {
             .post("/jwt", { email })
             .then((res) => {
               // console.log(res.data);
-              axiosPrivate.get("/user").then((res) => {
-                setUser(res.data);
-                // console.log(res.data);
-                setIsLoading(false);
-                setLoading(false);
-              })
-                .catch(err => {
+              axiosPrivate
+                .get("/user")
+                .then((res) => {
+                  const currentUser = res.data;
+                  currentUser.balance = parseFloat(
+                    currentUser.balance.toFixed(2)
+                  );
+                  setUser(currentUser);
+                  // console.log(res.data);
+                  setIsLoading(false);
+                  setLoading(false);
+                })
+                .catch((err) => {
                   setIsLoading(false);
                   console.error(err);
                   setError("Authentication Failed");
-              })
+                });
             })
             .catch((err) => {
               setIsLoading(false);
-              console.log(err)
+              console.log(err);
             });
         });
       })

@@ -88,12 +88,12 @@ const OrderHistory = ({ order }) => {
           </p>
           <p>
             <span className="font-bold">Order Time: </span>
-            {orderTimeDate?.toLocaleDateString()} (
+            {orderTimeDate?.toLocaleDateString('en-GB')} (
             {orderTimeDate?.toLocaleTimeString()})
           </p>
           <p>
             <span className="font-bold">Update Time: </span>
-            {updateTimeDate?.toLocaleDateString()} (
+            {updateTimeDate?.toLocaleDateString('en-GB')} (
             {updateTimeDate?.toLocaleTimeString()})
           </p>
         </div>

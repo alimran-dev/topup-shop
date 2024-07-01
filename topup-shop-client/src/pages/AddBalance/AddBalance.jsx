@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import "./AddBalance.css";
 
 const AddBalance = () => {
     const [err, setErr] = useState("");
@@ -11,7 +12,6 @@ const AddBalance = () => {
       if (isNaN(amount))
           setErr("Check the Amount");
       else {
-          
           navigate('./method', { state: amount });
       }
   };
@@ -39,6 +39,7 @@ const AddBalance = () => {
           >
             Click to add
           </button>
+          <Link to={"https://youtu.be/n2vD7oK0pfo?si=KjNmVbyrh-XmNqMd"} target="_blank" className="clr-text font-semibold">কি ভাবে টাকা এড করবেন </Link>
         </form>
       </div>
     </div>

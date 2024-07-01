@@ -36,9 +36,13 @@ const verifyToken = (req, res, next) => {
         .cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: process.env.PROJECT_ENV==="production",
-          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+          secure: process.env.PROJECT_ENV !== "development",
+          sameSite:
+            process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+          domain:
+            process.env.PROJECT_ENV !== "development"
+              ? ".mezbashop.com"
+              : "localhost",
         })
         .status(401)
         .send({ message: "unauthorized" });
@@ -59,9 +63,13 @@ const verifyAdmin = (req, res, next) => {
         .cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: process.env.PROJECT_ENV==="production",
-          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+          secure: process.env.PROJECT_ENV !== "development",
+          sameSite:
+            process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+          domain:
+            process.env.PROJECT_ENV !== "development"
+              ? ".mezbashop.com"
+              : "localhost",
         })
         .status(401)
         .send({ message: "unauthorized" });
@@ -71,9 +79,13 @@ const verifyAdmin = (req, res, next) => {
         .cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: process.env.PROJECT_ENV==="production",
-          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+          secure: process.env.PROJECT_ENV !== "development",
+          sameSite:
+            process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+          domain:
+            process.env.PROJECT_ENV !== "development"
+              ? ".mezbashop.com"
+              : "localhost",
         })
         .status(401)
         .send({ message: "unauthorized" });
@@ -87,10 +99,17 @@ app.get("/", (req, res) => {
   res.send("game shop server is running");
 });
 
+let dbName;
+if (process.env.PROJECT_ENV === "production") {
+  dbName = "mezbaGamingDB";
+} else {
+  dbName = "topupDB";
+}
+
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tklaef2.mongodb.net/?retryWrites=true&w=majority`;
 let uri;
-if (process.env.PROJECT_ENV === "production") {
-  uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@127.0.0.1:27017/`;
+if (process.env.PROJECT_ENV !== "development") {
+  uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@127.0.0.1:27017/${dbName}`;
 } else {
   uri = `mongodb://127.0.0.1:27017/`;
 }
@@ -105,7 +124,10 @@ const client = new MongoClient(uri, {
   maxPoolSize: 10,
 });
 
-const database = process.env.PROJECT_ENV === "production" ? client.db("mezbaGamingDB"):client.db("topupDB");
+const database =
+  process.env.PROJECT_ENV === "production"
+    ? client.db("mezbaGamingDB")
+    : client.db("topupDB");
 const userCollection = database.collection("users");
 const orderCollection = database.collection("orders");
 const unipinCollection = database.collection("unipins");
@@ -113,6 +135,16 @@ const idcodeCollection = database.collection("idcodes");
 const weeklyMonthlyCollection = database.collection("weeklyMonthly");
 const shellCollection = database.collection("shells");
 const specialOfferCollection = database.collection("specialOffer");
+const paymentMethodCollection = database.collection("paymentMethods");
+const paymentMethodSummaryCollection = database.collection(
+  "paymentMethodSummary"
+);
+const noticeCollection = database.collection("notices");
+const transactionCollection = database.collection("transactions");
+const bkashTrxCollection = database.collection("bkashTrx");
+const nagadTrxCollection = database.collection("nagadTrx");
+const blockedTrxCollection = database.collection("blockedTrx");
+const deviceIdCollections = database.collection("deviceIDs");
 
 const connectToDB = async () => {
   try {
@@ -134,8 +166,9 @@ async function run() {
           return res
             .clearCookie("access-token", {
               maxAge: 0,
-              secure: process.env.PROJECT_ENV==="production",
-              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -168,10 +201,14 @@ async function run() {
         });
         res.cookie("access-token", token, {
           httpOnly: true,
-          secure: process.env.PROJECT_ENV==="production",
-          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
+          secure: process.env.PROJECT_ENV !== "development",
+          sameSite:
+            process.env.PROJECT_ENV !== "development" ? "none" : "strict",
           maxAge: 1000 * 60 * 60 * 24 * 30,
-          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+          domain:
+            process.env.PROJECT_ENV !== "development"
+              ? ".mezbashop.com"
+              : "localhost",
         });
         res.send({ success: true });
       } catch (err) {
@@ -188,9 +225,13 @@ async function run() {
         res.cookie("access-token", "", {
           httpOnly: true,
           maxAge: 0,
-          secure: process.env.PROJECT_ENV==="production",
-          sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-          domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+          secure: process.env.PROJECT_ENV !== "development",
+          sameSite:
+            process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+          domain:
+            process.env.PROJECT_ENV !== "development"
+              ? ".mezbashop.com"
+              : "localhost",
         });
         res.send({ success: true });
       } catch (err) {
@@ -213,12 +254,38 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: process.env.PROJECT_ENV==="production",
-              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+              domain:
+                process.env.PROJECT_ENV !== "development"
+                  ? ".mezbashop.com"
+                  : "localhost",
             })
             .status(401)
             .send({ error: "User Blocked" });
+        }
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const pipeline = [
+          {
+            $match: {
+              email,
+              updateTime: { $gte: startOfMonth, $lte: endOfMonth },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalSpent: { $sum: "$price" },
+            },
+          },
+        ];
+        const orderStats = await orderCollection.aggregate(pipeline).toArray();
+        const totalSpent = orderStats.length > 0 ? orderStats[0].totalSpent : 0;
+        if (result) {
+          result.spent = totalSpent;
         }
         res.send(result);
       } catch (err) {
@@ -337,9 +404,13 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: process.env.PROJECT_ENV==="production",
-              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+              domain:
+                process.env.PROJECT_ENV !== "development"
+                  ? ".mezbashop.com"
+                  : "localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -418,9 +489,13 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: process.env.PROJECT_ENV==="production",
-              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+              domain:
+                process.env.PROJECT_ENV !== "development"
+                  ? ".mezbashop.com"
+                  : "localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -489,9 +564,13 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: process.env.PROJECT_ENV==="production",
-              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+              domain:
+                process.env.PROJECT_ENV !== "development"
+                  ? ".mezbashop.com"
+                  : "localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -563,9 +642,13 @@ async function run() {
             .cookie("access-token", "", {
               httpOnly: true,
               maxAge: 0,
-              secure: process.env.PROJECT_ENV==="production",
-              sameSite: process.env.PROJECT_ENV==="production" ? "none":"strict",
-              domain: process.env.PROJECT_ENV==="production" ? ".mezbashop.com":"localhost",
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+              domain:
+                process.env.PROJECT_ENV !== "development"
+                  ? ".mezbashop.com"
+                  : "localhost",
             })
             .status(401)
             .send({ message: "unauthorized" });
@@ -1133,14 +1216,29 @@ async function run() {
     app.patch("/admin/user/balance", verifyAdmin, async (req, res) => {
       try {
         const { email, addBalance } = req.body;
-        const addBalanceInt = parseInt(addBalance);
-        if (!addBalanceInt) {
+        const addBalanceInt = parseFloat(addBalance);
+        if (!addBalanceInt || isNaN(addBalanceInt)) {
           return res.status(400).send({ error: "Not Possible" });
         }
         const user = await userCollection.findOne({ email: email });
         if (user?.balance + addBalanceInt < 0) {
           return res.status(400).send({ error: "Not enough balance" });
         }
+        const transaction = {
+          method: "Manual Admin",
+          amount: addBalanceInt,
+          bonus: 0,
+          fee: 0,
+          toPay: addBalanceInt,
+          willAdd: addBalanceInt,
+          number: "",
+          email,
+          attempt: 0,
+          trxID: "",
+          time: new Date(),
+          status: "completed",
+        };
+        await transactionCollection.insertOne(transaction);
         const result = await userCollection.updateOne(
           { email: email },
           { $inc: { balance: addBalanceInt } }
@@ -1243,6 +1341,645 @@ async function run() {
           unipins: unipinMetrics,
           shells: shellMetrics,
         };
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // payment method related api
+    app.get("/paymentMethods", verifyToken, async (req, res) => {
+      try {
+        const { role } = req.user;
+        let filter = {};
+        if (role === "user") {
+          filter = { status: "active" };
+        }
+        const result = await paymentMethodCollection.find(filter).toArray();
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.post("/paymentMethods/add", verifyAdmin, async (req, res) => {
+      try {
+        const { provider, category, bonus, fee, number, status } = req.body;
+        const newMethod = {
+          provider,
+          category,
+          bonus: parseFloat(bonus),
+          fee: parseFloat(fee),
+          number,
+          status,
+        };
+        const result = await paymentMethodCollection.insertOne(newMethod);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/paymentMethods/update", verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.query;
+        const { bonus, fee, number, status } = req.body;
+        const updatedMethod = {
+          $set: {
+            bonus: parseFloat(bonus),
+            fee: parseFloat(fee),
+            number,
+            status,
+          },
+        };
+        const filter = { _id: new ObjectId(id) };
+        const result = await paymentMethodCollection.updateOne(
+          filter,
+          updatedMethod,
+          { upsert: true }
+        );
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.delete("/paymentMethods/delete", verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.query;
+        const filter = { _id: new ObjectId(id) };
+        const result = await paymentMethodCollection.deleteOne(filter);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // payment method balance related api
+    app.get("/admin/paymentMethod/summary", verifyAdmin, async (req, res) => {
+      try {
+        const result = await paymentMethodSummaryCollection.find().toArray();
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/admin/paymentMethod/reset", verifyAdmin, async (req, res) => {
+      try {
+        const { method, id } = req.query;
+        let doc;
+        if (method === "bkash") {
+          doc = { bkash: 0 };
+        } else if (method === "nagad") {
+          doc = { nagad: 0 };
+        }
+        const updatedDoc = {
+          $set: doc,
+        };
+        const filter = { _id: new ObjectId(id) };
+        const result = await paymentMethodSummaryCollection.updateOne(
+          filter,
+          updatedDoc,
+          { upsert: true }
+        );
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // notice related api
+    app.get("/notice", async (req, res) => {
+      try {
+        const result = await noticeCollection.find().toArray();
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/notice/update", verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.query;
+        const doc = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const updatedDoc = {
+          $set: doc,
+        };
+        const result = await noticeCollection.updateOne(filter, updatedDoc, {
+          upsert: true,
+        });
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // add balance related api
+    app.post("/addBalance", verifyToken, async (req, res) => {
+      try {
+        const { amount, email, id } = req.body;
+        if (amount >= 5000) {
+          return res.send({
+            message: `একসাথে সর্বোচ্চ ৪৯৯৯ টাকা অ্যাড করতে পারবেন।`,
+          });
+        }
+        const pendingCount = await transactionCollection.countDocuments({
+          email,
+          status: "pending",
+        });
+        console.log(pendingCount);
+        if (pendingCount > 0) {
+          const transaction = await transactionCollection.findOne({
+            email,
+            status: "pending",
+          });
+          console.log(transaction);
+          const timeNow = new Date();
+          const timeDiff = timeNow.getTime() - transaction.time.getTime();
+          let timeDiffSec = timeDiff / 1000;
+          if (timeDiffSec < 5) {
+            return res.send({
+              message: `আপনার pending ট্রানজেকশন আছে। সেটি complete করুন অথবা আরও ${parseInt(
+                5 - timeDiffSec
+              )} সেকেন্ড অপেক্ষা করুন।`,
+            });
+          } else {
+            await transactionCollection.deleteOne({ email, status: "pending" });
+          }
+        }
+        const method = await paymentMethodCollection.findOne({
+          _id: new ObjectId(id),
+        });
+        const { provider, category, bonus, fee, number } = method || {};
+        const transaction = {
+          method: provider + " " + category,
+          amount,
+          bonus,
+          fee,
+          toPay: Math.ceil(amount + (amount * fee) / 100),
+          willAdd: parseFloat((amount + (amount * bonus) / 100).toFixed(2)),
+          number,
+          email,
+          attempt: 0,
+          trxID: "",
+          time: new Date(),
+          status: "pending",
+        };
+        const result = await transactionCollection.insertOne(transaction);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/addBalance/check", verifyToken, async (req, res) => {
+      try {
+        const { email } = req.user;
+        // const email = "test@gmail.com";
+        const { id, trxID } = req.body;
+        const invoice = await transactionCollection.findOne({
+          _id: new ObjectId(id),
+        });
+        let trxSms = null;
+        if (
+          !invoice ||
+          email !== invoice.email ||
+          invoice?.status === "completed"
+        ) {
+          return res.status(403).send({
+            success: false,
+            isBanned: false,
+            attempt: invoice?.attempt,
+            message: "forbidden",
+          });
+        }
+        if (invoice.attempt > 4) {
+          const { modifiedCount } = await userCollection.updateOne(
+            { email: email },
+            { $set: { isBanned: true } }
+          );
+          if (modifiedCount) {
+            return res.send({
+              success: false,
+              isBanned: true,
+              attempt: invoice.attempt,
+              message: "You have reached the limit to check.",
+            });
+          }
+        }
+        await transactionCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $inc: { attempt: 1 }, $set: { trxID } }
+        );
+        const provider = invoice?.method.split(" ")[0];
+        const category = invoice?.method.split(" ")[1];
+        const blockTrx = await blockedTrxCollection
+          .find({ trxID: trxID })
+          .toArray();
+        let blockTrxFind = [];
+        blockTrxFind = blockTrx.filter(
+          (trxObj) =>
+            trxObj.provider === provider && trxObj.category === category
+        );
+        if (blockTrxFind.length) {
+          return res.send({
+            success: false,
+            isBanned: false,
+            attempt: invoice.attempt + 1,
+            message: "এই ট্রানজেকশন আইডি ব্যবহার করা হয়েছে",
+          });
+        }
+        if (provider === "bkash") {
+          trxSms = await bkashTrxCollection.findOne({ trxID: trxID });
+        } else if (provider === "nagad") {
+          trxSms = await nagadTrxCollection.findOne({ trxID: trxID });
+        }
+        if (trxSms) {
+          const providerInSms = trxSms.provider;
+          const categoryInSms = trxSms.category;
+          const amount = trxSms.amount;
+          if (
+            provider === providerInSms &&
+            category === categoryInSms &&
+            invoice?.toPay === amount
+          ) {
+            let delRes;
+            if (provider === "bkash") {
+              delRes = await bkashTrxCollection.deleteOne({
+                trxID: trxID,
+              });
+            } else if (provider === "nagad") {
+              delRes = await nagadTrxCollection.deleteOne({ trxID: trxID });
+            }
+
+            if (delRes?.deletedCount) {
+              const { modifiedCount } = await userCollection.updateOne(
+                { email: email },
+                { $inc: { balance: invoice?.willAdd || 0 } }
+              );
+              if (modifiedCount) {
+                const { modifiedCount: modStatus } =
+                  await transactionCollection.updateOne(
+                    { _id: new ObjectId(id) },
+                    { $set: { status: "completed" } }
+                  );
+                const [summary] = await paymentMethodSummaryCollection
+                  .find()
+                  .toArray();
+                console.log(summary);
+                if (provider === "bkash") {
+                  await paymentMethodSummaryCollection.updateOne(
+                    { _id: new ObjectId(summary._id) },
+                    { $inc: { bkash: amount } }
+                  );
+                } else if (provider === "nagad") {
+                  await paymentMethodSummaryCollection.updateOne(
+                    { _id: new ObjectId(summary._id) },
+                    { $inc: { nagad: amount } }
+                  );
+                }
+                if (modStatus) {
+                  return res.send({
+                    success: true,
+                    isBanned: false,
+                    attempt: invoice.attempt + 1,
+                    message: "balance added and transaction completed",
+                  });
+                } else {
+                  await userCollection.updateOne(
+                    { email: email },
+                    { $inc: { balance: (invoice?.willAdd * (-1)) } }
+                  );
+                  return res.send({
+                    success: false,
+                    isBanned: false,
+                    attempt: invoice.attempt + 1,
+                    message:
+                      "Something went wrong while updating transaction status",
+                  });
+                }
+              } else {
+                return res.send({
+                  success: false,
+                  isBanned: false,
+                  attempt: invoice.attempt + 1,
+                  message: "Something went wrong while adding balance.",
+                });
+              }
+            } else {
+              return res.send({
+                success: false,
+                isBanned: false,
+                attempt: invoice.attempt + 1,
+                message: "Something went wrong. Please contact to support.",
+              });
+            }
+          } else {
+            return res.send({
+              success: false,
+              isBanned: false,
+              attempt: invoice.attempt + 1,
+              message:
+                "You provided wrong information. Try again with correct information",
+            });
+          }
+        } else {
+          return res.send({
+            success: false,
+            isBanned: false,
+            attempt: invoice.attempt + 1,
+            message: "Please wait and try again later",
+          });
+        }
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // transaction related api
+    app.get("/transaction", verifyToken, async (req, res) => {
+      try {
+        const { id, email } = req.query;
+        const { email: emailInToken } = req.user;
+        if (email !== emailInToken) {
+          return res.status(401).send({ message: "unauthorized" });
+        }
+        const filter = { _id: new ObjectId(id) };
+        const result = await transactionCollection.findOne(filter);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.get("/transactions", verifyToken, async (req, res) => {
+      try {
+        const { trxID, email, page, limit } = req.query;
+        const pageInt = parseInt(page);
+        const limitInt = parseInt(limit);
+
+        const { email: emailCookie, role } = req.user;
+        let mail;
+        if (role === "user") {
+          mail = emailCookie;
+        } else if (role === "admin") {
+          mail = email;
+        }
+        const filter = {
+          email: { $regex: new RegExp(mail, "i") },
+          trxID: { $regex: new RegExp(trxID, "i") },
+        };
+        const trxCount = await transactionCollection.countDocuments(filter);
+        const result = await transactionCollection
+          .find(filter)
+          .sort({ time: -1 })
+          .skip((pageInt - 1) * limit)
+          .limit(limitInt)
+          .toArray();
+        res.send({ trxCount, transactions: result });
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/transactions/updateStatus", verifyAdmin, async (req, res) => {
+      try {
+        const { id, status } = req.query;
+        if (status === "cancel") {
+          const result = await transactionCollection.deleteOne({
+            _id: new ObjectId(id),
+          });
+          return res.send(result);
+        }
+        const invoice = await transactionCollection.findOne({
+          _id: new ObjectId(id),
+        });
+        const { method, email, trxID, toPay } = invoice || {};
+        const provider = method.split(" ")[0];
+        const category = method.split(" ")[1];
+        const blockTrx = { provider, category, trxID };
+        await userCollection.updateOne(
+          { email: email },
+          { $inc: { balance: invoice?.willAdd } }
+        );
+        await transactionCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { status: "completed", method: method + "(Admin Approved)" } }
+        );
+        await blockedTrxCollection.insertOne(blockTrx);
+        const [summary] = await paymentMethodSummaryCollection.find().toArray();
+        if (provider === "bkash") {
+          await paymentMethodSummaryCollection.updateOne(
+            { _id: new ObjectId(summary._id) },
+            { $inc: { bkash: toPay } }
+          );
+        } else if (provider === "nagad") {
+          await paymentMethodSummaryCollection.updateOne(
+            { _id: new ObjectId(summary._id) },
+            { $inc: { nagad: toPay } }
+          );
+        }
+        res.send({ completed: true, message: "updated status" });
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // device id related api
+    app.get("/devices/all", verifyAdmin, async (req, res) => {
+      try {
+        const result = await deviceIdCollections.find().toArray();
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.post("/devices/add", verifyAdmin, async (req, res) => {
+      try {
+        const device = req.body;
+        const result = await deviceIdCollections.insertOne(device);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.delete("/devices/delete", verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.query;
+        const filter = { _id: new ObjectId(id) };
+        const result = await deviceIdCollections.deleteOne(filter);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // block trx related api
+    app.get("/blockTrx/all", verifyAdmin, async (req, res) => {
+      try {
+        const { trxID, page, limit } = req.query;
+
+        const pageInt = parseInt(page);
+        const limitInt = parseInt(limit);
+        const filter = { trxID: { $regex: new RegExp(trxID, "i") } };
+
+        const totalTrx = await blockedTrxCollection.countDocuments(filter);
+        const result = await blockedTrxCollection
+          .find(filter)
+          .sort({ _id: -1 })
+          .skip((pageInt - 1) * limitInt)
+          .limit(limitInt)
+          .toArray();
+        res.send({ totalTrx, blockedTrx: result });
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.post("/blockTrx/add", verifyAdmin, async (req, res) => {
+      try {
+        const newBlock = req.body;
+        const result = await blockedTrxCollection.insertOne(newBlock);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.delete("/blockTrx/delete", verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.query;
+        const filter = { _id: new ObjectId(id) };
+        const result = await blockedTrxCollection.deleteOne(filter);
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
+    // sms sender api
+    app.post("/message/sender", async (req, res) => {
+      try {
+        const { from, message, deviceID } = req.body;
+        const deviceCount = await deviceIdCollections.countDocuments({ deviceID });
+        if (deviceCount <= 0) {
+          return res.send({ message: "not valid device" });
+        }
+        const newTrx = {
+          provider: "",
+          category: "",
+          amount: 0,
+          trxID: "",
+          time: new Date(),
+        };
+        let result = {};
+        if (from === "bKash") {
+          newTrx.provider = "bkash";
+          if (message.includes("Cash Out") && message.includes("successful")) {
+            const msgSplit = message.split(" ");
+            newTrx.category = "agent";
+            newTrx.amount = parseFloat(message.split(" ")[3].replace(/,/, ""));
+            newTrx.trxID = msgSplit[msgSplit.indexOf("TrxID") + 1];
+          } else if (
+            message.includes("received") &&
+            message.includes("from") &&
+            !message.includes("Cashback")
+          ) {
+            const msgSplit = message.split(" ");
+            newTrx.category = "personal";
+            newTrx.amount = parseFloat(msgSplit[4].replace(/,/, ""));
+            newTrx.trxID = msgSplit[msgSplit.indexOf("TrxID") + 1];
+          } else if (
+            message.includes("Cash In") &&
+            message.includes("from") &&
+            message.includes("successful")
+          ) {
+            const msgSplit = message.split(" ");
+            newTrx.category = "personal";
+            newTrx.amount = parseFloat(msgSplit[3].replace(/,/, ""));
+            newTrx.trxID = msgSplit[msgSplit.indexOf("TrxID") + 1];
+          }
+        } else if (from === "NAGAD") {
+          newTrx.provider = "nagad";
+          if (message.includes("Cash Out")) {
+            const msgSplit = message.split(/ |\n/);
+            newTrx.category = "agent";
+            newTrx.amount = parseFloat(msgSplit[5].replace(/,/, ""));
+            newTrx.trxID = msgSplit[msgSplit.indexOf("TxnID:") + 1];
+          } else if (message.includes("Money Received.")) {
+            const msgSplit = message.split(/ |\n/);
+            newTrx.category = "personal";
+            newTrx.amount = parseFloat(
+              msgSplit[msgSplit.indexOf("Amt:") + 2].replace(/,/, "")
+            );
+            newTrx.trxID = msgSplit[msgSplit.indexOf("TxnID:") + 1];
+          } else if (message.includes("Cash In Received.")) {
+            const msgSplit = message.split(/ |\n/);
+            newTrx.category = "personal";
+            newTrx.amount = parseFloat(
+              msgSplit[msgSplit.indexOf("Amt:Tk") + 1].replace(/,/, "")
+            );
+            newTrx.trxID = msgSplit[msgSplit.indexOf("TxnID:") + 1];
+          }
+        }
+        console.log(newTrx);
+        if (newTrx.provider === "bkash" && newTrx.category.length > 0) {
+          result = await bkashTrxCollection.insertOne(newTrx);
+        } else if (newTrx.provider === "nagad" && newTrx.category.length > 0) {
+          result = await nagadTrxCollection.insertOne(newTrx);
+        }
         res.send(result);
       } catch (err) {
         console.error("Error: ", err.message);

@@ -58,7 +58,7 @@ const AllOrders = () => {
       >
         <div className="space-y-2">
           {orders.map((order) => (
-            <OrderCard order={order} orders={orders} setOrders={setOrders} fromPending={false} key={order._id} />
+            <OrderCard order={order} orders={orders} setOrders={setOrders} fromPending={false} totalOrders={totalOrders} setTotalOrders={setTotalOrders} key={order._id} />
           ))}
         </div>
       </InfiniteScroll>

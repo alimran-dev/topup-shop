@@ -165,11 +165,12 @@ const OrderCard = ({
                 onChange={(e) => setNewStatus(e.target.value)}
                 name=""
                 id=""
+                defaultValue={status}
                 className="capitalize border"
               >
-                <option value={status} disabled selected hidden>
+                {/* <option value={status} disabled selected hidden>
                   {status}
-                </option>
+                </option> */}
                 <option value="cancelled" className="font-semibold">
                   Cancel
                 </option>
