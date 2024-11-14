@@ -6,6 +6,8 @@ import shell from "../../../assets/images/shell.jpg";
 import rechargeCard from "../../../assets/images/recharge-card.jpeg";
 import rechargeOffer from "../../../assets/images/recharge-offer.jpeg";
 import specialOffer from "../../../assets/images/special_offer.jpeg";
+import airdrop from "../../../assets/images/airdrop.jpeg";
+import lessIsMore from "../../../assets/images/lessIsMore.jpeg";
 
 const Services = () => {
   return (
@@ -17,13 +19,14 @@ const Services = () => {
         </h1>
         <span className="block border-t-2 border-[#FA6023] flex-1"></span>
       </div>
-      <div className="grid grid-cols-2 md:flex md:flex-wrap justify-center items-stretch gap-5 my-5">
+      <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
         <div className="flex-1">
-          <ServiceCard image={unipin} path="/unipin" title="Unipin Voucher(BDT)" />
+          <ServiceCard image={unipin} path="/unipin" title="Unipin Voucher (BDT)" />
         </div>
         <div className="flex-1">
-          <ServiceCard image={specialOffer} path="/special-offer" title="All Special Offer" />
+          <ServiceCard image={airdrop} path="/uid-airdrop" title="Free Fire  UID [ Airdrop ]" />
         </div>
+        
         <div className="flex-1">
           <ServiceCard image={idcode} path="/idcode" title="IDCODE Topup [BD SERVER]" />
         </div>
@@ -31,7 +34,13 @@ const Services = () => {
           <ServiceCard image={weekly} path="/weekly-monthly" title="Weekly & Monthly [Offer]" />
         </div>
         <div className="flex-1">
+          <ServiceCard image={lessIsMore} path="/less-is-more" title="Less Is More UID" />
+        </div>
+        <div className="flex-1">
           <ServiceCard image={shell} path="/shell" title="Garena Shell Code (MY)" />
+        </div>
+        <div className="flex-1">
+          <ServiceCard image={specialOffer} path="/special-offer" title="All Special Offer" />
         </div>
         <div className="flex-1">
           <ServiceCard image={rechargeCard} path="#" title="Recharge Card [All sim]" />

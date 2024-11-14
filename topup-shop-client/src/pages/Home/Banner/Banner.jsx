@@ -9,10 +9,11 @@ import banner2 from "../../../assets/images/banner2.jpg";
 import banner3 from "../../../assets/images/banner3.jpg";
 import banner4 from "../../../assets/images/recharge-card.jpeg";
 import banner5 from "../../../assets/images/recharge-offer.jpeg";
+import { Link } from "react-router-dom";
 
 const Banner = () => {
   return (
-    <div>
+    <Link to={"https://whatsapp.com/channel/0029VaYwdz43LdQch0TvMR1F"} target="_blank">
       <Swiper
         spaceBetween={30}
         centeredSlides={true}
@@ -62,7 +63,7 @@ const Banner = () => {
           />
         </SwiperSlide>
       </Swiper>
-    </div>
+    </Link>
   );
 };
 

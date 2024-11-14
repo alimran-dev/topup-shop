@@ -135,6 +135,8 @@ const idcodeCollection = database.collection("idcodes");
 const weeklyMonthlyCollection = database.collection("weeklyMonthly");
 const shellCollection = database.collection("shells");
 const specialOfferCollection = database.collection("specialOffer");
+const airdropCollection = database.collection("airdrops");
+const lessIsMoreCollection = database.collection("lessIsMore");
 const paymentMethodCollection = database.collection("paymentMethods");
 const paymentMethodSummaryCollection = database.collection(
   "paymentMethodSummary"
@@ -145,6 +147,7 @@ const bkashTrxCollection = database.collection("bkashTrx");
 const nagadTrxCollection = database.collection("nagadTrx");
 const blockedTrxCollection = database.collection("blockedTrx");
 const deviceIdCollections = database.collection("deviceIDs");
+const addBalanceOfferCollections = database.collection("addBalanceOffer");
 
 const connectToDB = async () => {
   try {
@@ -714,6 +717,156 @@ async function run() {
           .send({ success: false, error: "Internal Server Error" });
       }
     });
+    app.post("/purchase/airdrop", verifyToken, async (req, res) => {
+      try {
+        const { id, email, uid } = req.body;
+        const orderTime = new Date();
+        if (!id || !email || !uid) {
+          return res.status(400).send({ error: "Item Not Found" });
+        }
+        const emailInToken = req.user?.email;
+        if (email !== emailInToken) {
+          return res
+            .cookie("access-token", "", {
+              httpOnly: true,
+              maxAge: 0,
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+              domain:
+                process.env.PROJECT_ENV !== "development"
+                  ? ".mezbashop.com"
+                  : "localhost",
+            })
+            .status(401)
+            .send({ message: "unauthorized" });
+        }
+        const filter = { _id: new ObjectId(id) };
+        const option = await airdropCollection.findOne(filter);
+        if (!option) {
+          return res.status(400).send({ error: "Item Not Found" });
+        }
+        const orderPrice = option.price;
+        const user = await userCollection.findOne({ email: email });
+        if (!user) {
+          return res.status(401).send({ error: "User Not Found" });
+        } else if (user.balance < orderPrice) {
+          return res
+            .status(400)
+            .send({ error: "You don't have enough balance" });
+        }
+        const userUpdate = await userCollection.updateOne(
+          { email: email },
+          {
+            $set: {
+              balance: user.balance - orderPrice,
+              spent: user.spent + orderPrice,
+              orders: user.orders + 1,
+            },
+          }
+        );
+        if (userUpdate.modifiedCount > 0) {
+          const ordersCount = await orderCollection.countDocuments();
+          const order = {
+            optionID: new ObjectId(id),
+            orderID: ordersCount + 1000,
+            email: email,
+            category: "airdrop",
+            name: `${option.name} (UID: ${uid})`,
+            price: orderPrice,
+            orderTime: orderTime,
+            updateTime: new Date(),
+            status: "pending",
+            feedback: "",
+          };
+          console.log(order);
+          const result = await orderCollection.insertOne(order);
+          res
+            .status(201)
+            .send({ orderID: result.insertedId, price: orderPrice });
+        }
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.post("/purchase/lessIsMore", verifyToken, async (req, res) => {
+      try {
+        const { id, email, uid } = req.body;
+        const orderTime = new Date();
+        if (!id || !email || !uid) {
+          return res.status(400).send({ error: "Item Not Found" });
+        }
+        const emailInToken = req.user?.email;
+        if (email !== emailInToken) {
+          return res
+            .cookie("access-token", "", {
+              httpOnly: true,
+              maxAge: 0,
+              secure: process.env.PROJECT_ENV !== "development",
+              sameSite:
+                process.env.PROJECT_ENV !== "development" ? "none" : "strict",
+              domain:
+                process.env.PROJECT_ENV !== "development"
+                  ? ".mezbashop.com"
+                  : "localhost",
+            })
+            .status(401)
+            .send({ message: "unauthorized" });
+        }
+        const filter = { _id: new ObjectId(id) };
+        const option = await lessIsMoreCollection.findOne(filter);
+        if (!option) {
+          return res.status(400).send({ error: "Item Not Found" });
+        }
+        const orderPrice = option.price;
+        const user = await userCollection.findOne({ email: email });
+        if (!user) {
+          return res.status(401).send({ error: "User Not Found" });
+        } else if (user.balance < orderPrice) {
+          return res
+            .status(400)
+            .send({ error: "You don't have enough balance" });
+        }
+        const userUpdate = await userCollection.updateOne(
+          { email: email },
+          {
+            $set: {
+              balance: user.balance - orderPrice,
+              spent: user.spent + orderPrice,
+              orders: user.orders + 1,
+            },
+          }
+        );
+        if (userUpdate.modifiedCount > 0) {
+          const ordersCount = await orderCollection.countDocuments();
+          const order = {
+            optionID: new ObjectId(id),
+            orderID: ordersCount + 1000,
+            email: email,
+            category: "lessIsMore",
+            name: `${option.name} (UID: ${uid})`,
+            price: orderPrice,
+            orderTime: orderTime,
+            updateTime: new Date(),
+            status: "pending",
+            feedback: "",
+          };
+          console.log(order);
+          const result = await orderCollection.insertOne(order);
+          res
+            .status(201)
+            .send({ orderID: result.insertedId, price: orderPrice });
+        }
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
 
     // option and code admin api
     app.get("/options", async (req, res) => {
@@ -733,6 +886,8 @@ async function run() {
                   $or: [
                     { $eq: ["$category", "idcode"] },
                     { $eq: ["$category", "weekly"] },
+                    { $eq: ["$category", "airdrop"] },
+                    { $eq: ["$category", "lessIsMore"] },
                   ],
                 },
                 then: "$stock",
@@ -758,6 +913,10 @@ async function run() {
             .toArray();
         } else if (category === "shell") {
           result = await shellCollection.find({}, filterOption).toArray();
+        } else if (category === "airdrop") {
+          result = await airdropCollection.find({}, filterOption).toArray();
+        } else if (category === "lessIsMore") {
+          result = await lessIsMoreCollection.find({}, filterOption).toArray();
         } else {
           return res.status(400).send({ error: "Bad Request" });
         }
@@ -783,6 +942,8 @@ async function run() {
                   $or: [
                     { $eq: ["$category", "idcode"] },
                     { $eq: ["$category", "weekly"] },
+                    { $eq: ["$category", "airdrop"] },
+                    { $eq: ["$category", "lessIsMore"] },
                   ],
                 },
                 then: "$stock",
@@ -815,6 +976,16 @@ async function run() {
           );
         } else if (category === "shell") {
           result = await shellCollection.findOne(
+            { _id: new ObjectId(id) },
+            options
+          );
+        } else if (category === "airdrop") {
+          result = await airdropCollection.findOne(
+            { _id: new ObjectId(id) },
+            options
+          );
+        } else if (category === "lessIsMore") {
+          result = await lessIsMoreCollection.findOne(
             { _id: new ObjectId(id) },
             options
           );
@@ -861,6 +1032,20 @@ async function run() {
             return res.send({ message: "Option available for this UC." });
           } else {
             result = await shellCollection.insertOne(option);
+          }
+        } else if (category === "airdrop") {
+          const isAvailable = await airdropCollection.findOne({ uc: uc });
+          if (isAvailable) {
+            return res.send({ message: "Option available for this UC." });
+          } else {
+            result = await airdropCollection.insertOne(optionManual);
+          }
+        } else if (category === "lessIsMore") {
+          const isAvailable = await lessIsMoreCollection.findOne({ uc: uc });
+          if (isAvailable) {
+            return res.send({ message: "Option available for this UC." });
+          } else {
+            result = await lessIsMoreCollection.insertOne(optionManual);
           }
         } else {
           return res.send({ message: "category not matched" });
@@ -924,6 +1109,10 @@ async function run() {
           );
         } else if (category === "shell") {
           result = await shellCollection.updateOne(filter, updatedOption);
+        } else if (category === "airdrop") {
+          result = await airdropCollection.updateOne(filter, updatedOption);
+        } else if (category === "lessIsMore") {
+          result = await lessIsMoreCollection.updateOne(filter, updatedOption);
         }
         res.send(result);
       } catch (err) {
@@ -947,6 +1136,10 @@ async function run() {
           result = await idcodeCollection.updateOne(filter, updatedDoc);
         } else if (category === "weekly-monthly") {
           result = await weeklyMonthlyCollection.updateOne(filter, updatedDoc);
+        } else if (category === "airdrop") {
+          result = await airdropCollection.updateOne(filter, updatedDoc);
+        } else if (category === "lessIsMore") {
+          result = await lessIsMoreCollection.updateOne(filter, updatedDoc);
         }
         res.send(result);
       } catch (err) {
@@ -969,6 +1162,10 @@ async function run() {
           result = await weeklyMonthlyCollection.deleteOne(filter);
         } else if (category === "shell") {
           result = await shellCollection.deleteOne(filter);
+        } else if (category === "airdrop") {
+          result = await airdropCollection.deleteOne(filter);
+        } else if (category === "lessIsMore") {
+          result = await lessIsMoreCollection.deleteOne(filter);
         }
         console.log(category, id, result);
         res.send(result);
@@ -1498,6 +1695,42 @@ async function run() {
       }
     });
 
+    // add balance offer related api
+    app.get("/addBalance/offer", async (req, res) => {
+      try {
+        const result = await addBalanceOfferCollections.find().toArray();
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+    app.patch("/addBalance/offer/update", verifyAdmin, async (req, res) => {
+      try {
+        const { id } = req.query;
+        const doc = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const updatedDoc = {
+          $set: doc,
+        };
+        const result = await addBalanceOfferCollections.updateOne(
+          filter,
+          updatedDoc,
+          {
+            upsert: true,
+          }
+        );
+        res.send(result);
+      } catch (err) {
+        console.error("Error: ", err.message);
+        res
+          .status(500)
+          .send({ success: false, error: "Internal Server Error" });
+      }
+    });
+
     // add balance related api
     app.post("/addBalance", verifyToken, async (req, res) => {
       try {
@@ -1674,7 +1907,7 @@ async function run() {
                 } else {
                   await userCollection.updateOne(
                     { email: email },
-                    { $inc: { balance: (invoice?.willAdd * (-1)) } }
+                    { $inc: { balance: invoice?.willAdd * -1 } }
                   );
                   return res.send({
                     success: false,
@@ -1756,10 +1989,15 @@ async function run() {
         } else if (role === "admin") {
           mail = email;
         }
-        const filter = {
-          email: { $regex: new RegExp(mail, "i") },
-          trxID: { $regex: new RegExp(trxID, "i") },
-        };
+        let filter = {};
+        if (role === "user") {
+          filter = { email: mail };
+        } else if (role === "admin") {
+          filter = {
+            email: { $regex: new RegExp(mail, "i") },
+            trxID: { $regex: new RegExp(trxID, "i") },
+          };
+        }
         const trxCount = await transactionCollection.countDocuments(filter);
         const result = await transactionCollection
           .find(filter)
@@ -1913,7 +2151,9 @@ async function run() {
     app.post("/message/sender", async (req, res) => {
       try {
         const { from, message, deviceID } = req.body;
-        const deviceCount = await deviceIdCollections.countDocuments({ deviceID });
+        const deviceCount = await deviceIdCollections.countDocuments({
+          deviceID,
+        });
         if (deviceCount <= 0) {
           return res.send({ message: "not valid device" });
         }

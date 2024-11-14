@@ -16,7 +16,7 @@ const FollowUs = () => {
             নতুন নতুন সব অফার পেতে আমাদের ফেইসবুক পেজ Folllow করুন।
           </p>
         </Link>
-        <Link to={"https://youtu.be/n2vD7oK0pfo?si=1qDBsKuOU-UnTOM0"} className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
+        <Link to={"https://www.youtube.com/@Mezbashop116"} className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
           <span>
             <FaYoutube className="text-4xl text-red-600" />
           </span>
@@ -24,7 +24,7 @@ const FollowUs = () => {
           ওয়েবসাইট এর বিস্তারিত সকল কিছু জানতে ভিডিও দেখুন ইউটিউব চ্যানেল এ।
           </p>
         </Link>
-        <Link to={"https://chat.whatsapp.com/Gosn4jIHDrCDVbGK81VaHY"} className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
+        <Link to={"https://whatsapp.com/channel/0029VaYwdz43LdQch0TvMR1F"} className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
           <span>
             <FaWhatsapp className="text-4xl text-green-600" />
           </span>

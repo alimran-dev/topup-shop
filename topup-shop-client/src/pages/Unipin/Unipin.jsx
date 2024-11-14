@@ -14,6 +14,7 @@ import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { HiOutlineInformationCircle } from "react-icons/hi";
+import { MdArrowOutward } from "react-icons/md";
 
 const Unipin = () => {
   const [selected, setSelected] = useState({ _id: "", price: 0 });
@@ -57,7 +58,7 @@ const Unipin = () => {
   };
   useEffect(() => {
     window.scrollTo(0, 0);
-  },[])
+  }, []);
   useEffect(() => {
     axiosPublic.get(`/options?category=unipin`).then((res) => {
       // console.log(res.data);
@@ -83,6 +84,15 @@ const Unipin = () => {
         </div>
       </div>
       <div className="grid md:grid-cols-3 gap-5">
+        <div className="border-2 rounded p-3 md:hidden">
+          <Link
+            to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
+            target="_blank"
+            className="clr-text font-semibold flex items-center justify-center gap-1"
+          >
+            কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
+          </Link>
+        </div>
         <div className="md:col-span-2 border-2 rounded">
           <h1 className="text-xl font-semibold py-2 px-5 border-b-2 flex items-center gap-2">
             <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
@@ -100,6 +110,15 @@ const Unipin = () => {
           </div>
         </div>
         <div>
+          <div className="border-2 rounded p-3 mb-3 hidden md:block">
+            <Link
+              to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
+              target="_blank"
+              className="clr-text font-semibold flex items-center justify-center gap-1"
+            >
+              কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
+            </Link>
+          </div>
           <div className="text-xl font-semibold py-2 px-5 border-2 rounded flex md:flex-col lg:flex-row items-center gap-2 w-full">
             <h2 className="flex-1 flex items-center gap-2">
               <TbSquareRoundedNumber2Filled className="text-red-500" /> Quantity
@@ -167,12 +186,20 @@ const Unipin = () => {
                 </p>
               )}
               {user ? (
-                <button
-                  onClick={handlePurchase}
-                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
-                >
-                  Purchase
-                </button>
+                <div className="space-y-3">
+                  <Link
+                    to={"/addBalance"}
+                    className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
+                  >
+                    Add Balance
+                  </Link>
+                  <button
+                    onClick={handlePurchase}
+                    className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                  >
+                    Purchase
+                  </button>
+                </div>
               ) : (
                 <Link
                   to={"/login"}

@@ -56,7 +56,7 @@ const Shell = () => {
   };
   useEffect(() => {
     window.scrollTo(0, 0);
-  },[])
+  }, []);
   useEffect(() => {
     axiosPublic.get(`/options?category=shell`).then((res) => {
       // console.log(res.data);
@@ -166,12 +166,20 @@ const Shell = () => {
                 </p>
               )}
               {user ? (
-                <button
-                  onClick={handlePurchase}
-                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
-                >
-                  Purchase
-                </button>
+                <div className="space-y-3">
+                  <Link
+                    to={"/addBalance"}
+                    className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
+                  >
+                    Add Balance
+                  </Link>
+                  <button
+                    onClick={handlePurchase}
+                    className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                  >
+                    Purchase
+                  </button>
+                </div>
               ) : (
                 <Link
                   to={"/login"}

@@ -12,6 +12,7 @@ import { IoInformationCircleOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { MdArrowOutward } from "react-icons/md";
 
 const WeeklyMonthly = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -86,6 +87,15 @@ const WeeklyMonthly = () => {
           </div>
         </div>
         <div className="grid md:grid-cols-3 gap-5">
+          <div className="border-2 rounded p-3 md:hidden">
+            <Link
+              to={"https://youtu.be/BHvWpU3XJMg?si=FMBFtr1a4f1JGIj9"}
+              target="_blank"
+              className="clr-text font-semibold flex items-center justify-center gap-1"
+            >
+              কিভাবে Weekly Monthy নিবেন ভিডিও <MdArrowOutward className="" />{" "}
+            </Link>
+          </div>
           <div className="md:col-span-2 border-2 rounded">
             <h1 className="text-xl font-semibold py-2 px-5 border-b-2 flex items-center gap-2">
               <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
@@ -103,6 +113,15 @@ const WeeklyMonthly = () => {
             </div>
           </div>
           <div>
+            <div className="border-2 rounded p-3 mb-3 hidden md:block">
+              <Link
+                to={"https://youtu.be/BHvWpU3XJMg?si=FMBFtr1a4f1JGIj9"}
+                target="_blank"
+                className="clr-text font-semibold flex items-center justify-center gap-1"
+              >
+                কিভাবে Weekly Monthy নিবেন ভিডিও <MdArrowOutward className="" />{" "}
+              </Link>
+            </div>
             <div className="text-xl font-semibold border-2 rounded w-full">
               <h2 className="flex-1 flex items-center gap-2 border-b-2 px-5 py-3">
                 <TbSquareRoundedNumber2Filled className="text-red-500" /> Player
@@ -164,12 +183,20 @@ const WeeklyMonthly = () => {
                   </p>
                 )}
                 {user ? (
-                  <button
-                    onClick={handlePurchase}
-                    className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
-                  >
-                    Purchase
-                  </button>
+                  <div className="space-y-3">
+                    <Link
+                      to={"/addBalance"}
+                      className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
+                    >
+                      Add Balance
+                    </Link>
+                    <button
+                      onClick={handlePurchase}
+                      className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                    >
+                      Purchase
+                    </button>
+                  </div>
                 ) : (
                   <Link
                     to={"/login"}

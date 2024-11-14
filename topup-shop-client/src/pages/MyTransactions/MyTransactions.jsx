@@ -5,6 +5,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import useAuth from "../../hooks/useAuth";
 import InfinityLoader from "../../components/InfinityLoader";
 import Loader from "../../components/Loader";
+import { Link } from "react-router-dom";
 
 const MyTransactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -15,28 +16,28 @@ const MyTransactions = () => {
   const limit = 5;
   const page = Math.ceil(transactions.length / limit + 1);
 
-
   const getTrx = () => {
     if (!loading) {
-      axiosPrivate.get(`/transactions?page=${page}&limit=${limit}`)
-        .then(res => {
+      axiosPrivate
+        .get(`/transactions?page=${page}&limit=${limit}`)
+        .then((res) => {
           setTransactions([...transactions, ...res.data.transactions]);
           setTotalTrx(res.data.trxCount);
           setIsLoading(false);
-      })
+        });
     }
-  }
+  };
   const getMore = () => {
     if (transactions.length < totalTrx) {
       getTrx();
     }
-  }
-  
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
     getTrx();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -44,26 +45,28 @@ const MyTransactions = () => {
         My Transactions
       </h2>
       <div>
-        <div className="hidden md:flex justify-around items-center mt-3">
-          <p className="border w-full text-center py-1.5 font-semibold border-gray-400 rounded-tl-md">
-            Method
-          </p>
-          <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
-            Time
-          </p>
-          <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
-            Trx ID
-          </p>
-          <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
-            Amount
-          </p>
-          <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
-            Status
-          </p>
-          <p className="border w-full text-center py-1.5 font-semibold border-gray-400 rounded-tr-md">
-            Action
-          </p>
-        </div>
+        {transactions.length > 0 && (
+          <div className="hidden md:flex justify-around items-center mt-3">
+            <p className="border w-full text-center py-1.5 font-semibold border-gray-400 rounded-tl-md">
+              Method
+            </p>
+            <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
+              Time
+            </p>
+            <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
+              Trx ID
+            </p>
+            <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
+              Amount
+            </p>
+            <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
+              Status
+            </p>
+            <p className="border w-full text-center py-1.5 font-semibold border-gray-400 rounded-tr-md">
+              Action
+            </p>
+          </div>
+        )}
         <div>
           <InfiniteScroll
             dataLength={transactions.length}
@@ -79,6 +82,19 @@ const MyTransactions = () => {
             ))}
           </InfiniteScroll>
         </div>
+        {transactions.length > 0 || (
+          <div className="h-full w-full flex flex-col items-center justify-center gap-2 my-5">
+            <span className="text-2xl font-medium text-center">
+              No Transaction Data
+            </span>
+            <Link
+              to={"/addBalance"}
+              className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent"
+            >
+              Add Balance
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

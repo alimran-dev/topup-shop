@@ -35,6 +35,8 @@ import Transactions from "../AdminDashboard/Transactions/Transactions";
 import Notice from "../AdminDashboard/Notice/Notice";
 import Devices from "../AdminDashboard/Devices/Devices";
 import BlockTrx from "../AdminDashboard/BlockTrx/BlockTrx";
+import UidAirdrop from "../pages/UidAirdrop/UidAirdrop";
+import LessIsMore from "../pages/LessIsMore/LessIsMore";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +67,14 @@ const router = createBrowserRouter([
       {
         path: "/shell",
         element: <Shell />,
+      },
+      {
+        path: "/uid-airdrop",
+        element: <UidAirdrop />
+      },
+      {
+        path: "/less-is-more",
+        element: <LessIsMore />
       },
       {
         path: "/special-offer",

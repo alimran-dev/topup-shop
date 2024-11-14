@@ -12,6 +12,8 @@ import { IoInformationCircleOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { HiOutlineInformationCircle } from "react-icons/hi";
+import { MdArrowOutward } from "react-icons/md";
 
 const Idcode = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -86,6 +88,15 @@ const Idcode = () => {
           </div>
         </div>
         <div className="grid md:grid-cols-3 gap-5">
+          <div className="border-2 rounded p-3 md:hidden">
+            <Link
+              to={"https://youtu.be/fYNxebSmz7g?si=20820XUIkNPFYz-e"}
+              target="_blank"
+              className="clr-text font-semibold flex items-center justify-center gap-1"
+            >
+              কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
+            </Link>
+          </div>
           <div className="md:col-span-2 border-2 rounded">
             <h1 className="text-xl font-semibold py-2 px-5 border-b-2 flex items-center gap-2">
               <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
@@ -103,6 +114,15 @@ const Idcode = () => {
             </div>
           </div>
           <div>
+            <div className="border-2 rounded p-3 mb-3 hidden md:block">
+              <Link
+                to={"https://youtu.be/fYNxebSmz7g?si=20820XUIkNPFYz-e"}
+                target="_blank"
+                className="clr-text font-semibold flex items-center justify-center gap-1"
+              >
+                কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
+              </Link>
+            </div>
             <div className="text-xl font-semibold border-2 rounded w-full">
               <h2 className="flex-1 flex items-center gap-2 border-b-2 px-5 py-3">
                 <TbSquareRoundedNumber2Filled className="text-red-500" /> Player
@@ -164,12 +184,20 @@ const Idcode = () => {
                   </p>
                 )}
                 {user ? (
-                  <button
-                    onClick={handlePurchase}
-                    className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
-                  >
-                    Purchase
-                  </button>
+                  <div className="space-y-3">
+                    <Link
+                      to={"/addBalance"}
+                      className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
+                    >
+                      Add Balance
+                    </Link>
+                    <button
+                      onClick={handlePurchase}
+                      className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                    >
+                      Purchase
+                    </button>
+                  </div>
                 ) : (
                   <Link
                     to={"/login"}
@@ -182,6 +210,34 @@ const Idcode = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div className="border rounded-md mt-4">
+        <h2 className="flex items-center gap-1 text-2xl font-semibold border rounded-md py-2 px-3">
+          <HiOutlineInformationCircle className="mt-0.5" /> Rules & Conditions
+        </h2>
+        <div className="px-8 py-5 space-y-2">
+          <p className="text-lg font-semibold">
+            অর্ডার করার আগে ভালো ভাবে পড়ে নিন
+          </p>
+          <p>⛔ শুধুমাত্র Bangladesh সার্ভারে ID Code দিয়ে টপ আপ হবে।</p>
+          <p>
+            ⛔ Player ID Code ভুল দিয়ে Diamond না পেলে❌ Mezba Shop ❌ কর্তৃপক্ষ
+            দায়ী নয়।
+          </p>
+          <p>
+            ⛔ Order কমপ্লিট হওয়ার পরেও আইডিতে ডাইমন্ড না গেলে চেক করার জন্য ID
+            Pass দিতে হবে।
+          </p>
+          <p>
+            ⛔ ID-Code দিয়ে Order করলে এবং ডায়মন্ড আইডিতে না গেলে অর্ডারটি চেক
+            করার জন্য অবশ্যই ID-Password দিতে হবে।
+          </p>
+          <p>
+            ⛔ ডেলিভারি টাইম সাধারণত 2 5 মিনিট, গেমে ইভেন্ট থাকলে 10 মিনিট বা
+            তার ও বেশি সময় লাগতে পারে। মাঝে মাঝে সার্ভারে সমস্যা থাকলে অথবা স্টক
+            না থাকলে সর্বোচ্চ 3 ঘন্টা পর্যন্ত লাগতে পারে।
+          </p>
         </div>
       </div>
     </div>

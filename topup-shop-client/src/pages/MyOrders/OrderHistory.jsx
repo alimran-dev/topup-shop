@@ -88,12 +88,12 @@ const OrderHistory = ({ order }) => {
           </p>
           <p>
             <span className="font-bold">Order Time: </span>
-            {orderTimeDate?.toLocaleDateString('en-GB')} (
+            {orderTimeDate?.toLocaleDateString("en-GB")} (
             {orderTimeDate?.toLocaleTimeString()})
           </p>
           <p>
             <span className="font-bold">Update Time: </span>
-            {updateTimeDate?.toLocaleDateString('en-GB')} (
+            {updateTimeDate?.toLocaleDateString("en-GB")} (
             {updateTimeDate?.toLocaleTimeString()})
           </p>
         </div>
@@ -117,7 +117,10 @@ const OrderHistory = ({ order }) => {
           ) : (
             <></>
           )}
-          {category === "idcode" || category === "weekly & monthly" ? (
+          {category === "idcode" ||
+          category === "weekly & monthly" ||
+          category === "airdrop" ||
+          category === "lessIsMore" ? (
             status === "pending" ? (
               <div className="flex items-center justify-center h-full w-full">
                 <p className="text-xl font-semibold text-center">

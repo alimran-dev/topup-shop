@@ -22,9 +22,10 @@ const Login = () => {
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
-    loginUser(email, password)
-      .then(() => {
-        axiosPrivate
+
+
+
+    axiosPrivate
           .post("/jwt", { email })
           .then((res) => {
             axiosPrivate
@@ -51,12 +52,44 @@ const Login = () => {
             setIsLoading(false);
             console.error(err);
           });
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Wrong email or password.");
-        setIsLoading(false);
-      });
+
+
+
+    // loginUser(email, password)
+    //   .then(() => {
+    //     axiosPrivate
+    //       .post("/jwt", { email })
+    //       .then((res) => {
+    //         axiosPrivate
+    //           .get("/user")
+    //           .then((res) => {
+    //             const currentUser = res.data;
+    //             currentUser.balance = parseFloat(
+    //               currentUser.balance.toFixed(2)
+    //             );
+    //             setUser(currentUser);
+    //             setIsLoading(false);
+    //             setLoading(false);
+    //             // console.log(res.data);
+    //           })
+    //           .catch((err) => {
+    //             console.error(err);
+    //             setError(err.response?.data?.error || "Authentication Failed");
+    //             setIsLoading(false);
+    //           });
+    //         // console.log(res.data)
+    //       })
+    //       .catch((err) => {
+    //         setError("Server Error. Try later.");
+    //         setIsLoading(false);
+    //         console.error(err);
+    //       });
+    //   })
+    //   .catch((err) => {
+    //     console.error(err);
+    //     setError("Wrong email or password.");
+    //     setIsLoading(false);
+    //   });
   };
   const handleGoogle = () => {
     setError("");

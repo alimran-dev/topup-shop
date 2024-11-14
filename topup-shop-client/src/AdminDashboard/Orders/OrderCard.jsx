@@ -77,6 +77,7 @@ const OrderCard = ({
             showConfirmButton: false,
             timer: 1500,
             toast: true,
+            position: "top",
           });
           if (fromPending) {
             const newOrders = orders.filter((order) => order.id !== orders._id);
@@ -133,7 +134,10 @@ const OrderCard = ({
           <p className="">
             <span className="font-bold">Package: </span>
             {name}
-            {category === "idcode" || category === "weekly & monthly" ? (
+            {category === "idcode" ||
+            category === "weekly & monthly" ||
+            category === "airdrop" ||
+            category === "lessIsMore" ? (
               <MdContentCopy
                 onClick={handleCopyUid}
                 className="inline-block text-green-500 text-lg cursor-pointer ml-2"
@@ -171,6 +175,9 @@ const OrderCard = ({
                 {/* <option value={status} disabled selected hidden>
                   {status}
                 </option> */}
+                <option value="pending" className="font-semibold" hidden>
+                  Pending
+                </option>
                 <option value="cancelled" className="font-semibold">
                   Cancel
                 </option>
@@ -196,7 +203,7 @@ const OrderCard = ({
           </p>
         </div>
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" || category==="shell" ? (
+          {category === "unipin" || category === "shell" ? (
             <div>
               <textarea
                 disabled
@@ -205,12 +212,20 @@ const OrderCard = ({
                 ref={codesRef}
                 className="border-2 h-24 w-full rounded px-2 py-0.5"
               ></textarea>
-              <button onClick={handleCopy} className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto">
-              <MdContentCopy className="inline-block" /> Copy All
+              <button
+                onClick={handleCopy}
+                className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
+              >
+                <MdContentCopy className="inline-block" /> Copy All
               </button>
             </div>
-          ):<></>}
-          {category === "idcode" || category === "weekly & monthly" ? (
+          ) : (
+            <></>
+          )}
+          {category === "idcode" ||
+          category === "weekly & monthly" ||
+          category === "airdrop" ||
+          category === "lessIsMore" ? (
             <div className="w-full h-full">
               {" "}
               <textarea

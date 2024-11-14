@@ -145,6 +145,18 @@ const AddOptions = () => {
               >
                 Shell
               </option>
+              <option
+                value="airdrop"
+                className="bg-white hover:bg-red-500 focus:bg-red-500"
+              >
+                Airdrop
+              </option>
+              <option
+                value="lessIsMore"
+                className="bg-white hover:bg-red-500 focus:bg-red-500"
+              >
+                Less Is More
+              </option>
             </select>
           </div>
         </div>

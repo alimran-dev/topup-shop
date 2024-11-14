@@ -57,7 +57,7 @@ const Users = () => {
       next={fetchMoreData}
       loader={<InfinityLoader />}
       >
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex flex-wrap items-stretch justify-center gap-4">
         {users.map((user) => (
           <UserCard user={user} setIsLoading={setIsLoading} key={user._id} />
         ))}

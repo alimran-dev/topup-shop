@@ -64,7 +64,7 @@ const UpdateDelete = () => {
   };
   const handleStock = () => {
     Swal.fire({
-      title: `${stock?"Stock Out?":"In Stock?"}`,
+      title: `${stock ? "Stock Out?" : "In Stock?"}`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#E61C55",
@@ -73,8 +73,9 @@ const UpdateDelete = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setIsLoading(true);
-        axiosPrivate.patch("/admin/option/stock",{id,category,stock: !stock})
-          .then(res => {
+        axiosPrivate
+          .patch("/admin/option/stock", { id, category, stock: !stock })
+          .then((res) => {
             if (res.data?.modifiedCount > 0) {
               setStock(!stock);
               setIsLoading(false);
@@ -85,12 +86,12 @@ const UpdateDelete = () => {
                 showConfirmButton: false,
                 toast: true,
                 icon: "success",
-            })
-          }
-        })
+              });
+            }
+          });
       }
     });
-  }
+  };
   useEffect(() => {
     axiosPrivate.get(`/option?category=${category}&id=${id}`).then((res) => {
       setIsLoading(false);
@@ -146,8 +147,27 @@ const UpdateDelete = () => {
         >
           Delete
         </button>
-        {category === "idcode" || category === "weekly-monthly" ? (
-          <>{stock ? <button onClick={handleStock} className="text-lg font-semibold bg-red-600 py-1.5 px-3 text-white rounded">Stock Out</button> : <button onClick={handleStock} className="text-lg font-semibold bg-green-600 py-1.5 px-3 text-white rounded">In Stock</button>}</>
+        {category === "idcode" ||
+        category === "weekly-monthly" ||
+        category === "airdrop" ||
+        category === "lessIsMore" ? (
+          <>
+            {stock ? (
+              <button
+                onClick={handleStock}
+                className="text-lg font-semibold bg-red-600 py-1.5 px-3 text-white rounded"
+              >
+                Stock Out
+              </button>
+            ) : (
+              <button
+                onClick={handleStock}
+                className="text-lg font-semibold bg-green-600 py-1.5 px-3 text-white rounded"
+              >
+                In Stock
+              </button>
+            )}
+          </>
         ) : (
           <></>
         )}
