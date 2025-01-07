@@ -1,4 +1,4 @@
-import { FaUsersCog } from "react-icons/fa";
+import { FaPlus, FaUsersCog } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { GrAnnounce, GrTransaction } from "react-icons/gr";
 import { ImBlocked } from "react-icons/im";
@@ -8,17 +8,19 @@ import { MdDevices, MdOutlinePostAdd, MdPayment } from "react-icons/md";
 import { TbTableOptions } from "react-icons/tb";
 import { VscAccount } from "react-icons/vsc";
 import { NavLink } from "react-router-dom";
+import { IoBagAdd } from "react-icons/io5";
 
 const navItems = [
   { to: "/dashboard", icon: IoGridOutline, label: "Dashboard" },
   { to: "/dashboard/orders", icon: LuListTodo, label: "Orders" },
   { to: "/dashboard/payments", icon: MdPayment, label: "Payments" },
   { to: "/dashboard/transactions", icon: GrTransaction, label: "Transactions" },
-  { to: "/dashboard/addServices", icon: ImBlocked, label: "Add Services"},
+  { to: "/dashboard/addServices", icon: IoBagAdd, label: "Add Services"},
   { to: "/dashboard/addCodes", icon: MdOutlinePostAdd, label: "Add Codes" },
   { to: "/dashboard/addOptions", icon: TbTableOptions, label: "Add Options" },
   { to: "/dashboard/updateOptions", icon: FiEdit, label: "Update Options" },
   { to: "/dashboard/users", icon: FaUsersCog, label: "Manage Users" },
+  { to: "/dashboard/addAdvertisement", icon: FaPlus, label: "Add Advertisement"},
   { to: "/dashboard/notice", icon: GrAnnounce, label: "Notice" },
   { to: "/dashboard/devices", icon: MdDevices, label: "Devices" },
   { to: "/dashboard/blockedTrx", icon: ImBlocked, label: "Block Trx" },

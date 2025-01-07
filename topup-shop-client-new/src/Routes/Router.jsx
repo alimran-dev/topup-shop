@@ -39,6 +39,7 @@ import UidAirdrop from "../pages/UidAirdrop/UidAirdrop";
 import LessIsMore from "../pages/LessIsMore/LessIsMore";
 import RechargeCard from "../pages/RechargeCard/RechargeCard";
 import AddServices from "../AdminDashboard/AddServices/AddServices";
+import AddAdvertisement from "../pages/AddAdvertisement/AddAdvertisement";
 
 const router = createBrowserRouter([
   {
@@ -229,6 +230,10 @@ const router = createBrowserRouter([
         path: "/dashboard/blockedTrx",
         element: <BlockTrx />,
       },
+      {
+        path: "/dashboard/addAdvertisement",
+        element: <AddAdvertisement/>
+      }
     ],
   },
 ]);
