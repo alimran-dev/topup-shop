@@ -41,6 +41,7 @@ const run = () => {
   const adminDashboardRoute = require("./routes/adminDashboard.route");
   const messageRoute = require("./routes/message.route");
   const rechargeRoutes = require("./routes/recharge.route");
+  const adsRoute = require("./routes/ads.route")
 
   // routes
   app.use("/auth", authRoute());
@@ -57,6 +58,7 @@ const run = () => {
   app.use("/dashboard", adminDashboardRoute());
   app.use("/recharge", rechargeRoutes());
   app.use("/message", messageRoute());
+  app.use("/ads", adsRoute());
 };
 
 connectToDB((err) => {

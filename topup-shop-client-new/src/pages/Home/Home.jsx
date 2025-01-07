@@ -5,14 +5,22 @@ import Notice from "./Notice/Notice";
 import Services from "./Services/Services";
 import AdModal from "./AdModal/AdModal";
 import { useNavigate } from "react-router-dom";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef(null);
   const navigate = useNavigate();
-  const url = "advertise";
-  const imageUrl =
-    "https://thumbs.dreamstime.com/b/advertising-word-cloud-business-concept-56936998.jpg";
+  const [ads, setAds] = useState({});
+  const axiosPublic = useAxiosPublic();
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await axiosPublic.get("/ads");
+      setAds(data);
+    };
+    fetch();
+  }, [axiosPublic]);
 
   useEffect(() => {
     setIsModalOpen(true);
@@ -30,7 +38,7 @@ const Home = () => {
   }, []);
 
   const handleImageClick = () => {
-    navigate(`/${url}`);
+    navigate(`/${ads.path}`);
   };
 
   return (
@@ -40,7 +48,7 @@ const Home = () => {
           modalRef={modalRef}
           setIsModalOpen={setIsModalOpen}
           handleImageClick={handleImageClick}
-          imageUrl={imageUrl}
+          imageUrl={ads?.imageUrl}
         />
       )}
 

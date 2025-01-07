@@ -1,14 +1,28 @@
 import { useState } from "react";
 import { uploadImage } from "../../utils/uploadImage";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
 
 const AddAdvertisement = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const [path, setPath] = useState("");
+  const axiosPrivate = useAxiosPrivate();
 
   const handleSubmitAdForm = async (e) => {
     e.preventDefault();
-    console.log({ imageUrl, path });
+    try {
+      const data = await axiosPrivate.post("/ads/post", { imageUrl, path });
+      if (data?.status == 200) {
+        toast.success("Success");
+        e.target.reset();
+        setImageUrl("");
+      } else {
+        toast.error("Something wrong! Try again.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div>
@@ -30,8 +44,13 @@ const AddAdvertisement = () => {
               className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
               onChange={async (e) => {
                 setLoading(true);
-                setImageUrl(await uploadImage(e.target.files[0]));
-                setLoading(false);
+                try {
+                  setImageUrl(await uploadImage(e.target.files[0]));
+                  setLoading(false);
+                } catch (error) {
+                  alert(error);
+                  setLoading(false);
+                }
               }}
             />
           </div>
@@ -52,7 +71,7 @@ const AddAdvertisement = () => {
           </div>
 
           <div>
-            {loading && <h1>Uploading..</h1>}
+            {loading && <h1>Uploading...</h1>}
             {imageUrl && <img src={imageUrl} />}
           </div>
         </div>
