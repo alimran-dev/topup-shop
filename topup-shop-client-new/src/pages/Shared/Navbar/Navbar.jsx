@@ -4,24 +4,12 @@ import "./Navbar.css";
 import useAuth from "../../../hooks/useAuth";
 import avatar from "../../../assets/images/avater.png";
 import { useState } from "react";
-import { VscAccount } from "react-icons/vsc";
-import { TfiMenuAlt } from "react-icons/tfi";
-import { GrAnnounce, GrTransaction } from "react-icons/gr";
-import {
-  MdAccountBalance,
-  MdDevices,
-  MdOutlinePostAdd,
-  MdPayment,
-} from "react-icons/md";
-import { ImBlocked } from "react-icons/im";
-import { IoGridOutline } from "react-icons/io5";
 import { BiSupport } from "react-icons/bi";
-import { TbCurrencyTaka, TbTableOptions } from "react-icons/tb";
-import { FiEdit } from "react-icons/fi";
-import { LuListTodo } from "react-icons/lu";
-import { FaUsersCog } from "react-icons/fa";
+import { TbCurrencyTaka} from "react-icons/tb";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useIsAdmin from "../../../hooks/useIsAdmin";
+import AdminNav from "./components/AdminNav";
+import UserNav from "./components/UserNav";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +22,7 @@ const Navbar = () => {
     logOut()
       .then(() => {
         setUser(null);
-        axiosPrivate.post("/auth/logout").then((res) => {
+        axiosPrivate.post("/auth/logout").then(() => {
           navigate("/");
           // console.log(res.data);
         });
@@ -137,204 +125,9 @@ const Navbar = () => {
                   <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
                   {/* menu items */}
                   {isAdmin ? (
-                    <div>
-                      <NavLink
-                        to={"/dashboard"}
-                        end
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 pt-0 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3 pt-0"
-                        }
-                      >
-                        <IoGridOutline className="text-2xl" /> Dashboard
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/orders"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <LuListTodo className="text-2xl" /> Orders
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/payments"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <MdPayment className="text-2xl" /> Payments
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/transactions"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <GrTransaction className="text-2xl" /> Transactions
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/addCodes"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <MdOutlinePostAdd className="text-2xl" /> Add Codes
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/addOptions"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <TbTableOptions className="text-2xl" /> Add Options
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/updateOptions"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <FiEdit className="text-2xl" /> Update Options
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/users"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <FaUsersCog className="text-2xl" /> Manage Users
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/notice"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <GrAnnounce className="text-2xl" /> Notice
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/devices"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <MdDevices className="text-2xl" /> Devices
-                      </NavLink>
-                      <NavLink
-                        to={"/dashboard/blockedTrx"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <ImBlocked className="text-2xl" /> Block Trx
-                      </NavLink>
-                      <NavLink
-                        to={"/myAccount"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 pb-0 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3 pb-0"
-                        }
-                      >
-                        <VscAccount className="text-2xl" /> My Account
-                      </NavLink>
-                    </div>
+                    <AdminNav/>
                   ) : (
-                    <div>
-                      <NavLink
-                        to={"/myAccount"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 pt-0 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3 pt-0"
-                        }
-                      >
-                        <VscAccount className="text-2xl" /> My Account
-                      </NavLink>
-                      <NavLink
-                        to={"/addBalance"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <MdAccountBalance className="text-2xl" /> Add Balance
-                      </NavLink>
-                      <NavLink
-                        to={"/myOrders"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3"
-                        }
-                      >
-                        <IoGridOutline className="text-2xl" /> My Orders
-                      </NavLink>
-                      <NavLink
-                        to={"myTransactions"}
-                        className={({ isActive, isPending }) =>
-                          isPending
-                            ? "pending"
-                            : isActive
-                            ? "flex items-center gap-2 text-lg mx-4 py-3 pb-0 text-[#FA6023]"
-                            : "flex items-center gap-2 text-lg mx-4 py-3 pb-0"
-                        }
-                      >
-                        <TfiMenuAlt className="text-2xl" /> My Transactions
-                      </NavLink>
-                    </div>
+                    <UserNav/>
                   )}
 
                   <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />

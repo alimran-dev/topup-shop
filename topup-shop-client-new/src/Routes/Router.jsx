@@ -38,6 +38,7 @@ import BlockTrx from "../AdminDashboard/BlockTrx/BlockTrx";
 import UidAirdrop from "../pages/UidAirdrop/UidAirdrop";
 import LessIsMore from "../pages/LessIsMore/LessIsMore";
 import RechargeCard from "../pages/RechargeCard/RechargeCard";
+import AddServices from "../AdminDashboard/AddServices/AddServices";
 
 const router = createBrowserRouter([
   {
@@ -71,15 +72,15 @@ const router = createBrowserRouter([
       },
       {
         path: "/uid-airdrop",
-        element: <UidAirdrop />
+        element: <UidAirdrop />,
       },
       {
         path: "/less-is-more",
-        element: <LessIsMore />
+        element: <LessIsMore />,
       },
       {
         path: "/cards/:next",
-        element: <RechargeCard />
+        element: <RechargeCard />,
       },
       {
         path: "/special-offer",
@@ -87,7 +88,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/special-offer/:server",
-        element: <ServerOptions />
+        element: <ServerOptions />,
       },
       {
         path: "/contact",
@@ -103,38 +104,70 @@ const router = createBrowserRouter([
       },
       {
         path: "/myAccount",
-        element: <PrivateRoute><MyAccount /></PrivateRoute>,
+        element: (
+          <PrivateRoute>
+            <MyAccount />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/addBalance",
-        element: <PrivateRoute><AddBalance /></PrivateRoute>,
+        element: (
+          <PrivateRoute>
+            <AddBalance />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/addBalance/method",
-        element: <PrivateRoute><Method /></PrivateRoute>,
+        element: (
+          <PrivateRoute>
+            <Method />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/addBalance/pay",
-        element: <PrivateRoute><Pay /></PrivateRoute>,
+        element: (
+          <PrivateRoute>
+            <Pay />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/myOrders",
-        element: <PrivateRoute><MyOrders /></PrivateRoute>,
+        element: (
+          <PrivateRoute>
+            <MyOrders />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/myTransactions",
-        element: <PrivateRoute><MyTransactions /></PrivateRoute>,
+        element: (
+          <PrivateRoute>
+            <MyTransactions />
+          </PrivateRoute>
+        ),
       },
     ],
   },
   {
     path: "/dashboard",
-    element: <AdminRoute><Root /></AdminRoute>,
+    element: (
+      <AdminRoute>
+        <Root />
+      </AdminRoute>
+    ),
     errorElement: <ErrorPage />,
     children: [
       {
         path: "/dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "/dashboard/addServices",
+        element: <AddServices />,
       },
       {
         path: "/dashboard/addCodes",
@@ -150,7 +183,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard/updateSpecialOption",
-        element: <ServerList />
+        element: <ServerList />,
       },
       {
         path: "/dashboard/updateSpecialOption/:server",
@@ -186,16 +219,16 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard/notice",
-        element: <Notice />
+        element: <Notice />,
       },
       {
         path: "/dashboard/devices",
-        element: <Devices />
+        element: <Devices />,
       },
       {
         path: "/dashboard/blockedTrx",
-        element: <BlockTrx />
-      }
+        element: <BlockTrx />,
+      },
     ],
   },
 ]);
