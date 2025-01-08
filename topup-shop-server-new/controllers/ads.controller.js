@@ -22,4 +22,13 @@ const getAds = async (req, res) => {
   }
 };
 
-module.exports = { addAds, getAds };
+const removeAds = async (req, res) =>{
+    try {
+        const result = await dbCollections.adsCollection.deleteMany({});
+        res.send(result);
+    } catch (error) {
+        res.error(error);
+    }
+}
+
+module.exports = { addAds, getAds, removeAds };

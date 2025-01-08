@@ -24,6 +24,19 @@ const AddAdvertisement = () => {
       console.log(error);
     }
   };
+
+  const handleRemoveAds = async () =>{
+    try {
+        const {data} = await axiosPrivate.post("/ads/remove");
+        if(data.deletedCount > 0){
+            toast.success("Ads deleted");
+        }else{
+            toast.error("Something wrong! Try again!");
+        }
+    } catch (error) {
+        console.log(error);
+    }
+  }
   return (
     <div>
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
@@ -83,6 +96,13 @@ const AddAdvertisement = () => {
           Add
         </button>
       </form>
+      <button
+        type="submit"
+        onClick={handleRemoveAds}
+        className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg my-4 text-white font-semibold rounded block mx-auto"
+      >
+        Remove Advertisement
+      </button>
     </div>
   );
 };
