@@ -1,7 +1,9 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
 const TransactionCard = ({ transaction }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { _id, method, toPay, willAdd, fee, number, trxID, time, status } =
     transaction || {};
@@ -32,6 +34,9 @@ const TransactionCard = ({ transaction }) => {
         </p>
         <p className="h-14 flex items-center justify-center w-full border text-sm text-center">
           {trxID}
+        </p>
+        <p className="h-14 flex items-center justify-center w-full border text-sm text-center">
+          {status == "completed" ? user?.balance - willAdd : user?.balance}
         </p>
         <p className="h-14 flex items-center justify-center w-full border text-sm text-center">
           {willAdd}

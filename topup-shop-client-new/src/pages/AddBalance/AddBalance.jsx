@@ -31,7 +31,7 @@ const AddBalance = () => {
       <Loader isLoading={isLoading} />
       <div
         className={`border-2 border-[#FA6023] rounded-md relative ${
-          offer.offer.length > 0 ? "" : "hidden"
+          offer?.offer?.length > 0 ? "" : "hidden"
         }`}
       >
         <h2 className="text-center border-b-2 border-[#FA6023] py-1.5 text-lg font-bold">

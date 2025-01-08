@@ -57,6 +57,9 @@ const MyTransactions = () => {
               Trx ID
             </p>
             <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
+              Previous Balance
+            </p>
+            <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
               Amount
             </p>
             <p className="border w-full text-center py-1.5 font-semibold border-gray-400">
