@@ -5,15 +5,12 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
 
 const TopupAndUnipinForm = ({ category }) => {
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [image, setImage] = useState("");
-  const [price, setPrice] = useState("");
-  const [uc, setUc] = useState("");
   const [tutorialTitle, setTutorialTitle] = useState("");
   const [tutorialUrl, setTutorialUrl] = useState("");
   const [form, setForm] = useState([]);
-  const [codes, setCodes] = useState([]);
   const [rulesAndConditions, setRulesAndConditions] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -22,8 +19,6 @@ const TopupAndUnipinForm = ({ category }) => {
   const handleAdd = (key, value) => {
     if (key === "form") {
       setForm([...form, value]);
-    } else if (key === "codes") {
-      setCodes([...codes, value]);
     } else if (key === "rulesAndConditions") {
       setRulesAndConditions([...rulesAndConditions, value]);
     }
@@ -32,8 +27,6 @@ const TopupAndUnipinForm = ({ category }) => {
   const handleRemove = (key, index) => {
     if (key === "form") {
       setForm(form.filter((_, idx) => idx !== index));
-    } else if (key === "codes") {
-      setCodes(codes.filter((_, idx) => idx !== index));
     } else if (key === "rulesAndConditions") {
       setRulesAndConditions(
         rulesAndConditions.filter((_, idx) => idx !== index)
@@ -45,14 +38,11 @@ const TopupAndUnipinForm = ({ category }) => {
     category,
     data: {
       subCategory,
-      name,
+      title,
       image,
-      price,
-      uc,
       tutorialTitle,
       tutorialUrl,
       form,
-      codes,
       rulesAndConditions,
     },
   };
@@ -63,17 +53,15 @@ const TopupAndUnipinForm = ({ category }) => {
       const { data } = await axiosPrivate.post("/service/post", serviceData);
       if (data.insertedId) {
         toast.success("Service Added Successfully!");
-        setName("");
+        setTitle("");
         setSubCategory("");
         setImage("");
-        setPrice("");
-        setUc("");
         setTutorialTitle("");
         setTutorialUrl("");
         setForm([]);
-        setCodes([]);
         setRulesAndConditions([]);
-        setLoading(false); 
+        setLoading(false);
+        e.target.reset();
       }
     } catch (error) {
       toast.error("Something wrong! Try again!");
@@ -88,14 +76,14 @@ const TopupAndUnipinForm = ({ category }) => {
             htmlFor="name"
             className="block text-xl font-medium text-gray-700"
           >
-            Name
+            Title
           </label>
           <input
             type="text"
-            onChange={(e) => setName(e.target.value)}
-            value={name}
+            onChange={(e) => setTitle(e.target.value)}
+            value={title}
             className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-400 rounded-md"
-            placeholder="Enter name"
+            placeholder="Enter title"
             required
           />
         </div>
@@ -112,6 +100,9 @@ const TopupAndUnipinForm = ({ category }) => {
             value={subCategory}
             className="py-1.5 px-3 w-full border-2 border-gray-400 rounded-md block font-medium"
           >
+            <option value="" disabled>
+              Select a Sub Category
+            </option>
             {[
               "Unipin",
               "IdCode",
@@ -156,38 +147,6 @@ const TopupAndUnipinForm = ({ category }) => {
 
         <div className="space-y-2">
           <label
-            htmlFor="price"
-            className="block text-xl font-medium text-gray-700"
-          >
-            Price
-          </label>
-          <input
-            type="number"
-            onChange={(e) => setPrice(e.target.value)}
-            value={price}
-            className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-400 rounded-md"
-            placeholder="Enter price"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <label
-            htmlFor="uc"
-            className="block text-xl font-medium text-gray-700"
-          >
-            UC
-          </label>
-          <input
-            type="number"
-            onChange={(e) => setUc(e.target.value)}
-            value={uc}
-            className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-400 rounded-md"
-            placeholder="Enter UC"
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <label
             htmlFor="tutorialTitle"
             className="block text-xl font-medium text-gray-700"
           >
@@ -218,7 +177,7 @@ const TopupAndUnipinForm = ({ category }) => {
         </div>
       </div>
 
-      {["form", "codes", "rulesAndConditions"].map((key) => (
+      {["form", "rulesAndConditions"].map((key) => (
         <div key={key} className="space-y-5">
           <label className="block text-xl font-medium text-gray-700 capitalize">
             {key.replace(/([A-Z])/g, " $1")}:
@@ -245,19 +204,6 @@ const TopupAndUnipinForm = ({ category }) => {
             <ul>
               {key === "form" &&
                 form.map((item, index) => (
-                  <li key={index} className="flex justify-between items-center">
-                    {index + 1 + ". " + item}
-                    <button
-                      type="button"
-                      className="text-red-500 ml-2"
-                      onClick={() => handleRemove(key, index)}
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              {key === "codes" &&
-                codes.map((item, index) => (
                   <li key={index} className="flex justify-between items-center">
                     {index + 1 + ". " + item}
                     <button
