@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { uploadImage } from "../../../utils/uploadImage";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
 
 const TopupAndUnipinForm = ({ category }) => {
   const [name, setName] = useState("");
@@ -15,6 +17,7 @@ const TopupAndUnipinForm = ({ category }) => {
   const [rulesAndConditions, setRulesAndConditions] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const axiosPrivate = useAxiosPrivate();
 
   const handleAdd = (key, value) => {
     if (key === "form") {
@@ -38,23 +41,43 @@ const TopupAndUnipinForm = ({ category }) => {
     }
   };
 
-  const data = {
+  const serviceData = {
     category,
-    subCategory,
-    name,
-    image,
-    price,
-    uc,
-    tutorialTitle,
-    tutorialUrl,
-    form,
-    codes,
-    rulesAndConditions,
+    data: {
+      subCategory,
+      name,
+      image,
+      price,
+      uc,
+      tutorialTitle,
+      tutorialUrl,
+      form,
+      codes,
+      rulesAndConditions,
+    },
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(data);
+    try {
+      const { data } = await axiosPrivate.post("/service/post", serviceData);
+      if (data.insertedId) {
+        toast.success("Service Added Successfully!");
+        setName("");
+        setSubCategory("");
+        setImage("");
+        setPrice("");
+        setUc("");
+        setTutorialTitle("");
+        setTutorialUrl("");
+        setForm([]);
+        setCodes([]);
+        setRulesAndConditions([]);
+        setLoading(false); 
+      }
+    } catch (error) {
+      toast.error("Something wrong! Try again!");
+    }
   };
 
   return (
@@ -212,7 +235,7 @@ const TopupAndUnipinForm = ({ category }) => {
               onClick={(e) => {
                 const value = e.target.previousElementSibling.value;
                 handleAdd(key, value);
-                e.target.previousElementSibling.value = ""; // Clear the input field after adding
+                e.target.previousElementSibling.value = "";
               }}
             >
               Add
@@ -236,7 +259,7 @@ const TopupAndUnipinForm = ({ category }) => {
               {key === "codes" &&
                 codes.map((item, index) => (
                   <li key={index} className="flex justify-between items-center">
-                    {item}
+                    {index + 1 + ". " + item}
                     <button
                       type="button"
                       className="text-red-500 ml-2"
@@ -249,7 +272,7 @@ const TopupAndUnipinForm = ({ category }) => {
               {key === "rulesAndConditions" &&
                 rulesAndConditions.map((item, index) => (
                   <li key={index} className="flex justify-between items-center">
-                    {item}
+                    {index + 1 + ". " + item}
                     <button
                       type="button"
                       className="text-red-500 ml-2"

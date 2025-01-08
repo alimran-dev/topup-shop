@@ -9,7 +9,7 @@ const addAds = async (req, res) => {
       res.status(200).send(result);
     }
   } catch (error) {
-    res.error(error);
+    res.send(error);
   }
 };
 
@@ -18,7 +18,7 @@ const getAds = async (req, res) => {
     const result = await dbCollections.adsCollection.findOne();
     res.send(result);
   } catch (error) {
-    res.error(error);
+    res.send(error);
   }
 };
 
@@ -27,7 +27,7 @@ const removeAds = async (req, res) =>{
         const result = await dbCollections.adsCollection.deleteMany({});
         res.send(result);
     } catch (error) {
-        res.error(error);
+        res.send(error);
     }
 }
 

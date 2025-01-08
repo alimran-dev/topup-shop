@@ -4,7 +4,8 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const port = process.env.PORT || 5000;
-const { connectToDB } = require("./config/db");
+const { connectToDB, dbCollections } = require("./config/db");
+
 
 // middlewares
 app.use(express.json());
@@ -41,7 +42,9 @@ const run = () => {
   const adminDashboardRoute = require("./routes/adminDashboard.route");
   const messageRoute = require("./routes/message.route");
   const rechargeRoutes = require("./routes/recharge.route");
-  const adsRoute = require("./routes/ads.route")
+  const adsRoute = require("./routes/ads.route");
+  const serviceRoute = require("./routes/service.route");
+
 
   // routes
   app.use("/auth", authRoute());
@@ -59,6 +62,7 @@ const run = () => {
   app.use("/recharge", rechargeRoutes());
   app.use("/message", messageRoute());
   app.use("/ads", adsRoute());
+  app.use("/service", serviceRoute());
 };
 
 connectToDB((err) => {

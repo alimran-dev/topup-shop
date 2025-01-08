@@ -20,7 +20,8 @@ const connectToDB = (cb) => {
       console.log("connected to DB");
 
       const dbCollections = {};
-      dbCollections.adsCollection = database.collection("ads")
+      dbCollections.serviceCollection = database.collection("services");
+      dbCollections.adsCollection = database.collection("ads");
       dbCollections.userCollection = database.collection("users");
       dbCollections.orderCollection = database.collection("orders");
       dbCollections.unipinCollection = database.collection("unipins");
