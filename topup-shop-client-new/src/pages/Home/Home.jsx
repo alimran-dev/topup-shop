@@ -11,19 +11,25 @@ const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef(null);
   const navigate = useNavigate();
-  const [ads, setAds] = useState({});
+  const [ads, setAds] = useState(null); 
   const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await axiosPublic.get("/ads");
-      setAds(data);
+      try {
+        const { data } = await axiosPublic.get("/ads");
+        if (data?.imageUrl) { 
+          setAds(data);
+          setIsModalOpen(true); 
+        }
+      } catch (error) {
+        console.error("Error fetching ads:", error);
+      }
     };
     fetch();
   }, [axiosPublic]);
 
   useEffect(() => {
-    setIsModalOpen(true);
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         setIsModalOpen(false);
@@ -43,7 +49,7 @@ const Home = () => {
 
   return (
     <div className="space-y-5">
-      {isModalOpen && (
+      {isModalOpen && ads && (
         <AdModal
           modalRef={modalRef}
           setIsModalOpen={setIsModalOpen}
