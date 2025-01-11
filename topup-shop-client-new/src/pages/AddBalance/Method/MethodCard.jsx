@@ -20,6 +20,7 @@ const MethodCard = ({ method, amount, setErr }) => {
       id: _id,
       amount,
       email: user?.email,
+      previousBalance: user?.balance
     };
     axiosPrivate.post("/balance/add", newTransaction).then((data) => {
       if (data.data?.insertedId) {

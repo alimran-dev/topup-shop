@@ -21,32 +21,68 @@ const Services = () => {
       </div>
       <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
         <div className="flex-1">
-          <ServiceCard image={unipin} path="/unipin" title="Unipin Voucher (BDT)" />
+          <ServiceCard
+            image={unipin}
+            path="/unipin"
+            title="Unipin Voucher (BDT)"
+          />
         </div>
         <div className="flex-1">
-          <ServiceCard image={airdrop} path="/uid-airdrop" title="Free Fire  UID [ Airdrop ]" />
-        </div>
-        
-        <div className="flex-1">
-          <ServiceCard image={idcode} path="/idcode" title="IDCODE Topup [BD SERVER]" />
-        </div>
-        <div className="flex-1">
-          <ServiceCard image={weekly} path="/weekly-monthly" title="Weekly & Monthly [Offer]" />
+          <ServiceCard
+            image={shell}
+            path="/shell"
+            title="Garena Shell Code (MY)"
+          />
         </div>
         <div className="flex-1">
-          <ServiceCard image={lessIsMore} path="/less-is-more" title="Less Is More UID" />
+          <ServiceCard
+            image={airdrop}
+            path="/uid-airdrop"
+            title="Free Fire  UID [ Airdrop ]"
+          />
+        </div>
+
+        <div className="flex-1">
+          <ServiceCard
+            image={idcode}
+            path="/idcode"
+            title="IDCODE Topup [BD SERVER]"
+          />
         </div>
         <div className="flex-1">
-          <ServiceCard image={shell} path="/shell" title="Garena Shell Code (MY)" />
+          <ServiceCard
+            image={weekly}
+            path="/weekly-monthly"
+            title="Weekly & Monthly [Offer]"
+          />
         </div>
         <div className="flex-1">
-          <ServiceCard image={specialOffer} path="/special-offer" title="All Special Offer" />
+          <ServiceCard
+            image={lessIsMore}
+            path="/less-is-more"
+            title="Less Is More UID"
+          />
         </div>
         <div className="flex-1">
-          <ServiceCard image={rechargeCard} path="/cards/companies" title="Recharge Card [All sim]" />
+          <ServiceCard
+            image={specialOffer}
+            path="/special-offer"
+            title="All Special Offer"
+          />
         </div>
         <div className="flex-1">
-          <ServiceCard image={rechargeOffer} path="#" title="Minutes & MB offer [All sim]" />
+          <ServiceCard
+            image={rechargeCard}
+            path="/cards/companies"
+            title="Recharge Card [All sim]"
+          />
+        </div>
+        <div className="flex-1">
+          <ServiceCard
+            image={rechargeOffer}
+            path="#"
+            title="Minutes & MB offer [All sim]"
+          />
         </div>
       </div>
     </>

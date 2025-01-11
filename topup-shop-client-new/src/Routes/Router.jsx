@@ -60,16 +60,16 @@ const router = createBrowserRouter([
         element: <Unipin />,
       },
       {
+        path: "/shell",
+        element: <Shell />,
+      },
+      {
         path: "/idcode",
         element: <Idcode />,
       },
       {
         path: "/weekly-monthly",
         element: <WeeklyMonthly />,
-      },
-      {
-        path: "/shell",
-        element: <Shell />,
       },
       {
         path: "/uid-airdrop",
@@ -232,8 +232,8 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard/addAdvertisement",
-        element: <AddAdvertisement/>
-      }
+        element: <AddAdvertisement />,
+      },
     ],
   },
 ]);

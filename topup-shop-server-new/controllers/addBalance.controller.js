@@ -12,7 +12,7 @@ const addBalanceOfferCollections = dbCollections.addBalanceOfferCollections;
 
 const addBalance = async (req, res) => {
   try {
-    const { amount, email, id } = req.body;
+    const { amount, email, id, previousBalance } = req.body;
     if (amount >= 5000) {
       return res.send({
         message: `একসাথে সর্বোচ্চ ৪৯৯৯ টাকা অ্যাড করতে পারবেন।`,
@@ -55,6 +55,7 @@ const addBalance = async (req, res) => {
       willAdd: parseFloat((amount + (amount * bonus) / 100).toFixed(2)),
       number,
       email,
+      previousBalance,
       attempt: 0,
       trxID: "",
       time: new Date(),
