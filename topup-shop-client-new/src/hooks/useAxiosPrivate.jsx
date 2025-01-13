@@ -7,7 +7,7 @@ const axiosPrivate = axios.create({
       ? "https://api.mezbashop.com/"
       : import.meta.env.VITE_PROJECTENV === "demo"
       ? "https://demo.api.mezbashop.com/"
-      : "http://localhost:3200/",
+      : "http://localhost:5000/",
   withCredentials: true,
 });
 
