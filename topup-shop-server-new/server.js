@@ -62,7 +62,7 @@ const run = () => {
   app.use("/recharge", rechargeRoutes());
   app.use("/message", messageRoute());
   app.use("/ads", adsRoute());
-  app.use("/service", serviceRoute());
+  app.use("/services", serviceRoute());
 };
 
 connectToDB((err) => {

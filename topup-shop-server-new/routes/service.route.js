@@ -1,12 +1,13 @@
 const express = require('express');
-const { getServices, postService } = require('../controllers/service.controller');
+const { getAllServices, addSubCategory, getService} = require('../controllers/service.controller');
 const { verifyAdmin } = require('../middlewares/verifyAdmin');
 
 const router = express.Router();
 
 const serviceRoute = () =>{
-    router.get("/", getServices);
-    router.post("/post", verifyAdmin, postService);
+    router.get("/", getAllServices);
+    router.get("/get", getService);
+    router.post("/new", addSubCategory);
     return router;
 }
 
