@@ -7,12 +7,14 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
   const axiosPrivate = useAxiosPrivate();
+
   useEffect(() => {
     axiosPrivate.get("/dashboard/admin").then((res) => {
       setIsLoading(false);
       setData(res.data);
     });
   }, [axiosPrivate]);
+
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -26,7 +28,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Total Added</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                {data?.balance?.totalBalance || 0} <TbCurrencyTaka />
+                {data?.balance?.totalBalance?.toFixed(2) || 0} <TbCurrencyTaka />
               </p>
             </div>
           </div>
@@ -42,7 +44,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Available</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                {data?.balance?.available || 0} <TbCurrencyTaka />
+                {data?.balance?.available?.toFixed(2) || 0} <TbCurrencyTaka />
               </p>
             </div>
           </div>
@@ -102,19 +104,17 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {data?.unipins?.map((item) => {
+              {data?.unipins?.map((item, idx) => {
                 if (item.codes) {
                   return (
-                    <>
-                      <tr className="text-center">
-                        <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
-                          {item.uc} UC
-                        </td>
-                        <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
-                          {item.codes}
-                        </td>
-                      </tr>
-                    </>
+                    <tr className="text-center" key={idx}>
+                      <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+                        {item.uc} UC
+                      </td>
+                      <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+                        {item.codes}
+                      </td>
+                    </tr>
                   );
                 }
               })}

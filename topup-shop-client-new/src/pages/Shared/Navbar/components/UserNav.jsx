@@ -1,62 +1,36 @@
+import PropTypes from 'prop-types';
 import { VscAccount } from "react-icons/vsc";
 import { TfiMenuAlt } from "react-icons/tfi";
 import { MdAccountBalance } from "react-icons/md";
 import { IoGridOutline } from "react-icons/io5";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
-const UserNav = () => {
-  return (
-    <div>
-      <NavLink
-        to={"/myAccount"}
-        className={({ isActive, isPending }) =>
-          isPending
-            ? "pending"
-            : isActive
-            ? "flex items-center gap-2 text-lg mx-4 py-3 pt-0 text-[#FA6023]"
-            : "flex items-center gap-2 text-lg mx-4 py-3 pt-0"
-        }
-      >
-        <VscAccount className="text-2xl" /> My Account
-      </NavLink>
-      <NavLink
-        to={"/addBalance"}
-        className={({ isActive, isPending }) =>
-          isPending
-            ? "pending"
-            : isActive
-            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-            : "flex items-center gap-2 text-lg mx-4 py-3"
-        }
-      >
-        <MdAccountBalance className="text-2xl" /> Add Balance
-      </NavLink>
-      <NavLink
-        to={"/myOrders"}
-        className={({ isActive, isPending }) =>
-          isPending
-            ? "pending"
-            : isActive
-            ? "flex items-center gap-2 text-lg mx-4 py-3 text-[#FA6023]"
-            : "flex items-center gap-2 text-lg mx-4 py-3"
-        }
-      >
-        <IoGridOutline className="text-2xl" /> My Orders
-      </NavLink>
-      <NavLink
-        to={"myTransactions"}
-        className={({ isActive, isPending }) =>
-          isPending
-            ? "pending"
-            : isActive
-            ? "flex items-center gap-2 text-lg mx-4 py-3 pb-0 text-[#FA6023]"
-            : "flex items-center gap-2 text-lg mx-4 py-3 pb-0"
-        }
-      >
-        <TfiMenuAlt className="text-2xl" /> My Transactions
-      </NavLink>
-    </div>
+const navItems = [
+  { to: "/myAccount", icon: VscAccount, label: "My Account" },
+  { to: "/addBalance", icon: MdAccountBalance, label: "Add Balance" },
+  { to: "/myOrders", icon: IoGridOutline, label: "My Orders" },
+  { to: "/myTransactions", icon: TfiMenuAlt, label: "My Transactions" },
+];
+
+const UserNav = ({ setIsOpen }) => {
+  const location = useLocation();
+
+  const renderNavLink = ({ to, icon: Icon, label }) => (
+    <NavLink
+      key={to}
+      to={to}
+      onClick={() => setIsOpen(false)}
+      className={`${location.pathname === to ? 'text-primary font-semibold' : ''} flex items-center gap-2 text-lg mx-4 py-3`}
+    >
+      <Icon className="text-2xl" /> {label}
+    </NavLink>
   );
+
+  return <div>{navItems.map(renderNavLink)}</div>;
+};
+
+UserNav.propTypes = {
+  setIsOpen: PropTypes.func,
 };
 
 export default UserNav;

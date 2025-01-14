@@ -14,7 +14,7 @@ const Services = () => {
     <>
       <div className="flex items-center justify-center">
         <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
-        <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
+        <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 md:pb-4">
           Our Services
         </h1>
         <span className="block border-t-2 border-[#FA6023] flex-1"></span>
