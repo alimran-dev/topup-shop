@@ -1,7 +1,10 @@
 import { useState } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import Swal from "sweetalert2";
+import { uploadImage } from "../../../utils/uploadImage";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 
 const categories = [
@@ -16,9 +19,13 @@ const categories = [
 const AddSubCategory = () => {
 
     const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
     const [inputs, setInputs] = useState([]);
     const [inputValue, setInputValue] = useState("");
     const [value, setValue] = useState('');
+    const [loading, setLoading] = useState(false);
+    const axiosPrivate = useAxiosPrivate();
+    const navigate = useNavigate();
 
     // Handle adding a new input label
     const handleAdd = (e) => {
@@ -35,43 +42,64 @@ const AddSubCategory = () => {
     };
 
 
-    // Handle image file selection
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImage(URL.createObjectURL(file));
+            setImage(file);
+            setPreview(URL.createObjectURL(file)); // Generate preview URL
         }
     };
 
-    // handle submit fn
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const values = {
+        setLoading(true);
+
+        const newSubCategory = {
             title: e.target.title.value,
             category: e.target.category.value,
             tutorialText: e.target.tutorialText.value,
             tutorialURL: e.target.tutorialURL.value,
             inputs,
             image,
-            value,
+            rules: value,
         };
 
         if (inputs.length === 0 || value.trim() === '') {
-            Swal.fire({
-                position: "top",
-                icon: "error",
-                title: `Fill All Input Fields!`,
-                showConfirmButton: false,
-                timer: 1000,
-                toast: true,
-            });
+            toast.error("Full all inputs!");
+            setLoading(false);
             return;
         }
 
+        try {
 
-        console.log('Submitted values:', values);
+            // upload the image
+            await uploadImage(image);
+
+            // call post api
+            try {
+                const { data } = await axiosPrivate.post("/services/new", newSubCategory);
+                // console.log('data---------',data);
+
+                if (data?.insertedId) {
+                    toast.success("Service Added Successfully!");
+                    setLoading(false);
+                    navigate('/dashboard/services')
+                }
+                else {
+                    toast.error("Something went wrong! Try again!");
+                    setLoading(false);
+                }
+            } catch (error) {
+                toast.error("Something went wrong! Check your network!");
+                setLoading(false);
+            }
+        } catch (error) {
+            toast.error("Error uploading image");
+            setLoading(false);
+        }
     };
+
 
 
     return (
@@ -156,7 +184,7 @@ const AddSubCategory = () => {
                         onChange={handleImageChange}
                         required
                     />
-                    {image && <img src={image} alt="Preview" className="mt-3 max-h-48" />}
+                    {image && <img src={preview} alt="Preview" className="mt-3 max-h-48" />}
                 </div>
 
                 {/* text editor */}
@@ -170,7 +198,9 @@ const AddSubCategory = () => {
                 </div>
 
                 {/* submit btn */}
-                <button type="submit" className="block mx-auto button bg-gradient">Submit</button>
+                <button type="submit" className="block mx-auto button bg-gradient" disabled={loading}>
+                    {loading ? 'Please Wait...' : 'Submit'}
+                </button>
             </form>
 
         </div>
