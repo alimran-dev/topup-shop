@@ -44,6 +44,7 @@ import RedeemCode from "../AdminDashboard/RedeemCode/RedeemCode";
 import ArchivedUnipins from "../AdminDashboard/ArchivedUnipins/ArchivedUnipins";
 import AddSubCategory from "../AdminDashboard/Services/AddSubCategory/AddSubCategory";
 import Services from "../AdminDashboard/Services/Services";
+import SubCategory from "../pages/SubCategory/SubCategory";
 
 
 const router = createBrowserRouter([
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         path: "/unipin",
         element: <Unipin />,
+      },
+      {
+        path: "/subCategory/:id",
+        element: <SubCategory />,
       },
       {
         path: "/shell",
