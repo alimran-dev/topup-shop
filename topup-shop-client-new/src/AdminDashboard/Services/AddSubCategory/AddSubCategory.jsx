@@ -101,11 +101,7 @@ const AddSubCategory = () => {
             setLoading(false);
         }
     };
-
-
-    console.log(value);
     
-
 
     return (
         <div>
@@ -189,7 +185,7 @@ const AddSubCategory = () => {
                         onChange={handleImageChange}
                         required
                     />
-                    {image && <img src={preview} alt="Preview" className="mt-3 max-h-48" />}
+                    {image && <img src={preview} alt="Preview" className="mt-3 max-h-48 object-cover" />}
                 </div>
 
                 {/* text editor */}

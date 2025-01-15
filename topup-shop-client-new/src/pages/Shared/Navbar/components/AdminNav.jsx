@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { FaPlus, FaUsersCog } from "react-icons/fa";
+import { FaPlus, FaUsersCog, FaRegImage,FaRegFlag } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { GrAnnounce, GrTransaction } from "react-icons/gr";
 import { ImBlocked } from "react-icons/im";
@@ -18,6 +18,7 @@ const navItems = [
   { to: "/dashboard/services", icon: IoBagHandleOutline, label: "Services" },
   { to: "/dashboard/payments", icon: MdPayment, label: "Payments" },
   { to: "/dashboard/transactions", icon: GrTransaction, label: "Transactions" },
+  { to: "/dashboard/banner", icon: FaRegImage, label: "Banner" },
   { to: "/dashboard/addCodes", icon: MdOutlinePostAdd, label: "Add Codes" },
   { to: "/dashboard/redeemCode", icon: GoCodeSquare, label: "Redeem Code" },
   { to: "/dashboard/archivedUnipins", icon: MdOutlineNumbers, label: "Archived Unipins" },
@@ -26,6 +27,7 @@ const navItems = [
   { to: "/dashboard/users", icon: FaUsersCog, label: "Manage Users" },
   { to: "/dashboard/addAdvertisement", icon: FaPlus, label: "Add Advertisement" },
   { to: "/dashboard/notice", icon: GrAnnounce, label: "Notice" },
+  { to: "/dashboard/followUs", icon: FaRegFlag, label: "Follow Us" },
   { to: "/dashboard/devices", icon: MdDevices, label: "Devices" },
   { to: "/dashboard/blockedTrx", icon: ImBlocked, label: "Block Trx" },
   { to: "/myAccount", icon: VscAccount, label: "My Account" },

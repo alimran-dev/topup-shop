@@ -45,6 +45,8 @@ import ArchivedUnipins from "../AdminDashboard/ArchivedUnipins/ArchivedUnipins";
 import AddSubCategory from "../AdminDashboard/Services/AddSubCategory/AddSubCategory";
 import Services from "../AdminDashboard/Services/Services";
 import SubCategory from "../pages/SubCategory/SubCategory";
+import Banner from "../AdminDashboard/Banner/Banner";
+import FollowUs from "../AdminDashboard/FollowUs/FollowUs";
 
 
 const router = createBrowserRouter([
@@ -189,6 +191,10 @@ const router = createBrowserRouter([
         element: <Services />,
       },
       {
+        path: "/dashboard/banner",
+        element: <Banner />,
+      },
+      {
         path: "/dashboard/addSubCategory",
         element: <AddSubCategory />,
       },
@@ -251,6 +257,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/notice",
         element: <Notice />,
+      },
+      {
+        path: "/dashboard/followUs",
+        element: <FollowUs />,
       },
       {
         path: "/dashboard/devices",

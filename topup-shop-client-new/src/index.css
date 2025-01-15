@@ -16,6 +16,12 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* stop scroll */
+.no-scroll {
+    overflow: hidden;
+}
+  
+
 
 .title{
     @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit uppercase text-xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto py-3 md:mb-4;

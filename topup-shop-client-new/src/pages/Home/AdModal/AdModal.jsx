@@ -4,14 +4,16 @@ import Loader from "../../../components/Loader";
 /* eslint-disable react/prop-types */
 const AdModal = ({ modalRef, setIsModalOpen, imageUrl, linkTo }) => {
   return (
-    <Link to={linkTo} target="_blank" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div ref={modalRef} className="bg-white p-4 rounded-lg relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+      <div ref={modalRef} className="bg-white p-5 rounded-lg relative">
         {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt="Modal Content"
-            className="cursor-pointer"
-          />
+          <Link to={linkTo} target="_blank">
+            <img
+              src={imageUrl}
+              alt="Modal Content"
+              className="cursor-pointer rounded-lg"
+            />
+          </Link>
         ) : (
           <Loader isLoading={!imageUrl} />
         )}
@@ -22,7 +24,7 @@ const AdModal = ({ modalRef, setIsModalOpen, imageUrl, linkTo }) => {
           ✕
         </button>
       </div>
-    </Link>
+    </div>
   );
 };
 

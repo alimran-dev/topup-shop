@@ -10,7 +10,7 @@ const RedeemCode = () => {
         const values = {
             redeemCode: e.target.redeemCode.value,
             limit: e.target.limit.value,
-            code: e.target.code.value,
+            value: e.target.value.value,
         }
 
         console.log('redeem added values:', values);
@@ -23,16 +23,16 @@ const RedeemCode = () => {
             <form onSubmit={handleAddRedeemCode}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label htmlFor="" className="input-label">Redeem Code</label>
+                        <label className="input-label">Redeem Code</label>
                         <input type="text" name="redeemCode" className="input" placeholder="Type redeem code" required />
                     </div>
                     <div>
-                        <label htmlFor="" className="input-label">Limit</label>
+                        <label className="input-label">Limit</label>
                         <input type="number" name="limit" className="input" placeholder="Type limit" required />
                     </div>
                     <div>
-                        <label htmlFor="" className="input-label">Code</label>
-                        <input type="text" name="code" className="input" placeholder="Type redeem code" required />
+                        <label className="input-label">Value</label>
+                        <input type="number" name="value" className="input" placeholder="Type value" required />
                     </div>
                 </div>
                 <button type="submit" className="button block mx-auto bg-gradient mt-5">Add</button>

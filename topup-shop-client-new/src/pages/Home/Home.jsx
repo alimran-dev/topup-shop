@@ -29,6 +29,17 @@ const Home = () => {
     fetch();
   }, [axiosPublic]);
 
+  // stop scroll when open modal
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [isModalOpen]);
 
   // outside click to remove modal
   useEffect(() => {

@@ -29,11 +29,9 @@ const Services = () => {
     });
   }, [axiosPublic, allData]);
 
-  console.log(allData);
-
 
   return (
-    <div className="space-y-5 md:space-y-10">
+    <div className="md:py-8 space-y-5 md:space-y-10">
 
       {/* -------- ff services --------- */}
       {
