@@ -38,8 +38,13 @@ import BlockTrx from "../AdminDashboard/BlockTrx/BlockTrx";
 import UidAirdrop from "../pages/UidAirdrop/UidAirdrop";
 import LessIsMore from "../pages/LessIsMore/LessIsMore";
 import RechargeCard from "../pages/RechargeCard/RechargeCard";
-import AddServices from "../AdminDashboard/AddServices/AddServices";
 import AddAdvertisement from "../pages/AddAdvertisement/AddAdvertisement";
+import ConfirmPurchase from "../pages/ConfirmPurchase/ConfirmPurchase";
+import RedeemCode from "../AdminDashboard/RedeemCode/RedeemCode";
+import ArchivedUnipins from "../AdminDashboard/ArchivedUnipins/ArchivedUnipins";
+import AddSubCategory from "../AdminDashboard/Services/AddSubCategory/AddSubCategory";
+import Services from "../AdminDashboard/Services/Services";
+
 
 const router = createBrowserRouter([
   {
@@ -136,6 +141,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/confirm-purchase",
+        element: (
+          <PrivateRoute>
+            <ConfirmPurchase />
+          </PrivateRoute>
+        ),
+      },
+      {
         path: "/myOrders",
         element: (
           <PrivateRoute>
@@ -167,12 +180,24 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "/dashboard/addServices",
-        element: <AddServices />,
+        path: "/dashboard/services",
+        element: <Services />,
+      },
+      {
+        path: "/dashboard/addSubCategory",
+        element: <AddSubCategory />,
       },
       {
         path: "/dashboard/addCodes",
         element: <AddCodes />,
+      },
+      {
+        path: "/dashboard/redeemCode",
+        element: <RedeemCode />,
+      },
+      {
+        path: "/dashboard/archivedUnipins",
+        element: <ArchivedUnipins />,
       },
       {
         path: "/dashboard/addOptions",

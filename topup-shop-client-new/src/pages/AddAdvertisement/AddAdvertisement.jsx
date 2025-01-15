@@ -25,16 +25,16 @@ const AddAdvertisement = () => {
     }
   };
 
-  const handleRemoveAds = async () =>{
+  const handleRemoveAds = async () => {
     try {
-        const {data} = await axiosPrivate.post("/ads/remove");
-        if(data.deletedCount > 0){
-            toast.success("Ads deleted");
-        }else{
-            toast.error("Something wrong! Try again!");
-        }
+      const { data } = await axiosPrivate.post("/ads/remove");
+      if (data.deletedCount > 0) {
+        toast.success("Ads deleted");
+      } else {
+        toast.error("Something wrong! Try again!");
+      }
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
   }
   return (

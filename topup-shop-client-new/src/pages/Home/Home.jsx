@@ -4,23 +4,23 @@ import FollowUs from "./FollowUs/FollowUs";
 import Notice from "./Notice/Notice";
 import Services from "./Services/Services";
 import AdModal from "./AdModal/AdModal";
-import { useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef(null);
-  const navigate = useNavigate();
-  const [ads, setAds] = useState(null); 
+  const [ads, setAds] = useState(null);
   const axiosPublic = useAxiosPublic();
 
+  // get ads data and set modal with sessionStorage
   useEffect(() => {
     const fetch = async () => {
       try {
         const { data } = await axiosPublic.get("/ads");
-        if (data?.imageUrl) { 
+        if (data?.imageUrl && !sessionStorage.getItem('adModalShown')) {
           setAds(data);
-          setIsModalOpen(true); 
+          setIsModalOpen(true);
+          sessionStorage.setItem('adModalShown', 'true'); // Set the flag
         }
       } catch (error) {
         console.error("Error fetching ads:", error);
@@ -29,6 +29,8 @@ const Home = () => {
     fetch();
   }, [axiosPublic]);
 
+
+  // outside click to remove modal
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -43,9 +45,6 @@ const Home = () => {
     };
   }, []);
 
-  const handleImageClick = () => {
-    navigate(`/${ads.path}`);
-  };
 
   return (
     <div className="space-y-5">
@@ -53,8 +52,8 @@ const Home = () => {
         <AdModal
           modalRef={modalRef}
           setIsModalOpen={setIsModalOpen}
-          handleImageClick={handleImageClick}
           imageUrl={ads?.imageUrl}
+          linkTo={ads?.path}
         />
       )}
 

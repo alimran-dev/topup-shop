@@ -8,26 +8,25 @@
 .swiper-button-next {
   color: #fa6023;
   background-color: white;
-  width: 30px;
-  height: 30px;
+  width: 45px;
+  height: 45px;
   border-radius: 100%;
   padding: 10px;
 }
 .swiper-button-prev::after,
 .swiper-button-next::after {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: bolder;
   margin: 10px;
 }
 
-@media screen and (min-width: 778px){
+@media screen and (max-width: 778px){
     .swiper-button-prev,
 .swiper-button-next {
-    width: 45px;
-    height: 45px;
+    display: none;
 }
-.swiper-button-prev::after,
+/* .swiper-button-prev::after,
 .swiper-button-next::after {
     font-size: 28px;
-}
+} */
 }
