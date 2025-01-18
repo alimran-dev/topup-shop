@@ -15,7 +15,7 @@ const Notice = () => {
 
   return (
     <div
-      className={`relative w-full max-w-none mx-auto md:p-4 ${
+      className={`relative w-full max-w-none mx-auto md:py-4 ${
         notice?.notice?.length > 0 ? (isOpen ? "" : "hidden") : "hidden"
       }`}
     >

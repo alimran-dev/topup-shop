@@ -3,15 +3,12 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
-import {
-    TbCurrencyTaka,
-    TbSquareRoundedNumber1Filled,
-    TbSquareRoundedNumber2Filled,
-} from "react-icons/tb";
+import { TbCurrencyTaka, TbSquareRoundedNumber1Filled, TbSquareRoundedNumber2Filled } from "react-icons/tb";
 import { IoInformationCircleOutline } from "react-icons/io5";
 import Loader from "../../components/Loader";
 import { MdArrowOutward } from "react-icons/md";
-import CategoryOption from "../../components/CategoryOption";
+import OptionCard from "./OptionCard";
+import toast from "react-hot-toast";
 
 
 const SubCategory = () => {
@@ -35,25 +32,23 @@ const SubCategory = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-    useEffect(() => {
-        axiosPublic.get(`/option/all?category=unipin`).then((res) => {
-            // console.log(res.data);
-            setOptions(res.data);
-            setIsLoading(false);
-        });
-        setPrice(selected.price);
-    }, [axiosPublic, selected.price]);
 
 
     useEffect(() => {
         axiosPublic.get(`/services/get?id=${id}`).then((res) => {
-            console.log(res.data);
             setAllData(res?.data)
-            //  setOptions(res.data);
+            setOptions(res.data.options);
             setIsLoading(false);
+
+            // Initialize inputValues
+            const initialInputs = {};
+            res.data.inputs.forEach(input => {
+                initialInputs[input] = '';
+            });
+            setInputValues(initialInputs);
         });
         setPrice(selected.price);
-    }, [axiosPublic]);
+    }, [axiosPublic, id, selected?.price]);
 
 
     // Handle input change
@@ -67,32 +62,69 @@ const SubCategory = () => {
 
     // handle purchase
     const handlePurchase = () => {
+
         setError("");
         setIsLoading(true);
-        if (!selected._id || !selected.price ) {
+
+        if (!selected.idx || !selected.name || !selected.price) {
             setError("Please select an option");
             setIsLoading(false);
             return;
         }
-        
-        // const order = { id: selected._id, email: user?.email };
-        // axiosPrivate
-        //     .post("/order/new/auto/unipin", order)
-        //     .then((res) => {
-        //         // console.log(res.data);
-        //         setIsLoading(false);
-        //         setUser({
-        //             ...user,
-        //             balance: user?.balance - res.data?.price,
-        //             orders: user?.orders + 1,
-        //             spent: user?.spent + price,
-        //         });
-        //         navigate("/myOrders");
-        //     })
-        //     .catch((err) => {
-        //         setError(err.response.data.error);
-        //         setIsLoading(false);
-        //     });
+
+        // Check if all input fields are filled
+        const emptyFields = Object.entries(inputValues).filter(([key, value]) => !value.trim());
+        if (emptyFields?.length > 0) {
+            setError("Please fill all input fields");
+            setIsLoading(false);
+            return;
+        }
+
+        // check user logged in or not
+        if (!user) {
+            toast.error("Please Login First!");
+            navigate('/login');
+            return;
+        }
+
+        const orderData = {
+            id: allData._id,
+            email: user?.email,
+            index: selected?.idx - 1,
+            name: selected?.name,
+            price: selected?.price,
+            info: inputValues,
+
+        };
+
+        console.log(orderData);
+
+        axiosPrivate
+            .post("/order/new/dynamic", orderData)
+            .then((res) => {
+                console.log(res.data);
+                if (res.data.success) {
+                    toast.success("Order Placed Successfully!");
+                    setIsLoading(false);
+                    setUser({
+                        ...user,
+                        balance: user?.balance - res.data?.price,
+                        orders: user?.orders + 1,
+                        spent: user?.spent + price,
+                    });
+                    navigate("/myOrders");
+                }
+                else {
+                    setIsLoading(false);
+                    toast.error( res.data.message || "Order Place Failed!");
+                }
+
+            })
+            .catch((err) => {
+                console.log(err);
+                setError( err.response.data.error ||'Failed to purchase!');
+                setIsLoading(false);
+            });
     };
 
 
@@ -130,13 +162,8 @@ const SubCategory = () => {
                         Option
                     </h1>
                     <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
-                        {options?.map((option) => (
-                            <CategoryOption
-                                option={option}
-                                selected={selected}
-                                setSelected={setSelected}
-                                key={option._id}
-                            />
+                        {options?.map((option, idx) => (
+                            <OptionCard key={idx} idx={idx + 1} option={option} selected={selected} setSelected={setSelected} />
                         ))}
                     </div>
                 </div>
@@ -169,7 +196,7 @@ const SubCategory = () => {
                                                     type="text"
                                                     name={label}
                                                     placeholder={label}
-                                                    className="text-base px-3 py-1 border border-gray-400 rounded w-full"
+                                                    className="text-base px-3 py-1 border border-gray-400 rounded w-full capitalize"
                                                     value={inputValues[label] || ''}
                                                     onChange={(e) => handleInputChange(e, label)}
                                                 />
@@ -220,7 +247,7 @@ const SubCategory = () => {
                                 </>
                             )}
                             {error && (
-                                <p className="text-xl font-semibold text-red-500 text-center">
+                                <p className="text-xl font-semibold text-red-600 text-center">
                                     {error}
                                 </p>
                             )}

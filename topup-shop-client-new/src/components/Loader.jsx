@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 const Loader = ({isLoading}) => {
   return (
-    <div className={`fixed inset-0 z-10 h-screen w-screen items-center justify-center ${isLoading?"flex":"hidden"}`}>
+    <div className={`fixed inset-0 z-10 h-screen w-screen bg-white items-center justify-center ${isLoading?"flex":"hidden"}`}>
       <ThreeCircles
         visible={true}
         height="80"

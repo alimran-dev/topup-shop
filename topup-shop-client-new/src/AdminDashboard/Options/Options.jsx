@@ -13,7 +13,7 @@ const Options = () => {
 
     const [subCategories, setSubCategories] = useState([]);
     const [filteredSubCategories, setFilteredSubCategories] = useState([]);
-    const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
+    const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
     const [options, setOptions] = useState([]);
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
@@ -39,18 +39,20 @@ const Options = () => {
         const selectedCategory = e.target.value;
         const matchedSubCategories = subCategories.filter(sub => sub.category === selectedCategory);
         setFilteredSubCategories(matchedSubCategories);
-        // setSelectedSubCategoryId(null);
-        // setOptions([]);
+        setSelectedSubCategoryId("");
+        setOptions([]);
     };
 
     // load options using subcategory
     useEffect(() => {
-        setLoading(true);
-        axiosPrivate.get(`/services/get?id=${selectedSubCategoryId}`).then((res) => {
-            // console.log(res.data.options);
-            setOptions(res.data.options);
-            setLoading(false);
-        });
+        if (selectedSubCategoryId) {
+            setLoading(true);
+            axiosPrivate.get(`/services/get?id=${selectedSubCategoryId}`).then((res) => {
+                // console.log(res.data.options);
+                setOptions(res.data.options);
+                setLoading(false);
+            });
+        }
     }, [axiosPrivate, selectedSubCategoryId]);
 
     // delete option fn
@@ -82,6 +84,7 @@ const Options = () => {
         });
     };
 
+    console.log('sub---',subCategories);
     console.log(selectedSubCategoryId);
     console.log(options);
 
@@ -111,8 +114,7 @@ const Options = () => {
                     >
                         <option
                             value=""
-                            className="bg-white hover:bg-red-500 focus:bg-red-500"
-                            disabled
+                            className="bg-white hover:bg-red-500 focus:bg-red-500" 
                         >
                             Choose One
                         </option>
@@ -146,7 +148,6 @@ const Options = () => {
                         <option
                             value=""
                             className="bg-white hover:bg-red-500 focus:bg-red-500"
-                            disabled
                         >
                             Choose One
                         </option>
@@ -178,7 +179,7 @@ const Options = () => {
                                 <>
                                     {
                                         options?.length == 0 ?
-                                            <div className="py-10 text-center font-bold">No Options Found!</div>
+                                            <div className="py-10 text-center font-bold text-red-600">No Options Found!</div>
                                             :
                                             <table className="w-full border-collapse my-10 text-center">
                                                 <thead>
