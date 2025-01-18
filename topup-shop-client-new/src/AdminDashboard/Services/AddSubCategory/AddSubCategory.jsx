@@ -8,9 +8,9 @@ import { useNavigate } from "react-router-dom";
 
 
 const categories = [
-    { id: 1, title: "Recharge & Offers" },
     { id: 2, title: "FF Topup & Unipin" },
     { id: 3, title: "Telegram Packages" },
+    { id: 1, title: "Recharge & Offers" },
     { id: 4, title: "Like - Follow - Subscribe" },
     { id: 5, title: "Subscription" },
 ];
@@ -55,16 +55,6 @@ const AddSubCategory = () => {
 
         setLoading(true);
 
-        const newSubCategory = {
-            title: e.target.title.value,
-            category: e.target.category.value,
-            tutorialText: e.target.tutorialText.value,
-            tutorialURL: e.target.tutorialURL.value,
-            inputs,
-            image,
-            rules: value,
-        };
-
         if (inputs.length === 0 || value.trim() === '') {
             toast.error("Full all inputs!");
             setLoading(false);
@@ -74,12 +64,23 @@ const AddSubCategory = () => {
         try {
 
             // upload the image
-            await uploadImage(image);
+            const uploadedImage = await uploadImage(image);
+
+            const newSubCategory = {
+                title: e.target.title.value,
+                category: e.target.category.value,
+                tutorialText: e.target.tutorialText.value,
+                tutorialURL: e.target.tutorialURL.value,
+                inputs,
+                image: uploadedImage,
+                rules: value,
+            };
+
 
             // call post api
             try {
                 const { data } = await axiosPrivate.post("/services/new", newSubCategory);
-                // console.log('data---------',data);
+                console.log('data---------',data);
 
                 if (data?.insertedId) {
                     toast.success("Service Added Successfully!");
@@ -90,7 +91,8 @@ const AddSubCategory = () => {
                     toast.error("Something went wrong! Try again!");
                     setLoading(false);
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 toast.error("Something went wrong! Check your network!");
                 setLoading(false);
             }
@@ -99,8 +101,7 @@ const AddSubCategory = () => {
             setLoading(false);
         }
     };
-
-
+    
 
     return (
         <div>
@@ -184,17 +185,13 @@ const AddSubCategory = () => {
                         onChange={handleImageChange}
                         required
                     />
-                    {image && <img src={preview} alt="Preview" className="mt-3 max-h-48" />}
+                    {image && <img src={preview} alt="Preview" className="mt-3 max-h-48 object-cover" />}
                 </div>
 
                 {/* text editor */}
                 <div className="rich-text-content">
                     <label htmlFor="" className="input-label">Rules & Conditions</label>
                     <ReactQuill theme="snow" value={value} onChange={setValue} />
-                    {/* <div
-                        dangerouslySetInnerHTML={{ __html: value }}
-                        className="rich-text-output"
-                    /> */}
                 </div>
 
                 {/* submit btn */}

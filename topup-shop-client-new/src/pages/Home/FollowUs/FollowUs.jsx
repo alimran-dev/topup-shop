@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const FollowUs = () => {
   return (
     <div className="lg:w-2/3 mx-auto border rounded-lg p-8">
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 pb-5">
+      <h1 className="title">
         Follow Us
       </h1>
       <div className="grid md:grid-cols-2 justify-center gap-8">

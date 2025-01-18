@@ -11,9 +11,9 @@ if (process.env.PROJECT_ENV !== "production") {
 }
 
 const connectToDB = (cb) => {
-  MongoClient.connect(uri)
+  MongoClient.connect(process.env.DB_URI || `${uri}/${dbName}`)
     .then((client) => {
-      const database = client.db("topupDB");
+      const database = client.db(dbName);
 
       console.log("connected to DB");
 

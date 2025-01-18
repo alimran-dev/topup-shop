@@ -7,10 +7,11 @@ const shellCollection = dbCollections.shellCollection;
 const airdropCollection = dbCollections.airdropCollection;
 const lessIsMoreCollection = dbCollections.lessIsMoreCollection;
 const rechargeCollection = dbCollections.rechargeCollection;
+const serviceCollection = dbCollections.serviceCollection;
 
 const getOption = async (req, res) => {
   try {
-    const { category, id,docName } = req.query;
+    const { category, id, docName } = req.query;
     const options = {
       $projection: {
         name: 1,
@@ -271,6 +272,22 @@ const addOption = async (req, res) => {
   }
 };
 
+const addDynamicOption = async (req, res) => {
+  try {
+    const {name,price, id}=req.body;
+    if(name  && parseInt(price) && id){
+      const filter={_id: new ObjectId(id)};
+      const result=await serviceCollection.updateOne(filter,{$push: {options: {name,price: parseInt(price),stock: 0}}});
+      res.send(result);
+    } else {
+      res.send({success: false, message: "Invalid request"});
+    }
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const updateOption = async (req, res) => {
   try {
     const { id, category, name, price, description } = req.body || {};
@@ -361,11 +378,41 @@ const deleteOption = async (req, res) => {
   }
 };
 
+const deleteDynamicOption=async(req,res)=>{
+  try{
+    const {id,index,name,price}=req.query;
+
+    const service=await serviceCollection.findOne({_id: new ObjectId(id)});
+    if(!service){
+      return res.send({success: false, message: "Service not found"});
+    }
+    if(!service.options || service.options.length===0){
+      return res.send({success: false, message: "No option found"});
+    }
+    const option=service.options[parseInt(index)];
+    if(!option){
+      return res.send({success: false, message: "Option not found"});
+    }
+    if(option.name!==name || option.price!==parseInt(price)){
+      return res.send({success: false, message: "Invalid option"});
+    }
+    service.options.splice(parseInt(index),1);
+    const result=await serviceCollection.updateOne({_id: new ObjectId(id)},{$set: {options: service.options}});
+    res.send(result);
+
+  }catch(err){
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   getOption,
   getAllOption,
   addOption,
+  addDynamicOption,
   updateOption,
   updateStock,
   deleteOption,
+  deleteDynamicOption,
 };

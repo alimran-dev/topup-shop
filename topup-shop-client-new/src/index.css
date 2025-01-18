@@ -16,9 +16,15 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* stop scroll */
+.no-scroll {
+    overflow: hidden;
+}
+  
+
 
 .title{
-    @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit uppercase text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto py-3 md:mb-4;
+    @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit uppercase text-xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto py-3 md:mb-4;
 }
 .bg-gradient{
     @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55];
@@ -35,6 +41,18 @@ input[type="number"] {
 
 
 /* text editor */
+.rich-text-output h1 {
+    @apply text-2xl;
+}
+.rich-text-output h2 {
+    @apply text-xl;
+}
+.rich-text-output h3 {
+    @apply text-lg;
+}
+.rich-text-output h4 {
+    @apply text-base;
+}
 .rich-text-output ul {
     @apply list-disc list-outside pl-5;
 }

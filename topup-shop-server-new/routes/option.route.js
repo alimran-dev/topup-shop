@@ -8,6 +8,8 @@ const {
   updateOption,
   updateStock,
   deleteOption,
+  addDynamicOption,
+  deleteDynamicOption,
 } = require("../controllers/option.controller");
 
 const optionRoute = () => {
@@ -17,9 +19,11 @@ const optionRoute = () => {
 
   // admin
   router.post("/admin/add/:category", verifyAdmin, addOption);
+  router.post("/admin/dynamic/add",verifyAdmin,addDynamicOption);
   router.patch("/admin/update", verifyAdmin, updateOption);
   router.patch("/admin/stock", verifyAdmin, updateStock);
   router.delete("/admin/delete", verifyAdmin, deleteOption);
+  router.delete("/admin/dynamic/delete",verifyAdmin,deleteDynamicOption);
   return router;
 };
 
