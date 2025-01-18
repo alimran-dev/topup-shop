@@ -13,7 +13,6 @@ import WeeklyMonthly from "../pages/WeeklyMonthly/WeeklyMonthly";
 import Shell from "../pages/Shell/Shell";
 import Dashboard from "../AdminDashboard/Dashboard";
 import AddCodes from "../AdminDashboard/AddCodes/AddCodes";
-import AddOptions from "../AdminDashboard/AddOptions/AddOptions";
 import UpdateOptions from "../AdminDashboard/Update/UpdateOptions";
 import Orders from "../AdminDashboard/Orders/Orders";
 import Users from "../AdminDashboard/Users/Users";
@@ -47,6 +46,8 @@ import Services from "../AdminDashboard/Services/Services";
 import SubCategory from "../pages/SubCategory/SubCategory";
 import Banner from "../AdminDashboard/Banner/Banner";
 import FollowUs from "../AdminDashboard/FollowUs/FollowUs";
+import AddOption from "../AdminDashboard/Options/AddOption/AddOption";
+import Options from "../AdminDashboard/Options/Options";
 
 
 const router = createBrowserRouter([
@@ -211,8 +212,12 @@ const router = createBrowserRouter([
         element: <ArchivedUnipins />,
       },
       {
-        path: "/dashboard/addOptions",
-        element: <AddOptions />,
+        path: "/dashboard/options",
+        element: <Options />,
+      },
+      {
+        path: "/dashboard/addOption",
+        element: <AddOption />,
       },
       {
         path: "/dashboard/updateOptions",

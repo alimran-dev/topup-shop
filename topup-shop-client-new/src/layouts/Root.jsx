@@ -5,7 +5,7 @@ import LowerNav from "../components/LowerNav";
 
 const Root = () => {
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="bg-white text-black flex flex-col min-h-screen">
             <Navbar />
             <div className="flex-1 px-5 md:px-16 my-5 md:my-10">
             <Outlet />
