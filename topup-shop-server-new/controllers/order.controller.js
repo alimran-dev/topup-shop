@@ -10,6 +10,7 @@ const weeklyMonthlyCollection = dbCollections.weeklyMonthlyCollection;
 const airdropCollection = dbCollections.airdropCollection;
 const lessIsMoreCollection = dbCollections.lessIsMoreCollection;
 const rechargeCollection = dbCollections.rechargeCollection;
+const serviceCollection = dbCollections.serviceCollection;
 
 const getAllOrder = async (req, res) => {
   try {
@@ -48,7 +49,7 @@ const orderAuto = async (req, res) => {
       !id ||
       !email ||
       !quantity ||
-      (category !== "unipin" && category !== "shell" && category!=="card")
+      (category !== "unipin" && category !== "shell" && category !== "card")
     ) {
       return res.status(400).send({ error: "Item not found" });
     }
@@ -187,7 +188,9 @@ const orderManual = async (req, res) => {
         orderID: ordersCount + 1000,
         email: email,
         category: category === "weekly" ? "weekly & monthly" : category,
-        name: `${option.name} (${category === "offer" ? "Number" : "UID"}: ${uid})`,
+        name: `${option.name} (${
+          category === "offer" ? "Number" : "UID"
+        }: ${uid})`,
         price: orderPrice,
         orderTime: orderTime,
         updateTime: new Date(),
@@ -204,14 +207,75 @@ const orderManual = async (req, res) => {
   }
 };
 
-const orderDynamic=async (req,res)=>{
-  try{
-    
-  }catch(err){
+const orderDynamic = async (req, res) => {
+  try {
+    const { id, email, index, name, price, info } = req.body;
+    const orderTime = new Date();
+    const emailInToken = req.user?.email;
+    if (email !== emailInToken) {
+      return res
+        .cookie("access-token", "", cookieOption(0))
+        .status(401)
+        .send({ message: "unauthorized" });
+    }
+    const service = await serviceCollection.findOne({ _id: new ObjectId(id) });
+    if (!service) {
+      return res.send({ success: false, message: "Service not found" });
+    }
+    if(Object.keys(info).length!==service.inputs.length){
+      return res.send({success: false, message: "Invalid order"});
+    }
+    const option = service.options[parseInt(index)];
+    if (!option || option.name !== name || option.price !== parseInt(price)) {
+      return res.send({ success: false, message: "Invalid option" });
+    }
+    if (option.stock <= 0) {
+      return res.send({ success: false, message: "Stock unavailable" });
+    }
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.status(401).send({ error: "User Not Found" });
+    } else if (user.balance < option.price) {
+      return res.status(400).send({ error: "You don't have enough balance" });
+    }
+    const userUpdate = await userCollection.updateOne(
+      { email: email },
+      {
+        $set: {
+          balance: user.balance - option.price,
+          spent: user.spent + option.price,
+          orders: user.orders + 1,
+        },
+      }
+    );
+    const ordersCount = await orderCollection.countDocuments();
+    if (userUpdate.modifiedCount > 0) {
+      const order = {
+        orderID: ordersCount + 1000,
+        email: email,
+        category: service?.category,
+        subCategory: service?.title,
+        name: option.name,
+        price: option.price,
+        orderTime: orderTime,
+        updateTime: new Date(),
+        status: "pending",
+        feedback: "",
+        info: info,
+      };
+      console.log(order);
+      service.options[parseInt(index)].stock--;
+      await serviceCollection.updateOne({_id: new ObjectId(id)},{$set: {options: service.options}})
+      const result=await orderCollection.insertOne(order);
+      res.send({...result,success: true, price: option.price});
+    } else {
+      return res.send({success: false, message: "Failed to update user balance"});
+    }
+  } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
 const getAllOrderAdmin = async (req, res) => {
   try {
@@ -287,6 +351,7 @@ module.exports = {
   getAllOrder,
   orderAuto,
   orderManual,
+  orderDynamic,
   getAllOrderAdmin,
   getPending,
   orderProcess,
