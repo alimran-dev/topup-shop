@@ -274,13 +274,15 @@ const addOption = async (req, res) => {
 
 const addDynamicOption = async (req, res) => {
   try {
-    const {name,price, id}=req.body;
-    if(name  && parseInt(price) && id){
-      const filter={_id: new ObjectId(id)};
-      const result=await serviceCollection.updateOne(filter,{$push: {options: {name,price: parseInt(price),stock: 0}}});
+    const { name, price, id } = req.body;
+    if (name && parseInt(price) && id) {
+      const filter = { _id: new ObjectId(id) };
+      const result = await serviceCollection.updateOne(filter, {
+        $push: { options: { name, price: parseInt(price), stock: 0 } },
+      });
       res.send(result);
     } else {
-      res.send({success: false, message: "Invalid request"});
+      res.send({ success: false, message: "Invalid request" });
     }
   } catch (err) {
     console.error("Error: ", err.message);
@@ -317,6 +319,31 @@ const updateOption = async (req, res) => {
     } else if (category === "recharge") {
       result = await rechargeCollection.updateOne(filter, updatedOption);
     }
+    res.send(result);
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const updateDynamicOption = async (req, res) => {
+  try {
+    const {id, index, name, price, stock}=req.body;
+    const service = await serviceCollection.findOne({ _id: new ObjectId(id) });
+    if (!service) {
+      return res.send({ success: false, message: "Service not found" });
+    }
+    if (!service.options || service.options.length === 0) {
+      return res.send({ success: false, message: "No option found" });
+    }
+    const option = service.options[parseInt(index)];
+    if (!option) {
+      return res.send({ success: false, message: "Option not found" });
+    }
+    service.options[parseInt(index)].name=name;
+    service.options[parseInt(index)].price=parseInt(price);
+    service.options[parseInt(index)].stock=parseInt(stock);
+    const result=await serviceCollection.updateOne({_id: new ObjectId(id)},{$set: {options: service.options}});
     res.send(result);
   } catch (err) {
     console.error("Error: ", err.message);
@@ -378,33 +405,35 @@ const deleteOption = async (req, res) => {
   }
 };
 
-const deleteDynamicOption=async(req,res)=>{
-  try{
-    const {id,index,name,price}=req.query;
+const deleteDynamicOption = async (req, res) => {
+  try {
+    const { id, index, name, price } = req.query;
 
-    const service=await serviceCollection.findOne({_id: new ObjectId(id)});
-    if(!service){
-      return res.send({success: false, message: "Service not found"});
+    const service = await serviceCollection.findOne({ _id: new ObjectId(id) });
+    if (!service) {
+      return res.send({ success: false, message: "Service not found" });
     }
-    if(!service.options || service.options.length===0){
-      return res.send({success: false, message: "No option found"});
+    if (!service.options || service.options.length === 0) {
+      return res.send({ success: false, message: "No option found" });
     }
-    const option=service.options[parseInt(index)];
-    if(!option){
-      return res.send({success: false, message: "Option not found"});
+    const option = service.options[parseInt(index)];
+    if (!option) {
+      return res.send({ success: false, message: "Option not found" });
     }
-    if(option.name!==name || option.price!==parseInt(price)){
-      return res.send({success: false, message: "Invalid option"});
+    if (option.name !== name || option.price !== parseInt(price)) {
+      return res.send({ success: false, message: "Invalid option" });
     }
-    service.options.splice(parseInt(index),1);
-    const result=await serviceCollection.updateOne({_id: new ObjectId(id)},{$set: {options: service.options}});
+    service.options.splice(parseInt(index), 1);
+    const result = await serviceCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { options: service.options } }
+    );
     res.send(result);
-
-  }catch(err){
+  } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
 module.exports = {
   getOption,
@@ -412,6 +441,7 @@ module.exports = {
   addOption,
   addDynamicOption,
   updateOption,
+  updateDynamicOption,
   updateStock,
   deleteOption,
   deleteDynamicOption,

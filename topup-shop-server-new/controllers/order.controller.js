@@ -206,7 +206,7 @@ const orderManual = async (req, res) => {
 
 const orderDynamic=async (req,res)=>{
   try{
-    const 
+    
   }catch(err){
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
