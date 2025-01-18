@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 
+body{
+    @apply bg-white text-black;
+}
+
+input, textarea, select {
+    @apply bg-white text-black;
+}
+
 /* remove number-input's default arrow */
 /* For Chrome, Safari, Edge, and Opera */
 input[type="number"]::-webkit-inner-spin-button,
