@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import InfinityLoader from "../../components/InfinityLoader";
 
+
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,16 +39,14 @@ const MyOrders = () => {
     getOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, loading, user?.email, limit]);
-  // console.log(orders);
+
+  console.log(orders);
+
   return (
     <div>
       <Loader isLoading={isLoading} />
       <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-5">
-        <div className="w-fit">
-          <h2 className={`order-tab-border`}>
-            <span className={`order-active-tab`}>Order History</span>
-          </h2>
-        </div>
+        <h2 className="text-xl md:text-2xl uppercase bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent font-bold ">Order History</h2>
         <Link
           className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit block"
           target="_blank"
@@ -63,8 +62,8 @@ const MyOrders = () => {
           hasMore={orders.length < totalOrder}
           loader={<InfinityLoader />}
         >
-          <div className="space-y-4">
-            {orders.length > 0 &&
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {orders?.length > 0 &&
               orders.map((order, idx) => (
                 <OrderHistory order={order} key={idx} />
               ))}

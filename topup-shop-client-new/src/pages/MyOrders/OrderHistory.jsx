@@ -3,11 +3,14 @@ import { TbCurrencyTaka } from "react-icons/tb";
 import Swal from "sweetalert2";
 import { MdContentCopy } from "react-icons/md";
 import PropTypes from "prop-types";
+import { FaHashtag } from "react-icons/fa";
+
 
 const OrderHistory = ({ order }) => {
   const codesRef = useRef(null);
   const {
     orderID,
+    email,
     category,
     name,
     price,
@@ -16,6 +19,7 @@ const OrderHistory = ({ order }) => {
     updateTime,
     codes,
     feedback,
+    info,
   } = order || {};
   const handleCopy = async () => {
     if (codesRef.current) {
@@ -50,57 +54,95 @@ const OrderHistory = ({ order }) => {
   };
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
+
+
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-between px-4 py-5 border-2 rounded">
+      <div className="px-4 py-5 border-2 rounded capitalize shadow-xl">
         <div className="w-full">
-          <p className="">
-            <span className="font-bold">Order ID: </span>
-            {orderID}
-          </p>
-          <p className="capitalize">
-            <span className="font-bold">Category: </span>
-            {category}
-          </p>
-          <p className="">
-            <span className="font-bold">Package: </span>
-            {name}
-          </p>
-          <p className="flex items-center">
-            <span className="font-bold pr-1">Price:</span> {price}{" "}
-            <TbCurrencyTaka />
-          </p>
-        </div>
-        <div className="w-full">
-          <p className="capitalize">
-            <span className="font-bold">Status:</span>{" "}
-            <span
-              className={`font-bold ${
-                status === "complete"
-                  ? "text-green-800"
+
+          {/* order id - category - package - status */}
+          <div className="flex justify-between border-b border-b-slate-300 pb-4 mb-3">
+            <div>
+              <h3 className="flex gap-1 text-xl">
+                <p className="font-bold flex items-center"><FaHashtag /> Order ID: </p>
+                {orderID}
+              </h3>
+              <p className="opacity-90 normal-case">E-mail: {email}</p>
+            </div>
+            <div>
+              <span
+                className={`font-bold border px-3 py-1 capitalize text-xs ${status === "complete"
+                  ? "text-green-800 border-green-800"
                   : status === "pending"
-                  ? "text-yellow-500"
-                  : status === "cancelled"
-                  ? "text-red-500"
-                  : ""
-              }`}
-            >
-              {status}
-            </span>
-          </p>
-          <p>
-            <span className="font-bold">Order Time: </span>
-            {orderTimeDate?.toLocaleDateString("en-GB")} (
-            {orderTimeDate?.toLocaleTimeString()})
-          </p>
-          <p>
-            <span className="font-bold">Update Time: </span>
-            {updateTimeDate?.toLocaleDateString("en-GB")} (
-            {updateTimeDate?.toLocaleTimeString()})
-          </p>
+                    ? "text-yellow-500 border-yellow-500"
+                    : status === "cancelled"
+                      ? "text-red-500 border-red-500"
+                      : ""
+                  } rounded-full`}
+              >
+                • {status}
+              </span>
+            </div>
+          </div>
+
+          {/* times */}
+          <div className="border-b border-b-slate-300 pb-3 mb-3">
+            <p>
+              <span className="font-semibold">Order Time: </span>
+              {orderTimeDate?.toLocaleDateString("en-GB")} (
+              {orderTimeDate?.toLocaleTimeString()})
+            </p>
+            <p>
+              <span className="font-semibold">Update Time: </span>
+              {updateTimeDate?.toLocaleDateString("en-GB")} (
+              {updateTimeDate?.toLocaleTimeString()})
+            </p>
+          </div>
+
+          {/* order summary */}
+          <div>
+            <h4 className="font-bold pb-2">Order Summary</h4>
+            <p className="flex items-center gap-3 pb-1">
+              <span className="w-24 font-semibold">Category</span>
+              <span>:</span>
+              <span>{category}</span>
+            </p>
+            <p className="flex items-center gap-3 pb-1">
+              <span className="w-24 font-semibold">Package</span>
+              <span>:</span>
+              <span>{name}</span>
+            </p>
+            <p className="flex items-center gap-3 pb-1">
+              <span className="w-24 font-semibold">Price</span>
+              <span>:</span>
+              <span className="flex items-center"><TbCurrencyTaka />{price}</span>
+            </p>
+            {info && Object.entries(info).map(([key, value], idx) => (
+              <p key={idx} className="flex items-center gap-3 pb-1">
+                <span className="w-24 font-semibold">{key}</span>
+                <span>:</span>
+                <span>{value}</span>
+              </p>
+            ))}
+          </div>
+
+          {/* feedback */}
+          <div className="border-t border-t-slate-300 pt-2 mt-3">
+            <h4 className="font-bold pb-2">Feedback</h4>
+            {
+              feedback ?
+                <p>{feedback}</p>
+                :
+                <p className="text-xs normal-case">Not added yet!</p>
+            }
+          </div>
+
         </div>
+
+
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" || category === "shell" || category==="card" ? (
+          {category === "unipin" || category === "shell" || category === "card" ? (
             <div>
               <textarea
                 ref={codesRef}
@@ -120,9 +162,9 @@ const OrderHistory = ({ order }) => {
             <></>
           )}
           {category === "idcode" ||
-          category === "weekly & monthly" ||
-          category === "airdrop" ||
-          category === "lessIsMore" ? (
+            category === "weekly & monthly" ||
+            category === "airdrop" ||
+            category === "lessIsMore" ? (
             status === "pending" ? (
               <div className="flex items-center justify-center h-full w-full">
                 <p className="text-xl font-semibold text-center">
