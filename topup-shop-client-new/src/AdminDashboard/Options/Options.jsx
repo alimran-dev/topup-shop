@@ -84,11 +84,6 @@ const Options = () => {
         });
     };
 
-    console.log('sub---',subCategories);
-    console.log(selectedSubCategoryId);
-    console.log(options);
-
-
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-center md:gap-4 pb-5">

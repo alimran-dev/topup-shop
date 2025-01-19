@@ -1,50 +1,67 @@
-import { IoCall } from "react-icons/io5";
-import { FaFacebookMessenger, FaWhatsapp } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import useAxiosPublic from '../../hooks/useAxiosPublic';
+import { Link } from "react-router-dom";
+
 
 const ContactUs = () => {
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const axiosPublic = useAxiosPublic();
+
+  // load all data
+  useEffect(() => {
+    setLoading(true);
+
+    axiosPublic.get("/follows/get").then((res) => {
+      setData(res.data || []);
+      setLoading(false);
+    }).catch(err => {
+      console.log(err);
+      setLoading(false);
+      toast.error("Failed to load data!")
+    });
+  }, [axiosPublic]);
+
+
+  
   useEffect(() => {
     window.scrollTo(0, 0);
-  },[])
+  }, []);
+
+  
+
   return (
     <div className="lg:w-2/3 mx-auto border rounded-lg p-8">
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 pb-5">
         Contact Us
       </h1>
       <div className="grid md:grid-cols-2 justify-center gap-8">
-        <div className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
-          <span>
-            <IoCall className="text-4xl text-blue-700" />
-          </span>
-          <p className="font-medium">
-            আমাদের সাথে সরাসরি কথা বলতে এখানে ক্লিক করুন।
-          </p>
-        </div>
-        <div className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
-          <span>
-            <FaFacebookMessenger className="text-4xl text-red-600" />
-          </span>
-          <p className="font-medium">
-            মেসেঞ্জারে লাইভ চ্যাটের জন্য এখানে ক্লিক করুন।
-          </p>
-        </div>
-        <div className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
-          <span>
-            <FaWhatsapp className="text-4xl text-green-600" />
-          </span>
-          <p className="font-medium">
-            হোয়াটসঅ্যাপে লাইভ চ্যাটের জন্য এখানে ক্লিক করুন।
-          </p>
-        </div>
-        <div className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
-          <span>
-            <MdEmail className="text-4xl text-sky-900" />
-          </span>
-          <p className="font-medium">
-          আমাদের সাপোর্টে ইমেইল করতে এখানে ক্লিক করুন।
-          </p>
-        </div>
+        {
+          loading ?
+            <div className="text-center font-bold">Loading...</div>
+            :
+            <>
+              {
+                data?.length == 0 ?
+                  <div className="text-center font-bold text-red-600">No Data Found!</div>
+                  :
+                  <>
+                    {
+                      data?.map((item, idx) =>
+                        <Link key={idx} to={item?.url} target="_blank" className="flex items-center gap-2 border bg-slate-50 py-6 px-4">
+                          <img src={item?.icon} className="w-20 h-20 object-contain" alt="social logo" />
+                          <p className="font-medium">
+                            {item?.text}
+                          </p>
+                        </Link>
+                      )
+                    }
+                  </>
+              }
+            </>
+        }
       </div>
     </div>
   );
