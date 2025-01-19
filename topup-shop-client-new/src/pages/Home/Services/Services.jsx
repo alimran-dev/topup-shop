@@ -13,6 +13,7 @@ const Services = () => {
   const [telegramData, setTelegramData] = useState([]);
   const [likeFollowData, setLikeFollowData] = useState([]);
   const [subscriptionData, setSubsscriptionData] = useState([]);
+  const [othersData, setOthersData] = useState([]);
   const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
@@ -22,16 +23,45 @@ const Services = () => {
       const telegramAllData = res?.data?.filter(data => data?.category == 'Telegram Packages');
       const likeFollowAllData = res?.data?.filter(data => data?.category == 'Like - Follow - Subscribe');
       const subscriptionallData = res?.data?.filter(data => data?.category == 'Subscription');
+      const othersAllData = res?.data?.filter(data => data?.category == 'Others');
       setFfData(ffallData);
       setTelegramData(telegramAllData);
       setLikeFollowData(likeFollowAllData);
       setSubsscriptionData(subscriptionallData);
+      setOthersData(othersAllData);
     });
   }, [axiosPublic, allData]);
 
 
   return (
     <div className="md:py-8 space-y-5 md:space-y-10">
+
+      {/* -------- recharge and offers services --------- */}
+      <div>
+        <div className="flex items-center justify-center">
+          <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
+          <h1 className="title px-4">
+            Recharge and Offers
+          </h1>
+          <span className="block border-t-2 border-[#FA6023] flex-1"></span>
+        </div>
+        <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
+          <div className="flex-1">
+            <ServiceCard
+              image={rechargeCard}
+              path="/cards/companies"
+              title="Recharge Card [All sim]"
+            />
+          </div>
+          <div className="flex-1">
+            <ServiceCard
+              image={rechargeOffer}
+              path="#"
+              title="Minutes & MB offer [All sim]"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* -------- ff services --------- */}
       {
@@ -159,32 +189,34 @@ const Services = () => {
         )
       }
 
-      {/* -------- recharge and offers services --------- */}
-      <div>
-        <div className="flex items-center justify-center">
-          <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
-          <h1 className="title px-4">
-            Recharge and Offers
-          </h1>
-          <span className="block border-t-2 border-[#FA6023] flex-1"></span>
-        </div>
-        <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
-          <div className="flex-1">
-            <ServiceCard
-              image={rechargeCard}
-              path="/cards/companies"
-              title="Recharge Card [All sim]"
-            />
+      {/* -------- others services --------- */}
+      {
+        othersData?.length > 0 && (
+          <div>
+            <div className="flex items-center justify-center">
+              <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
+              <h1 className="title px-4">
+                Others
+              </h1>
+              <span className="block border-t-2 border-[#FA6023] flex-1"></span>
+            </div>
+            <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
+              {
+                othersData?.map(data =>
+                  <div className="flex-1" key={data?._id}>
+                    <ServiceCard
+                      image={data?.image}
+                      path={`/subCategory/${data?._id}`}
+                      title={data?.title}
+                    />
+                  </div>
+                )
+              }
+            </div>
           </div>
-          <div className="flex-1">
-            <ServiceCard
-              image={rechargeOffer}
-              path="#"
-              title="Minutes & MB offer [All sim]"
-            />
-          </div>
-        </div>
-      </div>
+        )
+      }
+
     </div>
   );
 };
