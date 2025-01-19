@@ -27,7 +27,7 @@ const addNewBanner = async (req, res) => {
     if (!image || !url) {
       return res.send({ success: false, message: "Invalid Request" });
     }
-    const bannerCount = (await bannerCollection.countDocuments()) || 1;
+    const bannerCount = (await bannerCollection.countDocuments()) || 0;
     const banner = {
       image,
       url,

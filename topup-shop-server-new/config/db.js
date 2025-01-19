@@ -46,6 +46,7 @@ const connectToDB = (cb) => {
         database.collection("addBalanceOffer");
       dbCollections.rechargeCollection = database.collection("recharges");
       dbCollections.bannerCollection = database.collection("banners");
+      dbCollections.followUsCollection = database.collection("followUs");
       module.exports = { dbCollections };
       return cb();
     })

@@ -44,6 +44,7 @@ const run = () => {
   const adsRoute = require("./routes/ads.route");
   const serviceRoute = require("./routes/service.route");
   const bannerRoutes = require("./routes/banner.route");
+  const followUsRoutes = require("./routes/followUs.route");
 
   // routes
   app.use("/auth", authRoute());
@@ -63,6 +64,7 @@ const run = () => {
   app.use("/ads", adsRoute());
   app.use("/services", serviceRoute());
   app.use("/banners", bannerRoutes());
+  app.use("/follows", followUsRoutes());
 };
 
 connectToDB((err) => {
