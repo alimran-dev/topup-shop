@@ -210,6 +210,9 @@ const orderManual = async (req, res) => {
 const orderDynamic = async (req, res) => {
   try {
     const { id, email, index, name, price, info } = req.body;
+    if(!id || !email || !index || !name || !price || !info){
+      return res.send({success: false, message: "Invalid order"});
+    }
     const orderTime = new Date();
     const emailInToken = req.user?.email;
     if (email !== emailInToken) {
