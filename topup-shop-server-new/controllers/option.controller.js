@@ -115,7 +115,7 @@ const getAllOption = async (req, res) => {
             then: "$stock",
             else: {
               $cond: {
-                if: { $lt: [{ $size: "$codes" }, 30] },
+                if: { $lt: [{ $size: "$codes" }, 5] },
                 then: { $size: "$codes" },
                 else: null,
               },
@@ -142,7 +142,7 @@ const getAllOption = async (req, res) => {
             },
             then: {
               $cond: {
-                if: { $lt: [{ $size: "$codes" }, 30] },
+                if: { $lt: [{ $size: "$codes" }, 5] },
                 then: { $size: "$codes" },
                 else: null,
               },
