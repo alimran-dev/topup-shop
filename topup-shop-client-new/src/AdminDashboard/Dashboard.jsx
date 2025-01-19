@@ -28,7 +28,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Total Added</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                {data?.balance?.totalBalance?.toFixed(2) || 0} <TbCurrencyTaka />
+              <TbCurrencyTaka /> {data?.balance?.totalBalance?.toFixed(2) || 0}
               </p>
             </div>
           </div>
@@ -36,7 +36,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Total Spent</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                {data?.balance?.totalSpent || 0} <TbCurrencyTaka />
+              <TbCurrencyTaka /> {data?.balance?.totalSpent || 0}
               </p>
             </div>
           </div>
@@ -44,7 +44,7 @@ const Dashboard = () => {
             <div className="space-y-2">
               <h3 className="text-3xl font-semibold text-white">Available</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
-                {data?.balance?.available?.toFixed(2) || 0} <TbCurrencyTaka />
+              <TbCurrencyTaka /> {data?.balance?.available?.toFixed(2) || 0}
               </p>
             </div>
           </div>

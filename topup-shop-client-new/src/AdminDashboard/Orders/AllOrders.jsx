@@ -37,6 +37,8 @@ const AllOrders = () => {
     getOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
+  
+
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -61,7 +63,7 @@ const AllOrders = () => {
         next={fetchMoreData}
         loader={<InfinityLoader />}
       >
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {orders.map((order) => (
             <OrderCard
               order={order}

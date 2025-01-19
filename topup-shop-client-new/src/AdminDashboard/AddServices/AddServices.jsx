@@ -4,32 +4,12 @@ import RechargeAndOffersForm from "./forms/RechargeAndOffersForm";
 import TelegramPackagesForm from "./forms/TelegramPackagesForm";
 import LikeFollowSubscribeForm from "./forms/LikeFollowSubscribeForm";
 import SubscriptionForm from "./forms/SubscriptionForm";
+import { allCategories } from "../../utils/categories";
 
 const AddServices = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const categories = [
-    {
-      id: 1,
-      category: "Recharge & Offers",
-    },
-    {
-      id: 2,
-      category: "FF Topup & Unipin",
-    },
-    {
-      id: 3,
-      category: "Telegram Packages",
-    },
-    {
-      id: 4,
-      category: "LIKE - FOLLOW - SUBSCRIBE",
-    },
-    {
-      id: 5,
-      category: "SUBSCRIPTION",
-    },
-  ];
+  const categories = allCategories()
 
   const handleCategoryClick = (id) => {
     setSelectedCategory(id);

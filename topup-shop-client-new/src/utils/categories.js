@@ -5,6 +5,7 @@ export const allCategories = () => {
         { id: 1, title: "Recharge & Offers" },
         { id: 4, title: "Like - Follow - Subscribe" },
         { id: 5, title: "Subscription" },
+        { id: 6, title: "Others" },
     ];
     return categories    
 }

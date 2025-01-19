@@ -5,15 +5,10 @@ import { uploadImage } from "../../../utils/uploadImage";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { allCategories } from "../../../utils/categories";
 
 
-const categories = [
-    { id: 2, title: "FF Topup & Unipin" },
-    { id: 3, title: "Telegram Packages" },
-    { id: 1, title: "Recharge & Offers" },
-    { id: 4, title: "Like - Follow - Subscribe" },
-    { id: 5, title: "Subscription" },
-];
+const categories = allCategories();
 
 
 const AddSubCategory = () => {
@@ -80,7 +75,7 @@ const AddSubCategory = () => {
             // call post api
             try {
                 const { data } = await axiosPrivate.post("/services/new", newSubCategory);
-                console.log('data---------',data);
+                // console.log('data---------',data);
 
                 if (data?.insertedId) {
                     toast.success("Service Added Successfully!");
