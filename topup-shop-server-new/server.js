@@ -6,7 +6,6 @@ const cors = require("cors");
 const port = process.env.PORT || 5000;
 const { connectToDB, dbCollections } = require("./config/db");
 
-
 // middlewares
 app.use(express.json());
 app.use(cookieParser());
@@ -44,7 +43,7 @@ const run = () => {
   const rechargeRoutes = require("./routes/recharge.route");
   const adsRoute = require("./routes/ads.route");
   const serviceRoute = require("./routes/service.route");
-
+  const bannerRoutes = require("./routes/banner.route");
 
   // routes
   app.use("/auth", authRoute());
@@ -63,6 +62,7 @@ const run = () => {
   app.use("/message", messageRoute());
   app.use("/ads", adsRoute());
   app.use("/services", serviceRoute());
+  app.use("/banners", bannerRoutes());
 };
 
 connectToDB((err) => {
