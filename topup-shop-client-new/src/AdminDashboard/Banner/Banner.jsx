@@ -15,7 +15,6 @@ const Banner = () => {
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
 
-
     // load all banners
     useEffect(() => {
         setLoading(true);
@@ -29,7 +28,6 @@ const Banner = () => {
             toast.error("Failed to load Banners")
         });
     }, [axiosPrivate]);
-
 
     // handle delete banner fn
     const handleDeleteBanner = async (id) => {
@@ -75,18 +73,21 @@ const Banner = () => {
                                 banners?.length == 0 ?
                                     <div className="font-bold text-center text-red-600">Not Data Found!</div>
                                     :
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-28 md:gap-8 pb-20">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
                                         {
                                             banners?.map((banner, idx) =>
-                                                <div key={idx}>
-                                                    <img src={banner?.image} className="w-full h-full pb-4" alt="banner image" />
-                                                    <div className="border-b border-b-slate-400 pb-2 mb-3">
-                                                        <div className="flex justify-end items-center text-2xl gap-5">
-                                                            <button onClick={()=>document.getElementById(`update_banner_${idx}`).showModal()} className="text-green-700"><FaEdit /></button>
+                                                <div key={idx} className="bg-slate-50 border border-slate-400 p-4 flex flex-col justify-between">
+                                                    <div className="w-full h-fit">
+                                                        <img src={banner?.image} className="w-full h-full object-contain pb-4" alt="banner image" />
+                                                    </div>
+                                                    <div className="">
+                                                        <div className="flex justify-end items-center text-2xl gap-5 pb-4">
+                                                            <button onClick={() => document.getElementById(`update_banner_${idx}`).showModal()} className="text-green-700"><FaEdit /></button>
                                                             <UpdateBanner idx={idx} banner={banner} />
                                                             <button onClick={() => handleDeleteBanner(banner?._id)} className="text-red-600"><MdDelete /></button>
                                                         </div>
-                                                        <Link to={banner?.url} target="_blank">{banner?.url}</Link>
+                                                        <span className="font-bold">URL: </span>
+                                                        <Link to={banner?.url} target="_blank" className="text-blue-700">{banner?.url}</Link>
                                                     </div>
                                                 </div>
                                             )

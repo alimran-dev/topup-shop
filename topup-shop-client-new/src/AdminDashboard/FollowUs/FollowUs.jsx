@@ -59,9 +59,6 @@ const FollowUs = () => {
         });
     };
 
-    console.log(followUsData);
-    
-
     return (
         <div>
             <AddFollowUs />
@@ -90,7 +87,7 @@ const FollowUs = () => {
                                                     </div>
                                                     <p>
                                                         <span className="font-bold">URL: </span>
-                                                        <Link to={followUs?.url} target="_blank">{followUs?.url}</Link>
+                                                        <Link to={followUs?.url} target="_blank" className="text-blue-700">{followUs?.url}</Link>
                                                     </p>
                                                     <div className="flex justify-end items-center text-2xl gap-5 pt-3">
                                                         <button onClick={() => document.getElementById(`update_followUs_${idx}`).showModal()} className="text-green-700"><FaEdit /></button>
