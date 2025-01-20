@@ -1,8 +1,7 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 
-// const { serviceCollection } = dbCollections || {};
-const serviceCollection=dbCollections.serviceCollection;
+const serviceCollection = dbCollections.serviceCollection;
 
 const getService = async (req, res) => {
   try {
@@ -72,30 +71,53 @@ const addSubCategory = async (req, res) => {
 
 const updateSubCategory = async (req, res) => {
   try {
-    const {id, title, category, image, tutorialText, tutorialURL, inputs, rules}=req.body;
-    const newSubCategory={$set: {}};
-    if(title){
-      newSubCategory.$set.title=title;
+    const {
+      id,
+      title,
+      category,
+      image,
+      tutorialText,
+      tutorialURL,
+      inputs,
+      rules,
+    } = req.body;
+    const newSubCategory = { $set: {} };
+    if (title) {
+      newSubCategory.$set.title = title;
     }
-    if(category){
-      newSubCategory.$set.category=category;
+    if (category) {
+      newSubCategory.$set.category = category;
     }
-    if(image){
-      newSubCategory.$set.image=image;
+    if (image) {
+      newSubCategory.$set.image = image;
     }
-    if(tutorialText){
-      newSubCategory.$set.tutorialText=tutorialText;
+    if (tutorialText) {
+      newSubCategory.$set.tutorialText = tutorialText;
     }
-    if(tutorialURL){
-      newSubCategory.$set.tutorialURL=tutorialURL;
+    if (tutorialURL) {
+      newSubCategory.$set.tutorialURL = tutorialURL;
     }
-    if(inputs){
-      newSubCategory.$set.inputs=inputs;
+    if (inputs) {
+      newSubCategory.$set.inputs = inputs;
     }
-    if(rules){
-      newSubCategory.$set.rules=rules;
+    if (rules) {
+      newSubCategory.$set.rules = rules;
     }
-    const result=await serviceCollection.updateOne({_id: new ObjectId(id)},newSubCategory);
+    const result = await serviceCollection.updateOne(
+      { _id: new ObjectId(id) },
+      newSubCategory
+    );
+    res.send(result);
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const deleteSubCategory = async (req, res) => {
+  try {
+    const { id } = req.query || {};
+    const result = await serviceCollection.deleteOne({ _id: new ObjectId(id) });
     res.send(result);
   } catch (err) {
     console.error("Error: ", err.message);
@@ -108,4 +130,5 @@ module.exports = {
   addSubCategory,
   getService,
   updateSubCategory,
+  deleteSubCategory,
 };
