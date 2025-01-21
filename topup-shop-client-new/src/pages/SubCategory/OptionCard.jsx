@@ -15,14 +15,14 @@ const OptionCard = ({ idx, option, selected, setSelected }) => {
     return (
         <div
             onClick={handleSelect}
-            className={`flex items-center gap-3 py-2 px-3 rounded relative ${selected?.idx === idx
+            className={`text-xs md:text-sm flex items-center gap-3 px-1 py-2 md:px-3 rounded relative ${selected?.idx === idx
                 ? "border-2 border-[#FA6023]"
                 : "border-2 border-gray-400"
                 } ${stock === 0 || stock === false ? "cursor-not-allowed" : "cursor-pointer"
                 }`}
         >
-            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 text-sm rounded bg-[#FA6023] text-white w-max">
-                {stock ? `In Stock: ${stock}` : stock === 0 ? "Stock Out" : ""}
+            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 rounded bg-[#FA6023] text-white w-max text-xs md:text-sm">
+                {stock === 0 && "Stock Out"}
             </span>
 
             <span

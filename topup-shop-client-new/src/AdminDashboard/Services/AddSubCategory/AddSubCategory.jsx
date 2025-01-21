@@ -129,7 +129,7 @@ const AddSubCategory = () => {
                     {/* tutorial text */}
                     <div>
                         <label htmlFor="" className="input-label">Tutorial Text</label>
-                        <input type="text" name="tutorialText" className="input" placeholder="Type stutorial title" required />
+                        <input type="text" name="tutorialText" className="input" placeholder="Type tutorial text" required />
                     </div>
                     {/* tutorial url */}
                     <div>

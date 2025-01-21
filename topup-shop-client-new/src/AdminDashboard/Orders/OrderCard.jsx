@@ -6,6 +6,8 @@ import Swal from "sweetalert2";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { FaHashtag } from "react-icons/fa";
 import toast from "react-hot-toast";
+import CopyToClipboard from "react-copy-to-clipboard";
+import { TiTick } from "react-icons/ti";
 
 
 const OrderCard = ({ order }) => {
@@ -31,6 +33,7 @@ const OrderCard = ({ order }) => {
   } = order || {};
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
+  const [copied, setCopied] = useState({});
 
 
   const handleCopyUid = async () => {
@@ -123,6 +126,14 @@ const OrderCard = ({ order }) => {
     }
   };
 
+  // handleCopyInfo
+  const handleCopyInfo = (key) => {
+    setCopied((prevCopied) => ({ ...prevCopied, [key]: true }));
+    setTimeout(() => {
+      setCopied((prevCopied) => ({ ...prevCopied, [key]: false }));
+    }, 2000);
+  };
+
   return (
     <div>
       <div className="px-4 py-5 border-2 rounded shadow-xl">
@@ -204,7 +215,14 @@ const OrderCard = ({ order }) => {
           {info && Object.entries(info).map(([key, value], idx) => (
             <p key={idx} className="flex items-center gap-3">
               <span className="font-bold">{key}: </span>
-              <span>{value}</span>
+              <p className="flex items-center gap-1">
+                <span>{value}</span>
+                <CopyToClipboard text={value}>
+                  <button onClick={() => handleCopyInfo(key)} className={`${copied[key] ? "text-green-700" : ""}`} disabled={copied[key]} >
+                  {copied[key] ? <TiTick /> : <MdContentCopy />}
+                  </button>
+                </CopyToClipboard>
+              </p>
             </p>
           ))}
         </div>

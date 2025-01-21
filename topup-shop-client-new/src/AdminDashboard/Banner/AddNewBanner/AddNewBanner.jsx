@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { uploadImage } from "../../../utils/uploadImage";
 import toast, { Toaster } from "react-hot-toast";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const AddNewBanner = () => {
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
+    const axiosPrivate = useAxiosPrivate();
 
     // handle image change
     const handleImage = (e) => {
@@ -30,12 +32,18 @@ const AddNewBanner = () => {
                 url
             };
 
-            setLoading(false);
-            setImage(null);
-            setUrl('');
-            toast.success("Banner Uploaded Successfully!");
-
-            console.log(bannerData);
+            axiosPrivate.post('/banners/new', bannerData).then((res) => {
+                if (res.data.acknowledged) {
+                    setLoading(false);
+                    setImage(null);
+                    setUrl('');
+                    toast.success("Banner Uploaded Successfully!");
+                    window.location.reload();
+                } else {
+                    toast.error("Something Went Wrong!");
+                    setLoading(false);
+                }
+            });
         } catch (error) {
             setLoading(false);
             toast.error("Error uploading image");
@@ -49,7 +57,7 @@ const AddNewBanner = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="input-label">Banner Image</label>
-                        <input type="file" onChange={handleImage} className="input cursor-pointer" />
+                        <input type="file" onChange={handleImage} className="input cursor-pointer" required />
                         {image && <img src={preview} alt="Preview" className="mt-3 max-h-48 object-cover" />}
                     </div>
                     <div>
@@ -60,6 +68,7 @@ const AddNewBanner = () => {
                             value={url}
                             className="input"
                             placeholder="Banner URL"
+                            required
                         />
                     </div>
                 </div>

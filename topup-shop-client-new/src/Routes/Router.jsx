@@ -48,6 +48,7 @@ import Banner from "../AdminDashboard/Banner/Banner";
 import FollowUs from "../AdminDashboard/FollowUs/FollowUs";
 import AddOption from "../AdminDashboard/Options/AddOption/AddOption";
 import Options from "../AdminDashboard/Options/Options";
+import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/UpdateSubCategory";
 
 
 const router = createBrowserRouter([
@@ -149,7 +150,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/confirm-purchase",
+        path: "/confirmPurchase",
         element: (
           <PrivateRoute>
             <ConfirmPurchase />
@@ -198,6 +199,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/addSubCategory",
         element: <AddSubCategory />,
+      },
+      {
+        path: "/dashboard/updateSubCategory/:id",
+        element: <UpdateSubCategory />,
       },
       {
         path: "/dashboard/addCodes",

@@ -4,66 +4,75 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "./Banner.css";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import banner1 from "../../../assets/images/banner1.png";
-import banner2 from "../../../assets/images/banner2.jpg";
-import banner3 from "../../../assets/images/banner3.jpg";
-import banner4 from "../../../assets/images/recharge-card.jpeg";
-import banner5 from "../../../assets/images/recharge-offer.jpeg";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import toast from "react-hot-toast";
+import Loader from "../../../components/Loader";
 
 const Banner = () => {
+
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const axiosPublic = useAxiosPublic();
+
+  // load all data
+  useEffect(() => {
+    setLoading(true);
+
+    axiosPublic.get("/banners/get").then((res) => {
+      setBanners(res.data || []);
+      setLoading(false);
+    }).catch(err => {
+      console.log(err);
+      setLoading(false);
+      toast.error("Failed to load data!")
+    });
+  }, [axiosPublic]);
+
+
   return (
-    <Link to={"https://whatsapp.com/channel/0029VaYwdz43LdQch0TvMR1F"} target="_blank" className="block">
-      <Swiper
-        spaceBetween={30}
-        centeredSlides={true}
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
-        }}
-        pagination={{
-          clickable: true,
-        }}
-        navigation={true}
-        modules={[Autoplay, Pagination, Navigation]}
-      >
-        <SwiperSlide>
-          <img
-            src={banner1}
-            alt=""
-            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
-          />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img
-            src={banner4}
-            alt=""
-            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
-          />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img
-            src={banner2}
-            alt=""
-            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
-          />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img
-            src={banner5}
-            alt=""
-            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
-          />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img
-            src={banner3}
-            alt=""
-            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
-          />
-        </SwiperSlide>
-      </Swiper>
-    </Link>
+    <div>
+      {
+        loading ?
+          <Loader />
+          :
+          <>
+            {
+              banners?.length > 0 &&
+              <div>
+                <Swiper
+                  spaceBetween={30}
+                  centeredSlides={true}
+                  autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false,
+                  }}
+                  pagination={{
+                    clickable: true,
+                  }}
+                  navigation={true}
+                  modules={[Autoplay, Pagination, Navigation]}
+                >
+                  {
+                    banners?.map((banner, idx) =>
+                      <SwiperSlide key={idx}>
+                        <Link to={banner?.url} target="_blank">
+                          <img
+                            src={banner?.image}
+                            alt=""
+                            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
+                          />
+                        </Link>
+                      </SwiperSlide>
+                    )
+                  }
+                </Swiper>
+              </div>
+            }
+          </>
+      }
+    </div>
   );
 };
 
