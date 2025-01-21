@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { TbCurrencyTaka, TbSquareRoundedNumber1Filled, TbSquareRoundedNumber2Filled } from "react-icons/tb";
 import { IoInformationCircleOutline } from "react-icons/io5";
@@ -9,6 +8,8 @@ import Loader from "../../components/Loader";
 import { MdArrowOutward } from "react-icons/md";
 import OptionCard from "./OptionCard";
 import toast from "react-hot-toast";
+import bkashLogo from '../../assets/images/bkash.png';
+import nagadLogo from '../../assets/images/nagad.png';
 
 
 const SubCategory = () => {
@@ -20,11 +21,9 @@ const SubCategory = () => {
     const [options, setOptions] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [price, setPrice] = useState(0);
-    const [error, setError] = useState("");
     const [inputValues, setInputValues] = useState({});
     const axiosPublic = useAxiosPublic();
-    const axiosPrivate = useAxiosPrivate();
-    const { user, setUser } = useAuth();
+    const { user } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -61,71 +60,27 @@ const SubCategory = () => {
 
 
     // handle purchase
-    const handlePurchase = () => {
-
-        setError("");
-        setIsLoading(true);
-
+    const handleProceedToConfirmation = () => {
         if (!selected.idx || !selected.name || !selected.price) {
-            setError("Please select an option");
-            setIsLoading(false);
+            toast.error("Please select an option");
             return;
         }
 
-        // Check if all input fields are filled
         const emptyFields = Object.entries(inputValues).filter(([key, value]) => !value.trim());
-        if (emptyFields?.length > 0) {
-            setError("Please fill all input fields");
-            setIsLoading(false);
+        if (emptyFields.length > 0) {
+            toast.error("Please fill all input fields");
             return;
         }
 
-        // check user logged in or not
         if (!user) {
             toast.error("Please Login First!");
             navigate('/login');
             return;
         }
 
-        const orderData = {
-            id: allData._id,
-            email: user?.email,
-            index: selected?.idx - 1,
-            name: selected?.name,
-            price: selected?.price,
-            info: inputValues,
-
-        };
-
-        console.log(orderData);
-
-        axiosPrivate
-            .post("/order/new/dynamic", orderData)
-            .then((res) => {
-                console.log(res.data);
-                if (res.data.success) {
-                    toast.success("Order Placed Successfully!");
-                    setIsLoading(false);
-                    setUser({
-                        ...user,
-                        balance: user?.balance - res.data?.price,
-                        orders: user?.orders + 1,
-                        spent: user?.spent + price,
-                    });
-                    navigate("/myOrders");
-                }
-                else {
-                    setIsLoading(false);
-                    toast.error( res.data.message || "Order Place Failed!");
-                }
-
-            })
-            .catch((err) => {
-                console.log(err);
-                setError( err.response.data.error ||'Failed to purchase!');
-                setIsLoading(false);
-            });
+        navigate('/confirmPurchase', { state: { selected, inputValues, allData } });
     };
+
 
 
     return (
@@ -161,7 +116,7 @@ const SubCategory = () => {
                         <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
                         Option
                     </h1>
-                    <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+                    <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
                         {options?.map((option, idx) => (
                             <OptionCard key={idx} idx={idx + 1} option={option} selected={selected} setSelected={setSelected} />
                         ))}
@@ -209,7 +164,7 @@ const SubCategory = () => {
                     }
 
 
-                    <div className="border-2 rounded mt-3">
+                    <div className="border-2 rounded my-3">
                         <h2 className="text-xl text-center font-semibold border-b-2 py-2">
                             Summary
                         </h2>
@@ -245,22 +200,12 @@ const SubCategory = () => {
                                         </span>
                                     </p>
                                 </>
-                            )}
-                            {error && (
-                                <p className="text-xl font-semibold text-red-600 text-center">
-                                    {error}
-                                </p>
-                            )}
+                            )}                           
                             {user ? (
                                 <div className="space-y-3">
-                                    <Link
-                                        to={"/addBalance"}
-                                        className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
-                                    >
-                                        Add Balance
-                                    </Link>
+
                                     <button
-                                        onClick={handlePurchase}
+                                        onClick={handleProceedToConfirmation}
                                         className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
                                     >
                                         Purchase
@@ -277,6 +222,27 @@ const SubCategory = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* add balance */}
+                    {
+                        user &&
+                        <div className="p-3 rounded border-2">
+                            <Link
+                                to={"/addBalance"}
+                                className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2"
+                            >
+                                Add Balance
+                            </Link>
+                            <div className="flex justify-center items-center py-3">
+                                <div className="w-20 h-fit">
+                                    <img src={bkashLogo} className="w-full h-full object-contain" alt="Bkash Logo" />
+                                </div>
+                                <div className="w-20 h-fit">
+                                    <img src={nagadLogo} className="w-full h-full object-contain" alt="Nagad Logo" />
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
             <div className="border rounded-md p-3 md:p-6">

@@ -119,7 +119,7 @@ const Navbar = () => {
                 className={`fixed top-0 right-0 w-screen h-screen bg-black bg-opacity-50 z-20 ${isOpen ? "block" : "hidden"}`}
               />
               <div
-                className={`fixed top-0 right-0 w-64 md:w-72 bg-white overflow-y-scroll pb-10 z-20 menu-container ${isOpen ? "translate-x-0" : "translate-x-full"} duration-200`}
+                className={`fixed top-0 right-0 w-64 md:w-72 bg-white overflow-y-scroll pb-20 md:pb-10 z-20 menu-container ${isOpen ? "translate-x-0" : "translate-x-full"} duration-200`}
               >
                 <div className="flex items-center gap-2 p-3">
                   <img

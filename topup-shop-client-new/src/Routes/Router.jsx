@@ -150,7 +150,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/confirm-purchase",
+        path: "/confirmPurchase",
         element: (
           <PrivateRoute>
             <ConfirmPurchase />
