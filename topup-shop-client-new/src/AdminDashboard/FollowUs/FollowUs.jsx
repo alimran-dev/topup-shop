@@ -61,7 +61,7 @@ const FollowUs = () => {
 
     return (
         <div>
-            <AddFollowUs />
+            <AddFollowUs setFollowUsData={setFollowUsData} />
 
             <h1 className="title mt-4">Follow Us</h1>
 
@@ -80,7 +80,7 @@ const FollowUs = () => {
                                             followUsData?.map((followUs, idx) =>
                                                 <div key={idx} className="bg-slate-50 px-4 py-2 border border-slate-400">
                                                     <div className="flex items-center gap-2 border-b border-b-slate-400 pb-2 mb-2">
-                                                        <img src={followUs?.icon} className="w-32 h-32 object-contain" alt="" />
+                                                        <img src={followUs?.icon} className="w-12 h-12 object-contain" alt="" />
                                                         <p className="font-medium">
                                                             {followUs?.text}
                                                         </p>
@@ -91,7 +91,7 @@ const FollowUs = () => {
                                                     </p>
                                                     <div className="flex justify-end items-center text-2xl gap-5 pt-3">
                                                         <button onClick={() => document.getElementById(`update_followUs_${idx}`).showModal()} className="text-green-700"><FaEdit /></button>
-                                                        <UpdateFollowUs idx={idx} followUs={followUs} />
+                                                        <UpdateFollowUs idx={idx} followUs={followUs} setFollowUsData={setFollowUsData} />
                                                         <button onClick={() => handleDeleteFollowUs(followUs?._id)} className="text-red-600"><MdDelete /></button>
                                                     </div>
                                                 </div>

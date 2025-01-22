@@ -5,7 +5,7 @@ import { uploadImage } from "../../../utils/uploadImage";
 import toast from "react-hot-toast";
 
 
-const UpdateFollowUs = ({ idx, followUs }) => {
+const UpdateFollowUs = ({ idx, followUs, setFollowUsData }) => {
 
     const [image, setImage] = useState(followUs?.icon || null);
     const [preview, setPreview] = useState(followUs?.icon || null);
@@ -41,14 +41,18 @@ const UpdateFollowUs = ({ idx, followUs }) => {
                 text,
                 sequence,
             };
-            
+
             axiosPrivate.patch('/follows/update', followUsData).then((res) => {
-                console.log(res.data);
-                
+
                 if (res.data.acknowledged) {
+                    setLoading(false);
                     document.getElementById(`update_followUs_${idx}`).close();
                     toast.success("Follow Us Updated Successfully!");
-                    window.location.reload();
+
+                    // update state
+                    setFollowUsData((prevFollowUs) =>
+                        prevFollowUs.map((f) => (f._id === followUs._id ? { ...f, ...followUsData } : f))
+                    );
                 } else {
                     toast.error("Something Went Wrong!");
                     setLoading(false);
@@ -59,7 +63,7 @@ const UpdateFollowUs = ({ idx, followUs }) => {
             toast.error("Error uploading image");
         }
     };
-    
+
 
     return (
         <div>
@@ -75,7 +79,7 @@ const UpdateFollowUs = ({ idx, followUs }) => {
                             <div>
                                 <label className="input-label">Icon</label>
                                 <input type="file" onChange={handleImage} className="input cursor-pointer" />
-                                {image && <img src={preview} alt="Preview" className="mt-3 max-h-48 object-cover" />}
+                                {image && <img src={preview} alt="Preview" className="mt-3 w-12 h-12 object-contain" />}
                             </div>
                             <div>
                                 <label className="input-label">URL</label>
@@ -129,6 +133,7 @@ UpdateFollowUs.propTypes = {
         text: PropTypes.string,
         sequence: PropTypes.number,
     }),
+    setFollowUsData: PropTypes.func,
 };
 
 export default UpdateFollowUs;

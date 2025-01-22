@@ -41,8 +41,8 @@ const FollowUs = () => {
                   <>
                     {
                       data?.map((item, idx) =>
-                        <Link key={idx} to={item?.url} target="_blank" className="flex items-center gap-2 border bg-slate-50 p-1 md:py-6 md:px-4">
-                          <img src={item?.icon} className="w-20 h-20 object-contain" alt="social logo" />
+                        <Link key={idx} to={item?.url} target="_blank" className="flex items-center gap-2 border bg-slate-50 px-2 py-3 md:py-6 md:px-4">
+                          <img src={item?.icon} className="w-10 h-10 md:w-20 md:h-20 object-contain" alt="social logo" />
                           <p className="font-medium">
                             {item?.text}
                           </p>
