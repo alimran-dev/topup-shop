@@ -8,6 +8,7 @@ const ForgotPassword = () => {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     // const axiosPublic = useAxiosPublic();
 
 
@@ -15,18 +16,23 @@ const ForgotPassword = () => {
     const handleEmailSubmit = async (e) => {
 
         setStep(2);
+        
 
         e.preventDefault();
+        setLoading(true);
         setError("");
         // try {
         //     const response = await axiosPublic.get("/auth/check-email", { email });
         //     if (response.data.success) {
         //         setStep(2);
+        //         setLoading(false);
         //     } else {
         //         setError("Email not found!");
+        //         setLoading(false);
         //     }
         // } catch (err) {
         //     setError("Something went wrong. Please try again.");
+        //     setLoading(false);
         // }
     };
 
@@ -36,25 +42,31 @@ const ForgotPassword = () => {
         setStep(3);
 
         e.preventDefault();
+        setLoading(true);
         setError("");
         // try {
         //     const response = await axiosPublic.get("/auth/verify-otp", { email, otp });
         //     if (response.data.success) {
         //         setStep(3);
+        //         setLoading(false);
         //     } else {
         //         setError("Invalid OTP. Please try again.");
+        //         setLoading(false);
         //     }
         // } catch (err) {
         //     setError("Something went wrong. Please try again.");
+        //     setLoading(false);
         // }
     };
 
     // new pass fn
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         setError("");
         if (newPassword !== confirmPassword) {
             setError("Passwords do not match.");
+            setLoading(false);
             return;
         }
         // try {
@@ -64,16 +76,19 @@ const ForgotPassword = () => {
         //     });
         //     if (response.data.success) {
         //         alert("Password reset successful. Please log in with your new password.");
-        //         setStep(1);
+        //         setLoading(false);
+        //         // navigate to home page
         //         setEmail("");
         //         setOtp("");
         //         setNewPassword("");
         //         setConfirmPassword("");
         //     } else {
         //         setError("Failed to reset password.");
+        //         setLoading(false);
         //     }
         // } catch (err) {
         //     setError("Something went wrong. Please try again.");
+        //     setLoading(false);
         // }
     };
 
@@ -86,14 +101,16 @@ const ForgotPassword = () => {
             {/* step progress bar */}
             <div>
                 <ul className="steps w-full">
-                    <li className={`step ${step >= 1 ? "step-primary" : ""}`}>Email</li>
-                    <li className={`step ${step >= 2 ? "step-primary" : ""}`}>OTP</li>
-                    <li className={`step ${step === 3 ? "step-primary" : ""}`}>Password</li>
+                    <li className={`step after:!bg-primary after:!text-white`}>Email</li>
+                    <li className={`step ${step >= 2 ? "before:!bg-primary after:!bg-primary after:!text-white" : "before:!bg-slate-300 after:!bg-slate-300 after:!text-black"}`}>OTP</li>
+                    <li className={`step ${step >= 3 ? "before:!bg-primary after:!bg-primary after:!text-white" : "before:!bg-slate-300 after:!bg-slate-300 after:!text-black"}`}>Password</li>
                 </ul>
             </div>
 
-            {/* step 1 / check email */}
+            {/* error message */}
             {error && <p className="text-red-500 text-center">{error}</p>}
+
+            {/* step 1 / check email */}
             {step === 1 && (
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
                     <label className="input-label">
@@ -103,14 +120,16 @@ const ForgotPassword = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="input mt-1"
+                            placeholder="Your email"
                             required
                         />
                     </label>
                     <button
                         type="submit"
                         className="button block mx-auto"
+                        disabled={loading}
                     >
-                        Check Email
+                        {loading ? "Please Wait" : "Check Email"}
                     </button>
                 </form>
             )}
@@ -125,14 +144,16 @@ const ForgotPassword = () => {
                             value={otp}
                             onChange={(e) => setOtp(e.target.value)}
                             className="input mt-1"
+                            placeholder="Otp"
                             required
                         />
                     </label>
                     <button
                         type="submit"
                         className="button block mx-auto"
+                        disabled={loading}
                     >
-                        Verify OTP
+                        {loading ? "Please Wait" : "Verify OTP"}
                     </button>
                 </form>
             )}
@@ -147,6 +168,7 @@ const ForgotPassword = () => {
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             className="input mt-1"
+                            placeholder="New password"
                             required
                         />
                     </label>
@@ -156,6 +178,7 @@ const ForgotPassword = () => {
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm password"
                             className="input mt-1"
                             required
                         />
@@ -163,8 +186,9 @@ const ForgotPassword = () => {
                     <button
                         type="submit"
                         className="button block mx-auto"
+                        disabled={loading}
                     >
-                        Reset Password
+                       {loading ? "Please Wait" : " Reset Password"}
                     </button>
                 </form>
             )}
