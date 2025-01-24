@@ -9,11 +9,11 @@ const ForgotPassword = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     // const axiosPublic = useAxiosPublic();
-    
+
 
     // check email fn
     const handleEmailSubmit = async (e) => {
-        
+
         setStep(2);
 
         e.preventDefault();
@@ -82,6 +82,15 @@ const ForgotPassword = () => {
             <h2 className="title ">
                 Forgot Password
             </h2>
+
+            {/* step progress bar */}
+            <div>
+                <ul className="steps w-full">
+                    <li className={`step ${step >= 1 ? "step-primary" : ""}`}>Email</li>
+                    <li className={`step ${step >= 2 ? "step-primary" : ""}`}>OTP</li>
+                    <li className={`step ${step === 3 ? "step-primary" : ""}`}>Password</li>
+                </ul>
+            </div>
 
             {/* step 1 / check email */}
             {error && <p className="text-red-500 text-center">{error}</p>}
