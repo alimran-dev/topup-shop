@@ -9,6 +9,7 @@ const ForgotPassword = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     // const axiosPublic = useAxiosPublic();
+    
 
     // check email fn
     const handleEmailSubmit = async (e) => {
