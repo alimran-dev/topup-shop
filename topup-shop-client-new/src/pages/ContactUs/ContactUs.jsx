@@ -37,7 +37,7 @@ const ContactUs = () => {
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 pb-5">
         Contact Us
       </h1>
-      <div className="grid md:grid-cols-2 justify-center gap-4 md:gap-8">
+      <div>
         {
           loading ?
             <div className="text-center font-bold">Loading...</div>
@@ -47,7 +47,7 @@ const ContactUs = () => {
                 data?.length == 0 ?
                   <div className="text-center font-bold text-red-600">No Data Found!</div>
                   :
-                  <>
+                  <div className="grid md:grid-cols-2 justify-center gap-4 md:gap-8">
                     {
                       data?.map((item, idx) =>
                         <Link key={idx} to={item?.url} target="_blank" className="flex items-center gap-2 border bg-slate-50 p-2 md:py-6 md:px-4">
@@ -58,7 +58,7 @@ const ContactUs = () => {
                         </Link>
                       )
                     }
-                  </>
+                  </div>
               }
             </>
         }

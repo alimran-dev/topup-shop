@@ -4,12 +4,14 @@ import { TfiMenuAlt } from "react-icons/tfi";
 import { MdAccountBalance } from "react-icons/md";
 import { IoGridOutline } from "react-icons/io5";
 import { NavLink, useLocation } from "react-router-dom";
+import { BsCoin } from "react-icons/bs";
 
 const navItems = [
   { to: "/myAccount", icon: VscAccount, label: "My Account" },
   { to: "/addBalance", icon: MdAccountBalance, label: "Add Balance" },
   { to: "/myOrders", icon: IoGridOutline, label: "My Orders" },
   { to: "/myTransactions", icon: TfiMenuAlt, label: "My Transactions" },
+  { to: "/coins", icon: BsCoin, label: "Coins" },
 ];
 
 const UserNav = ({ setIsOpen }) => {

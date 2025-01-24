@@ -49,6 +49,8 @@ import FollowUs from "../AdminDashboard/FollowUs/FollowUs";
 import AddOption from "../AdminDashboard/Options/AddOption/AddOption";
 import Options from "../AdminDashboard/Options/Options";
 import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/UpdateSubCategory";
+import Coins from "../pages/Coins/Coins";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 
 
 const router = createBrowserRouter([
@@ -118,6 +120,10 @@ const router = createBrowserRouter([
         element: <SignUp />,
       },
       {
+        path: "/forgotPassword",
+        element: <ForgotPassword />,
+      },
+      {
         path: "/myAccount",
         element: (
           <PrivateRoute>
@@ -170,6 +176,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <MyTransactions />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/coins",
+        element: (
+          <PrivateRoute>
+            <Coins />
           </PrivateRoute>
         ),
       },
