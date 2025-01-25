@@ -9,10 +9,11 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
     e.preventDefault();
     const form = e.target;
     const bonus = parseFloat(form.bonus.value);
+    const specialBonus = parseFloat(form.specialBonus.value);
     const fee = parseFloat(form.fee.value);
     const number = form.number.value;
     const status = form.status.value;
-    const method = { bonus, fee, number, status };
+    const method = { bonus, fee, number, specialBonus, status };
     axiosPrivate
       .patch(`/payment/method/admin/update?id=${_id}`, method)
       .then((res) => {
@@ -107,6 +108,20 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                 required
               />
             </div>
+            <div>
+              <label htmlFor="bonus" className="font-semibold mr-2">
+                Special Bonus:{" "}
+              </label>
+              <input
+                defaultValue={bonus}
+                name="specialBonus"
+                type="number"
+                step={0.5}
+                className="border px-3 py-1 rounded w-full md:w-fit"
+                placeholder="percent"
+                required
+              />
+            </div>
           </div>
           <div className="flex-1 space-y-2">
             <div>
@@ -143,9 +158,8 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
               <select
                 name="status"
                 id=""
-                className={`px-3 py-1 rounded font-semibold ${
-                  status === "active" ? "text-green-700" : "text-red-500"
-                }`}
+                className={`px-3 py-1 rounded font-semibold ${status === "active" ? "text-green-700" : "text-red-500"
+                  }`}
                 defaultValue={status}
               >
                 <option value="active">Active</option>

@@ -43,10 +43,10 @@ input[type="number"] {
     @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55];
 }
 .input-label{
-    @apply block text-xl font-medium text-gray-700 mb-2;
+    @apply block text-base md:text-xl font-medium text-gray-700 mb-2;
 }
 .input{
-    @apply bg-transparent w-full px-4 py-2 border-2 border-slate-800 rounded-md outline-none;
+    @apply bg-transparent w-full px-4 py-2 border-2 border-slate-500 rounded-md outline-none;
 }
 .button{
     @apply bg-primary text-white px-6 py-1 font-semibold rounded-md ;

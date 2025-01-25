@@ -5,6 +5,7 @@ import Notice from "./Notice/Notice";
 import Services from "./Services/Services";
 import AdModal from "./AdModal/AdModal";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
+import CoinClaim from "./CoinClaim/CoinClaim";
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,6 +69,7 @@ const Home = () => {
         />
       )}
 
+      <CoinClaim />
       <Notice />
       <Banner />
       <Services />

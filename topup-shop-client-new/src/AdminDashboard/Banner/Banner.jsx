@@ -60,7 +60,7 @@ const Banner = () => {
 
     return (
         <div>
-            <AddNewBanner />
+            <AddNewBanner setBanners={setBanners} />
 
             <h1 className="title mt-3 md:mt-8">Banners</h1>
             <div>
@@ -77,13 +77,13 @@ const Banner = () => {
                                         {
                                             banners?.map((banner, idx) =>
                                                 <div key={idx} className="bg-slate-50 border border-slate-400 p-4 flex flex-col justify-between">
-                                                    <div className="w-full h-fit">
-                                                        <img src={banner?.image} className="w-full h-full object-contain pb-4" alt="banner image" />
+                                                    <div className="w-full h-[150px] md:h-[300px]">
+                                                        <img src={banner?.image} className="w-full h-full object-fill pb-4" alt="banner image" />
                                                     </div>
                                                     <div className="">
                                                         <div className="flex justify-end items-center text-2xl gap-5 pb-4">
                                                             <button onClick={() => document.getElementById(`update_banner_${idx}`).showModal()} className="text-green-700"><FaEdit /></button>
-                                                            <UpdateBanner idx={idx} banner={banner} />
+                                                            <UpdateBanner idx={idx} banner={banner} setBanners={setBanners} />
                                                             <button onClick={() => handleDeleteBanner(banner?._id)} className="text-red-600"><MdDelete /></button>
                                                         </div>
                                                         <span className="font-bold">URL: </span>

@@ -61,7 +61,7 @@ const Banner = () => {
                           <img
                             src={banner?.image}
                             alt=""
-                            className="w-full h-[200px] md:h-[300px] lg:h-[400px] rounded-md"
+                            className="w-full h-[150px] md:h-[300px] lg:h-[400px] rounded-md"
                           />
                         </Link>
                       </SwiperSlide>

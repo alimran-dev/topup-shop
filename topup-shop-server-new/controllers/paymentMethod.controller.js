@@ -40,11 +40,11 @@ const bkashCreatePayment = async (req, res) => {
       type: "auto",
     });
     if (!paymentMethod) {
-      return res.send({ message: "Payment method not found" });
+      return res.send({success: false, message: "Payment method not found" });
     }
     const user = await userCollection.findOne({ email: email });
     if (!user) {
-      return res.send({ message: "User not found" });
+      return res.send({success: false, message: "User not found" });
     }
     const { bonus, fee } = paymentMethod || {};
     const toPay = Math.ceil(amount + (amount * fee) / 100);
@@ -88,9 +88,9 @@ const bkashCreatePayment = async (req, res) => {
     };
     const trxInsertResult = await transactionCollection.insertOne(transaction);
     if(trxInsertResult.insertedId){
-      res.redirect(data.bkashURL);
+      res.send({success: true, url: data.bkashURL});
     } else {
-      res.send({message: "Failed to create transaction"});
+      res.send({success: false, message: "Failed to create transaction"});
     }
   } catch (err) {
     console.error("Error: ", err.message);
@@ -103,7 +103,7 @@ const bkashCallback = async (req, res) => {
     const { paymentID, status } = req.query || {};
     const token = req.token || "";
     if (status === "cancel" || status === "failure") {
-      return res.redirect("")
+      return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`);
     }
     if (status === "success") {
       const { data } = await axiosBkash.post(
@@ -128,9 +128,9 @@ const bkashCallback = async (req, res) => {
         const trxUpdateResult=await transactionCollection.updateOne({paymentID: paymentID},{$set: updateTrx});
         const userUpdateResult=await userCollection.updateOne({email: transaction.email},{$set: updateUser});
         if(trxUpdateResult.modifiedCount && userUpdateResult.modifiedCount){
-          res.send({message: "successfully added"});
+          res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`)
         } else {
-          res.send({message: "Failed to update transaction or user balance"});
+          res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`);
         }
       }
     }

@@ -2,15 +2,23 @@ import PropTypes from 'prop-types';
 import toast from "react-hot-toast";
 import { uploadImage } from "../../../utils/uploadImage";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const UpdateBanner = ({ idx, banner }) => {
+const UpdateBanner = ({ idx, banner, setBanners }) => {
     const [image, setImage] = useState(banner?.image || null);
     const [preview, setPreview] = useState(banner?.image || null);
     const [url, setUrl] = useState(banner?.url || '');
     const [sequence, setSequence] = useState(banner?.sequence || null);
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
+
+
+    useEffect(() => {
+        setImage(banner?.image || null);
+        setPreview(banner?.image || null);
+        setUrl(banner?.url || '');
+        setSequence(banner?.sequence || null);
+    }, [banner]);
 
     const handleImage = (e) => {
         const file = e.target.files[0];
@@ -24,20 +32,20 @@ const UpdateBanner = ({ idx, banner }) => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         setLoading(true);
-    
+
         try {
             let uploadedImage = image;
             if (typeof image !== 'string') {
                 uploadedImage = await uploadImage(image);
             }
-    
+
             const bannerData = {
                 id: banner?._id,
                 image: uploadedImage,
                 url,
                 sequence,
             };
-    
+
             axiosPrivate.patch('/banners/update', bannerData).then((res) => {
                 if (res.data.acknowledged) {
                     document.getElementById(`update_banner_${idx}`).close();
@@ -45,7 +53,11 @@ const UpdateBanner = ({ idx, banner }) => {
                     setImage(null);
                     setUrl('');
                     toast.success("Banner Updated Successfully!");
-                    window.location.reload();
+                    
+                    // update state
+                    setBanners((prevBanners) =>
+                        prevBanners.map((b) => (b._id === banner._id ? { ...b, ...bannerData } : b))
+                    );
                 } else {
                     toast.error("Something Went Wrong!");
                     setLoading(false);
@@ -56,7 +68,7 @@ const UpdateBanner = ({ idx, banner }) => {
             toast.error("Error uploading image");
         }
     };
-    
+
     return (
         <div>
             <dialog id={`update_banner_${idx}`} className="modal">
@@ -113,6 +125,7 @@ UpdateBanner.propTypes = {
         url: PropTypes.string,
         sequence: PropTypes.number,
     }),
+    setBanners: PropTypes.func,
 };
 
 export default UpdateBanner;

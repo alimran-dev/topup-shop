@@ -40,7 +40,6 @@ const MyOrders = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, loading, user?.email, limit]);
 
-  console.log(orders);
 
   return (
     <div>
@@ -62,7 +61,7 @@ const MyOrders = () => {
           hasMore={orders.length < totalOrder}
           loader={<InfinityLoader />}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             {orders?.length > 0 &&
               orders.map((order, idx) => (
                 <OrderHistory order={order} key={idx} />

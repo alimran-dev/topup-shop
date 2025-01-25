@@ -30,9 +30,8 @@ const AddBalance = () => {
     <div className="space-y-5">
       <Loader isLoading={isLoading} />
       <div
-        className={`border-2 border-[#FA6023] rounded-md relative ${
-          offer?.offer?.length > 0 ? "" : "hidden"
-        }`}
+        className={`relative ${offer?.offer?.length > 0 ? "" : "hidden"
+          }`}
       >
         <h2 className="text-center border-b-2 border-[#FA6023] py-1.5 text-lg font-bold">
           Offer
@@ -41,9 +40,9 @@ const AddBalance = () => {
           <p>{offer?.offer || ""}</p>
         </div>
       </div>
-      <div className="w-fit mx-auto bg-gradient-to-r from-[#FA6023] to-[#E61C55] p-0.5 rounded">
+      <div className="w-fit mx-auto">
         <div className="bg-white rounded">
-          <h2 className="text-center text-4xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-1.5 border-b-2 border-[#FA6023]">
+          <h2 className="title !mb-0">
             Add Balance
           </h2>
           <form
@@ -66,17 +65,28 @@ const AddBalance = () => {
             )}
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded"
+              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded mt-2"
             >
-              Click to add
+              Click To Add
             </button>
             <Link
               to={"https://youtu.be/n2vD7oK0pfo?si=KjNmVbyrh-XmNqMd"}
               target="_blank"
-              className="clr-text font-semibold flex items-center gap-1"
+              className="text-blue-700 font-semibold flex items-center gap-1 mt-5"
             >
-              কি ভাবে টাকা এড করবেন <MdArrowOutward className="" />{" "}
+              কি ভাবে টাকা এড করবেন <MdArrowOutward />
             </Link>
+
+
+            {/* <iframe
+              width="560"
+              height="315"
+              src="https://www.youtube.com/embed/n2vD7oK0pfo"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe> */}
           </form>
         </div>
       </div>

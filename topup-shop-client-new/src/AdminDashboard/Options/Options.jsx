@@ -83,6 +83,7 @@ const Options = () => {
             }
         });
     };
+    
 
     return (
         <div>
@@ -192,11 +193,11 @@ const Options = () => {
                                                             <tr key={idx}>
                                                                 <td className="px-3 py-1 border border-slate-400">{idx + 1}</td>
                                                                 <td className="px-3 py-1 border border-slate-400">{option?.name}</td>
-                                                                <td className="px-3 py-1 border border-slate-400">{option?.price}</td>
+                                                                <td className="px-3 py-1 border border-slate-400">৳{option?.price}</td>
                                                                 <td className="px-3 py-1 border border-slate-400">{option?.stock}</td>
                                                                 <td className="px-3 py-1 border border-slate-400 flex justify-center items-center gap-4">
                                                                     <button onClick={() => document.getElementById(`my_modal_${idx}`).showModal()} className="text-3xl text-blue-700"><AiFillEdit /></button>
-                                                                    <UpdateOption idx={idx} option={option} selectedSubCategoryId={selectedSubCategoryId} />
+                                                                    <UpdateOption idx={idx} option={option} selectedSubCategoryId={selectedSubCategoryId} setOptions={setOptions} />
                                                                     <button onClick={() => handleDeleteOption(idx, option)} className="text-3xl text-red-600"><AiFillDelete /></button>
                                                                 </td>
                                                             </tr>

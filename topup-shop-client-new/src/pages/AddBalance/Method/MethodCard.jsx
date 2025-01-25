@@ -16,29 +16,47 @@ const MethodCard = ({ method, amount, setErr }) => {
   const { _id, provider, category, bonus, fee, number } = method || {};
 
   const handleAddReq = () => {
-    const newTransaction = {
-      id: _id,
-      amount,
-      email: user?.email,
-      previousBalance: user?.balance
-    };
-    axiosPrivate.post("/balance/add", newTransaction).then((data) => {
-      if (data.data?.insertedId) {
-        navigate("/addBalance/pay", {
-          state: {
-            id: data.data.insertedId,
-            provider,
-            category,
-            amount: Amount,
-            number,
-            fee,
-          },
-        });
-      } else {
-        setErr(data.data.message);
-        window.scrollTo(0, 0);
-      }
-    });
+    if (method?.type == 'auto') {
+      const paymentdata = {
+        email: user?.email,
+        amount,
+      };
+      console.log("payload------", paymentdata);
+      axiosPrivate.post("/payment/bkash/create", paymentdata).then((data) => {
+        if (data.data) {
+          console.log("api response-------", data.data);
+          window.location.replace(data.data)
+        } else {
+          setErr(data.data.message);
+          window.scrollTo(0, 0);
+        }
+      });
+    }
+    else {
+      const newTransaction = {
+        id: _id,
+        amount,
+        email: user?.email,
+        previousBalance: user?.balance
+      };
+      axiosPrivate.post("/balance/add", newTransaction).then((data) => {
+        if (data.data?.insertedId) {
+          navigate("/addBalance/pay", {
+            state: {
+              id: data.data.insertedId,
+              provider,
+              category,
+              amount: Amount,
+              number,
+              fee,
+            },
+          });
+        } else {
+          setErr(data.data.message);
+          window.scrollTo(0, 0);
+        }
+      });
+    }
   };
   useEffect(() => {
     setBonus(((amount * bonus) / 100).toFixed(2));

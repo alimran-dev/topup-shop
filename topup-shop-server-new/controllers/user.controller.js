@@ -120,7 +120,6 @@ const newUser = async (req, res) => {
       res.cookie("access-token", token, cookieOption(1000 * 60 * 60 * 24 * 30));
       res.send({ ...result, ...userData });
     }
-    res.send(result);
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });

@@ -1,9 +1,11 @@
+import PropTypes from 'prop-types';
 import { useState } from "react";
 import { uploadImage } from "../../../utils/uploadImage";
 import toast, { Toaster } from "react-hot-toast";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
-const AddNewBanner = () => {
+
+const AddNewBanner = ({ setBanners }) => {
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [url, setUrl] = useState('');
@@ -33,12 +35,16 @@ const AddNewBanner = () => {
             };
 
             axiosPrivate.post('/banners/new', bannerData).then((res) => {
-                if (res.data.acknowledged) {
+                console.log(res.data.insertedId);
+
+                if (res.data.insertedId) {
                     setLoading(false);
                     setImage(null);
                     setUrl('');
                     toast.success("Banner Uploaded Successfully!");
-                    window.location.reload();
+
+                    // update state
+                    setBanners(prevBanners => [...prevBanners, { _id: res.data.insertedId, image: uploadedImage, url }]);
                 } else {
                     toast.error("Something Went Wrong!");
                     setLoading(false);
@@ -79,6 +85,11 @@ const AddNewBanner = () => {
             <Toaster />
         </div>
     );
+};
+
+
+AddNewBanner.propTypes = {
+    setBanners: PropTypes.func,
 };
 
 export default AddNewBanner;

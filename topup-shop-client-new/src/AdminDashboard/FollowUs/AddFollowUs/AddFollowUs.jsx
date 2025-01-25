@@ -1,10 +1,11 @@
+import PropTypes from 'prop-types';
 import toast, { Toaster } from "react-hot-toast";
 import { uploadImage } from "../../../utils/uploadImage";
 import { useState } from "react";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 
-const AddFollowUs = () => {
+const AddFollowUs = ({ setFollowUsData }) => {
 
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -38,9 +39,17 @@ const AddFollowUs = () => {
             };
 
             axiosPrivate.post('/follows/new', sectionData).then((res) => {
-                if (res.data.acknowledged) {
+                if (res.data.insertedId) {
                     toast.success("Added Follow Us Successfully!");
-                    window.location.reload();
+
+                    e.target.elements.iconInput.value = '';
+                    setImage(null);
+                    setPreview(null);
+                    setText('');
+                    setUrl('');
+
+                    // update state
+                    setFollowUsData(prevFollow => [...prevFollow, { _id: res.data.insertedId, text, icon: uploadedImage, url }]);
                 } else {
                     toast.error("Something Went Wrong!");
                     setLoading(false);
@@ -69,8 +78,8 @@ const AddFollowUs = () => {
                     </div>
                     <div>
                         <label className="input-label">Icon Image</label>
-                        <input type="file" onChange={handleImage} className="input cursor-pointer" />
-                        {image && <img src={preview} alt="Preview" className="mt-3 max-h-48 object-cover" />}
+                        <input type="file" onChange={handleImage} name='iconInput' className="input cursor-pointer" />
+                        {image && <img src={preview} alt="Preview" className="mt-3 w-20 h-20 object-contain" />}
                     </div>
                     <div>
                         <label className="input-label">Redirect URL</label>
@@ -90,6 +99,10 @@ const AddFollowUs = () => {
             <Toaster />
         </div>
     );
+};
+
+AddFollowUs.propTypes = {
+    setFollowUsData: PropTypes.func,
 };
 
 export default AddFollowUs;

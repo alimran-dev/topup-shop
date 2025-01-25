@@ -4,7 +4,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import PropTypes from "prop-types";
 
 
-const UpdateOption = ({ idx, option, selectedSubCategoryId }) => {
+const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions }) => {
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
 
@@ -23,7 +23,7 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId }) => {
 
         const updatedOption = { index, name, price, id, stock };
 
-        console.log(updatedOption);
+        // console.log(updatedOption);
 
         axiosPrivate.patch('/option/admin/update/dynamic', updatedOption).then((res) => {
 
@@ -31,14 +31,17 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId }) => {
                 toast.success("Option Added Successfully!");
                 setLoading(false);
                 form.reset();
+                setOptions(prevOptions =>
+                    prevOptions.map((option, index) =>
+                        index === idx ? { ...option, ...updatedOption } : option
+                    )
+                );
             } else {
                 toast.error("Something Went Wrong!");
                 setLoading(false);
             }
             document.getElementById(`my_modal_${idx}`).close();
-            window.location.reload();
         });
-        setLoading(false);
     };
 
 
@@ -127,6 +130,7 @@ UpdateOption.propTypes = {
         stock: PropTypes.number,
     }),
     selectedSubCategoryId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    setOptions: PropTypes.func,
 };
 
 export default UpdateOption;
