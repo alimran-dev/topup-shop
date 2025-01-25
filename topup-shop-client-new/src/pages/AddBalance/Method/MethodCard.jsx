@@ -21,12 +21,12 @@ const MethodCard = ({ method, amount, setErr }) => {
         email: user?.email,
         amount,
       };
-      console.log("payload------", paymentdata);
-      axiosPrivate.post("/payment/bkash/create", paymentdata).then((data) => {
-        if (data.data) {
-          console.log("api response-------", data.data);
+      
+      axiosPrivate.post("/payment/bkash/create", paymentdata).then((res) => {
+        if (res.data.success) {
+          window.location.replace(res.data.url)
         } else {
-          setErr(data.data.message);
+          setErr(res.data.message);
           window.scrollTo(0, 0);
         }
       });

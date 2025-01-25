@@ -103,7 +103,7 @@ const Navbar = () => {
             <div className="flex items-center gap-3">
               {!isAdmin && !isAdminLoading ? (
                 <span className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-3 text-lg text-white font-semibold rounded flex items-center">
-                  <TbCurrencyTaka /> {user?.balance || 0}
+                  <TbCurrencyTaka /> {(user?.balance)?.toFixed(2) || 0}
                 </span>
               ) : null}
 

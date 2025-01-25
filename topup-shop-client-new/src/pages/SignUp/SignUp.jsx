@@ -9,12 +9,12 @@ import Loader from "../../components/Loader";
 const SignUp = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, setUser, signUp, updateUser, googleLogin, setLoading } =
-    useAuth();
+  const { user, setUser, googleLogin, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
 
+  // sign up fn
   const handleSignUp = (e) => {
     e.preventDefault();
     setError("");
@@ -25,56 +25,62 @@ const SignUp = () => {
     const phone = form.phone.value;
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
-    const user = { name, email, phone };
-    // console.log(user);
+    const userData = { name, email, phone, password };
+
+
     const passRegex = /^.{6,}$/;
+
     if (password !== confirmPass) {
       setError("Password and Confirm Password must be same.");
       setIsLoading(false);
-    } else if (passRegex.test(password)) {
-      signUp(email, password)
-        .then(() => {
-          updateUser(name)
-            .then(() => {
-              axiosPublic.post("/user/new", user).then((res) => {
-                // console.log(res.data);
-                axiosPrivate
-                  .post("/auth/jwt", { email })
-                  .then((res) => {
-                    axiosPrivate.get("/user/profile").then((res) => {
-                      const currentUser = res.data;
-                      currentUser.balance = parseFloat(
-                        currentUser.balance.toFixed(2)
-                      );
-                      setUser(currentUser);
-                      setIsLoading(false);
-                      setLoading(false);
-                      // console.log(res.data);
-                    });
-                    // console.log(res.data);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                    setIsLoading(false);
-                  });
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-              setError("Failed to update name.");
-              setIsLoading(false);
-            });
+    }
+    else if (passRegex.test(password)) {
+      try {
+        axiosPrivate.post("/user/new", userData).then((res) => {
+          // console.log(res.data);
+          if (res?.data?.insertedId) {
+
+            const signedUserData = {
+              _id: res?.data?.insertedId,
+              email: res?.data?.email,
+              name: res?.data?.name,
+              photo: res?.data?.photo,
+              phone: res.data?.phone || "",
+              role: res?.data?.role,
+              balance: res?.data?.balance,
+              isBanned: res?.data?.isBanned,
+              spent: res?.data?.spent,
+              orders: res?.data?.orders,
+              coins: res?.data?.coins,
+            };
+
+            setUser(signedUserData);
+            setError("");
+            setLoading(false);
+            setIsLoading(false);
+            navigate("/");
+          }
+          else {
+            setError("Sign Up Failed!")
+            setLoading(false);
+            setIsLoading(false);
+          }
         })
-        .catch((err) => {
-          console.error(err);
-          setIsLoading(false);
-          setError("Failed to create account.Please try again later.");
-        });
-    } else {
+      }
+      catch (err) {
+        setError(err?.message || "Something Went Wrong!");
+        setLoading(false);
+        setIsLoading(false);
+      }
+    }
+    else {
       setError("Password must be minimum 6 digit.");
+      setLoading(false);
       setIsLoading(false);
     }
   };
+
+  // google login
   const handleGoogle = () => {
     setIsLoading(true);
     setError("");
@@ -89,11 +95,11 @@ const SignUp = () => {
         };
 
         axiosPublic.post("/user/new", user).then((res) => {
-          // console.log(res.data);
+          console.log(res.data);
           axiosPrivate
             .post("/auth/jwt", { email })
             .then((res) => {
-              // console.log(res.data);
+              console.log(res.data);
               axiosPrivate
                 .get("/user/profile")
                 .then((res) => {
@@ -123,12 +129,14 @@ const SignUp = () => {
         console.error(err);
       });
   };
-  // console.log(user);
+
   useEffect(() => {
     if (user) {
       navigate("/");
     }
   }, [navigate, user]);
+
+
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -153,61 +161,61 @@ const SignUp = () => {
           </div>
         </div>
         <div className="space-y-1">
-          <label htmlFor="name" className="block text-lg font-medium">
+          <label htmlFor="name" className="input-label">
             Name
           </label>
           <input
             type="text"
             name="name"
             required
-            className="border w-full py-1.5 px-3 rounded-md focus:outline-[#FA6023] font-medium"
+            className="input"
             placeholder="Name"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="email" className="block text-lg font-medium">
+        <div className="space-y-1 py-3">
+          <label htmlFor="email" className="input-label">
             Email
           </label>
           <input
             type="email"
             name="email"
             required
-            className="border w-full py-1.5 px-3 rounded-md focus:outline-[#FA6023] font-medium"
+            className="input"
             placeholder="Email"
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="phone" className="block text-lg font-medium">
+          <label htmlFor="phone" className="input-label">
             Phone
           </label>
           <input
-            type="text"
+            type="number"
             name="phone"
-            className="border w-full py-1.5 px-3 rounded-md focus:outline-[#FA6023] font-medium"
+            className="input"
             placeholder="Phone"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="password" className="block text-lg font-medium">
+        <div className="space-y-1 py-3">
+          <label htmlFor="password" className="input-label">
             Password
           </label>
           <input
             type="password"
             name="password"
             required
-            className="border w-full py-1.5 px-3 rounded-md focus:outline-[#FA6023] font-medium"
+            className="input"
             placeholder="Password"
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="confirmPass" className="block text-lg font-medium">
+          <label htmlFor="confirmPass" className="input-label">
             Confirm Password
           </label>
           <input
             type="password"
             name="confirmPass"
             required
-            className="border w-full py-1.5 px-3 rounded-md focus:outline-[#FA6023] font-medium"
+            className="input"
             placeholder="Confirm Password"
           />
         </div>
@@ -224,7 +232,7 @@ const SignUp = () => {
         </button>
         <p className="text-center">
           Already have an account?
-          <Link to={"/login"} className="text-blue-500 font-semibold px-2">
+          <Link to={"/login"} className="text-blue-600 hover:underline font-semibold px-2">
             Login
           </Link>
         </p>

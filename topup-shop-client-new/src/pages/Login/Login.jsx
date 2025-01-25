@@ -9,56 +9,62 @@ import Loader from "../../components/Loader";
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user, setUser, googleLogin, loginUser, setLoading } = useAuth();
+  const { user, setUser, googleLogin, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const axiosPublic = useAxiosPublic();
   const location = useLocation();
 
+  // user login fn
   const handleLogin = (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    const form = e.target;
-    const email = form.email.value;
-    const password = form.password.value;
 
-    loginUser(email, password)
-      .then(() => {
-        axiosPrivate
-          .post("/auth/jwt", { email })
-          .then((res) => {
-            axiosPrivate
-              .get("/user/profile")
-              .then((res) => {
-                const currentUser = res.data;
-                currentUser.balance = parseFloat(
-                  currentUser.balance.toFixed(2)
-                );
-                setUser(currentUser);
-                setIsLoading(false);
-                setLoading(false);
-                // console.log(res.data);
-              })
-              .catch((err) => {
-                console.error(err);
-                setError(err.response?.data?.error || "Authentication Failed");
-                setIsLoading(false);
-              });
-            // console.log(res.data)
-          })
-          .catch((err) => {
-            setError("Server Error. Try later.");
-            setIsLoading(false);
-            console.error(err);
-          });
+    const userCredentials = {
+      email: e.target.email.value,
+      password: e.target.password.value
+    };
+
+    try {
+      axiosPrivate.post("/user/login", userCredentials).then((res) => {
+        if (res?.data?._id) {
+
+          const LoggedUserData = {
+            _id: res?.data?.insertedId,
+            email: res?.data?.email,
+            name: res?.data?.name,
+            photo: res?.data?.photo,
+            phone: res.data?.phone || "",
+            role: res?.data?.role,
+            balance: res?.data?.balance,
+            isBanned: res?.data?.isBanned,
+            spent: res?.data?.spent,
+            orders: res?.data?.orders,
+            coins: res?.data?.coins,
+          };
+
+          setUser(LoggedUserData);
+          setError("");
+          setLoading(false);
+          setIsLoading(false);
+          navigate("/");
+        }
+        else {
+          setError("Invalid Credentials!")
+          setLoading(false);
+          setIsLoading(false);
+        }
       })
-      .catch((err) => {
-        console.error(err);
-        setError("Wrong email or password.");
-        setIsLoading(false);
-      });
+    }
+    catch (err) {
+      setError(err?.message || "Something Went Wrong!");
+      setLoading(false);
+      setIsLoading(false);
+    }
   };
+
+  // for google login
   const handleGoogle = () => {
     setError("");
     setIsLoading(true);
@@ -73,10 +79,11 @@ const Login = () => {
         };
 
         axiosPublic.post("/user/new", user).then((res) => {
-          // console.log(res.data);
+          console.log(res.data);
           axiosPrivate
             .post("/auth/jwt", { email })
             .then((res) => {
+              console.log(res.data);
               axiosPrivate
                 .get("/user/profile")
                 .then((res) => {
@@ -85,7 +92,6 @@ const Login = () => {
                     currentUser.balance.toFixed(2)
                   );
                   setUser(currentUser);
-                  // console.log(res.data);
                   setIsLoading(false);
                 })
                 .catch((err) => {
@@ -110,12 +116,15 @@ const Login = () => {
         setIsLoading(false);
       });
   };
+
+
   useEffect(() => {
     if (user) {
       navigate(`${location.state || "/"}`);
     }
   }, [location.state, navigate, user]);
-  // console.log(user);
+
+
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -140,26 +149,26 @@ const Login = () => {
           </div>
         </div>
         <div className="space-y-1">
-          <label htmlFor="email" className="block text-lg font-medium">
+          <label htmlFor="email" className="input-label">
             Email
           </label>
           <input
             type="email"
             name="email"
             required
-            className="border w-full py-1.5 px-3 rounded-md focus:outline-[#FA6023] font-medium"
+            className="input"
             placeholder="Email"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="password" className="block text-lg font-medium">
+        <div className="space-y-1 pt-3">
+          <label htmlFor="password" className="input-label">
             Password
           </label>
           <input
             type="password"
             name="password"
             required
-            className="border w-full py-1.5 px-3 rounded-md focus:outline-[#FA6023] font-medium"
+            className="input"
             placeholder="Password"
           />
         </div>
@@ -174,12 +183,15 @@ const Login = () => {
         >
           Login
         </button>
+        <div className="flex justify-center py-2">
+          <Link to="/forgotPassword" className="text-blue-700 hover:underline">Forgot Password</Link>
+        </div>
         <p className="text-center">
           Don&apos;t have an account?
           <Link
             state={location.state}
             to={"/signup"}
-            className="text-blue-500 font-semibold px-2"
+            className="text-blue-600 hover:underline font-semibold px-2"
           >
             Sign Up
           </Link>

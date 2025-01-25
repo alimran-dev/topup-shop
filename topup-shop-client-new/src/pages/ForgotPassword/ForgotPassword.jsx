@@ -1,5 +1,8 @@
 import { useState } from "react";
-// import useAxiosPublic from "../../hooks/useAxiosPublic";
+import { useNavigate } from "react-router-dom";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import toast from 'react-hot-toast';
+
 
 const ForgotPassword = () => {
     const [step, setStep] = useState(1);
@@ -9,54 +12,51 @@ const ForgotPassword = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    // const axiosPublic = useAxiosPublic();
+    const axiosPublic = useAxiosPublic();
+    const navigate = useNavigate();
 
 
     // check email fn
     const handleEmailSubmit = async (e) => {
-
-        setStep(2);
-        
-
         e.preventDefault();
         setLoading(true);
         setError("");
-        // try {
-        //     const response = await axiosPublic.get("/auth/check-email", { email });
-        //     if (response.data.success) {
-        //         setStep(2);
-        //         setLoading(false);
-        //     } else {
-        //         setError("Email not found!");
-        //         setLoading(false);
-        //     }
-        // } catch (err) {
-        //     setError("Something went wrong. Please try again.");
-        //     setLoading(false);
-        // }
+        try {
+            const response = await axiosPublic.patch(`/user/forget?email=${email}`);
+
+            if (response.data.success) {
+                setStep(2);
+                setLoading(false);
+            } else {
+                setError("Email not found!");
+                setLoading(false);
+            }
+        } catch (err) {
+            setError("Something went wrong!");
+            setLoading(false);
+        }
     };
 
     // otp fn
     const handleOtpSubmit = async (e) => {
 
-        setStep(3);
-
         e.preventDefault();
         setLoading(true);
         setError("");
-        // try {
-        //     const response = await axiosPublic.get("/auth/verify-otp", { email, otp });
-        //     if (response.data.success) {
-        //         setStep(3);
-        //         setLoading(false);
-        //     } else {
-        //         setError("Invalid OTP. Please try again.");
-        //         setLoading(false);
-        //     }
-        // } catch (err) {
-        //     setError("Something went wrong. Please try again.");
-        //     setLoading(false);
-        // }
+        try {
+            const response = await axiosPublic.patch(`/user/forget?email=${email}&otp=${otp}`);
+
+            if (response.data.success) {
+                setStep(3);
+                setLoading(false);
+            } else {
+                setError("Invalid OTP");
+                setLoading(false);
+            }
+        } catch (err) {
+            setError("Something went wrong!");
+            setLoading(false);
+        }
     };
 
     // new pass fn
@@ -69,27 +69,25 @@ const ForgotPassword = () => {
             setLoading(false);
             return;
         }
-        // try {
-        //     const response = await axiosPublic.patch("/auth/reset-password", {
-        //         email,
-        //         newPassword,
-        //     });
-        //     if (response.data.success) {
-        //         alert("Password reset successful. Please log in with your new password.");
-        //         setLoading(false);
-        //         // navigate to home page
-        //         setEmail("");
-        //         setOtp("");
-        //         setNewPassword("");
-        //         setConfirmPassword("");
-        //     } else {
-        //         setError("Failed to reset password.");
-        //         setLoading(false);
-        //     }
-        // } catch (err) {
-        //     setError("Something went wrong. Please try again.");
-        //     setLoading(false);
-        // }
+        try {
+            const response = await axiosPublic.patch(`/user/forget?email=${email}&otp=${otp}&newPassword=${newPassword}`);
+
+            if (response.data.success) {
+                toast.success('Password reset successful!');
+                navigate('/login');
+                setLoading(false);
+                setEmail("");
+                setOtp("");
+                setNewPassword("");
+                setConfirmPassword("");
+            } else {
+                setError("Failed to reset password.");
+                setLoading(false);
+            }
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
+            setLoading(false);
+        }
     };
 
     return (
@@ -108,7 +106,7 @@ const ForgotPassword = () => {
             </div>
 
             {/* error message */}
-            {error && <p className="text-red-500 text-center">{error}</p>}
+            {error && <p className="text-red-500 text-center font-bold">{error}</p>}
 
             {/* step 1 / check email */}
             {step === 1 && (
@@ -188,7 +186,7 @@ const ForgotPassword = () => {
                         className="button block mx-auto"
                         disabled={loading}
                     >
-                       {loading ? "Please Wait" : " Reset Password"}
+                        {loading ? "Please Wait" : " Reset Password"}
                     </button>
                 </form>
             )}
