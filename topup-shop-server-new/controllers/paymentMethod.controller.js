@@ -1,8 +1,11 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
+const { axiosBkash } = require("../utils/axiosBkash");
 const paymentMethodCollection = dbCollections.paymentMethodCollection;
 const paymentMethodSummaryCollection =
   dbCollections.paymentMethodSummaryCollection;
+const { transactionCollection, userCollection } = dbCollections || {};
+require("dotenv").config();
 
 const getMethods = async (req, res) => {
   try {
@@ -11,8 +14,126 @@ const getMethods = async (req, res) => {
     if (role === "user") {
       filter = { status: "active" };
     }
-    const result = await paymentMethodCollection.find(filter).toArray();
+    const result = await paymentMethodCollection.find(filter).project({lastTime: 0, expires_in: 0, id_token: 0, refresh_token: 0}).toArray();
     res.send(result);
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const bkashCreatePayment = async (req, res) => {
+  try {
+    const { email, amount } = req.body || {};
+    const token = req.token;
+    const pendingCount = await transactionCollection.countDocuments({
+      email,
+      status: "pending",
+    });
+    if (pendingCount) {
+      await transactionCollection.deleteOne({
+        email: email,
+        status: "pending",
+      });
+    }
+    const paymentMethod = await paymentMethodCollection.findOne({
+      type: "auto",
+    });
+    if (!paymentMethod) {
+      return res.send({ message: "Payment method not found" });
+    }
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.send({ message: "User not found" });
+    }
+    const { bonus, fee } = paymentMethod || {};
+    const toPay = Math.ceil(amount + (amount * fee) / 100);
+    const invNumber=require("crypto").randomUUID().split('-')[4];
+    const { data } = await axiosBkash.post(
+      "/tokenized/checkout/create",
+      {
+        mode: "0011",
+        payerReference: "abc",
+        callbackURL: process.env.BKASH_CALLBACK_URL,
+        amount: toPay,
+        currency: "BDT",
+        intent: "sale",
+        merchantInvoiceNumber: invNumber,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: token,
+          "X-App-Key": process.env.BKASH_APP_KEY,
+        },
+      }
+    );
+    // console.log("api data", data);
+    const transaction = {
+      method: "Bkash Payment",
+      amount: parseInt(amount),
+      bonus,
+      fee,
+      toPay,
+      willAdd: parseFloat((amount + (amount * bonus) / 100).toFixed(2)),
+      number: "",
+      email,
+      previousBalance: parseFloat(user.balance.toFixed(2)),
+      attempt: 0,
+      trxID: "",
+      time: new Date(),
+      paymentID: data?.paymentID,
+      status: "pending",
+    };
+    const trxInsertResult = await transactionCollection.insertOne(transaction);
+    if(trxInsertResult.insertedId){
+      res.redirect(data.bkashURL);
+    } else {
+      res.send({message: "Failed to create transaction"});
+    }
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const bkashCallback = async (req, res) => {
+  try {
+    const { paymentID, status } = req.query || {};
+    const token = req.token || "";
+    if (status === "cancel" || status === "failure") {
+      return res.redirect("")
+    }
+    if (status === "success") {
+      const { data } = await axiosBkash.post(
+        "/tokenized/checkout/execute",
+        { paymentID },
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: token,
+            "X-App-Key": process.env.BKASH_APP_KEY,
+          },
+        }
+      );
+      // console.log(data);
+      if (
+        data?.transactionStatus === "Completed" &&
+        data?.statusMessage === "Successful"
+      ) {
+        const transaction=await transactionCollection.findOne({paymentID: paymentID, status: "pending"});
+        const updateTrx={trxID: data?.trxID,status: "completed"};
+        const updateUser={balance: parseFloat(transaction?.previousBalance + transaction?.willAdd)}
+        const trxUpdateResult=await transactionCollection.updateOne({paymentID: paymentID},{$set: updateTrx});
+        const userUpdateResult=await userCollection.updateOne({email: transaction.email},{$set: updateUser});
+        if(trxUpdateResult.modifiedCount && userUpdateResult.modifiedCount){
+          res.send({message: "successfully added"});
+        } else {
+          res.send({message: "Failed to update transaction or user balance"});
+        }
+      }
+    }
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -23,6 +144,7 @@ const addMethod = async (req, res) => {
   try {
     const { provider, category, bonus, fee, number, status } = req.body;
     const newMethod = {
+      type: "manual",
       provider,
       category,
       bonus: parseFloat(bonus),
@@ -140,6 +262,8 @@ const adjustBalance = async (req, res) => {
 module.exports = {
   getMethods,
   addMethod,
+  bkashCreatePayment,
+  bkashCallback,
   updateMethod,
   deleteMethod,
   methodSummary,

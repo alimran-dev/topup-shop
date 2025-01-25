@@ -1,7 +1,7 @@
 import { TbCurrencyTaka } from "react-icons/tb";
 import PropTypes from "prop-types";
 
-const OfferOption = ({ option, selected, setSelected }) => {
+const OptionCard = ({ option, selected, setSelected }) => {
   const { _id, name, price, description, inStock } = option || {};
 
   return (
@@ -39,8 +39,8 @@ const OfferOption = ({ option, selected, setSelected }) => {
   );
 };
 
-export default OfferOption;
-OfferOption.propTypes = {
+export default OptionCard;
+OptionCard.propTypes = {
   selected: PropTypes.object.isRequired,
   setSelected: PropTypes.func.isRequired,
   option: PropTypes.object.isRequired,

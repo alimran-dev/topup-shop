@@ -10,11 +10,16 @@ const {
   methodSummary,
   methodReset,
   adjustBalance,
+  bkashCreatePayment,
+  bkashCallback,
 } = require("../controllers/paymentMethod.controller");
+const { bkashToken } = require("../middlewares/bkashToken");
 
 const paymentMethodRoute = () => {
   // /payment/
   router.get("/methods", verifyToken, getMethods);
+  router.get("/bkash/callback", bkashToken, bkashCallback);
+  router.post("/bkash/create",verifyToken, bkashToken, bkashCreatePayment);
 
   // admin
   router.post("/method/admin/add", verifyAdmin, addMethod);
