@@ -15,10 +15,10 @@ const Method = () => {
   }, [location.state, navigate]);
   useEffect(() => {
     axiosPrivate.get("/payment/methods").then((data) => {
-      console.log(data.data);
       setMethods(data.data);
     });
   }, [axiosPrivate]);
+  
   return (
     <div>
       <h2 className="text-center text-3xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-1.5">

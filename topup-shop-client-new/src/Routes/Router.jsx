@@ -51,6 +51,7 @@ import Options from "../AdminDashboard/Options/Options";
 import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/UpdateSubCategory";
 import Coins from "../pages/Coins/Coins";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
+import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
 
 
 const router = createBrowserRouter([
@@ -152,6 +153,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <Pay />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/payment/confirmation",
+        element: (
+          <PrivateRoute>
+            <Confirmation />
           </PrivateRoute>
         ),
       },
