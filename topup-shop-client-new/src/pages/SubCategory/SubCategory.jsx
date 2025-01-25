@@ -105,9 +105,9 @@ const SubCategory = () => {
                     <Link
                         to={allData?.tutorialURL}
                         target="_blank"
-                        className="clr-text font-semibold flex items-center justify-center gap-1 capitalize"
+                        className="text-blue-700 font-semibold flex items-center justify-center gap-1 capitalize"
                     >
-                        {allData?.tutorialText} <MdArrowOutward className="" />{" "}
+                        {allData?.tutorialText} <MdArrowOutward />
                     </Link>
                 </div>
 
@@ -116,7 +116,7 @@ const SubCategory = () => {
                         <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
                         Option
                     </h1>
-                    <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+                    <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 px-3 md:px-5 py-5">
                         {options?.map((option, idx) => (
                             <OptionCard key={idx} idx={idx + 1} option={option} selected={selected} setSelected={setSelected} />
                         ))}
@@ -176,7 +176,7 @@ const SubCategory = () => {
                                         আপনার ব্যালেন্সঃ{" "}
                                         <span className="flex items-center font-semibold text-red-600">
                                             <TbCurrencyTaka />
-                                            {user?.balance}
+                                            {(user?.balance)?.toFixed(2)}
                                         </span>
                                     </p>
                                 </>
@@ -196,11 +196,11 @@ const SubCategory = () => {
                                         আপনার অবশিষ্ট ব্যালেন্সঃ{" "}
                                         <span className="flex items-center font-semibold text-red-600">
                                             <TbCurrencyTaka />
-                                            {user?.balance - price}
+                                            {(user?.balance - price)?.toFixed(2)}
                                         </span>
                                     </p>
                                 </>
-                            )}                           
+                            )}
                             {user ? (
                                 <div className="space-y-3">
 

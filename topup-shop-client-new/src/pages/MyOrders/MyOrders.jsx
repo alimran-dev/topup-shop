@@ -7,6 +7,7 @@ import Loader from "../../components/Loader";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import InfinityLoader from "../../components/InfinityLoader";
+import { allCategories } from "../../utils/categories";
 
 
 const MyOrders = () => {
@@ -17,6 +18,7 @@ const MyOrders = () => {
   const { user, loading } = useAuth();
   const limit = 5;
   const page = Math.ceil(orders.length / limit + 1);
+  const categories = allCategories();
 
   const getOrders = () => {
     if (!loading) {
@@ -54,6 +56,38 @@ const MyOrders = () => {
           Redeem Code
         </Link>
       </div>
+
+      {/* filter form */}
+      <form className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-5 mt-5">
+        <div>
+          <label className="input-label">Date</label>
+          <input type="date" className="input" />
+        </div>
+        <div>
+          <label className="input-label">Category</label>
+          <select className="input" defaultValue={""}>
+            <option value="" disabled>Choose One</option>
+            {
+              categories?.map((category, idx) => 
+              <option key={idx} value={category?.title}>{category?.title}</option>
+              )
+            }
+          </select>
+        </div>
+        <div>
+          <label className="input-label">Sub-Category</label>
+          <select className="input" defaultValue={""}>
+            <option value="" disabled>Choose One</option>
+            {
+              categories?.map((category, idx) => 
+              <option key={idx} value={category?.title}>{category?.title}</option>
+              )
+            }
+          </select>
+        </div>
+      </form>
+
+      {/* orders */}
       <div className="my-8">
         <InfiniteScroll
           dataLength={orders.length}

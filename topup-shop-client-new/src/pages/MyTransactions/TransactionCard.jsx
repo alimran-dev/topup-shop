@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const TransactionCard = ({ transaction }) => {
   const navigate = useNavigate();
-  const { _id, method, toPay, willAdd, fee, number, trxID, time, status } =
+  const { _id, method, toPay, willAdd, previousBalance, fee, number, trxID, time, status } =
     transaction || {};
   const date = new Date(time);
   const handleContinue = () => {
@@ -34,31 +34,33 @@ const TransactionCard = ({ transaction }) => {
           {trxID}
         </p>
         <p className="h-14 flex items-center justify-center w-full border text-sm text-center">
-          {transaction?.previousBalance}
+        ৳{transaction?.previousBalance}
         </p>
         <p className="h-14 flex items-center justify-center w-full border text-sm text-center">
-          {willAdd}
+        ৳{willAdd}
         </p>
         <p
-          className={`h-14 flex items-center justify-center w-full border text-sm text-center font-semibold capitalize ${
-            status === "pending"
-              ? "text-yellow-500"
-              : status === "completed"
+          className={`h-14 flex items-center justify-center w-full border text-sm text-center font-semibold capitalize ${status === "pending"
+            ? "text-yellow-500"
+            : status === "completed"
               ? "text-green-800"
               : ""
-          }`}
+            }`}
         >
           {status}
         </p>
         <div className="h-14 flex items-center justify-center w-full border">
-          <button
-            onClick={handleContinue}
-            className={`text-sm text-center bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-2.5 py-1 rounded text-white font-medium mx-auto block ${
-              status !== "pending" ? "hidden" : ""
-            }`}
-          >
-            Continue
-          </button>
+          {
+            method == "Bkash Payment" ?
+              <></> :
+              <button
+                onClick={handleContinue}
+                className={`bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-2.5 py-1 rounded text-white font-medium mx-auto block mt-1.5 ${status !== "pending" ? "hidden" : ""
+                  }`}
+              >
+                Continue
+              </button>
+          }
         </div>
       </div>
       <div className="md:hidden border border-gray-400 rounded-md p-3 my-4">
@@ -75,30 +77,36 @@ const TransactionCard = ({ transaction }) => {
         </p>
         <p>
           <span className="font-semibold">Amount: </span>
-          {willAdd}
+          ৳{willAdd}
+        </p>
+        <p>
+          <span className="font-semibold">Previous Balance: </span>
+          ৳{previousBalance}
         </p>
         <p>
           <span className="font-semibold">Status: </span>{" "}
           <span
-            className={`font-bold capitalize ${
-              status === "pending"
-                ? "text-yellow-500"
-                : status === "completed"
+            className={`font-bold capitalize ${status === "pending"
+              ? "text-yellow-500"
+              : status === "completed"
                 ? "text-green-800"
                 : ""
-            }`}
+              }`}
           >
             {status}
           </span>
         </p>
-        <button
-          onClick={handleContinue}
-          className={`bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-2.5 py-1 rounded text-white font-medium mx-auto block mt-1.5 ${
-            status !== "pending" ? "hidden" : ""
-          }`}
-        >
-          Continue
-        </button>
+        {
+          method == "Bkash Payment" ?
+            <></> :
+            <button
+              onClick={handleContinue}
+              className={`bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-2.5 py-1 rounded text-white font-medium mx-auto block mt-1.5 ${status !== "pending" ? "hidden" : ""
+                }`}
+            >
+              Continue
+            </button>
+        }
       </div>
     </>
   );

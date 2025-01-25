@@ -69,7 +69,9 @@ const OrderHistory = ({ order }) => {
                 {orderID}
               </h3>
               <p className="opacity-90 normal-case">Category: {category}</p>
-              <p className="opacity-90 normal-case">Price: ৳{price}</p>
+              <p className="opacity-90 normal-case flex items-center">
+                Price: <TbCurrencyTaka className="mt-[1px]" />{price}
+              </p>
             </div>
             <div className="flex flex-col justify-between">
               <span

@@ -88,7 +88,7 @@ const Unipin = () => {
           <Link
             to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
             target="_blank"
-            className="clr-text font-semibold flex items-center justify-center gap-1"
+            className="text-blue-700 font-semibold flex items-center justify-center gap-1"
           >
             কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
           </Link>
@@ -98,7 +98,7 @@ const Unipin = () => {
             <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
             Category
           </h1>
-          <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+          <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
               <CategoryOption
                 option={option}
@@ -155,7 +155,7 @@ const Unipin = () => {
                     আপনার ব্যালেন্সঃ{" "}
                     <span className="flex items-center font-semibold text-red-600">
                       <TbCurrencyTaka />
-                      {user?.balance}
+                      {(user?.balance)?.toFixed(2)}
                     </span>
                   </p>
                 </>
@@ -175,7 +175,7 @@ const Unipin = () => {
                     আপনার অবশিষ্ট ব্যালেন্সঃ{" "}
                     <span className="flex items-center font-semibold text-red-600">
                       <TbCurrencyTaka />
-                      {user?.balance - price}
+                      {(user?.balance - price)?.toFixed(2)}
                     </span>
                   </p>
                 </>

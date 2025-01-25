@@ -38,6 +38,7 @@ const MyTransactions = () => {
     getTrx();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -45,7 +46,7 @@ const MyTransactions = () => {
         My Transactions
       </h2>
       <div>
-        {transactions.length > 0 && (
+        {transactions?.length > 0 && (
           <div className="hidden md:flex justify-around items-center mt-3">
             <p className="border w-full text-center py-1.5 font-semibold border-gray-400 rounded-tl-md">
               Method

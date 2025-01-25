@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { TbCurrencyTaka } from 'react-icons/tb';
 
 
 const OptionCard = ({ idx, option, selected, setSelected }) => {
@@ -15,13 +16,13 @@ const OptionCard = ({ idx, option, selected, setSelected }) => {
     return (
         <div
             onClick={handleSelect}
-            className={`text-xs md:text-sm flex items-center gap-3 px-1 py-2 md:px-3 rounded relative ${selected?.idx === idx
-                ? "border-2 border-[#FA6023]"
+            className={`text-[12px] md:text-sm flex items-center gap-1 md:gap-3 px-1 py-2 md:px-3 rounded relative ${selected?.idx === idx
+                ? "border-2 border-primary"
                 : "border-2 border-gray-400"
                 } ${stock === 0 || stock === false ? "cursor-not-allowed" : "cursor-pointer"
                 }`}
         >
-            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 rounded bg-[#FA6023] text-white w-max text-xs md:text-sm">
+            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 rounded bg-[#FA6023] text-white w-max text-[10px] md:text-sm">
                 {stock === 0 && "Stock Out"}
             </span>
 
@@ -30,7 +31,10 @@ const OptionCard = ({ idx, option, selected, setSelected }) => {
                     }`}
             ></span>
             <span className="font-bold flex-1 text-gray-500">{name}</span>
-            <span className="text-[#FA6023] font-bold">{price} TK</span>
+            <span className="text-[#FA6023] font-bold flex justify-end items-center">
+                    <TbCurrencyTaka className="text-xs translate-x-[2px] mt-[1px]" />
+                    {price}
+                  </span>
         </div>
     );
 };

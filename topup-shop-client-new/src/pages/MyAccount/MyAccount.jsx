@@ -92,6 +92,7 @@ const MyAccount = () => {
         });
     }
   };
+
   const handleChangePass = (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -131,9 +132,11 @@ const MyAccount = () => {
         });
     }
   };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   return (
     <div>
       <Loader isLoading={isLoading} />
@@ -143,7 +146,8 @@ const MyAccount = () => {
           alt=""
           className="w-28 h-28 gradient-border rounded-full bg-slate-400"
         />
-        <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+        <div className={`px-3 py-1 text-xs text-white rounded-full ${user?.isVerified ? 'bg-green-600 ' : 'bg-slate-500 '} `}>{user?.isVerified ? 'Verified' : 'Unverified'}</div>
+        <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 capitalize">
           {user?.name}
         </p>
       </div>
@@ -153,7 +157,7 @@ const MyAccount = () => {
             Balance
           </p>
           <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-          <TbCurrencyTaka className="text-[#FA6023]" />
+            <TbCurrencyTaka className="text-[#FA6023]" />
             {parseFloat(user?.balance).toFixed(2) || 0}
           </p>
         </div>
@@ -162,7 +166,7 @@ const MyAccount = () => {
             Last Month Spent
           </p>
           <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-          <TbCurrencyTaka className="text-[#FA6023]" />
+            <TbCurrencyTaka className="text-[#FA6023]" />
             {user?.spent || 0}
           </p>
         </div>

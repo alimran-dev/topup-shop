@@ -47,14 +47,14 @@ const AddBalance = () => {
           </h2>
           <form
             onSubmit={handleAdd}
-            className="flex flex-col items-center justify-center gap-1.5 py-3"
+            className="flex flex-col items-center justify-center gap-1.5 py-5 px-8 border-2 border-slate-200 rounded-md mt-2 shadow-lg "
           >
-            <p className="text-xl font-medium">Enter the amount</p>
+            <p className="text-xl font-medium">Enter The Amount</p>
             <input
               type="text"
               name="amount"
               placeholder="Amount"
-              className="border-2 border-gray-400 rounded px-2 py-1.5 font-medium w-56 text-center"
+              className="border-2 border-gray-300 rounded px-2 py-1.5 font-medium w-56 text-center"
             />
             {err ? (
               <p className="text-sm md:text-base font-medium text-red-400">
@@ -65,7 +65,7 @@ const AddBalance = () => {
             )}
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded mt-2"
+              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded mt-2"
             >
               Click To Add
             </button>
@@ -76,17 +76,6 @@ const AddBalance = () => {
             >
               কি ভাবে টাকা এড করবেন <MdArrowOutward />
             </Link>
-
-
-            {/* <iframe
-              width="560"
-              height="315"
-              src="https://www.youtube.com/embed/n2vD7oK0pfo"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe> */}
           </form>
         </div>
       </div>
