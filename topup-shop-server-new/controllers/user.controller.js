@@ -1,5 +1,7 @@
 const { cookieOption } = require("../utils/cookieOption");
 const { dbCollections } = require("../config/db");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const userCollection = dbCollections.userCollection;
 const orderCollection = dbCollections.orderCollection;
 const transactionCollection = dbCollections.transactionCollection;
@@ -33,7 +35,9 @@ const userProfile = async (req, res) => {
     const email = req.user.email;
     const filter = { email };
     console.log("user email in cookie: ", email);
-    const result = await userCollection.findOne(filter);
+    const result = await userCollection.findOne(filter, {
+      projection: { password: 0 },
+    });
     if (result?.isBanned) {
       return res
         .cookie("access-token", "", cookieOption(0))
@@ -50,6 +54,38 @@ const userProfile = async (req, res) => {
   }
 };
 
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Invalid request" });
+    }
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.send({ success: false, message: "User not found" });
+    }
+    const isCorrectPassword = await bcrypt.compare(password, user.password);
+    if (!isCorrectPassword) {
+      return res.send({ success: false, message: "Wrong Password" });
+    }
+    user.spent = await countSpentMonth(email);
+    const { password: pass, ...userDataResponse } = user || {};
+    const token = jwt.sign(
+      { email, role: user.role },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "31d",
+      }
+    );
+    res.cookie("access-token", token, cookieOption(1000 * 60 * 60 * 24 * 30));
+    res.send(userDataResponse);
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
 const newUser = async (req, res) => {
   try {
     const user = req.body;
@@ -58,19 +94,32 @@ const newUser = async (req, res) => {
     if (userInDb) {
       return res.send({ userExist: true, newUser: false });
     }
+    const hashPassword = await bcrypt.hash(user.password, 10);
     const newUser = {
       email: user.email,
+      password: hashPassword,
+      isVerified: false,
       name: user.name,
       phone: user.phone,
       photo: user.photo,
       role: "user",
       isBanned: false,
       balance: 0,
+      coins: 0,
       spent: 0,
       orders: 0,
     };
     console.log(newUser);
     const result = await userCollection.insertOne(newUser);
+    if (result.insertedId) {
+      const tokenData = { email: user?.email, role: "user" };
+      const token = jwt.sign(tokenData, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "31d",
+      });
+      const { password, ...userData } = newUser || {};
+      res.cookie("access-token", token, cookieOption(1000 * 60 * 60 * 24 * 30));
+      res.send({ ...result, ...userData });
+    }
     res.send(result);
   } catch (err) {
     console.error("Error: ", err.message);
@@ -127,6 +176,7 @@ const getAllUser = async (req, res) => {
     const totalUsers = await userCollection.countDocuments(filter);
     const result = await userCollection
       .find(filter)
+      .project({ password: 0 })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt)
       .toArray();
@@ -195,6 +245,7 @@ const updateUserBalance = async (req, res) => {
 
 module.exports = {
   userProfile,
+  loginUser,
   newUser,
   updateUser,
   getAllUser,

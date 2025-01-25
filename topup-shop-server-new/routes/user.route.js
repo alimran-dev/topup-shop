@@ -9,11 +9,13 @@ const {
   getAllUser,
   updateUserStatus,
   updateUserBalance,
+  loginUser,
 } = require("../controllers/user.controller");
 
 const userRoute = () => {
   // /user/
   router.get("/profile", verifyToken, userProfile);
+  router.post("/login",loginUser)
   router.post("/new", newUser);
   router.patch("/update", verifyToken, updateUser);
   // admin
