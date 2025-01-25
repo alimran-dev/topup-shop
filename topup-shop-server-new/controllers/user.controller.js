@@ -2,6 +2,7 @@ const { cookieOption } = require("../utils/cookieOption");
 const { dbCollections } = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { transporter } = require("../config/nodemailer");
 const userCollection = dbCollections.userCollection;
 const orderCollection = dbCollections.orderCollection;
 const transactionCollection = dbCollections.transactionCollection;
@@ -36,7 +37,7 @@ const userProfile = async (req, res) => {
     const filter = { email };
     console.log("user email in cookie: ", email);
     const result = await userCollection.findOne(filter, {
-      projection: { password: 0 },
+      projection: { password: 0, reset: 0 },
     });
     if (result?.isBanned) {
       return res
@@ -71,7 +72,7 @@ const loginUser = async (req, res) => {
       return res.send({ success: false, message: "Wrong Password" });
     }
     user.spent = await countSpentMonth(email);
-    const { password: pass, ...userDataResponse } = user || {};
+    const { password: pass, reset, ...userDataResponse } = user || {};
     const token = jwt.sign(
       { email, role: user.role },
       process.env.ACCESS_TOKEN_SECRET,
@@ -119,6 +120,52 @@ const newUser = async (req, res) => {
       const { password, ...userData } = newUser || {};
       res.cookie("access-token", token, cookieOption(1000 * 60 * 60 * 24 * 30));
       res.send({ ...result, ...userData });
+    }
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const forgetPassword = async (req, res) => {
+  try {
+    const {email,otp,newPassword}=req.query || {};
+    const user=await userCollection.findOne({email: email});
+    if(email && !otp && !newPassword){
+      if(user){
+        const time=new Date();
+        const randomNumber=Math.floor(100000 + Math.random() * 900000).toString();
+        console.log("OTP",randomNumber);
+        const genOTP=await bcrypt.hash(randomNumber,10);
+        const resetObj={otp:genOTP,time};
+        const result=await userCollection.updateOne({_id: user._id},{$set: {reset: resetObj}});
+        if(result.modifiedCount){
+          // const mailInfo=await transporter.sendMail({
+          //   from: '"Mezba Shop" <mezbakhan65@gmail.com>',
+          //   to: email,
+          //   subject: "Reset Mezba Shop Password",
+          //   text: `${randomNumber}`
+          // })
+          // console.log(mailInfo);
+          return res.send({success: true, message: "Go for next step"});
+        }
+      } else {
+        return res.send({success: false, message: "User not found"});
+      }
+    } else if(otp && newPassword){
+      const isOtpCorrect=bcrypt.compare(otp.toString(),user?.reset?.otp);
+      const now=new Date().getTime();
+      const prevTime=user?.reset?.time?.getTime();
+      const duration=(now-prevTime)/1000;
+      if(!isOtpCorrect){
+        return res.send({success: false, message: "Incorrect OTP"});
+      }
+      if(duration>300){
+        return res.send({success: false, message: "OTP Expired. Try again."});
+      }
+      const newPasswordHash=await bcrypt.hash(newPassword,10);
+      const result=await userCollection.updateOne({_id: user._id},{$set:{password: newPasswordHash}});
+      res.send({...result,success: true})
     }
   } catch (err) {
     console.error("Error: ", err.message);
@@ -246,6 +293,7 @@ module.exports = {
   userProfile,
   loginUser,
   newUser,
+  forgetPassword,
   updateUser,
   getAllUser,
   updateUserStatus,

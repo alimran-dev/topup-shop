@@ -10,6 +10,7 @@ const {
   updateUserStatus,
   updateUserBalance,
   loginUser,
+  forgetPassword,
 } = require("../controllers/user.controller");
 
 const userRoute = () => {
@@ -17,6 +18,7 @@ const userRoute = () => {
   router.get("/profile", verifyToken, userProfile);
   router.post("/login",loginUser)
   router.post("/new", newUser);
+  router.patch("/forget",forgetPassword)
   router.patch("/update", verifyToken, updateUser);
   // admin
   router.get("/admin/all", verifyAdmin, getAllUser);
