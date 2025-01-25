@@ -129,17 +129,22 @@ const newUser = async (req, res) => {
 
 const forgetPassword = async (req, res) => {
   try {
-    const {email,otp,newPassword}=req.query || {};
-    const user=await userCollection.findOne({email: email});
-    if(email && !otp && !newPassword){
-      if(user){
-        const time=new Date();
-        const randomNumber=Math.floor(100000 + Math.random() * 900000).toString();
-        console.log("OTP",randomNumber);
-        const genOTP=await bcrypt.hash(randomNumber,10);
-        const resetObj={otp:genOTP,time};
-        const result=await userCollection.updateOne({_id: user._id},{$set: {reset: resetObj}});
-        if(result.modifiedCount){
+    const { email, otp, newPassword } = req.query || {};
+    const user = await userCollection.findOne({ email: email });
+    if (email && !otp && !newPassword) {
+      if (user) {
+        const time = new Date();
+        const randomNumber = Math.floor(
+          100000 + Math.random() * 900000
+        ).toString();
+        console.log("OTP", randomNumber);
+        const genOTP = await bcrypt.hash(randomNumber, 10);
+        const resetObj = { otp: genOTP, time };
+        const result = await userCollection.updateOne(
+          { _id: user._id },
+          { $set: { reset: resetObj } }
+        );
+        if (result.modifiedCount) {
           // const mailInfo=await transporter.sendMail({
           //   from: '"Mezba Shop" <mezbakhan65@gmail.com>',
           //   to: email,
@@ -147,25 +152,49 @@ const forgetPassword = async (req, res) => {
           //   text: `${randomNumber}`
           // })
           // console.log(mailInfo);
-          return res.send({success: true, message: "Go for next step"});
+          return res.send({ success: true, message: "Go for next step" });
         }
       } else {
-        return res.send({success: false, message: "User not found"});
+        return res.send({ success: false, message: "User not found" });
       }
-    } else if(otp && newPassword){
-      const isOtpCorrect=bcrypt.compare(otp.toString(),user?.reset?.otp);
-      const now=new Date().getTime();
-      const prevTime=user?.reset?.time?.getTime();
-      const duration=(now-prevTime)/1000;
-      if(!isOtpCorrect){
-        return res.send({success: false, message: "Incorrect OTP"});
+    } else if (email && otp && !newPassword) {
+      const isOtpCorrect = await bcrypt.compare(
+        otp.toString(),
+        user?.reset?.otp
+      );
+      console.log("isotpcorrect", isOtpCorrect);
+      const now = new Date().getTime();
+      const prevTime = user?.reset?.time?.getTime();
+      const duration = (now - prevTime) / 1000;
+      if (!isOtpCorrect) {
+        return res.send({ success: false, message: "Incorrect OTP" });
       }
-      if(duration>300){
-        return res.send({success: false, message: "OTP Expired. Try again."});
+      if (duration > 300) {
+        return res.send({ success: false, message: "OTP Expired. Try again." });
       }
-      const newPasswordHash=await bcrypt.hash(newPassword,10);
-      const result=await userCollection.updateOne({_id: user._id},{$set:{password: newPasswordHash}});
-      res.send({...result,success: true})
+      return res.send({ success: true, message: "Correct OTP" });
+    } else if (email && otp && newPassword) {
+      const isOtpCorrect = await bcrypt.compare(
+        otp.toString(),
+        user?.reset?.otp
+      );
+      const now = new Date().getTime();
+      const prevTime = user?.reset?.time?.getTime();
+      const duration = (now - prevTime) / 1000;
+      if (!isOtpCorrect) {
+        return res.send({ success: false, message: "Incorrect OTP" });
+      }
+      if (duration > 300) {
+        return res.send({ success: false, message: "OTP Expired. Try again." });
+      }
+      const newPasswordHash = await bcrypt.hash(newPassword, 10);
+      const result = await userCollection.updateOne(
+        { _id: user._id },
+        { $set: { password: newPasswordHash } }
+      );
+      res.send({ ...result, success: true });
+    } else{
+      res.send({success: false, message: "Invalid request"});
     }
   } catch (err) {
     console.error("Error: ", err.message);
