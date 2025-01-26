@@ -11,7 +11,7 @@ const navItems = [
   { to: "/addBalance", icon: MdAccountBalance, label: "Add Balance" },
   { to: "/myOrders", icon: IoGridOutline, label: "My Orders" },
   { to: "/myTransactions", icon: TfiMenuAlt, label: "My Transactions" },
-  { to: "/coins", icon: BsCoin, label: "Coins" },
+  { to: "/coinsAndReferral", icon: BsCoin, label: "Coins & Referral" },
 ];
 
 const UserNav = ({ setIsOpen }) => {

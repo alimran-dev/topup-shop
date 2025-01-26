@@ -1,6 +1,6 @@
 
 
-const CoinClaim = () => {
+const DailyCoinClaim = () => {
 
     // coin claim fn
     const handleClaimCoin = () => {
@@ -18,4 +18,4 @@ const CoinClaim = () => {
     );
 };
 
-export default CoinClaim;
+export default DailyCoinClaim;
