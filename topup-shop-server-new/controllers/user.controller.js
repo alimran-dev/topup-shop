@@ -35,7 +35,7 @@ const userProfile = async (req, res) => {
   try {
     const email = req.user.email;
     const filter = { email };
-    console.log("user email in cookie: ", email);
+    // console.log("user email in cookie: ", email);
     const result = await userCollection.findOne(filter, {
       projection: { password: 0, reset: 0 },
     });
@@ -110,7 +110,7 @@ const newUser = async (req, res) => {
       spent: 0,
       orders: 0,
     };
-    console.log(newUser);
+    // console.log(newUser);
     const result = await userCollection.insertOne(newUser);
     if (result.insertedId) {
       const tokenData = { email: user?.email, role: "user" };
@@ -134,10 +134,15 @@ const forgetPassword = async (req, res) => {
     if (email && !otp && !newPassword) {
       if (user) {
         const time = new Date();
+        const resetTimeDB=user.reset?.time?.getTime();
+        const resetTimeDuration=(time.getTime()-resetTimeDB)/1000;
+        if(resetTimeDB && resetTimeDuration<30){
+          return res.send({success: false,message: "Please wait 30 second and try again"});
+        }
         const randomNumber = Math.floor(
           100000 + Math.random() * 900000
         ).toString();
-        console.log("OTP", randomNumber);
+        // console.log("OTP", randomNumber);
         const genOTP = await bcrypt.hash(randomNumber, 10);
         const resetObj = { otp: genOTP, time };
         const result = await userCollection.updateOne(
@@ -145,13 +150,13 @@ const forgetPassword = async (req, res) => {
           { $set: { reset: resetObj } }
         );
         if (result.modifiedCount) {
-          // const mailInfo=await transporter.sendMail({
-          //   from: '"Mezba Shop" <mezbakhan65@gmail.com>',
-          //   to: email,
-          //   subject: "Reset Mezba Shop Password",
-          //   text: `${randomNumber}`
-          // })
-          // console.log(mailInfo);
+          const mailInfo=await transporter.sendMail({
+            from: '"Mezba Shop" <no-reply@mezbashop.com>',
+            to: email,
+            subject: "Reset Mezba Shop Password",
+            text: `${randomNumber}`
+          })
+          console.log(mailInfo);
           return res.send({ success: true, message: "Go for next step" });
         }
       } else {
