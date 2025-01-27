@@ -221,7 +221,7 @@ const forgetPassword = async (req, res) => {
         );
         if (result.modifiedCount) {
           const mailInfo = await transporter.sendMail({
-            from: '"Mezba Shop" <no-reply@mezbashop.com>',
+            from: '"Mezba Shop" <amber2105@e-record.com>',
             to: email,
             subject: "Reset Mezba Shop Password",
             text: `${randomNumber}`,
