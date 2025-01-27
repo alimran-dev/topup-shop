@@ -5,10 +5,14 @@ import { useEffect, useState } from "react";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+
 
 const SignUp = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { user, setUser, googleLogin, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
@@ -199,25 +203,41 @@ const SignUp = () => {
           <label htmlFor="password" className="input-label">
             Password
           </label>
-          <input
-            type="password"
-            name="password"
-            required
-            className="input"
-            placeholder="Password"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              required
+              className="input"
+              placeholder="Password"
+            />
+            <span
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-[14px] cursor-pointer text-xl text-gray-500"
+            >
+              {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+            </span>
+          </div>
         </div>
         <div className="space-y-1">
           <label htmlFor="confirmPass" className="input-label">
             Confirm Password
           </label>
-          <input
-            type="password"
-            name="confirmPass"
-            required
-            className="input"
-            placeholder="Confirm Password"
-          />
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPass"
+              required
+              className="input"
+              placeholder="Confirm Password"
+            />
+            <span
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              className="absolute right-3 top-[14px] cursor-pointer text-xl text-gray-500"
+            >
+              {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+            </span>
+          </div>
         </div>
         {error && (
           <p className="text-lg font-medium text-red-500 text-center mt-2">

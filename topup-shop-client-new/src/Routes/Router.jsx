@@ -52,6 +52,7 @@ import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/Upda
 import CoinAndReferaal from "../pages/CoinAndReferral/CoinAndReferral";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
+import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
 
 
 const router = createBrowserRouter([
@@ -193,6 +194,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <CoinAndReferaal />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/leaderboards",
+        element: (
+          <PrivateRoute>
+            <LeaderBoards />
           </PrivateRoute>
         ),
       },

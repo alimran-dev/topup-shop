@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from 'react-hot-toast';
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 
 const ForgotPassword = () => {
@@ -10,6 +11,8 @@ const ForgotPassword = () => {
     const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const axiosPublic = useAxiosPublic();
@@ -161,25 +164,41 @@ const ForgotPassword = () => {
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
                     <label className="input-label">
                         New Password:
-                        <input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="input mt-1"
-                            placeholder="New password"
-                            required
-                        />
+                        <div className="relative">
+                            <input
+                                type={showNewPassword ? 'text' : 'password'}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="input mt-1"
+                                placeholder="New password"
+                                required
+                            />
+                            <span
+                                onClick={() => setShowNewPassword((prev) => !prev)}
+                                className="absolute right-3 top-5 cursor-pointer text-xl text-gray-500"
+                            >
+                                {showNewPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+                            </span>
+                        </div>
                     </label>
                     <label className="input-label">
                         Confirm Password:
-                        <input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirm password"
-                            className="input mt-1"
-                            required
-                        />
+                        <div className="relative">
+                            <input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Confirm password"
+                                className="input mt-1"
+                                required
+                            />
+                            <span
+                                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                className="absolute right-3 top-5 cursor-pointer text-xl text-gray-500"
+                            >
+                                {showConfirmPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+                            </span>
+                        </div>
                     </label>
                     <button
                         type="submit"
