@@ -10,6 +10,8 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import axios from "axios";
 import Loader from "../../components/Loader";
 import Swal from "sweetalert2";
+import verifiedIcon from '../../assets/images/verified-icon.png';
+import VerifyUser from "./VerifyUser/VerifyUser";
 
 const imgApi = import.meta.env.VITE_IMGAPI;
 const MyAccount = () => {
@@ -141,12 +143,18 @@ const MyAccount = () => {
     <div>
       <Loader isLoading={isLoading} />
       <div className="w-fit mx-auto space-y-2 flex flex-col items-center justify-center">
-        <img
-          src={user?.photo || avater}
-          alt=""
-          className="w-28 h-28 gradient-border rounded-full bg-slate-400"
-        />
-        <div className={`px-3 py-1 text-xs text-white rounded-full ${user?.isVerified ? 'bg-green-600 ' : 'bg-slate-500 '} `}>{user?.isVerified ? 'Verified' : 'Unverified'}</div>
+        <div className="relative">
+          <img
+            src={user?.photo || avater}
+            alt=""
+            className="w-28 h-28 gradient-border rounded-full bg-slate-400"
+          />
+          <img src={verifiedIcon} className={`${user?.isVerified ? '' : 'hidden'} w-8 absolute top-2 -right-1`} alt="" />
+        </div>
+        <div className="flex justify-center items-center gap-1">
+          <p className={`px-3 py-1 text-xs text-white rounded-full ${user?.isVerified ? 'bg-green-600 ' : 'bg-slate-500 '} `}>{user?.isVerified ? 'Verified' : 'Unverified'}</p>
+          <VerifyUser user={user} />
+        </div>
         <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 capitalize">
           {user?.name}
         </p>

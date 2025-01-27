@@ -3,16 +3,17 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import Loader from "../../components/Loader";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user, setUser, googleLogin, setLoading } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const { user, setUser, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
-  const axiosPublic = useAxiosPublic();
   const location = useLocation();
 
   // user login fn
@@ -67,56 +68,8 @@ const Login = () => {
   // for google login
   const handleGoogle = () => {
     setError("");
-    setIsLoading(true);
-    googleLogin()
-      .then((result) => {
-        const { email, displayName, phoneNumber, photoURL } = result.user;
-        const user = {
-          email: email,
-          name: displayName,
-          phone: phoneNumber,
-          photo: photoURL,
-        };
-
-        axiosPublic.post("/user/new", user).then((res) => {
-          console.log(res.data);
-          axiosPrivate
-            .post("/auth/jwt", { email })
-            .then((res) => {
-              console.log(res.data);
-              axiosPrivate
-                .get("/user/profile")
-                .then((res) => {
-                  const currentUser = res.data;
-                  currentUser.balance = parseFloat(
-                    currentUser.balance.toFixed(2)
-                  );
-                  setUser(currentUser);
-                  setIsLoading(false);
-                })
-                .catch((err) => {
-                  setIsLoading(false);
-                  console.error(err);
-                  setError(
-                    err.response?.data?.error || "Authentication Failed"
-                  );
-                });
-              // console.log(res.data);
-            })
-            .catch((err) => {
-              console.error(err);
-              setIsLoading(false);
-              setError("Authentication failed");
-            });
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Authentication failed.");
-        setIsLoading(false);
-      });
+    window.open(`${import.meta.env.VITE_SERVER_DOMAIN}/user/google/login`, '_self');
   };
-
 
   useEffect(() => {
     if (user) {
@@ -164,13 +117,21 @@ const Login = () => {
           <label htmlFor="password" className="input-label">
             Password
           </label>
-          <input
-            type="password"
-            name="password"
-            required
-            className="input"
-            placeholder="Password"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              required
+              className="input pr-10"
+              placeholder="Password"
+            />
+            <span
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-[14px] cursor-pointer text-xl text-gray-500"
+            >
+              {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+            </span>
+          </div>
         </div>
         {error && (
           <p className="text-lg font-medium text-red-500 text-center mt-2">
