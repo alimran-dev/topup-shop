@@ -91,11 +91,11 @@ const googleCallback = async (req, res) => {
             cookieOption(1000 * 60 * 60 * 24 * 30)
           );
           return res.redirect(
-            `${process.env.FRONTEND_DOMAIN}/login?success=true&message=new user created successfully`
+            `${process.env.FRONTEND_DOMAIN}/login?success=true`
           );
         }
         return res.redirect(
-          `${process.env.FRONTEND_DOMAIN}/login?success=false&message=Failed to create new user`
+          `${process.env.FRONTEND_DOMAIN}/login?success=false`
         );
       } else {
         const token = jwt.sign(
@@ -111,7 +111,7 @@ const googleCallback = async (req, res) => {
           cookieOption(1000 * 60 * 60 * 24 * 30)
         );
         return res.redirect(
-          `${process.env.FRONTEND_DOMAIN}/login?success=true&message=user logged in successfully`
+          `${process.env.FRONTEND_DOMAIN}/login?success=true`
         );
       }
     }

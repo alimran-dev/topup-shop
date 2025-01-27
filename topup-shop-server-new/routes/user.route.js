@@ -26,7 +26,7 @@ const userRoute = () => {
     "/google/callback",
     passport.authenticate("google", {
       session: false,
-      failureRedirect: `${process.env.FRONTEND_DOMAIN}/login?success=false&message=Failed to authenticate user`,
+      failureRedirect: `${process.env.FRONTEND_DOMAIN}/login?success=false`,
     }),
     googleCallback
   );
