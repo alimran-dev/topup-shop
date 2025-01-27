@@ -1,22 +1,63 @@
 import PropTypes from "prop-types";
-import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useState } from "react";
+// import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+// import toast from 'react-hot-toast';
 
 
 const VerifyUser = ({ user }) => {
 
-    const axiosPrivate = useAxiosPrivate();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    // const axiosPrivate = useAxiosPrivate();
 
     const handleSendOtp = async() => {
 
-        try{
-            const res = await axiosPrivate.post('/', {email: user?.email});
-            console.log(res.data);
-            document.getElementById('verify_user').showModal();
-        }
-        catch(err){
-            // toast.error("Something Went Wrong!");
-        }
-    }
+        document.getElementById('verify_user').showModal();
+
+        // try{
+        //     const res = await axiosPrivate.post('/', {email: user?.email});
+        //     console.log(res.data);
+        //     if(res.data.acknowledge){
+        //         document.getElementById('verify_user').showModal();
+        //     }
+        //     else{
+        //         toast.error("Something Went Wrong!");
+        //     }
+        // }
+        // catch(err){
+        //     toast.error("Something Went Wrong!");
+        // }
+    };
+
+
+    // check otp fn
+    const handleCheckOtp = async(e) => {
+
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+
+        // document.getElementById('verify_user').close();
+
+        // try{
+        //     const res = await axiosPrivate.post('/', {email: user?.email});
+        //     console.log(res.data);
+        //     if(res.data.acknowledge){
+        //         setLoading(false);
+        //         document.getElementById('verify_user').close();
+        //         toast.success("Verified Successfully!");
+        //     }
+        //     else{
+        //         setLoading(false);
+        //         setError("Invalid OTP");
+        //     }
+        // }
+        // catch(err){
+        //     setLoading(false);
+        //     setError("Something Went Wrong!");
+        // }
+    };
+
 
     return (
         <div>
@@ -29,9 +70,12 @@ const VerifyUser = ({ user }) => {
                     </form>
                     <h3 className="font-bold text-lg">Verify Account</h3>
                     <p className="py-4">An OTP sent to your email</p>
-                    <form>
-                        <input type="number" className="input" placeholder="Type OTP here" />
-                        <button className="block mx-auto button mt-4">Submit</button>
+                    <form onSubmit={handleCheckOtp}>
+                        <input type="number" name="otp" className="input" placeholder="Type OTP here" />
+                        {error && <p className="text-red-600 font-semibold py-2 text-center">{error}</p>}
+                        <button className="block mx-auto button mt-4" disabled={loading}>
+                            {loading ? "Please Wait" : "Submit"}
+                        </button>
                     </form>
                 </div>
             </dialog>
