@@ -54,7 +54,7 @@ const bkashCreatePayment = async (req, res) => {
       {
         mode: "0011",
         payerReference: "abc",
-        callbackURL: process.env.BKASH_CALLBACK_URL,
+        callbackURL: `${process.env.SERVER_DOMAIN}/payment/bkash/callback`,
         amount: toPay,
         currency: "BDT",
         intent: "sale",

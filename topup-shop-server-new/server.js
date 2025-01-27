@@ -3,8 +3,10 @@ const app = express();
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const passport = require("passport");
 const port = process.env.PORT || 5000;
-const { connectToDB, dbCollections } = require("./config/db");
+const { connectToDB } = require("./config/db");
+require("./middlewares/passport");
 
 // middlewares
 app.use(express.json());
@@ -20,6 +22,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(passport.initialize());
 
 const run = () => {
   app.get("/", (req, res) => {

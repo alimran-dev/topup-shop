@@ -6,6 +6,7 @@ const { transporter } = require("../config/nodemailer");
 const userCollection = dbCollections.userCollection;
 const orderCollection = dbCollections.orderCollection;
 const transactionCollection = dbCollections.transactionCollection;
+require("dotenv").config();
 
 const countSpentMonth = async (email) => {
   const now = new Date();
@@ -55,6 +56,71 @@ const userProfile = async (req, res) => {
   }
 };
 
+const googleCallback = async (req, res) => {
+  try {
+    const user = req.user;
+    if (user?.email) {
+      const userInDb = await userCollection.findOne({ email: user.email });
+      if (!userInDb) {
+        const newUser = {
+          email: user.email,
+          password: "loginWithGoogle",
+          isVerified: true,
+          name: user.name,
+          phone: "",
+          photo: user.photo,
+          role: "user",
+          isBanned: false,
+          balance: 0,
+          coins: 0,
+          spent: 0,
+          orders: 0,
+        };
+        const insertNewUser = await userCollection.insertOne(newUser);
+        if (insertNewUser.insertedId) {
+          const token = jwt.sign(
+            { email: user.email, role: newUser.role },
+            process.env.ACCESS_TOKEN_SECRET,
+            {
+              expiresIn: "31d",
+            }
+          );
+          res.cookie(
+            "access-token",
+            token,
+            cookieOption(1000 * 60 * 60 * 24 * 30)
+          );
+          return res.redirect(
+            `${process.env.FRONTEND_DOMAIN}/login?success=true&message=new user created successfully`
+          );
+        }
+        return res.redirect(
+          `${process.env.FRONTEND_DOMAIN}/login?success=false&message=Failed to create new user`
+        );
+      } else {
+        const token = jwt.sign(
+          { email: userInDb.email, role: userInDb.role },
+          process.env.ACCESS_TOKEN_SECRET,
+          {
+            expiresIn: "31d",
+          }
+        );
+        res.cookie(
+          "access-token",
+          token,
+          cookieOption(1000 * 60 * 60 * 24 * 30)
+        );
+        return res.redirect(
+          `${process.env.FRONTEND_DOMAIN}/login?success=true&message=user logged in successfully`
+        );
+      }
+    }
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -87,6 +153,7 @@ const loginUser = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
 const newUser = async (req, res) => {
   try {
     const user = req.body;
@@ -134,10 +201,13 @@ const forgetPassword = async (req, res) => {
     if (email && !otp && !newPassword) {
       if (user) {
         const time = new Date();
-        const resetTimeDB=user.reset?.time?.getTime();
-        const resetTimeDuration=(time.getTime()-resetTimeDB)/1000;
-        if(resetTimeDB && resetTimeDuration<30){
-          return res.send({success: false,message: "Please wait 30 second and try again"});
+        const resetTimeDB = user.reset?.time?.getTime();
+        const resetTimeDuration = (time.getTime() - resetTimeDB) / 1000;
+        if (resetTimeDB && resetTimeDuration < 30) {
+          return res.send({
+            success: false,
+            message: "Please wait 30 second and try again",
+          });
         }
         const randomNumber = Math.floor(
           100000 + Math.random() * 900000
@@ -150,12 +220,12 @@ const forgetPassword = async (req, res) => {
           { $set: { reset: resetObj } }
         );
         if (result.modifiedCount) {
-          const mailInfo=await transporter.sendMail({
+          const mailInfo = await transporter.sendMail({
             from: '"Mezba Shop" <no-reply@mezbashop.com>',
             to: email,
             subject: "Reset Mezba Shop Password",
-            text: `${randomNumber}`
-          })
+            text: `${randomNumber}`,
+          });
           console.log(mailInfo);
           return res.send({ success: true, message: "Go for next step" });
         }
@@ -198,8 +268,8 @@ const forgetPassword = async (req, res) => {
         { $set: { password: newPasswordHash } }
       );
       res.send({ ...result, success: true });
-    } else{
-      res.send({success: false, message: "Invalid request"});
+    } else {
+      res.send({ success: false, message: "Invalid request" });
     }
   } catch (err) {
     console.error("Error: ", err.message);
@@ -325,6 +395,7 @@ const updateUserBalance = async (req, res) => {
 
 module.exports = {
   userProfile,
+  googleCallback,
   loginUser,
   newUser,
   forgetPassword,

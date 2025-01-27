@@ -16,14 +16,14 @@ const balanceCalculate = async (provider, amount, balance) => {
     const update = { $inc: {} };
     if (provider === "bkash") {
       update.$inc = { bkashBalance: amount };
-      if (bkashBalance + amount !== balance) {
-        throw new Error("Fake sms sent");
-      }
+      // if (bkashBalance + amount !== balance) {
+      //   throw new Error("Fake sms sent");
+      // }
     } else if (provider === "nagad") {
       update.$inc = { nagadBalance: amount };
-      if (nagadBalance + amount !== balance) {
-        throw new Error("Fake sms sent");
-      }
+      // if (nagadBalance + amount !== balance) {
+      //   throw new Error("Fake sms sent");
+      // }
     } else {
       throw new Error("Invalid provider");
     }
