@@ -38,7 +38,7 @@ const userProfile = async (req, res) => {
     const filter = { email };
     // console.log("user email in cookie: ", email);
     const result = await userCollection.findOne(filter, {
-      projection: { password: 0, reset: 0 },
+      projection: { password: 0, reset: 0, verify: 0 },
     });
     if (result?.isBanned) {
       return res
@@ -117,7 +117,7 @@ const googleCallback = async (req, res) => {
     }
   } catch (err) {
     console.error("Error: ", err.message);
-    res.status(500).send({ success: false, error: "Internal Server Error" });
+    res.redirect(`${process.env.FRONTEND_DOMAIN}/login?success=false`);
   }
 };
 
@@ -138,7 +138,7 @@ const loginUser = async (req, res) => {
       return res.send({ success: false, message: "Wrong Password" });
     }
     user.spent = await countSpentMonth(email);
-    const { password: pass, reset, ...userDataResponse } = user || {};
+    const { password: pass, reset, verify, ...userDataResponse } = user || {};
     const token = jwt.sign(
       { email, role: user.role },
       process.env.ACCESS_TOKEN_SECRET,
@@ -221,13 +221,13 @@ const forgetPassword = async (req, res) => {
         );
         if (result.modifiedCount) {
           const mailInfo = await transporter.sendMail({
-            from: '"Mezba Shop" <amber2105@e-record.com>',
+            from: '"Mezba Shop" <no-reply@mezbashop.com>',
             to: email,
             subject: "Reset Mezba Shop Password",
             text: `${randomNumber}`,
           });
-          console.log(mailInfo);
-          return res.send({ success: true, message: "Go for next step" });
+          // console.log(mailInfo);
+          return res.send({ success: true, message: "OTP sent" });
         }
       } else {
         return res.send({ success: false, message: "User not found" });
@@ -276,6 +276,37 @@ const forgetPassword = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
+const changePassword=async(req,res)=>{
+  try{
+    const user=req.user || {};
+    const {email, oldPassword, newPassword}=req.body || {};
+    // console.log(user, email);
+    if(user?.email!==email){
+      return res.send({success: false, message: "Unauthorized User"});
+    }
+    const userInDb=await userCollection.findOne({email: email});
+    if(!userInDb){
+      return res.send({success: false, message: "User not found"});
+    }
+    const isCorrectPassword=await bcrypt.compare(oldPassword?.toString(),userInDb?.password);
+    if(!isCorrectPassword){
+      return res.send({success: false, message: "Incorrect Old password"});
+    }
+    if(newPassword?.toString().length<6){
+      return res.send({success: false, message: "Password must be at least 6 digit"});
+    }
+    const newPasswordHash=await bcrypt.hash(newPassword.toString(),10);
+    const result=await userCollection.updateOne({_id: userInDb._id},{$set: {password: newPasswordHash}});
+    if(result.modifiedCount){
+      return res.send({success: true, message: "Password changed successfully"});
+    }
+    res.send({success: false, message: "Something went wrong"});
+  }catch(err){
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+}
 
 const updateUser = async (req, res) => {
   try {
@@ -336,6 +367,65 @@ const getAllUser = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
+const verifyUser=async(req,res)=>{
+  try{
+    const user=req.user || {};
+    const {email,otp}=req.body || {};
+    if(user?.email!==email){
+      return res.send({success: false, message: "Unauthorized user"});
+    }
+    const userInDb=await userCollection.findOne({email: email});
+    if(!userInDb){
+      return res.send({success: false, message: "User not found"});
+    }
+    const now=new Date().getTime();
+    const lastOTPsent=userInDb?.verify?.time;
+    const lastOTPsentDuration=(now-lastOTPsent?.getTime())/1000;
+    if(lastOTPsent && ((now-lastOTPsentDuration<=30))){
+      return res.send({success: false, message: "Please wait 30 seconds"});
+    }
+    if(email && !otp){
+      const randomNumber = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
+      // console.log("OTP", randomNumber);
+      const genOTP = await bcrypt.hash(randomNumber, 10);
+      const verifyObj = { otp: genOTP, time: new Date()};
+      const result=await userCollection.updateOne({_id: userInDb._id},{$set: {verify: verifyObj}});
+      if(result.modifiedCount){
+        const mailInfo = await transporter.sendMail({
+          from: '"Mezba Shop" <no-reply@mezbashop.com>',
+          to: email,
+          subject: "Verify Mezba Shop Account",
+          text: `${randomNumber}`,
+        });
+        // console.log(mailInfo);
+        return res.send({success: true, message: "OTP sent successfull"});
+      }
+    }
+    if(email && otp){
+      const isOtpCorrect=await bcrypt.compare(otp?.toString(),userInDb?.verify?.otp);
+      if(!isOtpCorrect){
+        return res.send({success: false, message: "Incorrect OTP"});
+      }
+      const now=new Date();
+      const lastOTPsent=userInDb?.verify?.time;
+      const duration=(now.getTime()-lastOTPsent?.getTime())/1000;
+      if(lastOTPsent && duration>300){
+        return res.send({success: false, message: "OTP Expired. Try again."});
+      }
+      const result=await userCollection.updateOne({_id: userInDb._id}, {$set: {isVerified: true}});
+      if(result.modifiedCount){
+        return res.send({success: true, message: "User email verified"});
+      }
+    }
+    res.send({success: false, message: "Something went wrong"});
+  }catch(err){
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+}
 
 const updateUserStatus = async (req, res) => {
   try {
@@ -399,8 +489,10 @@ module.exports = {
   loginUser,
   newUser,
   forgetPassword,
+  changePassword,
   updateUser,
   getAllUser,
+  verifyUser,
   updateUserStatus,
   updateUserBalance,
 };

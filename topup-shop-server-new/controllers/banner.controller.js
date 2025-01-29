@@ -12,7 +12,6 @@ const getBanners = async (req, res) => {
     const result = await bannerCollection
       .find(filter)
       .sort({ sequence: 1 })
-      .project({ sequence: 0 })
       .toArray();
     res.send(result);
   } catch (err) {

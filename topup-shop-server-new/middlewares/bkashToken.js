@@ -5,6 +5,7 @@ const { axiosBkash } = require("../utils/axiosBkash");
 
 const generateToken = async () => {
   try {
+    // console.log(process.env.BKASH_PASSWORD,process.env.BKASH_USERNAME);
     const { data } = await axiosBkash.post(
       "/tokenized/checkout/token/grant",
       {

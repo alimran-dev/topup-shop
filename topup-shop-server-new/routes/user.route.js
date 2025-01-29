@@ -13,6 +13,8 @@ const {
   loginUser,
   forgetPassword,
   googleCallback,
+  verifyUser,
+  changePassword,
 } = require("../controllers/user.controller");
 
 const userRoute = () => {
@@ -33,6 +35,8 @@ const userRoute = () => {
   router.post("/login", loginUser);
   router.post("/new", newUser);
   router.patch("/forget", forgetPassword);
+  router.patch("/verify", verifyToken, verifyUser);
+  router.patch("/change/password", verifyToken, changePassword);
   router.patch("/update", verifyToken, updateUser);
   // admin
   router.get("/admin/all", verifyAdmin, getAllUser);

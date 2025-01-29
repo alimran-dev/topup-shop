@@ -12,7 +12,6 @@ const getContacts = async (req, res) => {
     const result = await followUsCollection
       .find(filter)
       .sort({ sequence: 1 })
-      .project({ sequence: 0 })
       .toArray();
     res.send(result);
   } catch (err) {
