@@ -11,6 +11,7 @@ const RedeemCode = () => {
             redeemCode: e.target.redeemCode.value,
             limit: e.target.limit.value,
             value: e.target.value.value,
+            type: e.target.type.value,
         }
 
         console.log('redeem added values:', values);
@@ -21,7 +22,7 @@ const RedeemCode = () => {
         <div className="flex flex-col items-center">
             <h2 className="title">Redeem Code</h2>
             <form onSubmit={handleAddRedeemCode}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                         <label className="input-label">Redeem Code</label>
                         <input type="text" name="redeemCode" className="input" placeholder="Type redeem code" required />
@@ -33,6 +34,14 @@ const RedeemCode = () => {
                     <div>
                         <label className="input-label">Value</label>
                         <input type="number" name="value" className="input" placeholder="Type value" required />
+                    </div>
+                    <div>
+                        <label className="input-label">Type</label>
+                        <select name="type" className="input" defaultValue={""} required>
+                            <option value="" disabled>Choose One</option>
+                            <option value="balance">Balance</option>
+                            <option value="coin">Coin</option>
+                        </select>
                     </div>
                 </div>
                 <button type="submit" className="button block mx-auto bg-gradient mt-5">Add</button>

@@ -4,7 +4,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import PropTypes from "prop-types";
 
 
-const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions }) => {
+const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }) => {
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
 
@@ -40,14 +40,14 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions }) => {
                 toast.error("Something Went Wrong!");
                 setLoading(false);
             }
-            document.getElementById(`my_modal_${idx}`).close();
+            document.getElementById(`update_option_${idx}`).close();
         });
     };
 
 
     return (
         <div>
-            <dialog id={`my_modal_${idx}`} className="modal">
+            <dialog id={screen == 'mobile' ? `update_option_mobile_${idx}` : `update_option_desktop_${idx}`} className="modal">
                 <div className="modal-box bg-white text-black">
                     <form method="dialog">
                         {/* if there is a button in form, it will close the modal */}
@@ -131,6 +131,7 @@ UpdateOption.propTypes = {
     }),
     selectedSubCategoryId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     setOptions: PropTypes.func,
+    screen: PropTypes.string,
 };
 
 export default UpdateOption;

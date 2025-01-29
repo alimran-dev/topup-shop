@@ -68,7 +68,7 @@ const OrderHistory = ({ order }) => {
                 <p className="font-bold flex items-center"><FaHashtag /> Order ID: </p>
                 {orderID}
               </h3>
-              <p className="opacity-90 normal-case">Category: {category}</p>
+              <p className="opacity-90 normal-case">Package: {name}</p>
               <p className="opacity-90 normal-case flex items-center">
                 Price: <TbCurrencyTaka className="mt-[1px]" />{price}
               </p>
