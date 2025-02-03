@@ -118,7 +118,7 @@ const bkashCallback = async (req, res) => {
           timeout: 5000,
         }
       );
-      // console.log(data);
+      console.log("status--",status, "execute payment--", data);
       if (
         data?.transactionStatus === "Completed" &&
         data?.statusMessage === "Successful"
@@ -135,6 +135,7 @@ const bkashCallback = async (req, res) => {
         }
       }
     }
+    console.log("status--", status);
     return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=failure`)
   } catch (err) {
     console.error("Error: ", err.message);
