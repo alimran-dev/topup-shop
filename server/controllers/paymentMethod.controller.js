@@ -53,7 +53,7 @@ const bkashCreatePayment = async (req, res) => {
       "/tokenized/checkout/create",
       {
         mode: "0011",
-        payerReference: "abc",
+        payerReference: `${email}`,
         callbackURL: `${process.env.SERVER_DOMAIN}/payment/bkash/callback`,
         amount: toPay,
         currency: "BDT",
