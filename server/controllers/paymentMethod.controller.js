@@ -115,6 +115,7 @@ const bkashCallback = async (req, res) => {
             Authorization: token,
             "X-App-Key": process.env.BKASH_APP_KEY,
           },
+          timeout: 5000,
         }
       );
       // console.log(data);
@@ -128,12 +129,13 @@ const bkashCallback = async (req, res) => {
         const trxUpdateResult=await transactionCollection.updateOne({paymentID: paymentID},{$set: updateTrx});
         const userUpdateResult=await userCollection.updateOne({email: transaction.email},{$set: updateUser});
         if(trxUpdateResult.modifiedCount && userUpdateResult.modifiedCount){
-          res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`)
+          return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`)
         } else {
-          res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`);
+          return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`);
         }
       }
     }
+    return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=failure`)
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
