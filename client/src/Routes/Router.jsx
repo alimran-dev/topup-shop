@@ -1,0 +1,279 @@
+import { createBrowserRouter } from "react-router-dom";
+import Root from "../layouts/Root";
+import Home from "../pages/Home/Home";
+import TopUp from "../pages/TopUp/TopUp";
+import ContactUs from "../pages/ContactUs/ContactUs";
+import MyAccount from "../pages/MyAccount/MyAccount";
+import AddBalance from "../pages/AddBalance/AddBalance";
+import MyOrders from "../pages/MyOrders/MyOrders";
+import MyTransactions from "../pages/MyTransactions/MyTransactions";
+import Unipin from "../pages/Unipin/Unipin";
+import Shell from "../pages/Shell/Shell";
+import Dashboard from "../AdminDashboard/Dashboard";
+import AddCodes from "../AdminDashboard/AddCodes/AddCodes";
+import UpdateOptions from "../AdminDashboard/Update/UpdateOptions";
+import Orders from "../AdminDashboard/Orders/Orders";
+import Users from "../AdminDashboard/Users/Users";
+import UpdateItems from "../AdminDashboard/Update/UpdateItems";
+import UpdateDelete from "../AdminDashboard/Update/UpdateDelete";
+import Login from "../pages/Login/Login";
+import SignUp from "../pages/SignUp/SignUp";
+import AdminRoute from "./AdminRoute";
+import PrivateRoute from "./PrivateRoute";
+import ErrorPage from "../pages/ErrorPage/ErrorPage";
+import Method from "../pages/AddBalance/Method/Method";
+import Pay from "../pages/AddBalance/Pay/Pay";
+import Payments from "../AdminDashboard/Payments/Payments";
+import Transactions from "../AdminDashboard/Transactions/Transactions";
+import Notice from "../AdminDashboard/Notice/Notice";
+import Devices from "../AdminDashboard/Devices/Devices";
+import BlockTrx from "../AdminDashboard/BlockTrx/BlockTrx";
+import RechargeCard from "../pages/RechargeCard/RechargeCard";
+import AddAdvertisement from "../pages/AddAdvertisement/AddAdvertisement";
+import ConfirmPurchase from "../pages/ConfirmPurchase/ConfirmPurchase";
+import RedeemCode from "../AdminDashboard/RedeemCode/RedeemCode";
+import ArchivedUnipins from "../AdminDashboard/ArchivedUnipins/ArchivedUnipins";
+import AddSubCategory from "../AdminDashboard/Services/AddSubCategory/AddSubCategory";
+import Services from "../AdminDashboard/Services/Services";
+import SubCategory from "../pages/SubCategory/SubCategory";
+import Banner from "../AdminDashboard/Banner/Banner";
+import FollowUs from "../AdminDashboard/FollowUs/FollowUs";
+import AddOption from "../AdminDashboard/Options/AddOption/AddOption";
+import Options from "../AdminDashboard/Options/Options";
+import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/UpdateSubCategory";
+import CoinAndReferaal from "../pages/CoinAndReferral/CoinAndReferral";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
+import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
+import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
+
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Root />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/topup",
+        element: <TopUp />,
+      },
+      {
+        path: "/unipin",
+        element: <Unipin />,
+      },
+      {
+        path: "/subCategory/:id",
+        element: <SubCategory />,
+      },
+      {
+        path: "/shell",
+        element: <Shell />,
+      },
+      {
+        path: "/cards/:next",
+        element: <RechargeCard />,
+      },
+      {
+        path: "/contact",
+        element: <ContactUs />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/signup",
+        element: <SignUp />,
+      },
+      {
+        path: "/forgotPassword",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "/myAccount",
+        element: (
+          <PrivateRoute>
+            <MyAccount />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/addBalance",
+        element: (
+          <PrivateRoute>
+            <AddBalance />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/addBalance/method",
+        element: (
+          <PrivateRoute>
+            <Method />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/addBalance/pay",
+        element: (
+          <PrivateRoute>
+            <Pay />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/payment/confirmation",
+        element: (
+          <PrivateRoute>
+            <Confirmation />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/confirmPurchase",
+        element: (
+          <PrivateRoute>
+            <ConfirmPurchase />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/myOrders",
+        element: (
+          <PrivateRoute>
+            <MyOrders />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/myTransactions",
+        element: (
+          <PrivateRoute>
+            <MyTransactions />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/coinsAndReferral",
+        element: (
+          <PrivateRoute>
+            <CoinAndReferaal />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/leaderboards",
+        element: (
+          <PrivateRoute>
+            <LeaderBoards />
+          </PrivateRoute>
+        ),
+      },
+    ],
+  },
+  {
+    path: "/dashboard",
+    element: (
+      <AdminRoute>
+        <Root />
+      </AdminRoute>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "/dashboard/services",
+        element: <Services />,
+      },
+      {
+        path: "/dashboard/banner",
+        element: <Banner />,
+      },
+      {
+        path: "/dashboard/addSubCategory",
+        element: <AddSubCategory />,
+      },
+      {
+        path: "/dashboard/updateSubCategory/:id",
+        element: <UpdateSubCategory />,
+      },
+      {
+        path: "/dashboard/addCodes",
+        element: <AddCodes />,
+      },
+      {
+        path: "/dashboard/redeemCode",
+        element: <RedeemCode />,
+      },
+      {
+        path: "/dashboard/archivedUnipins",
+        element: <ArchivedUnipins />,
+      },
+      {
+        path: "/dashboard/options",
+        element: <Options />,
+      },
+      {
+        path: "/dashboard/addOption",
+        element: <AddOption />,
+      },
+      {
+        path: "/dashboard/updateOptions",
+        element: <UpdateOptions />,
+      },
+      {
+        path: "/dashboard/updateOptions/:category",
+        element: <UpdateItems />,
+      },
+      {
+        path: "/dashboard/updateOptions/:category/:id",
+        element: <UpdateDelete />,
+      },
+      {
+        path: "/dashboard/orders",
+        element: <Orders />,
+      },
+      {
+        path: "/dashboard/users",
+        element: <Users />,
+      },
+      {
+        path: "/dashboard/payments",
+        element: <Payments />,
+      },
+      {
+        path: "/dashboard/transactions",
+        element: <Transactions />,
+      },
+      {
+        path: "/dashboard/notice",
+        element: <Notice />,
+      },
+      {
+        path: "/dashboard/followUs",
+        element: <FollowUs />,
+      },
+      {
+        path: "/dashboard/devices",
+        element: <Devices />,
+      },
+      {
+        path: "/dashboard/blockedTrx",
+        element: <BlockTrx />,
+      },
+      {
+        path: "/dashboard/addAdvertisement",
+        element: <AddAdvertisement />,
+      },
+    ],
+  },
+]);
+
+export default router;
