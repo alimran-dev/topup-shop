@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../middlewares/verifyToken");
 const { verifyAdmin } = require("../middlewares/verifyAdmin");
-const { getAllOrder, orderAuto, orderManual, getAllOrderAdmin, getPending, orderProcess, orderDynamic } = require("../controllers/order.controller");
+const { getAllOrder, orderAuto, orderManual, getAllOrderAdmin, getPending, orderProcess, orderDynamic, getLastOrder } = require("../controllers/order.controller");
 
 const orderRoute = () => {
     // /order/
     router.get("/all", verifyToken, getAllOrder);
+    router.get("/last",getLastOrder);
     router.post("/new/auto/:category", verifyToken, orderAuto);
     router.post("/new/manual/:category", verifyToken, orderManual);
     router.post("/new/dynamic",verifyToken,orderDynamic);

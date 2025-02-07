@@ -5,10 +5,6 @@ const orderCollection = dbCollections.orderCollection;
 const unipinCollection = dbCollections.unipinCollection;
 const shellCollection = dbCollections.shellCollection;
 const userCollection = dbCollections.userCollection;
-const idcodeCollection = dbCollections.idcodeCollection;
-const weeklyMonthlyCollection = dbCollections.weeklyMonthlyCollection;
-const airdropCollection = dbCollections.airdropCollection;
-const lessIsMoreCollection = dbCollections.lessIsMoreCollection;
 const rechargeCollection = dbCollections.rechargeCollection;
 const serviceCollection = dbCollections.serviceCollection;
 
@@ -31,6 +27,48 @@ const getAllOrder = async (req, res) => {
       .limit(limitInt)
       .toArray();
     res.send({ orders: result, total: totalOrders });
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const getLastOrder = async (req, res) => {
+  try {
+    const orders = await orderCollection
+      .aggregate([
+        { $sort: { _id: -1 } },
+        { $limit: 10 },
+        {
+          $lookup: {
+            from: "users",
+            localField: "email",
+            foreignField: "email",
+            as: "userDetails",
+          },
+        },
+        {
+          $unwind: "$userDetails",
+        },
+        {
+          $project: {
+            package: "$name",
+            price: 1,
+            "userDetails.name": 1,
+            "userDetails.photo": 1,
+          },
+        },
+        {
+          $project: {
+            package: 1,
+            price: 1,
+            name: "$userDetails.name",
+            photo: "$userDetails.photo",
+          },
+        },
+      ])
+      .toArray();
+    res.send(orders);
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -150,15 +188,7 @@ const orderManual = async (req, res) => {
     }
     const filter = { _id: new ObjectId(id) };
     let option;
-    if (category === "idcode") {
-      option = await idcodeCollection.findOne(filter);
-    } else if (category === "weekly") {
-      option = await weeklyMonthlyCollection.findOne(filter);
-    } else if (category === "airdrop") {
-      option = await airdropCollection.findOne(filter);
-    } else if (category === "lessIsMore") {
-      option = await lessIsMoreCollection.findOne(filter);
-    } else if (category === "offer") {
+    if (category === "offer") {
       option = await rechargeCollection.findOne(filter);
     }
     if (!option) {
@@ -222,8 +252,8 @@ const orderDynamic = async (req, res) => {
     if (!service) {
       return res.send({ success: false, message: "Service not found" });
     }
-    if(Object.keys(info).length!==service.inputs.length){
-      return res.send({success: false, message: "Invalid order"});
+    if (Object.keys(info).length !== service.inputs.length) {
+      return res.send({ success: false, message: "Invalid order" });
     }
     const option = service.options[parseInt(index)];
     if (!option || option.name !== name || option.price !== parseInt(price)) {
@@ -265,11 +295,17 @@ const orderDynamic = async (req, res) => {
       };
       console.log(order);
       service.options[parseInt(index)].stock--;
-      await serviceCollection.updateOne({_id: new ObjectId(id)},{$set: {options: service.options}})
-      const result=await orderCollection.insertOne(order);
-      res.send({...result,success: true, price: option.price});
+      await serviceCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { options: service.options } }
+      );
+      const result = await orderCollection.insertOne(order);
+      res.send({ ...result, success: true, price: option.price });
     } else {
-      return res.send({success: false, message: "Failed to update user balance"});
+      return res.send({
+        success: false,
+        message: "Failed to update user balance",
+      });
     }
   } catch (err) {
     console.error("Error: ", err.message);
@@ -349,6 +385,7 @@ const orderProcess = async (req, res) => {
 
 module.exports = {
   getAllOrder,
+  getLastOrder,
   orderAuto,
   orderManual,
   orderDynamic,
