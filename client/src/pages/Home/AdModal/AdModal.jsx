@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import Loader from "../../../components/Loader";
-
 /* eslint-disable react/prop-types */
+
 const AdModal = ({ modalRef, setIsModalOpen, imageUrl, linkTo }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
-      <div ref={modalRef} className="bg-white p-5 rounded-lg relative">
+      <div ref={modalRef} className="w-[700px] bg-white p-5 rounded-lg relative">
         {imageUrl ? (
           <Link to={linkTo} target="_blank">
             <img
@@ -15,7 +14,7 @@ const AdModal = ({ modalRef, setIsModalOpen, imageUrl, linkTo }) => {
             />
           </Link>
         ) : (
-          <Loader isLoading={!imageUrl} />
+          <div className="skeleton w-full h-full bg-white"></div>
         )}
         <button
           className="absolute top-2 right-2 text-black bg-gray-200 rounded-full px-2 py-1"

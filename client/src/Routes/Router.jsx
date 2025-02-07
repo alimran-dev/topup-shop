@@ -45,6 +45,8 @@ import CoinAndReferaal from "../pages/CoinAndReferral/CoinAndReferral";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
 import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
+import Referral from "../AdminDashboard/Referral/Referral";
+import History from "../AdminDashboard/Referral/History/History";
 
 
 const router = createBrowserRouter([
@@ -239,6 +241,14 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/orders",
         element: <Orders />,
+      },
+      {
+        path: "/dashboard/referral",
+        element: <Referral />,
+      },
+      {
+        path: "/dashboard/referral/history",
+        element: <History />,
       },
       {
         path: "/dashboard/users",

@@ -1,32 +1,31 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
-// import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-// import toast from 'react-hot-toast';
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import toast from 'react-hot-toast';
 
 
 const VerifyUser = ({ user }) => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    // const axiosPrivate = useAxiosPrivate();
+    const axiosPrivate = useAxiosPrivate();
 
     const handleSendOtp = async() => {
 
         document.getElementById('verify_user').showModal();
 
-        // try{
-        //     const res = await axiosPrivate.post('/', {email: user?.email});
-        //     console.log(res.data);
-        //     if(res.data.acknowledge){
-        //         document.getElementById('verify_user').showModal();
-        //     }
-        //     else{
-        //         toast.error("Something Went Wrong!");
-        //     }
-        // }
-        // catch(err){
-        //     toast.error("Something Went Wrong!");
-        // }
+        try{
+            const res = await axiosPrivate.patch('/user/verify', {email: user?.email});
+            if(res.data.success){
+                document.getElementById('verify_user').showModal();
+            }
+            else{
+                toast.error("Something Went Wrong!");
+            }
+        }
+        catch(err){
+            toast.error("Something Went Wrong!");
+        }
     };
 
 
@@ -37,25 +36,28 @@ const VerifyUser = ({ user }) => {
         setLoading(true);
         setError("");
 
-        // document.getElementById('verify_user').close();
+        const payload = {
+            email: user?.email,
+            otp: e.target.otp.value,
+        };
 
-        // try{
-        //     const res = await axiosPrivate.post('/', {email: user?.email});
-        //     console.log(res.data);
-        //     if(res.data.acknowledge){
-        //         setLoading(false);
-        //         document.getElementById('verify_user').close();
-        //         toast.success("Verified Successfully!");
-        //     }
-        //     else{
-        //         setLoading(false);
-        //         setError("Invalid OTP");
-        //     }
-        // }
-        // catch(err){
-        //     setLoading(false);
-        //     setError("Something Went Wrong!");
-        // }
+        try{
+            const res = await axiosPrivate.patch('/user/verify', payload);
+            if(res.data.success){
+                setLoading(false);
+                document.getElementById('verify_user').close();
+                toast.success("Verified Successfully!");
+                window.location.reload();
+            }
+            else{
+                setLoading(false);
+                setError("Invalid OTP");
+            }
+        }
+        catch(err){
+            setLoading(false);
+            setError("Something Went Wrong!");
+        }
     };
 
 

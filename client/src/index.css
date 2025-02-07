@@ -15,6 +15,9 @@ textarea:focus,
 select:focus {
     @apply !outline-primary;
 }
+input[type="date"]:disabled {
+    @apply bg-slate-50 cursor-not-allowed w-full px-4 py-2 border-2 border-slate-300 rounded-md;
+}
 
 /* remove number-input's default arrow */
 /* For Chrome, Safari, Edge, and Opera */

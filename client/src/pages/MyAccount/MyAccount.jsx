@@ -12,6 +12,7 @@ import Loader from "../../components/Loader";
 import Swal from "sweetalert2";
 import verifiedIcon from '../../assets/images/verified-icon.png';
 import VerifyUser from "./VerifyUser/VerifyUser";
+import toast from "react-hot-toast";
 
 const imgApi = import.meta.env.VITE_IMGAPI;
 const MyAccount = () => {
@@ -21,7 +22,7 @@ const MyAccount = () => {
   const [updateUserError, setUpdateUserError] = useState("");
   const [changePassError, setChangePassError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, setUser, loginUser, updatePass } = useAuth();
+  const { user, setUser } = useAuth();
   const axiosPrivate = useAxiosPrivate();
 
   const handleUpdateUser = (e) => {
@@ -95,7 +96,7 @@ const MyAccount = () => {
     }
   };
 
-  const handleChangePass = (e) => {
+  const handleChangePass = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setChangePassError("");
@@ -107,32 +108,35 @@ const MyAccount = () => {
     if (password !== confirmPass) {
       setChangePassError("Password and confirm password must be the same");
       setIsLoading(false);
-    } else {
-      loginUser(user?.email, oldPass)
-        .then((result) => {
-          if (result.user) {
-            updatePass(password)
-              .then(() => {
-                Swal.fire({
-                  title: "Password change successful",
-                  timer: 1500,
-                  icon: "success",
-                  showConfirmButton: false,
-                });
-                setIsLoading(false);
-                form.reset();
-              })
-              .catch(() => {
-                setIsLoading(false);
-                setChangePassError("Something Wrong try again later");
-              });
-          }
-        })
-        .catch(() => {
-          setIsLoading(false);
-          setChangePassError("Wrong Password");
-        });
+      return;
     }
+
+    const payload = {
+      email: user?.email,
+      oldPassword: oldPass,
+      newPassword: password,
+    };
+
+    try {
+      const res = await axiosPrivate.patch('/user/change/password', payload);
+
+      if (res.data.success) {
+        toast.success(res.data.message || "Changed Successfully!");
+        setIsLoading(false);
+        setChangePassError("");
+        e.target.reset();
+        window.scrollTo(0, 0);
+      }
+      else {
+        setIsLoading(false);
+        setChangePassError(res.data.message || "Something Went Wrong!");
+      }
+    }
+    catch (err) {
+      setIsLoading(false);
+      setChangePassError("Something Went Wrong!");
+    }
+
   };
 
   useEffect(() => {
@@ -297,6 +301,7 @@ const MyAccount = () => {
                     name="oldPass"
                     className="block border border-gray-500 px-3 py-2 rounded-l-md w-full h-full font-medium"
                     placeholder="Your Old Password"
+                    required
                   />
                   <div
                     onClick={() => setEye(!eye)}
@@ -323,6 +328,7 @@ const MyAccount = () => {
                     name="password"
                     className="block border border-gray-500 px-3 py-2 rounded-l-md w-full h-full font-medium"
                     placeholder="Your New Password"
+                    required
                   />
                   <div
                     onClick={() => setEye2(!eye2)}
@@ -349,6 +355,7 @@ const MyAccount = () => {
                     name="confirmPass"
                     className="block border border-gray-500 px-3 py-2 rounded-l-md w-full h-full font-medium"
                     placeholder="Confirm New Password"
+                    required
                   />
                   <div
                     onClick={() => setEye3(!eye3)}

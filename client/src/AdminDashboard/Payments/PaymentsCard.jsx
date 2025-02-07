@@ -1,10 +1,13 @@
 import PropTypes from "prop-types";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Swal from "sweetalert2";
+import bkashLogo from '../../assets/images/bkash.png';
+
 
 const PaymentsCard = ({ method, methods, setMethods }) => {
   const axiosPrivate = useAxiosPrivate();
-  const { _id, provider, category, bonus, fee, number, status } = method || {};
+  const { _id, provider, category, bonus, fee, number, status, type } = method || {};
+
   const handleUpdateMethod = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -68,18 +71,23 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
               <label htmlFor="provider" className="font-semibold mr-2">
                 Provider:{" "}
               </label>
-              <select
-                name="provider"
-                id=""
-                className="px-3 py-1 rounded"
-                defaultValue={provider}
-                disabled
-              >
-                <option value="bkash">Bkash</option>
-                <option value="nagad">Nagad</option>
-              </select>
+              {
+                type == "auto" ?
+                  <img src={bkashLogo} className="w-20 object-contain inline" alt="bkash logo" />
+                  :
+                  <select
+                    name="provider"
+                    id=""
+                    className="px-3 py-1 rounded"
+                    defaultValue={provider}
+                    disabled
+                  >
+                    <option value="bkash">Bkash</option>
+                    <option value="nagad">Nagad</option>
+                  </select>
+              }
             </div>
-            <div>
+            <div className={`${type == "auto" && "hidden"}`}>
               <label htmlFor="category" className="font-semibold mr-2">
                 Type:{" "}
               </label>
@@ -138,19 +146,21 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                 required
               />
             </div>
-            <div>
-              <label htmlFor="number" className="font-semibold mr-2">
-                Number:{" "}
-              </label>
-              <input
-                defaultValue={number}
-                name="number"
-                type="text"
-                className="border px-3 py-1 rounded w-full md:w-fit"
-                placeholder="Phone Number"
-                required
-              />
-            </div>
+            {type != "auto" &&
+              <div>
+                <label htmlFor="number" className="font-semibold mr-2">
+                  Number:{" "}
+                </label>
+                <input
+                  defaultValue={number}
+                  name="number"
+                  type="text"
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="Phone Number"
+                  required
+                />
+              </div>
+            }
             <div>
               <label htmlFor="status" className="font-semibold mr-2">
                 Status:{" "}
@@ -175,12 +185,14 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
           >
             Update
           </button>
-          <button
-            onClick={handleDeleteMethod}
-            className="px-5 py-1 text-lg font-semibold bg-red-500 text-white rounded"
-          >
-            Delete
-          </button>
+          {type != "auto" &&
+            <button
+              onClick={handleDeleteMethod}
+              className="px-5 py-1 text-lg font-semibold bg-red-500 text-white rounded"
+            >
+              Delete
+            </button>
+          }
         </div>
       </form>
     </div>
