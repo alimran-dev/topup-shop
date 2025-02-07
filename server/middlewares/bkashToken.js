@@ -28,11 +28,15 @@ const generateToken = async () => {
       refresh_token: data?.refresh_token,
     };
     if (data?.statusMessage === "Successful") {
-      await paymentMethodCollection.updateOne(
+      const result = await paymentMethodCollection.updateOne(
         { type: "auto" },
         { $set: newData }
       );
-      return data?.id_token;
+      if(result.modifiedCount>0){
+        return data?.id_token;
+      } else {
+        return null;
+      }
     } else {
       return null;
     }

@@ -56,7 +56,7 @@ const bkashCreatePayment = async (req, res) => {
       "/tokenized/checkout/create",
       {
         mode: "0011",
-        payerReference: "abc",
+        payerReference: `${email}`,
         callbackURL: `${process.env.SERVER_DOMAIN}/payment/bkash/callback`,
         amount: toPay,
         currency: "BDT",
@@ -120,9 +120,10 @@ const bkashCallback = async (req, res) => {
             Authorization: token,
             "X-App-Key": process.env.BKASH_APP_KEY,
           },
+          timeout: 5000,
         }
       );
-      // console.log(data);
+      console.log("status--",status, "execute payment--", data);
       if (
         data?.transactionStatus === "Completed" &&
         data?.statusMessage === "Successful"
@@ -156,6 +157,8 @@ const bkashCallback = async (req, res) => {
         }
       }
     }
+    console.log("status--", status);
+    return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=failure`)
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
