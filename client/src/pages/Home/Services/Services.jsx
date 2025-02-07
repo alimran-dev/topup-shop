@@ -8,7 +8,6 @@ import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const Services = () => {
 
-  const [allData, setAllData] = useState([]);
   const [ffData, setFfData] = useState([]);
   const [telegramData, setTelegramData] = useState([]);
   const [likeFollowData, setLikeFollowData] = useState([]);
@@ -18,7 +17,6 @@ const Services = () => {
 
   useEffect(() => {
     axiosPublic.get("/services").then((res) => {
-      setAllData(res?.data);
       const ffallData = res?.data?.filter(data => data?.category == 'FF Topup & Unipin');
       const telegramAllData = res?.data?.filter(data => data?.category == 'Telegram Packages');
       const likeFollowAllData = res?.data?.filter(data => data?.category == 'Like - Follow - Subscribe');
@@ -30,7 +28,7 @@ const Services = () => {
       setSubsscriptionData(subscriptionallData);
       setOthersData(othersAllData);
     });
-  }, [axiosPublic, allData]);
+  }, [axiosPublic]);
 
 
   return (
