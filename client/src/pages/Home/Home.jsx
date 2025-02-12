@@ -6,6 +6,7 @@ import Services from "./Services/Services";
 import AdModal from "./AdModal/AdModal";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import DailyCoinClaim from "./DailyCoinClaim/DailyCoinClaim";
+import LastOrders from "./LastOrders/LastOrders";
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,6 +74,7 @@ const Home = () => {
       <Notice />
       <Banner />
       <Services />
+      <LastOrders />
       <FollowUs />
     </div>
   );

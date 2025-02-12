@@ -14,18 +14,33 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
     const bonus = parseFloat(form.bonus.value);
     const specialBonus = parseFloat(form.specialBonus.value);
     const fee = parseFloat(form.fee.value);
-    const number = form.number.value;
     const status = form.status.value;
-    const method = { bonus, fee, number, specialBonus, status };
+
+    const method = { bonus, fee, special_bonus: specialBonus, status };
+    if (type !== "auto") {
+      method.number = form.number.value;
+    }
+    
 
     axiosPrivate
       .patch(`/payment/method/admin/update?id=${_id}`, method)
       .then((res) => {
+        
         if (res.data.modifiedCount > 0) {
           Swal.fire({
             toast: true,
-            title: "Updated successfully",
+            title: "Updated successfully!",
             icon: "success",
+            position: "top",
+            showConfirmButton: false,
+            timer: 3000,
+          });
+        }
+        else{
+          Swal.fire({
+            toast: true,
+            title: "Failed To Update!",
+            icon: "error",
             position: "top",
             showConfirmButton: false,
             timer: 3000,
