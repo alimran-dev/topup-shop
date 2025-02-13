@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "react-copy-to-clipboard": "^5.1.0",
-    "react-quill": "^2.0.0"
-  },
-  "devDependencies": {
-    "daisyui": "^4.12.23"
-  }
-}

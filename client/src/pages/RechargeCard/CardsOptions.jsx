@@ -14,7 +14,7 @@ import { IoInformationCircleOutline } from "react-icons/io5";
 import useAuth from "../../hooks/useAuth";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import OfferOption from "../SpecialOffer/OfferOption";
+import OptionCard from "./OptionCard";
 
 const CardsOptions = () => {
   const [selected, setSelected] = useState({ _id: "", price: 0 });
@@ -108,7 +108,7 @@ const CardsOptions = () => {
           </h1>
           <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
-              <OfferOption
+              <OptionCard
                 option={option}
                 selected={selected}
                 setSelected={setSelected}

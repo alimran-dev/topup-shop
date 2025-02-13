@@ -48,7 +48,6 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
         }
       });
   };
-
   const handleDeleteMethod = () => {
     Swal.fire({
       title: `Delete ${number}`,
@@ -76,8 +75,6 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
       }
     });
   };
-
-
   return (
     <div>
       <form

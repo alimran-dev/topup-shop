@@ -10,7 +10,7 @@ const AdModal = ({ modalRef, setIsModalOpen, imageUrl, linkTo }) => {
             <img
               src={imageUrl}
               alt="Modal Content"
-              className="cursor-pointer rounded-lg mx-auto"
+              className="cursor-pointer rounded-lg"
             />
           </Link>
         ) : (
