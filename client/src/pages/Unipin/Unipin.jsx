@@ -86,7 +86,7 @@ const Unipin = () => {
       <div className="grid md:grid-cols-3 gap-5">
         <div className="border-2 rounded p-3 md:hidden">
           <Link
-            to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
+            to={"https://youtube.com/playlist?list=PLdbvk3gLADUlRm5asrnO4v-NGPm2VLOFG&si=MqRLCbWUk-SpV5ni"}
             target="_blank"
             className="text-blue-700 font-semibold flex items-center justify-center gap-1"
           >
@@ -112,7 +112,7 @@ const Unipin = () => {
         <div>
           <div className="border-2 rounded p-3 mb-3 hidden md:block">
             <Link
-              to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
+              to={"https://youtube.com/playlist?list=PLdbvk3gLADUlRm5asrnO4v-NGPm2VLOFG&si=MqRLCbWUk-SpV5ni"}
               target="_blank"
               className="clr-text font-semibold flex items-center justify-center gap-1"
             >

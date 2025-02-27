@@ -147,11 +147,11 @@ const bkashCallback = async (req, res) => {
           { $set: updateUser }
         );
         if (trxUpdateResult.modifiedCount && userUpdateResult.modifiedCount) {
-          res.redirect(
+          return res.redirect(
             `${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`
           );
         } else {
-          res.redirect(
+          return res.redirect(
             `${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`
           );
         }
@@ -194,14 +194,6 @@ const updateMethod = async (req, res) => {
   try {
     const { id } = req.query;
     const { bonus, special_bonus, fee, number, status } = req.body;
-    if (
-      !id ||
-      !parseFloat(bonus) ||
-      !parseFloat(fee) ||
-      !parseFloat(special_bonus)
-    ) {
-      return res.status(400).send({ message: "Invalid Request" });
-    }
     const updatedMethod = {
       $set: {
         bonus: parseFloat(bonus),

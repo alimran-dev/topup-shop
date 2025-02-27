@@ -98,10 +98,10 @@ const OrderCard = ({ order }) => {
     if (codesRef.current) {
       try {
         const allCodes = codesRef.current.value.split("\n");
-        const firstCode = allCodes[0].substring(5);
-        if (category !== "card") {
-          allCodes[0] = firstCode;
-        }
+        // const firstCode = allCodes[0].substring(5);
+        // if (category !== "card") {
+        //   allCodes[0] = firstCode;
+        // }
         const allCodesMod = allCodes.join("\n");
         await navigator.clipboard.writeText(allCodesMod);
         Swal.fire({

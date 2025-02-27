@@ -13,6 +13,8 @@ import Swal from "sweetalert2";
 import verifiedIcon from '../../assets/images/verified-icon.png';
 import VerifyUser from "./VerifyUser/VerifyUser";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+import { AiFillYoutube } from "react-icons/ai";
 
 const imgApi = import.meta.env.VITE_IMGAPI;
 const MyAccount = () => {
@@ -159,6 +161,7 @@ const MyAccount = () => {
           <p className={`px-3 py-1 text-xs text-white rounded-full ${user?.isVerified ? 'bg-green-600 ' : 'bg-slate-500 '} `}>{user?.isVerified ? 'Verified' : 'Unverified'}</p>
           <VerifyUser user={user} />
         </div>
+        <Link to={'https://youtube.com/playlist?list=PLdbvk3gLADUlo8G5hLwoo5P8c2NFwUqSx&si=5P-_kwcluTh57iE0'} target="_blank" className={`${user?.isVerified?"hidden":"flex"} items-center justify-center gap-1 text-xs text-blue-500 font-semibold`}><AiFillYoutube className="text-red-500 text-xl" /> কিভাবে ভেরিফাই করবেন?</Link>
         <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 capitalize">
           {user?.name}
         </p>

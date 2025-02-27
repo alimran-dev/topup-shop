@@ -224,7 +224,7 @@ const forgetPassword = async (req, res) => {
             from: '"Mezba Shop" <no-reply@mezbashop.com>',
             to: email,
             subject: "Reset Mezba Shop Password",
-            text: `${randomNumber}`,
+            text: `Your OTP to reset the password is: ${randomNumber}. This is valid for 5 minutes.`,
           });
           // console.log(mailInfo);
           return res.send({ success: true, message: "OTP sent" });
@@ -398,7 +398,7 @@ const verifyUser=async(req,res)=>{
           from: '"Mezba Shop" <no-reply@mezbashop.com>',
           to: email,
           subject: "Verify Mezba Shop Account",
-          text: `${randomNumber}`,
+          text: `Your OTP for account verification is: ${randomNumber}. OTP is valid for 5 minutes.`,
         });
         // console.log(mailInfo);
         return res.send({success: true, message: "OTP sent successfull"});
