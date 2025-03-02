@@ -47,7 +47,6 @@ import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
 import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
 import Referral from "../AdminDashboard/Referral/Referral";
 import History from "../AdminDashboard/Referral/History/History";
-import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetails";
 import Store from "../pages/Store/Store";
 
 
@@ -80,14 +79,6 @@ const router = createBrowserRouter([
       {
         path: "/cards/:next",
         element: <RechargeCard />,
-      },
-      {
-        path: "/special-offer",
-        element: <ServerList />,
-      },
-      {
-        path: "/special-offer/:server",
-        element: <ServerOptions />,
       },
       {
         path: "/contact",
