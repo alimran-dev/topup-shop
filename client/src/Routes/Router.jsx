@@ -55,6 +55,8 @@ import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
 import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
 import Referral from "../AdminDashboard/Referral/Referral";
 import History from "../AdminDashboard/Referral/History/History";
+import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetails";
+import Store from "../pages/Store/Store";
 
 
 const router = createBrowserRouter([
@@ -106,6 +108,10 @@ const router = createBrowserRouter([
       {
         path: "/special-offer",
         element: <ServerList />,
+      },
+      {
+        path: "/special-offer-details/:id",
+        element: <SpecialOfferDetails />,
       },
       {
         path: "/special-offer/:server",
@@ -196,6 +202,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <CoinAndReferaal />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/store",
+        element: (
+          <PrivateRoute>
+            <Store />
           </PrivateRoute>
         ),
       },
