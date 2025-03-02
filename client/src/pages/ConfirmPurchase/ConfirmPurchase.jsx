@@ -10,42 +10,88 @@ const ConfirmPurchase = () => {
     const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
     const { user, setUser } = useAuth();
-    const { selected, inputValues, allData } = location.state;
+    const { name, selected, inputValues, orderData } = location.state;
+
 
     const handlePurchase = () => {
 
         setLoading(true);
 
-        const orderData = {
-            id: allData._id,
-            email: user?.email,
-            index: selected.idx - 1,
-            name: selected.name,
-            price: selected.price,
-            info: inputValues,
-        };
+        if (name == "dynamic") {
 
-        axiosPrivate.post("/order/new/dynamic", orderData)
-            .then((res) => {
-                if (res.data.success) {
+            const data = {
+                id: orderData._id,
+                email: user?.email,
+                index: selected.idx - 1,
+                name: selected.name,
+                price: selected.price,
+                info: inputValues,
+            };
+
+            axiosPrivate.post("/order/new/dynamic", data)
+                .then((res) => {
+                    if (res.data.success) {
+                        toast.success("Order Placed Successfully!");
+                        setUser({
+                            ...user,
+                            balance: user?.balance - res.data.price,
+                            orders: user?.orders + 1,
+                            spent: user?.spent + selected.price,
+                        });
+                        setLoading(false);
+                        navigate("/myOrders");
+                    } else {
+                        setLoading(false);
+                        toast.error(res.data.message || "Order Place Failed!");
+                    }
+                })
+                .catch((err) => {
+                    setLoading(false);
+                    toast.error(err.response.data.error || 'Failed to purchase!');
+                });
+        }
+
+        if (name == "unipin") {
+            axiosPrivate
+                .post("/order/new/auto/unipin", orderData)
+                .then((res) => {
+                    // console.log(res.data);
                     toast.success("Order Placed Successfully!");
+                    setLoading(false);
                     setUser({
                         ...user,
-                        balance: user?.balance - res.data.price,
+                        balance: user?.balance - res.data?.price,
                         orders: user?.orders + 1,
-                        spent: user?.spent + selected.price,
+                        spent: user?.spent + selected?.price,
                     });
-                    setLoading(false);
                     navigate("/myOrders");
-                } else {
+                })
+                .catch((err) => {
+                    toast.error(err.response.data.error || 'Failed to purchase!');
                     setLoading(false);
-                    toast.error(res.data.message || "Order Place Failed!");
-                }
-            })
-            .catch((err) => {
-                setLoading(false);
-                toast.error(err.response.data.error || 'Failed to purchase!');
-            });
+                });
+        }
+
+        if (name == "shell") {
+            axiosPrivate
+                .post("/order/new/auto/shell", orderData)
+                .then((res) => {
+                    // console.log(res.data);
+                    toast.success("Order Placed Successfully!");
+                    setLoading(false);
+                    setUser({
+                        ...user,
+                        balance: user?.balance - res.data?.price,
+                        orders: user?.orders + 1,
+                        spent: user?.spent + selected?.price,
+                    });
+                    navigate("/myOrders");
+                })
+                .catch((err) => {
+                    toast.error(err.response.data.error || 'Failed to purchase!');
+                    setLoading(false);
+                });
+        }
     };
 
     useEffect(() => {
@@ -63,18 +109,33 @@ const ConfirmPurchase = () => {
                         <span>:</span>
                         <span>{selected?.name}</span>
                     </p>
+                    {
+                        (name === "unipin" || name === "shell") && (
+                            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                                <span className="w-24 font-semibold normal-case">Quantity</span>
+                                <span>:</span>
+                                <span>{orderData?.quantity}</span>
+                            </p>
+                        )
+                    }
+
                     <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                         <span className="w-24 font-semibold">Price</span>
                         <span>:</span>
                         <span>৳{selected?.price}</span>
                     </p>
-                    {Object.entries(inputValues).map(([key, value]) => (
-                        <p key={key} className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1 capitalize">
-                            <span className="w-24 font-semibold">{key}</span>
-                            <span>:</span>
-                            <span>{value}</span>
-                        </p>
-                    ))}
+                    {
+                        name == "dynamic" &&
+                        <>
+                            {Object?.entries(inputValues)?.map(([key, value]) => (
+                                <p key={key} className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1 capitalize">
+                                    <span className="w-24 font-semibold">{key}</span>
+                                    <span>:</span>
+                                    <span>{value}</span>
+                                </p>
+                            ))}
+                        </>
+                    }
                     <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                         <span className="w-24 font-semibold normal-case">E-mail</span>
                         <span>:</span>

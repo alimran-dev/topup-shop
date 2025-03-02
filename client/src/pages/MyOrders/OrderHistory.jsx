@@ -25,10 +25,10 @@ const OrderHistory = ({ order }) => {
     if (codesRef.current) {
       try {
         const allCodes = codesRef.current.value.split("\n");
-        const firstCode = allCodes[0].substring(5);
-        if (category !== "card") {
-          allCodes[0] = firstCode;
-        }
+        // const firstCode = allCodes[0].substring(5);
+        // if (category !== "card") {
+        //   allCodes[0] = firstCode;
+        // }
         const allCodesMod = allCodes.join("\n");
         await navigator.clipboard.writeText(allCodesMod);
         Swal.fire({
@@ -89,16 +89,44 @@ const OrderHistory = ({ order }) => {
               <button className="button" onClick={() => document.getElementById(`order_detail_${orderID}`).showModal()}>Detail</button>
             </div>
           </div>
+          {
+            category === "unipin" || category === "shell" || category === "card" ?
+              <>
+                {
+                  codes &&
+                  <div className="pt-3">
+                    <textarea
+                      ref={codesRef}
+                      disabled
+                      value={codes.join("\n")}
+                      name=""
+                      className="border-2 h-24 w-full rounded px-2 py-0.5"
+                    ></textarea>
+                    <button
+                      onClick={handleCopy}
+                      className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
+                    >
+                      <MdContentCopy className="inline-block" /> Copy All
+                    </button>
+                  </div>
+                }
+              </>
+              :
+              <div className="pt-2 mt-3">
+                <h4 className="font-bold pb-2">Feedback</h4>
+                {
+                  feedback ?
+                    <p>{feedback}</p>
+                    :
+                    <p className="text-xs normal-case">Not added yet!</p>
+                }
+              </div>
+
+          }
           {/* feedback */}
-          <div className="pt-2 mt-3">
-            <h4 className="font-bold pb-2">Feedback</h4>
-            {
-              feedback ?
-                <p>{feedback}</p>
-                :
-                <p className="text-xs normal-case">Not added yet!</p>
-            }
-          </div>
+
+
+
 
         </div>
       </div>

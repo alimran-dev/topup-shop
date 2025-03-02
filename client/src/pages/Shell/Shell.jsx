@@ -12,7 +12,6 @@ import CategoryOption from "../../components/CategoryOption";
 import Loader from "../../components/Loader";
 import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import bkashLogo from '../../assets/images/bkash.png';
 import nagadLogo from '../../assets/images/nagad.png';
 
@@ -25,12 +24,11 @@ const Shell = () => {
   const [price, setPrice] = useState(0);
   const [error, setError] = useState("");
   const axiosPublic = useAxiosPublic();
-  const axiosPrivate = useAxiosPrivate();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const purchaseRef = useRef(null);
-  
+
 
   const handlePurchase = () => {
     setError("");
@@ -48,23 +46,7 @@ const Shell = () => {
     }
 
     else {
-      axiosPrivate
-        .post("/order/new/auto/shell", order)
-        .then((res) => {
-          // console.log(res.data);
-          setIsLoading(false);
-          setUser({
-            ...user,
-            balance: user?.balance - res.data?.price,
-            orders: user?.orders + 1,
-            spent: user?.spent + price,
-          });
-          navigate("/myOrders");
-        })
-        .catch((err) => {
-          setError(err.response.data.error);
-          setIsLoading(false);
-        });
+      navigate('/confirmPurchase', { state: { name: "shell", selected, orderData: order } });
     }
   };
   useEffect(() => {

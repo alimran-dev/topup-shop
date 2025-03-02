@@ -5,8 +5,8 @@ const CategoryOption = ({ option, selected, setSelected, purchaseRef }) => {
   const { _id, category, name, price, stock } = option || {};
   const handleSelect = () => {
     if (stock === null || stock > 0 || stock === true) {
-      setSelected({ _id, price });
-      
+      setSelected({ _id, name, price });
+
       setTimeout(() => {
         purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200); // Delay to ensure the selection is set before scrolling

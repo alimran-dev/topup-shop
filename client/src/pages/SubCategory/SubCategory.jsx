@@ -85,10 +85,10 @@ const SubCategory = () => {
         }
 
         else {
-            navigate('/confirmPurchase', { state: { selected, inputValues, allData } });
+            navigate('/confirmPurchase', { state: { name: "dynamic", selected, inputValues, orderData:allData } });
         }
     };
-
+    
 
     return (
         <div className="flex flex-col gap-5">
@@ -134,7 +134,7 @@ const SubCategory = () => {
                         <Link
                             to={allData?.tutorialURL}
                             target="_blank"
-                            className="clr-text font-semibold flex items-center justify-center gap-1 capitalize"
+                            className="text-blue-700 font-semibold flex items-center justify-center gap-1 capitalize"
                         >
                             {allData?.tutorialText} <MdArrowOutward className="" />{" "}
                         </Link>
@@ -142,7 +142,7 @@ const SubCategory = () => {
 
                     {
                         allData?.inputs?.length > 0 && (
-                            <div ref={purchaseRef}  className="text-xl font-semibold border-2 rounded w-full">
+                            <div ref={purchaseRef} className="text-xl font-semibold border-2 rounded w-full">
                                 <h2 className="flex-1 flex items-center gap-2 border-b-2 px-5 py-3">
                                     <TbSquareRoundedNumber2Filled className="text-red-500" />
                                     Additional Information

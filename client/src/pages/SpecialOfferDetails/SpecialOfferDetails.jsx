@@ -1,7 +1,9 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { BsCoin } from "react-icons/bs";
 import { TbCurrencyTaka } from "react-icons/tb";
+import { FaExternalLinkAlt } from "react-icons/fa";
+
 
 const SpecialOfferDetails = () => {
     const { id } = useParams();
@@ -23,22 +25,42 @@ const SpecialOfferDetails = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto py-10 px-6 bg-white rounded-lg border border-slate-300 text-center">
-            <h2 className="text-3xl font-bold mb-4">{offer.name}</h2>
-            <p className="text-gray-600 mb-4">{offer.description}</p>
-            <p className="text-lg font-bold text-blue-600 flex justify-center items-center">
-                {
-                    offer?.type == "coin" ?
-                        <BsCoin className="mr-1" /> : <TbCurrencyTaka />
-                }
-                {offer?.price}
-            </p>
-            <p className={`text-lg font-semibold mt-2 ${offer.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {offer.stock > 0 ? "In Stock" : "Out of Stock"}
-            </p>
-            <button className="mt-6 px-6 py-2 bg-primary text-white rounded-md">
-                Purchase
-            </button>
+        <div className="max-w-2xl mx-auto">
+            <div className="py-10 px-6 bg-white rounded-lg border border-slate-300 text-center">
+                <h2 className="text-lg md:text-3xl font-bold mb-3">{offer.name}</h2>
+                <p className="text-gray-600 my-3">{offer.description}</p>
+                <p className="text-sm md:text-lg font-bold flex justify-center items-center">
+                    {
+                        offer?.type == "coin" ?
+                            <BsCoin className="mr-1" /> : <TbCurrencyTaka />
+                    }
+                    {offer?.price}
+                </p>
+                <p className={`text-sm md:text-lg font-semibold ${offer.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {offer.stock > 0 ? "In Stock" : "Out of Stock"}
+                </p>
+                <button className="mt-4 px-6 py-2 bg-primary text-white rounded-md">
+                    Purchase
+                </button>
+                <div className="mt-5 md:mt-10 text-blue-700 font-semibold">
+                    <Link to={"https://youtu.be/IpFX2vq8HKw?list=RDMMIpFX2vq8HKw"} target="_blank" className="flex justify-center items-center gap-1">
+                        Click to Watch Video
+                        <FaExternalLinkAlt />
+                    </Link>
+                </div>
+            </div>
+
+            {/* ------- show input boxes -------- */}
+            {/* <>
+                {Object?.entries(inputValues)?.map(([key, value]) => (
+                    <p key={key} className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1 capitalize">
+                        <span className="w-24 font-semibold">{key}</span>
+                        <span>:</span>
+                        <span>{value}</span>
+                    </p>
+                ))}
+            </> */}
+            {/* -------------------------------- */}
         </div>
     );
 };

@@ -12,7 +12,6 @@ import CategoryOption from "../../components/CategoryOption";
 import Loader from "../../components/Loader";
 import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { MdArrowOutward } from "react-icons/md";
 import bkashLogo from '../../assets/images/bkash.png';
@@ -28,14 +27,14 @@ const Unipin = () => {
   const [price, setPrice] = useState(0);
   const [error, setError] = useState("");
   const axiosPublic = useAxiosPublic();
-  const axiosPrivate = useAxiosPrivate();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const purchaseRef = useRef(null);
 
 
   const handlePurchase = () => {
+
     setError("");
     setIsLoading(true);
     if (!selected._id || !selected.price || !quantity) {
@@ -51,23 +50,7 @@ const Unipin = () => {
     }
 
     else {
-      axiosPrivate
-        .post("/order/new/auto/unipin", order)
-        .then((res) => {
-          // console.log(res.data);
-          setIsLoading(false);
-          setUser({
-            ...user,
-            balance: user?.balance - res.data?.price,
-            orders: user?.orders + 1,
-            spent: user?.spent + price,
-          });
-          navigate("/myOrders");
-        })
-        .catch((err) => {
-          setError(err.response.data.error);
-          setIsLoading(false);
-        });
+      navigate('/confirmPurchase', { state: { name: "unipin", selected, orderData:order } });
     }
   };
 
@@ -133,7 +116,7 @@ const Unipin = () => {
             <Link
               to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
               target="_blank"
-              className="clr-text font-semibold flex items-center justify-center gap-1"
+              className="text-blue-700 font-semibold flex items-center justify-center gap-1"
             >
               কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
             </Link>
