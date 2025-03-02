@@ -23,6 +23,10 @@ const LastOrders = () => {
     }, [axiosPublic]);
 
 
+    // dummy data
+    const status = "pending";
+
+
     return (
         <div className="max-w-5xl mx-auto pb-8">
             <h2 className="title">Last Orders</h2>
@@ -44,10 +48,15 @@ const LastOrders = () => {
                                             }
                                             <p>{order?.name}</p>
                                         </div>
-                                        <div className="text-center">{order?.package}</div>
-                                        <div className="flex justify-end items-center gap-1">
-                                            ৳{order?.price}
+                                        <div className="text-center">
+                                            {order?.package} - ৳{order?.price}
                                         </div>
+                                        <div className="flex justify-end ">
+                                            <div className={`${status === 'pending' ? 'bg-yellow-500' : status === 'success' ? 'bg-green-500' : status === 'canceled' ? 'bg-red-500' : 'bg-gray-300'} px-3 py-1 w-fit capitalize rounded-full text-[10px]`}>
+                                                • {status}
+                                            </div>
+                                        </div>
+
                                     </div>
                                 ))
                             ) : (

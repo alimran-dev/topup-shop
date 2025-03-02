@@ -6,11 +6,13 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
 
 const AddBalance = () => {
+
   const [err, setErr] = useState("");
   const [offer, setOffer] = useState({ offer: "" });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
+
   const handleAdd = (e) => {
     e.preventDefault();
     setErr("");
@@ -20,12 +22,15 @@ const AddBalance = () => {
       navigate("./method", { state: amount });
     }
   };
+
   useEffect(() => {
     axiosPrivate.get("/balance/offer").then((res) => {
       setOffer(res.data[0]);
       setIsLoading(false);
     });
   }, [axiosPrivate]);
+
+  
   return (
     <div className="space-y-5">
       <Loader isLoading={isLoading} />

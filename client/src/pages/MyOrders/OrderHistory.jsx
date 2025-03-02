@@ -89,6 +89,17 @@ const OrderHistory = ({ order }) => {
               <button className="button" onClick={() => document.getElementById(`order_detail_${orderID}`).showModal()}>Detail</button>
             </div>
           </div>
+          {/* feedback */}
+          <div className="pt-2 mt-3">
+            <h4 className="font-bold pb-2">Feedback</h4>
+            {
+              feedback ?
+                <p>{feedback}</p>
+                :
+                <p className="text-xs normal-case">Not added yet!</p>
+            }
+          </div>
+
         </div>
       </div>
 
@@ -168,17 +179,6 @@ const OrderHistory = ({ order }) => {
                     <span>{value}</span>
                   </p>
                 ))}
-              </div>
-
-              {/* feedback */}
-              <div className="border-t border-t-slate-300 pt-2 mt-3">
-                <h4 className="font-bold pb-2">Feedback</h4>
-                {
-                  feedback ?
-                    <p>{feedback}</p>
-                    :
-                    <p className="text-xs normal-case">Not added yet!</p>
-                }
               </div>
 
             </div>

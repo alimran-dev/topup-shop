@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import unipin from "../../assets/images/shell.jpg";
 import {
   TbCurrencyTaka,
@@ -13,6 +13,9 @@ import Loader from "../../components/Loader";
 import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import bkashLogo from '../../assets/images/bkash.png';
+import nagadLogo from '../../assets/images/nagad.png';
+
 
 const Shell = () => {
   const [selected, setSelected] = useState({ _id: "", price: 0 });
@@ -26,6 +29,8 @@ const Shell = () => {
   const { user, setUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const purchaseRef = useRef(null);
+  
 
   const handlePurchase = () => {
     setError("");
@@ -36,23 +41,31 @@ const Shell = () => {
       return;
     }
     const order = { id: selected._id, email: user?.email, quantity };
-    axiosPrivate
-      .post("/order/new/auto/shell", order)
-      .then((res) => {
-        // console.log(res.data);
-        setIsLoading(false);
-        setUser({
-          ...user,
-          balance: user?.balance - res.data?.price,
-          orders: user?.orders + 1,
-          spent: user?.spent + price,
+
+    if (user?.balance < selected?.price) {
+      const restAmount = Math.ceil(selected?.price - user?.balance);
+      navigate('/addBalance/method', { state: restAmount });
+    }
+
+    else {
+      axiosPrivate
+        .post("/order/new/auto/shell", order)
+        .then((res) => {
+          // console.log(res.data);
+          setIsLoading(false);
+          setUser({
+            ...user,
+            balance: user?.balance - res.data?.price,
+            orders: user?.orders + 1,
+            spent: user?.spent + price,
+          });
+          navigate("/myOrders");
+        })
+        .catch((err) => {
+          setError(err.response.data.error);
+          setIsLoading(false);
         });
-        navigate("/myOrders");
-      })
-      .catch((err) => {
-        setError(err.response.data.error);
-        setIsLoading(false);
-      });
+    }
   };
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -94,6 +107,7 @@ const Shell = () => {
                 selected={selected}
                 setSelected={setSelected}
                 key={option._id}
+                purchaseRef={purchaseRef}
               />
             ))}
           </div>
@@ -123,7 +137,7 @@ const Shell = () => {
               </span>
             </div>
           </div>
-          <div className="border-2 rounded mt-3">
+          <div ref={purchaseRef} className="border-2 rounded mt-3">
             <h2 className="text-xl text-center font-semibold border-b-2 py-2">
               Summary
             </h2>
@@ -167,18 +181,27 @@ const Shell = () => {
               )}
               {user ? (
                 <div className="space-y-3">
-                  <Link
-                    to={"/addBalance"}
-                    className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
-                  >
-                    Add Balance
-                  </Link>
                   <button
                     onClick={handlePurchase}
                     className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
                   >
                     Purchase
                   </button>
+                  <Link to={"/addBalance"} className="block p-3 rounded border-2">
+                    <button
+                      className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2"
+                    >
+                      Add Balance
+                    </button>
+                    <div className="flex justify-center items-center py-3">
+                      <div className="w-20 h-fit">
+                        <img src={bkashLogo} className="w-full h-full object-contain" alt="Bkash Logo" />
+                      </div>
+                      <div className="w-20 h-fit">
+                        <img src={nagadLogo} className="w-full h-full object-contain" alt="Nagad Logo" />
+                      </div>
+                    </div>
+                  </Link>
                 </div>
               ) : (
                 <Link

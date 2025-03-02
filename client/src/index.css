@@ -47,9 +47,16 @@ input[type="number"] {
 .title{
     @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit uppercase text-xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto py-3 md:mb-4;
 }
+
+/* bg colors */
 .bg-gradient{
     @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55];
 }
+.option-bg{
+    @apply bg-gradient-to-b from-[#E61C55] to-[#FA6023] text-white;
+}
+
+/* input */
 .input-label{
     @apply block text-base md:text-xl font-medium text-gray-700 mb-2;
 }
