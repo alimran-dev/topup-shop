@@ -36,7 +36,7 @@ const SpecialOfferDetails = () => {
             <p className={`text-lg font-semibold mt-2 ${offer.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {offer.stock > 0 ? "In Stock" : "Out of Stock"}
             </p>
-            <button className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <button className="mt-6 px-6 py-2 bg-primary text-white rounded-md">
                 Purchase
             </button>
         </div>

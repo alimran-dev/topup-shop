@@ -48,6 +48,7 @@ import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
 import Referral from "../AdminDashboard/Referral/Referral";
 import History from "../AdminDashboard/Referral/History/History";
 import Store from "../pages/Store/Store";
+import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetails";
 
 
 const router = createBrowserRouter([
@@ -79,6 +80,10 @@ const router = createBrowserRouter([
       {
         path: "/cards/:next",
         element: <RechargeCard />,
+      },
+      {
+        path: "special-offer-details/:id",
+        element: <SpecialOfferDetails />,
       },
       {
         path: "/contact",
