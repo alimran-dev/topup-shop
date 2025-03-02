@@ -8,8 +8,6 @@ import AddBalance from "../pages/AddBalance/AddBalance";
 import MyOrders from "../pages/MyOrders/MyOrders";
 import MyTransactions from "../pages/MyTransactions/MyTransactions";
 import Unipin from "../pages/Unipin/Unipin";
-import Idcode from "../pages/Idcode/Idcode";
-import WeeklyMonthly from "../pages/WeeklyMonthly/WeeklyMonthly";
 import Shell from "../pages/Shell/Shell";
 import Dashboard from "../AdminDashboard/Dashboard";
 import AddCodes from "../AdminDashboard/AddCodes/AddCodes";
@@ -23,10 +21,6 @@ import SignUp from "../pages/SignUp/SignUp";
 import AdminRoute from "./AdminRoute";
 import PrivateRoute from "./PrivateRoute";
 import ErrorPage from "../pages/ErrorPage/ErrorPage";
-import ServerList from "../pages/SpecialOffer/ServerList";
-import ServerOptions from "../pages/SpecialOffer/ServerOptions";
-import UpdateSpecialOption from "../AdminDashboard/Update/UpdateSpecialOption";
-import UpdateSpOptionItem from "../AdminDashboard/Update/UpdateSpOptionItem";
 import Method from "../pages/AddBalance/Method/Method";
 import Pay from "../pages/AddBalance/Pay/Pay";
 import Payments from "../AdminDashboard/Payments/Payments";
@@ -34,8 +28,6 @@ import Transactions from "../AdminDashboard/Transactions/Transactions";
 import Notice from "../AdminDashboard/Notice/Notice";
 import Devices from "../AdminDashboard/Devices/Devices";
 import BlockTrx from "../AdminDashboard/BlockTrx/BlockTrx";
-import UidAirdrop from "../pages/UidAirdrop/UidAirdrop";
-import LessIsMore from "../pages/LessIsMore/LessIsMore";
 import RechargeCard from "../pages/RechargeCard/RechargeCard";
 import AddAdvertisement from "../pages/AddAdvertisement/AddAdvertisement";
 import ConfirmPurchase from "../pages/ConfirmPurchase/ConfirmPurchase";
@@ -86,32 +78,12 @@ const router = createBrowserRouter([
         element: <Shell />,
       },
       {
-        path: "/idcode",
-        element: <Idcode />,
-      },
-      {
-        path: "/weekly-monthly",
-        element: <WeeklyMonthly />,
-      },
-      {
-        path: "/uid-airdrop",
-        element: <UidAirdrop />,
-      },
-      {
-        path: "/less-is-more",
-        element: <LessIsMore />,
-      },
-      {
         path: "/cards/:next",
         element: <RechargeCard />,
       },
       {
         path: "/special-offer",
         element: <ServerList />,
-      },
-      {
-        path: "/special-offer-details/:id",
-        element: <SpecialOfferDetails />,
       },
       {
         path: "/special-offer/:server",
@@ -275,18 +247,6 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/updateOptions",
         element: <UpdateOptions />,
-      },
-      {
-        path: "/dashboard/updateSpecialOption",
-        element: <ServerList />,
-      },
-      {
-        path: "/dashboard/updateSpecialOption/:server",
-        element: <UpdateSpecialOption />,
-      },
-      {
-        path: "/dashboard/updateSpecialOption/:server/:id",
-        element: <UpdateSpOptionItem />,
       },
       {
         path: "/dashboard/updateOptions/:category",

@@ -1,8 +1,0 @@
-.order-active-tab {
-  @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-3 text-lg text-white font-semibold rounded;
-}
-.order-tab-border {
-  background: linear-gradient(#fff, #fff) padding-box,
-    linear-gradient(to right, #fa6023, #e61c55) border-box;
-  border: 2px solid transparent;
-}

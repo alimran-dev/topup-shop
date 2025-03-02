@@ -1,20 +1,12 @@
 import { TbCurrencyTaka } from "react-icons/tb";
 import PropTypes from "prop-types";
-import { useLocation, useNavigate } from "react-router-dom";
 
-const Option = ({ option, selected, setSelected }) => {
-    const { _id, name, price, description, inStock } = option || {};
-    const navigate = useNavigate();
-    const location = useLocation();
-    
-    const handleClick = () => {
-        setSelected({ id: _id, price: price });
-        navigate(`./${_id}`, {state: {docName: location.state?.docName}})
-    }
+const OptionCard = ({ option, selected, setSelected }) => {
+  const { _id, name, price, description, inStock } = option || {};
 
   return (
     <div
-      onClick={handleClick}
+      onClick={() => setSelected({ id: _id, price: price })}
       className={`border-2 rounded-t cursor-pointer flex flex-col relative pt-2 mt-2 ${
         selected.id === _id
           ? "bg-gradient-to-b from-[#E61C55] to-[#FA6023] text-white"
@@ -47,8 +39,8 @@ const Option = ({ option, selected, setSelected }) => {
   );
 };
 
-export default Option;
-Option.propTypes = {
+export default OptionCard;
+OptionCard.propTypes = {
   selected: PropTypes.object.isRequired,
   setSelected: PropTypes.func.isRequired,
   option: PropTypes.object.isRequired,

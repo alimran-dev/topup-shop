@@ -1,10 +1,5 @@
 import unipin from "../../assets/images/unipin.jpg";
-import idcode from "../../assets/images/idcode.png";
-import weekly from "../../assets/images/weekly.png";
 import shell from "../../assets/images/shell.jpg";
-import airdrop from "../../assets/images/airdrop.jpeg";
-import lessIsMore from "../../assets/images/lessIsMore.jpeg";
-import specialOffer from "../../assets/images/special_offer.jpeg";
 import ServiceCard from "../../pages/Home/Services/ServiceCard";
 import rechargeCard from "../../assets/images/recharge-card.jpeg";
 import rechargeOffer from "../../assets/images/recharge-offer.jpeg";
@@ -25,44 +20,9 @@ const UpdateOptions = () => {
         </div>
         <div className="flex-1">
           <ServiceCard
-            path="/dashboard/updateSpecialOption"
-            image={specialOffer}
-            title="All Special Offer"
-          />
-        </div>
-        <div className="flex-1">
-          <ServiceCard
-            path="./idcode"
-            image={idcode}
-            title="IDCODE Topup [BD SERVER]"
-          />
-        </div>
-        <div className="flex-1">
-          <ServiceCard
-            path="./weekly-monthly"
-            image={weekly}
-            title="Weekly & Monthly [ Offer ]"
-          />
-        </div>
-        <div className="flex-1">
-          <ServiceCard
             path="./shell"
             image={shell}
             title="Garena Shell Code (MY)"
-          />
-        </div>
-        <div className="flex-1">
-          <ServiceCard
-            path="./airdrop"
-            image={airdrop}
-            title="Free Fire UID [ Airdrop ]"
-          />
-        </div>
-        <div className="flex-1">
-          <ServiceCard
-            path="./lessIsMore"
-            image={lessIsMore}
-            title="Less Is More UID"
           />
         </div>
         <div className="flex-1">

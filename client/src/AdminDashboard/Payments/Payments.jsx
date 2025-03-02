@@ -3,7 +3,6 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useEffect, useState } from "react";
 import PaymentsCard from "./PaymentsCard";
 
-
 const Payments = () => {
   const [methods, setMethods] = useState([]);
   const axiosPrivate = useAxiosPrivate();
