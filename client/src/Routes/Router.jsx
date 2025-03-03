@@ -50,8 +50,8 @@ import History from "../AdminDashboard/Referral/History/History";
 import Store from "../pages/Store/Store";
 import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetails";
 import OffersAndProducts from "../AdminDashboard/OfferAndProducts/OfferAndProducts";
-import AddSpecialProduct from "../AdminDashboard/OfferAndProducts/SpecialProducts/AddSpecialProduct/AddSpecialProduct";
-import AddOffer from "../AdminDashboard/OfferAndProducts/Offers/AddOffer/AddOffer";
+import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProducts/SpecialProductForm/SpecialProductForm";
+import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
 
 
 const router = createBrowserRouter([
@@ -216,12 +216,12 @@ const router = createBrowserRouter([
         element: <OffersAndProducts />,
       },
       {
-        path: "/dashboard/offersAndProducts/addSpecialProduct",
-        element: <AddSpecialProduct />,
+        path: "/dashboard/offersAndProducts/manageSpecialProduct/:id?",
+        element: <SpecialProductForm />,
       },
       {
-        path: "/dashboard/offersAndProducts/addOffer",
-        element: <AddOffer />,
+        path: "/dashboard/offersAndProducts/manageOffer/:id?",
+        element: <OfferForm />,
       },
       {
         path: "/dashboard/banner",

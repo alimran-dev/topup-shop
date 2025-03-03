@@ -16,10 +16,10 @@ const OffersAndProducts = () => {
         <div>
             
             {/* tab buttons */}
-            <div className="flex justify-center items-center border-b border-b-slate-300">
+            <div className="flex justify-center items-center border-b border-b-slate-500">
                 {
                     tabItems?.map(item =>
-                        <button key={item?.id} onClick={() => setSelectedTab(item?.name)} className={`border ${selectedTab == item?.name ? "border-slate-300" : "border-transparent"} border-b-0 px-4 py-2 capitalize duration-200`}>
+                        <button key={item?.id} onClick={() => setSelectedTab(item?.name)} className={`border ${selectedTab == item?.name ? "border-slate-500" : "border-transparent"} border-b-0 px-4 py-2 capitalize duration-200`}>
                             {item?.name}
                         </button>
                     )

@@ -7,8 +7,8 @@ const SpecialProducts = () => {
         <div>
 
             {/* add new btn */}
-            <div className="flex justify-end">
-                <Link to={"/dashboard/offersAndProducts/addSpecialProduct"} className="button flex items-center gap-1">
+            <div className="flex justify-center md:justify-end pt-3 pb-5">
+                <Link to={"/dashboard/offersAndProducts/manageSpecialProduct"} className="button flex items-center gap-1">
                     <FaPlus />
                     All Special Product
                 </Link>
