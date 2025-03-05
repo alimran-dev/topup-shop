@@ -141,6 +141,7 @@ const MyAccount = () => {
 
   };
 
+  // page apear from top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

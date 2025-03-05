@@ -3,11 +3,16 @@ import { RiCoinFill } from "react-icons/ri";
 import ReferralLinks from "./ReferralLinks/ReferralLinks";
 import UploadVideo from "./UploadVideo/UploadVideo";
 import ReferralEarnings from "./ReferralEarnings/ReferralEarnings";
+import { useEffect } from "react";
 
 const CoinAndReferral = () => {
 
 
-    
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div className="max-w-2xl mx-auto space-y-4">
 

@@ -47,6 +47,11 @@ import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
 import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
 import Referral from "../AdminDashboard/Referral/Referral";
 import History from "../AdminDashboard/Referral/History/History";
+import Store from "../pages/Store/Store";
+import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetails";
+import OffersAndProducts from "../AdminDashboard/OfferAndProducts/OfferAndProducts";
+import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProducts/SpecialProductForm/SpecialProductForm";
+import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
 
 
 const router = createBrowserRouter([
@@ -78,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: "/cards/:next",
         element: <RechargeCard />,
+      },
+      {
+        path: "special-offer-details/:id",
+        element: <SpecialOfferDetails />,
       },
       {
         path: "/contact",
@@ -168,6 +177,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/store",
+        element: (
+          <PrivateRoute>
+            <Store />
+          </PrivateRoute>
+        ),
+      },
+      {
         path: "/leaderboards",
         element: (
           <PrivateRoute>
@@ -193,6 +210,18 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/services",
         element: <Services />,
+      },
+      {
+        path: "/dashboard/offersAndProducts",
+        element: <OffersAndProducts />,
+      },
+      {
+        path: "/dashboard/offersAndProducts/manageSpecialProduct/:id?",
+        element: <SpecialProductForm />,
+      },
+      {
+        path: "/dashboard/offersAndProducts/manageOffer/:id?",
+        element: <OfferForm />,
       },
       {
         path: "/dashboard/banner",

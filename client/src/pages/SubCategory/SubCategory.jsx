@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
@@ -26,6 +26,7 @@ const SubCategory = () => {
     const { user } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+    const purchaseRef = useRef(null);
 
 
     useEffect(() => {
@@ -78,10 +79,16 @@ const SubCategory = () => {
             return;
         }
 
-        navigate('/confirmPurchase', { state: { selected, inputValues, allData } });
+        if (user?.balance < selected?.price) {
+            const restAmount = Math.ceil(selected?.price - user?.balance);
+            navigate('/addBalance/method', { state: restAmount });
+        }
+
+        else {
+            navigate('/confirmPurchase', { state: { name: "dynamic", selected, inputValues, orderData:allData } });
+        }
     };
-
-
+    
 
     return (
         <div className="flex flex-col gap-5">
@@ -118,7 +125,7 @@ const SubCategory = () => {
                     </h1>
                     <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 px-3 md:px-5 py-5">
                         {options?.map((option, idx) => (
-                            <OptionCard key={idx} idx={idx + 1} option={option} selected={selected} setSelected={setSelected} />
+                            <OptionCard key={idx} idx={idx + 1} option={option} selected={selected} setSelected={setSelected} purchaseRef={purchaseRef} />
                         ))}
                     </div>
                 </div>
@@ -127,7 +134,7 @@ const SubCategory = () => {
                         <Link
                             to={allData?.tutorialURL}
                             target="_blank"
-                            className="clr-text font-semibold flex items-center justify-center gap-1 capitalize"
+                            className="text-blue-700 font-semibold flex items-center justify-center gap-1 capitalize"
                         >
                             {allData?.tutorialText} <MdArrowOutward className="" />{" "}
                         </Link>
@@ -135,7 +142,7 @@ const SubCategory = () => {
 
                     {
                         allData?.inputs?.length > 0 && (
-                            <div className="text-xl font-semibold border-2 rounded w-full">
+                            <div ref={purchaseRef} className="text-xl font-semibold border-2 rounded w-full">
                                 <h2 className="flex-1 flex items-center gap-2 border-b-2 px-5 py-3">
                                     <TbSquareRoundedNumber2Filled className="text-red-500" />
                                     Additional Information
@@ -226,13 +233,12 @@ const SubCategory = () => {
                     {/* add balance */}
                     {
                         user &&
-                        <div className="p-3 rounded border-2">
-                            <Link
-                                to={"/addBalance"}
+                        <Link to={"/addBalance"} className="block p-3 rounded border-2">
+                            <button
                                 className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2"
                             >
                                 Add Balance
-                            </Link>
+                            </button>
                             <div className="flex justify-center items-center py-3">
                                 <div className="w-20 h-fit">
                                     <img src={bkashLogo} className="w-full h-full object-contain" alt="Bkash Logo" />
@@ -241,7 +247,7 @@ const SubCategory = () => {
                                     <img src={nagadLogo} className="w-full h-full object-contain" alt="Nagad Logo" />
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     }
                 </div>
             </div>

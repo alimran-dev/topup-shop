@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import unipin from "../../assets/images/unipin.jpg";
 import {
   TbCurrencyTaka,
@@ -12,9 +12,12 @@ import CategoryOption from "../../components/CategoryOption";
 import Loader from "../../components/Loader";
 import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import { MdArrowOutward } from "react-icons/md";
+import bkashLogo from '../../assets/images/bkash.png';
+import nagadLogo from '../../assets/images/nagad.png';
+
+
 
 const Unipin = () => {
   const [selected, setSelected] = useState({ _id: "", price: 0 });
@@ -24,12 +27,14 @@ const Unipin = () => {
   const [price, setPrice] = useState(0);
   const [error, setError] = useState("");
   const axiosPublic = useAxiosPublic();
-  const axiosPrivate = useAxiosPrivate();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const purchaseRef = useRef(null);
+
 
   const handlePurchase = () => {
+
     setError("");
     setIsLoading(true);
     if (!selected._id || !selected.price || !quantity) {
@@ -38,27 +43,21 @@ const Unipin = () => {
       return;
     }
     const order = { id: selected._id, email: user?.email, quantity };
-    axiosPrivate
-      .post("/order/new/auto/unipin", order)
-      .then((res) => {
-        // console.log(res.data);
-        setIsLoading(false);
-        setUser({
-          ...user,
-          balance: user?.balance - res.data?.price,
-          orders: user?.orders + 1,
-          spent: user?.spent + price,
-        });
-        navigate("/myOrders");
-      })
-      .catch((err) => {
-        setError(err.response.data.error);
-        setIsLoading(false);
-      });
+
+    if (user?.balance < selected?.price) {
+      const restAmount = Math.ceil(selected?.price - user?.balance);
+      navigate('/addBalance/method', { state: restAmount });
+    }
+
+    else {
+      navigate('/confirmPurchase', { state: { name: "unipin", selected, orderData:order } });
+    }
   };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
   useEffect(() => {
     axiosPublic.get(`/option/all?category=unipin`).then((res) => {
       // console.log(res.data);
@@ -67,6 +66,8 @@ const Unipin = () => {
     });
     setPrice(selected.price * quantity);
   }, [axiosPublic, quantity, selected.price]);
+
+
   return (
     <div className="flex flex-col gap-5">
       <Loader isLoading={isLoading} />
@@ -105,6 +106,7 @@ const Unipin = () => {
                 selected={selected}
                 setSelected={setSelected}
                 key={option._id}
+                purchaseRef={purchaseRef}
               />
             ))}
           </div>
@@ -114,7 +116,7 @@ const Unipin = () => {
             <Link
               to={"https://youtube.com/playlist?list=PLdbvk3gLADUlRm5asrnO4v-NGPm2VLOFG&si=MqRLCbWUk-SpV5ni"}
               target="_blank"
-              className="clr-text font-semibold flex items-center justify-center gap-1"
+              className="text-blue-700 font-semibold flex items-center justify-center gap-1"
             >
               কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
             </Link>
@@ -143,7 +145,7 @@ const Unipin = () => {
               </span>
             </div>
           </div>
-          <div className="border-2 rounded mt-3">
+          <div ref={purchaseRef} className="border-2 rounded mt-3">
             <h2 className="text-xl text-center font-semibold border-b-2 py-2">
               Summary
             </h2>
@@ -187,18 +189,27 @@ const Unipin = () => {
               )}
               {user ? (
                 <div className="space-y-3">
-                  <Link
-                    to={"/addBalance"}
-                    className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
-                  >
-                    Add Balance
-                  </Link>
                   <button
                     onClick={handlePurchase}
                     className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
                   >
                     Purchase
                   </button>
+                  <Link to={"/addBalance"} className="block p-3 rounded border-2">
+                    <button
+                      className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2"
+                    >
+                      Add Balance
+                    </button>
+                    <div className="flex justify-center items-center py-3">
+                      <div className="w-20 h-fit">
+                        <img src={bkashLogo} className="w-full h-full object-contain" alt="Bkash Logo" />
+                      </div>
+                      <div className="w-20 h-fit">
+                        <img src={nagadLogo} className="w-full h-full object-contain" alt="Nagad Logo" />
+                      </div>
+                    </div>
+                  </Link>
                 </div>
               ) : (
                 <Link
