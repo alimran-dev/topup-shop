@@ -22,7 +22,7 @@ const SpecialOffers = () => {
 
 
     return (
-        <div className="pt-5 pb-16 md:py-20 relative">
+        <div className="pb-16 md:py-20 relative">
             <h2 className="title">Special Offers</h2>
             <Swiper
                 onSwiper={(swiper) => (swiperRef.current = swiper)}

@@ -38,7 +38,7 @@ const LastOrders = () => {
                         <>
                             {lastOrders?.length > 0 ? (
                                 lastOrders?.map((order) => (
-                                    <div key={order?._id} className="grid grid-cols-4 md:grid-cols-3 items-center text-xs md:text-sm py-2 border-b">
+                                    <div key={order?._id} className="flex justify-between items-center text-xs md:text-sm py-3 border-b">
                                         <div className="col-span-2 md:col-span-1 flex items-center gap-2">
                                             {
                                                 order?.photo ?
@@ -46,11 +46,14 @@ const LastOrders = () => {
                                                     :
                                                     <Avatar />
                                             }
-                                            <p>{order?.name}</p>
+                                            <div>
+                                                <p>{order?.name}</p>
+                                                <p className="text-center text-[10px] text-xs">
+                                                    {order?.package} - ৳{order?.price}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="text-center">
-                                            {order?.package} - ৳{order?.price}
-                                        </div>
+
                                         <div className="flex justify-end ">
                                             <div className={`${status === 'pending' ? 'bg-yellow-500' : status === 'success' ? 'bg-green-500' : status === 'canceled' ? 'bg-red-500' : 'bg-gray-300'} px-3 py-1 w-fit capitalize rounded-full text-[10px]`}>
                                                 • {status}
