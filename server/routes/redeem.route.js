@@ -8,10 +8,12 @@ const {
   updateRedeemCode,
   checkRedeemCode,
   deleteRedeemCode,
+  getClaimedUsers,
 } = require("../controllers/redeem.controller");
 
 const redeemRotues = () => {
   // /redeem
+  router.get("/claimedBy", verifyAdmin, getClaimedUsers);
   router.get("/all", verifyAdmin, getAllRedeemCode);
   router.post("/add", verifyAdmin, addRedeemCode);
   router.patch("/update", verifyAdmin, updateRedeemCode);

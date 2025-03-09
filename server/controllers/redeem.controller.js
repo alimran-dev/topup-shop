@@ -2,6 +2,27 @@ const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { redeemCodesCollection, userCollection } = dbCollections || {};
 
+const getClaimedUsers = async (req, res) => {
+  try {
+    const { id } = req.query || {};
+    if (!id) {
+      return res.status(400).send({ message: "Invalid request" });
+    }
+    const redeemCodeDoc = await redeemCodesCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    if (!redeemCodeDoc) {
+      return res
+        .status(400)
+        .send({ message: "This redeem code does not exists" });
+    }
+    res.send({ claimedBy: redeemCodeDoc.claimedBy });
+  } catch (err) {
+    console.error("Redeem Code Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const getAllRedeemCode = async (req, res) => {
   try {
     const { page, limit, code } = req.query || {};
@@ -104,7 +125,7 @@ const checkRedeemCode = async (req, res) => {
     );
     const codeDocUpdateResult = await redeemCodesCollection.updateOne(
       { code: code },
-      { $set: updatedCodeDoc, $addToSet: {claimedBy: email} }
+      { $set: updatedCodeDoc, $addToSet: { claimedBy: email } }
     );
     if (userUpdateResult.modifiedCount && codeDocUpdateResult.modifiedCount) {
       return res.send({ success: true, message: "Redeemed successfully" });
@@ -189,6 +210,7 @@ const deleteRedeemCode = async (req, res) => {
 };
 
 module.exports = {
+  getClaimedUsers,
   getAllRedeemCode,
   addRedeemCode,
   checkRedeemCode,
