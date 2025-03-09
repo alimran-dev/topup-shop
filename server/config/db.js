@@ -49,6 +49,7 @@ const connectToDB = (cb) => {
       dbCollections.followUsCollection = database.collection("followUs");
       dbCollections.coinSettingCollection = database.collection("coinSettings");
       dbCollections.coinHistoryCollection = database.collection("coinHistory");
+      dbCollections.redeemCodesCollection = database.collection("redeemCodes");
       module.exports = { dbCollections };
       return cb();
     })
