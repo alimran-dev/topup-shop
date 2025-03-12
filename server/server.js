@@ -34,7 +34,6 @@ const run = () => {
   const userRoute = require("./routes/user.route");
   const optionRoute = require("./routes/option.route");
   const addCodesRoute = require("./routes/addCodes.route");
-  const specialOfferRoute = require("./routes/specialOffer.route");
   const orderRoute = require("./routes/order.route");
   const paymentMethodRoute = require("./routes/paymentMethod.route");
   const noticeRoute = require("./routes/notice.route");
@@ -56,7 +55,6 @@ const run = () => {
   app.use("/user", userRoute());
   app.use("/option", optionRoute());
   app.use("/code", addCodesRoute());
-  app.use("/special", specialOfferRoute());
   app.use("/order", orderRoute());
   app.use("/payment", paymentMethodRoute());
   app.use("/notice", noticeRoute());
