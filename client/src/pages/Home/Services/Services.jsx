@@ -5,6 +5,7 @@ import rechargeCard from "../../../assets/images/recharge-card.jpeg";
 import rechargeOffer from "../../../assets/images/recharge-offer.jpeg";
 import { useEffect, useState } from "react";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import { useNavigate } from "react-router-dom";
 
 const Services = () => {
   const [ffData, setFfData] = useState([]);
@@ -13,6 +14,7 @@ const Services = () => {
   const [subscriptionData, setSubsscriptionData] = useState([]);
   const [othersData, setOthersData] = useState([]);
   const axiosPublic = useAxiosPublic();
+  const navigate  = useNavigate();
 
   useEffect(() => {
     axiosPublic.get("/services").then((res) => {
@@ -55,6 +57,14 @@ const Services = () => {
               image={rechargeOffer}
               path="#"
               title="Minutes & MB offer [All sim]"
+            />
+          </div>
+          {/* new recharge card */}
+          <div onClick={() => navigate("/cards/companies", {state: "mbMinCombo"})} className="flex-1">
+            <ServiceCard
+              image={rechargeOffer}
+              path="/cards/companies"
+              title="Minutes & MB offer"
             />
           </div>
         </div>

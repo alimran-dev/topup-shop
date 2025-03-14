@@ -17,7 +17,7 @@ const RedeemCode = () => {
             setLoading(true);
             try {
                 const res = await axiosPrivate.get('/redeem/all');
-                // console.log(res?.data);
+                console.log(res?.data);
                 setRedeemCodes(res?.data?.codes);
             } catch (error) {
                 console.error("Error fetching redeem codes:", error);
