@@ -12,17 +12,17 @@ const RechargeModal = ({
   cards,
   companies,
   resetTextarea,
-  setInputs,
+  // setInputs,
 }) => {
   const [selectedCompany, setSelectedCompany] = useState({ _id: "" });
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedOption, setSelectedOption] = useState({ _id: "" });
   const [next, setNext] = useState("companies");
+
   return (
     <div
-      className={`fixed inset-0 z-30 w-screen h-screen items-center justify-center bg-black bg-opacity-40 py-5 ${
-        isOpenCards ? "flex" : "hidden"
-      }`}
+      className={`fixed inset-0 z-30 w-screen h-screen items-center justify-center bg-black bg-opacity-40 py-5 ${isOpenCards ? "flex" : "hidden"
+        }`}
     >
       <div className="bg-white border w-[380px] lg:w-[450px] max-h-[80vh] block px-5 pb-5 rounded-md overflow-auto relative">
         <IoCloseSharp
@@ -57,6 +57,12 @@ const RechargeModal = ({
             selectedCategory={selectedCategory}
             selectedOption={selectedOption}
             cards={cards}
+            setIsOpenCards={setIsOpenCards}
+            resetTextarea={resetTextarea}
+            setSelectedCompany={setSelectedCompany}
+            setSelectedCategory={setSelectedCategory}
+            setSelectedOption={setSelectedOption}
+            setNext={setNext}
           />
         )}
       </div>
