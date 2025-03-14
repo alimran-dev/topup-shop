@@ -7,6 +7,7 @@ import AdModal from "./AdModal/AdModal";
 import DailyCoinClaim from "./DailyCoinClaim/DailyCoinClaim";
 import LastOrders from "./LastOrders/LastOrders";
 import SpecialOffers from "./SpecialOffers/SpecialOffers";
+import ClaimRedeemCode from "./ClaimRedeemCode/ClaimRedeemCode";
 
 const Home = () => {
   
@@ -24,6 +25,7 @@ const Home = () => {
       <DailyCoinClaim />
       <Notice />
       <Banner />
+      <ClaimRedeemCode />
       <SpecialOffers />
       <Services />
       <LastOrders />

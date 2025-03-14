@@ -4,6 +4,8 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import Swal from "sweetalert2";
 import toast from 'react-hot-toast';
+import { Link } from "react-router-dom";
+import { FaPlus, FaListUl } from "react-icons/fa6";
 
 
 const RedeemCode = () => {
@@ -39,7 +41,7 @@ const RedeemCode = () => {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Delete!"
         }).then(async (result) => {
             if (result.isConfirmed) {
 
@@ -61,21 +63,27 @@ const RedeemCode = () => {
         <div>
             <h2 className="title">Redeem Code</h2>
 
-            {/* Add new redeem code */}
-            <div>
-                <button onClick={() => document.getElementById('add_redeem_code').showModal()} className="button flex mx-auto">
-                    Add Redeem Code
-                </button>
-
-                <dialog id="add_redeem_code" className="modal">
-                    <div className="modal-box bg-white">
-                        <form method="dialog">
-                            {/* If there is a button in form, it will close the modal */}
-                            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                        </form>
-                        <RedeemCodeForm setRedeemCodes={setRedeemCodes} />
-                    </div>
-                </dialog>
+            <div className="flex flex-col md:flex-row justify-center items-center gap-x-5 gap-y-2">
+                {/* Add new redeem code */}
+                <div>
+                    <button onClick={() => document.getElementById('add_redeem_code').showModal()} className="button flex items-center gap-1">
+                        <FaPlus />
+                        Add Redeem Code
+                    </button>
+                    <dialog id="add_redeem_code" className="modal">
+                        <div className="modal-box bg-white">
+                            <form method="dialog">
+                                {/* If there is a button in form, it will close the modal */}
+                                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                            </form>
+                            <RedeemCodeForm setRedeemCodes={setRedeemCodes} />
+                        </div>
+                    </dialog>
+                </div>
+                <Link to="/dashboard/redeemClaimedList" className="button flex items-center gap-1">
+                    <FaListUl />
+                    Claimed List
+                </Link>
             </div>
 
             {/* Display redeem codes */}

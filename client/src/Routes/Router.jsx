@@ -52,6 +52,7 @@ import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetail
 import OffersAndProducts from "../AdminDashboard/OfferAndProducts/OfferAndProducts";
 import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProducts/SpecialProductForm/SpecialProductForm";
 import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
+import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
 
 
 const router = createBrowserRouter([
@@ -242,6 +243,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/redeemCode",
         element: <RedeemCode />,
+      },
+      {
+        path: "/dashboard/redeemClaimedList",
+        element: <RedeemClaimedList />,
       },
       {
         path: "/dashboard/archivedUnipins",
