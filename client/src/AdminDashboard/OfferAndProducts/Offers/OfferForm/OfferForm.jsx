@@ -1,46 +1,112 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
+import { uploadImage } from "../../../../utils/uploadImage";
+import toast, { Toaster } from "react-hot-toast";
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
 
 const OfferForm = () => {
-    const { id } = useParams(); // optional ID
+    const { id } = useParams(); // ID for editing
     const navigate = useNavigate();
+    const axiosPrivate = useAxiosPrivate();
     const [loading, setLoading] = useState(false);
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
         stock: "",
         price: "",
         type: "",
-        shortDescription: ""
+        shortDescription: "",
+        image: "",
+        tutorialTitle: "",
+        tutorialUrl: "",
+        inputs: "",
     });
 
     // Fetch existing offer data if editing
     useEffect(() => {
         if (id) {
-            fetch(`/api/offers/${id}`)
-                .then((res) => res.json())
-                .then((data) => setFormData(data))
+            axiosPrivate.get(`/special/get?id=${id}`)
+                .then(({ data }) => {
+                    setFormData({
+                        ...data,
+                        inputs: data.inputs.join(", ")
+                    });
+                    if (data.image) {
+                        setPreview(data.image); // Show existing image
+                    }
+                })
                 .catch((err) => console.error("Error fetching offer:", err));
         }
-    }, [id]);
+    }, [id, axiosPrivate]);
 
     // Handle input changes
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Handle form submission
+    // Handle image selection
+    const handleImage = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setPreview(URL.createObjectURL(file)); // Show new preview
+        }
+    };
+
+    // Handle form submission (Add / Update)
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        console.log(formData);
+        try {
+            let imageUrl = formData.image; // Keep existing image
 
+            // Upload new image if selected
+            if (image) {
+                imageUrl = await uploadImage(image);
+            }
 
-        // call api here
-        navigate("/dashboard/offersAndProducts");
-        setLoading(false);
+            const payload = {
+                ...formData,
+                image: imageUrl,
+                price: Number(formData.price),
+                stock: Number(formData.stock),
+                inputs: formData.inputs.split(",").map((input) => input.trim()),
+            };
 
+            // console.log(payload);
+
+            if (id) {
+                // Update existing offer
+                const res = await axiosPrivate.patch(`/special/update?id=${id}`, payload);
+                // console.log(res.data);
+                
+                if (res.data.acknowledged) {
+                    toast.success("Offer Updated Successfully!");
+                }
+                else {
+                    toast.error("Something Went Wrong!");
+                }
+            } else {
+                // Add new offer
+                const res = await axiosPrivate.post("/special/new", payload);
+                // console.log(res.data);
+                if (res.data.acknowledged) {
+                    toast.success("Offer Added Successfully!");
+                }
+                else {
+                    toast.error("Something Went Wrong!");
+                }
+            }
+
+            navigate("/dashboard/offersAndProducts");
+        } catch (error) {
+            console.error("Error submitting offer:", error);
+            toast.error("Error submitting offer");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -67,22 +133,49 @@ const OfferForm = () => {
                             <label className="input-label">Type</label>
                             <select name="type" className="input" value={formData.type} onChange={handleChange} required>
                                 <option value="" disabled>Choose One</option>
-                                <option value="taka">Taka</option>
+                                <option value="balance">Balance</option>
                                 <option value="coin">Coin</option>
                             </select>
                         </div>
                     </div>
 
-                    {/* textarea / description */}
-                    <div>
-                        <label className="input-label">Short Description</label>
-                        <textarea name="shortDescription" className="input h-20" value={formData.shortDescription} onChange={handleChange} placeholder="Short Description" required></textarea>
+                    {/* Image Upload */}
+                    <div className="space-y-2">
+                        <label className="input-label">Upload Image</label>
+                        <input type="file" accept="image/*" onChange={handleImage} className="input cursor-pointer" />
+                        {preview && <img src={preview} alt="Preview" className="mt-3 max-h-48 object-cover" />}
                     </div>
+
+                    {/* Extra Fields */}
+                    <div className="space-y-2 mt-5">
+                        <div>
+                            <label className="input-label">Tutorial Title</label>
+                            <input type="text" name="tutorialTitle" className="input" value={formData.tutorialTitle} onChange={handleChange} placeholder="Tutorial Title" />
+                        </div>
+
+                        <div>
+                            <label className="input-label">Tutorial URL</label>
+                            <input type="text" name="tutorialUrl" className="input" value={formData.tutorialUrl} onChange={handleChange} placeholder="Tutorial URL" />
+                        </div>
+
+                        <div>
+                            <label className="input-label">Inputs (comma-separated)</label>
+                            <input type="text" name="inputs" className="input" value={formData.inputs} onChange={handleChange} placeholder="Enter inputs, separated by commas" />
+                        </div>
+
+                        {/* Textarea / Description */}
+                        <div>
+                            <label className="input-label">Short Description</label>
+                            <textarea name="shortDescription" className="input h-20" value={formData.shortDescription} onChange={handleChange} placeholder="Short Description" required></textarea>
+                        </div>
+                    </div>
+
                     <button className="button mt-6 mx-auto flex" disabled={loading}>
                         {loading ? "Please Wait..." : id ? "Update Offer" : "Submit"}
                     </button>
                 </form>
             </div>
+            <Toaster />
         </div>
     );
 };

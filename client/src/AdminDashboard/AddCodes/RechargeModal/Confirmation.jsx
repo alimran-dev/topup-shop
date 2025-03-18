@@ -1,12 +1,49 @@
 import PropTypes from "prop-types";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import Swal from "sweetalert2";
 
 const Confirmation = ({
   selectedCompany,
   selectedCategory,
   selectedOption,
   cards,
+  setIsOpenCards,
+  resetTextarea,
+  setSelectedCompany,
+  setSelectedCategory,
+  setSelectedOption,
+  setNext,
 }) => {
-  const handleConfirm = () => {};
+
+  const axiosPrivate = useAxiosPrivate();
+
+
+  // confirmation fn
+  const handleConfirm = () => {
+
+    axiosPrivate
+      .post(`/code/admin/add/rechargeCards/${selectedOption.id}`, cards)
+      .then((res) => {
+        console.log(res.data);
+        Swal.fire({
+          position: "top",
+          icon: "success",
+          title: `${selectedOption.name} codes added.`,
+          showConfirmButton: false,
+          timer: 5000,
+          toast: true,
+        });
+        setIsOpenCards(false);
+        resetTextarea();
+        setSelectedCompany({ _id: "" });
+        setSelectedCategory("");
+        setSelectedOption({ _id: "" });
+        setNext("companies");
+      });
+    
+  };
+
+
   return (
     <div>
       <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
@@ -61,4 +98,10 @@ Confirmation.propTypes = {
   selectedCategory: PropTypes.string.isRequired,
   selectedOption: PropTypes.object.isRequired,
   cards: PropTypes.array.isRequired,
+  setIsOpenCards: PropTypes.func.isRequired,
+  setNext: PropTypes.func.isRequired,
+  setSelectedOption: PropTypes.func.isRequired,
+  setSelectedCategory: PropTypes.func.isRequired,
+  setSelectedCompany: PropTypes.func.isRequired,
+  resetTextarea: PropTypes.func.isRequired,
 };

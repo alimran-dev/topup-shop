@@ -15,6 +15,9 @@ import useAuth from "../../hooks/useAuth";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import OptionCard from "./OptionCard";
+import rechargeImg from "../../assets/images/recharge-card.jpeg";
+import toast from 'react-hot-toast';
+
 
 const CardsOptions = () => {
   const [selected, setSelected] = useState({ _id: "", price: 0 });
@@ -27,6 +30,8 @@ const CardsOptions = () => {
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
   const { user, setUser } = useAuth();
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [rechargeType, setRechargeType] = useState("prepaid");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,65 +51,97 @@ const CardsOptions = () => {
     quantity,
     selected.price,
   ]);
+
   console.log(options);
 
   const handlePurchase = () => {
+
     setError("");
-    setIsLoading(true);
-    if (!selected._id || !selected.price || !quantity) {
-      setError("Please select option and quantity");
-      setIsLoading(false);
-      return;
+    // setIsLoading(true);
+
+
+
+    if (location?.state?.docName == "mbMinCombo") {
+
+      if(mobileNumber == ""){
+        toast.error('Please Fill Mobile Number')
+      }
+
+      console.log(mobileNumber, rechargeType);
+      
+
+      console.log("hitted");
+
+      // api
     }
-    const order = { id: selected._id, email: user?.email, quantity };
-    axiosPrivate
-      .post("/order/new/auto/card", order)
-      .then((res) => {
-        // console.log(res.data);
+    else {
+      const order = { id: selected._id, email: user?.email, quantity };
+
+      if (!selected._id || !selected.price || !quantity) {
+        setError("Please select option and quantity");
         setIsLoading(false);
-        setUser({
-          ...user,
-          balance: user?.balance - res.data?.price,
-          orders: user?.orders + 1,
-          spent: user?.spent + price,
+        return;
+      }
+
+      axiosPrivate
+        .post("/order/new/auto/card", order)
+        .then((res) => {
+          // console.log(res.data);
+          setIsLoading(false);
+          setUser({
+            ...user,
+            balance: user?.balance - res.data?.price,
+            orders: user?.orders + 1,
+            spent: user?.spent + price,
+          });
+          navigate("/myOrders");
+        })
+        .catch((err) => {
+          setError(err.response.data.error);
+          setIsLoading(false);
         });
-        navigate("/myOrders");
-      })
-      .catch((err) => {
-        setError(err.response.data.error);
-        setIsLoading(false);
-      });
+    }
+
   };
+
+
   return (
     <div className="flex flex-col gap-5">
       <Loader isLoading={isLoading} />
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img
-          src={unipin}
+          src={location.state?.docName == "mbMinCombo" ? rechargeImg : unipin}
           alt=""
           className="w-24 h-20 md:w-28 md:h-24 rounded-[30px]"
         />
         <div>
           <p className="text-xl md:text-2xl font-semibold">
-            Unipin Voucher (BDT)
+            {location.state?.docName == "mbMinCombo" ? "MB & Minutes" : "Unipin Voucher (BDT)"}
           </p>
-          <p className="md:text-lg font-medium text-gray-500">Game / Top-Up</p>
+          {
+            !location.state?.docName == "mbMinCombo" &&
+            <p className="md:text-lg font-medium text-gray-500">Game / Top-Up</p>
+          }
+
         </div>
       </div>
       <div className="grid md:grid-cols-3 gap-5">
-        <div className="border-2 rounded p-3 md:hidden">
-          <Link
-            to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
-            target="_blank"
-            className="clr-text font-semibold flex items-center justify-center gap-1"
-          >
-            কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
-          </Link>
-        </div>
+        {
+          location.state?.docName != "mbMinCombo" &&
+          <div className="border-2 rounded p-3 md:hidden">
+            <Link
+              to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
+              target="_blank"
+              className="text-blue-700 font-semibold flex items-center justify-center gap-1"
+            >
+              কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
+            </Link>
+          </div>
+        }
         <div className="md:col-span-2 border-2 rounded">
           <h1 className="text-xl font-semibold py-2 px-5 border-b-2 flex items-center gap-2">
-            <TbSquareRoundedNumber1Filled className="text-red-500" /> Select
-            Category
+            <TbSquareRoundedNumber1Filled className="text-red-500" />
+            {location.state?.docName == "mbMinCombo" ? "Select Item" : "Select Category"}
           </h1>
           <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
@@ -118,39 +155,69 @@ const CardsOptions = () => {
           </div>
         </div>
         <div>
-          <div className="border-2 rounded p-3 mb-3 hidden md:block">
-            <Link
-              to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
-              target="_blank"
-              className="clr-text font-semibold flex items-center justify-center gap-1"
-            >
-              কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
-            </Link>
-          </div>
-          <div className="text-xl font-semibold py-2 px-5 border-2 rounded flex md:flex-col lg:flex-row items-center gap-2 w-full">
-            <h2 className="flex-1 flex items-center gap-2">
-              <TbSquareRoundedNumber2Filled className="text-red-500" /> Quantity
-            </h2>
-            <div className="flex items-center gap-2 border-[3px] rounded-full">
-              <span
-                onClick={() => quantity > 1 && setQuantity(quantity - 1)}
-                className="cursor-pointer w-full h-full py-3 pl-3"
+
+          {
+            location.state?.docName != "mbMinCombo" &&
+            <div className="border-2 rounded p-3 mb-3 hidden md:block">
+              <Link
+                to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
+                target="_blank"
+                className="text-blue-600 font-semibold flex items-center justify-center gap-1"
               >
-                <FaMinus className="text-base" />
-              </span>
-              <input
-                className="w-10 text-center"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-              ></input>
-              <span
-                onClick={() => setQuantity(quantity + 1)}
-                className="cursor-pointer w-full h-full py-3 pr-3"
-              >
-                <FaPlus className="text-base" />
-              </span>
+                কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
+              </Link>
             </div>
-          </div>
+          }
+          {
+            location.state?.docName != "mbMinCombo" &&
+            <div className="text-xl font-semibold py-2 px-5 border-2 rounded flex md:flex-col lg:flex-row items-center gap-2 w-full">
+              <h2 className="flex-1 flex items-center gap-2">
+                <TbSquareRoundedNumber2Filled className="text-red-500" /> Quantity
+              </h2>
+              <div className="flex items-center gap-2 border-[3px] rounded-full">
+                <span
+                  onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+                  className="cursor-pointer w-full h-full py-3 pl-3"
+                >
+                  <FaMinus className="text-base" />
+                </span>
+                <input
+                  className="w-10 text-center"
+                  value={quantity}
+                  onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
+                ></input>
+                <span
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="cursor-pointer w-full h-full py-3 pr-3"
+                >
+                  <FaPlus className="text-base" />
+                </span>
+              </div>
+            </div>
+          }
+
+
+
+          {/* inputs for mbMinCombo */}
+          {
+            location.state?.docName == "mbMinCombo" &&
+            <form className="p-3 border rounded">
+              <div>
+                <label>Mobile Number</label>
+                <input type="number" onChange={(e) => setMobileNumber(e.target.value)} className="w-full px-3 py-1 rounded border mt-1 mb-3" placeholder="Type mobile number" value={mobileNumber} required />
+              </div>
+              <div>
+                <label>Type</label>
+                <select onChange={(e) => setRechargeType(e.target.value)} className="w-full px-3 py-1 rounded border mt-1" value={rechargeType}>
+                  <option value="prepaid">Prepaid</option>
+                  <option value="postpaid">Postpaid</option>
+                </select>
+              </div>
+            </form>
+          }
+
+
+
           <div className="border-2 rounded mt-3">
             <h2 className="text-xl text-center font-semibold border-b-2 py-2">
               Summary
@@ -221,6 +288,7 @@ const CardsOptions = () => {
           </div>
         </div>
       </div>
+
       <div className="border rounded-md">
         <h2 className="flex items-center gap-1 text-2xl font-semibold border rounded-md py-2 px-3">
           <HiOutlineInformationCircle className="mt-0.5" /> Rules & Conditions

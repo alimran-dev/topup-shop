@@ -2,7 +2,15 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
 const CompanyCard = ({ image, title, path, state }) => {
+
+  // console.log("title----",title);
+  // console.log("state----",state);
+  // console.log("path----",path);
+  
+
   const navigate = useNavigate();
+
+
   return (
     <div
       onClick={() => navigate(path,{state: state})}

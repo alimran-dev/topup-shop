@@ -8,13 +8,14 @@ const OffersAndProducts = () => {
     const [selectedTab, setSelectedTab] = useState("offers");
 
     const tabItems = [
-        {id: 1, name: "offers"},
-        {id: 2, name: "special products"},
-    ]
+        { id: 1, name: "offers" },
+        { id: 2, name: "special products" },
+    ];
+    
 
     return (
         <div>
-            
+
             {/* tab buttons */}
             <div className="flex justify-center items-center border-b border-b-slate-500">
                 {
@@ -29,13 +30,13 @@ const OffersAndProducts = () => {
             {/* content */}
             <div className="py-2 md:py-5">
                 {
-                    selectedTab  == "offers" && <Offers />
+                    selectedTab == "offers" && <Offers />
                 }
                 {
-                    selectedTab  == "special products" && <SpecialProducts />
+                    selectedTab == "special products" && <SpecialProducts />
                 }
             </div>
-        
+
         </div>
     );
 };
