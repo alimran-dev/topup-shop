@@ -3,26 +3,38 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Pagination, Navigation } from "swiper/modules";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { BsCoin } from "react-icons/bs";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { Link } from "react-router-dom";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 
 const SpecialOffers = () => {
 
+    const [offers, setoffers] = useState([]);
+    const [loading, setLoading] = useState(false);
     const swiperRef = useRef(null);
+    const axiosPublic = useAxiosPublic();
 
-    const offers = [
-        { id: 1, name: "Offer 1", description: "Limited-time discount on coins!", price: 100, type: "coin", stock: 10 },
-        { id: 2, name: "Offer 2", description: "Exclusive token deal!", price: 200, type: "tk", stock: 0 },
-        { id: 3, name: "Offer 3", description: "Special bonus for premium users!", price: 150, type: "coin", stock: 10 },
-    ];
+    // load offers
+    useEffect(() => {
+        setLoading(true);
+        const fetchData = async () => {
+            const res = await axiosPublic.get("/special/all");
+            setoffers(res?.data || []);
+            setLoading(false);
+        };
+        fetchData();
+    }, [axiosPublic]);
 
+    if (loading) {
+        return <div className="py-10 text-center">Loading...</div>
+    }
 
     return (
-        <div className="pb-16 md:py-20 relative">
+        <div className={`${offers?.length >= 3 ? "pb-16 md:pb-20" : "md:pb-3"} md:pt-5 relative`}>
             <h2 className="title">Special Offers</h2>
             <Swiper
                 onSwiper={(swiper) => (swiperRef.current = swiper)}
@@ -32,22 +44,21 @@ const SpecialOffers = () => {
                     640: { slidesPerView: 2 },
                     768: { slidesPerView: 2 },
                     1024: { slidesPerView: 3 },
+                    1280: { slidesPerView: 4 },
                 }}
                 // pagination={{ clickable: true }}
                 modules={[Pagination, Navigation]}
                 className="w-full"
             >
-                {[...offers, ...offers, ...offers]?.map(offer => (
+                {offers?.map(offer => (
                     <SwiperSlide key={offer?.id}>
                         <div className="block">
-                            <div className="bg-white rounded-md p-4 text-center border border-gray-300 h-full flex flex-col justify-center">
-                                <h3 className="text-lg font-semibold mb-1">{offer?.name}</h3>
-                                <p className="text-gray-500 mb-2 text-sm h-10 overflow-hidden">
-                                    {
-                                        offer?.description?.length > 32 ?
-                                            `${offer?.description?.slice(0, 32)}...` : offer?.description
-                                    }
+                            <div className="bg-white rounded-md p-4 text-center border border-gray-300 h-full flex flex-col justify-center relative">
+                                <p className={`absolute top-2 right-2 text-white text-[10px] md:text-xs font-semibold badge ${offer?.stock > 0 ? 'badge-success' : 'badge-error'}`}>
+                                    {offer?.stock > 0 ? "In Stock" : "Stock Out"}
                                 </p>
+                                <img src={offer?.image} className="w-full max-h-36 object-cover" alt={offer?.title || "Offer image"} />
+                                <h3 className="text-xs md:text-lg font-semibold mb-1 pt-3">{offer?.title}</h3>
                                 <p className="text-lg font-bold text-blue-600 flex justify-center items-center">
                                     {
                                         offer?.type == "coin" ?
@@ -55,10 +66,7 @@ const SpecialOffers = () => {
                                     }
                                     {offer?.price}
                                 </p>
-                                <p className={`text-sm font-semibold ${offer?.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {offer.stock > 0 ? "In Stock" : "Out of Stock"}
-                                </p>
-                                <Link to={`/special-offer-details/${offer?.id}`} className="button md:w-fit md:mx-auto mt-3">
+                                <Link to={`/special-offer-details/${offer?._id}`} className="button md:w-fit md:mx-auto !text-xs md:!text-base mt-3">
                                     Get Offer
                                 </Link>
                             </div>
@@ -66,7 +74,7 @@ const SpecialOffers = () => {
                     </SwiperSlide>
                 ))}
             </Swiper>
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4">
+            <div className={`${offers?.length < 3 && "hidden"} absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4`}>
                 <button
                     onClick={() => swiperRef.current?.slidePrev()}
                     className="p-2 bg-primary text-white rounded-full hover:bg-gray-900 transition"

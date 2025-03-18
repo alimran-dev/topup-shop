@@ -245,7 +245,7 @@ const router = createBrowserRouter([
         element: <RedeemCode />,
       },
       {
-        path: "/dashboard/redeemClaimedList",
+        path: "/dashboard/redeemClaimedList/:id",
         element: <RedeemClaimedList />,
       },
       {

@@ -63,27 +63,21 @@ const RedeemCode = () => {
         <div>
             <h2 className="title">Redeem Code</h2>
 
-            <div className="flex flex-col md:flex-row justify-center items-center gap-x-5 gap-y-2">
-                {/* Add new redeem code */}
-                <div>
-                    <button onClick={() => document.getElementById('add_redeem_code').showModal()} className="button flex items-center gap-1">
-                        <FaPlus />
-                        Add Redeem Code
-                    </button>
-                    <dialog id="add_redeem_code" className="modal">
-                        <div className="modal-box bg-white">
-                            <form method="dialog">
-                                {/* If there is a button in form, it will close the modal */}
-                                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                            </form>
-                            <RedeemCodeForm setRedeemCodes={setRedeemCodes} />
-                        </div>
-                    </dialog>
-                </div>
-                <Link to="/dashboard/redeemClaimedList" className="button flex items-center gap-1">
-                    <FaListUl />
-                    Claimed List
-                </Link>
+            {/* Add new redeem code */}
+            <div>
+                <button onClick={() => document.getElementById('add_redeem_code').showModal()} className="button mx-auto flex items-center gap-1">
+                    <FaPlus />
+                    Add Redeem Code
+                </button>
+                <dialog id="add_redeem_code" className="modal">
+                    <div className="modal-box bg-white">
+                        <form method="dialog">
+                            {/* If there is a button in form, it will close the modal */}
+                            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                        </form>
+                        <RedeemCodeForm setRedeemCodes={setRedeemCodes} />
+                    </div>
+                </dialog>
             </div>
 
             {/* Display redeem codes */}
@@ -111,6 +105,11 @@ const RedeemCode = () => {
                             </div>
 
                             <div className="flex justify-between items-center pt-3 text-white text-xs md:text-sm">
+
+                                <Link to={`/dashboard/redeemClaimedList/${code?._id}`} className="button !bg-green-600 flex items-center gap-1">
+                                    <FaListUl />
+                                    List
+                                </Link>
 
                                 {/* update btn with modal */}
                                 <div>

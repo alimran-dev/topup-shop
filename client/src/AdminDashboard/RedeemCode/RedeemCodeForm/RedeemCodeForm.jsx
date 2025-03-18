@@ -29,7 +29,10 @@ const RedeemCodeForm = ({ redeemCodeData = null, setRedeemCodes }) => {
             try {
                 const res = await axiosPrivate.post('/redeem/add', values);
                 // console.log(res?.data);
-                toast.success('Successfully Added!');
+                if (res?.data) {
+                    setRedeemCodes(prev => [...prev, res?.data]);
+                    toast.success('Successfully Added!');
+                }
             } catch (error) {
                 // console.error("Error fetching redeem codes:", error);
                 toast.error('Something went wrong!');
@@ -41,16 +44,18 @@ const RedeemCodeForm = ({ redeemCodeData = null, setRedeemCodes }) => {
 
         // update api ---------------
         else {
-            console.log('update api, values:', values);
             try {
-                const res = await axiosPrivate.patch(`/redeem/update?id=${redeemCodeData?._id}`, values);
+                const isActive = e.target.isActive.value === "true";
+                const updatedValues = { ...values, isActive };
+
+                const res = await axiosPrivate.patch(`/redeem/update?id=${redeemCodeData?._id}`, updatedValues);
                 // console.log(res?.data);
 
                 // update the value 
                 setRedeemCodes(prevCodes =>
                     prevCodes.map(code =>
                         code._id === redeemCodeData?._id
-                            ? { ...code, ...values }  // Replace the old values with new ones
+                            ? { ...code, ...updatedValues }  // Replace the old values with new ones
                             : code
                     )
                 );
@@ -120,7 +125,22 @@ const RedeemCodeForm = ({ redeemCodeData = null, setRedeemCodes }) => {
                             <option value="coin">Coin</option>
                         </select>
                     </div>
-                    <div className="col-span-2">
+                    {redeemCodeData &&
+                        <div>
+                            <label className="input-label">Status</label>
+                            <select
+                                name="isActive"
+                                className="input"
+                                defaultValue={redeemCodeData ? redeemCodeData.isActive : ""}
+                                required
+                            >
+                                <option value="" disabled>Choose One</option>
+                                <option value={true}>True</option>
+                                <option value={false}>False</option>
+                            </select>
+                        </div>
+                    }
+                    <div className={`${redeemCodeData ? "" : "col-span-2"}`}>
                         <label className="input-label">Expire At</label>
                         <input
                             type="date"
