@@ -80,7 +80,7 @@ const addRedeemCode = async (req, res) => {
       claimedBy: [],
     };
     const result = await redeemCodesCollection.insertOne(newRedeemCode);
-    res.send(result);
+    res.send({...result,...newRedeemCode});
   } catch (err) {
     console.error("Redeem Code Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });

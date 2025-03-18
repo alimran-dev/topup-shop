@@ -49,6 +49,7 @@ const run = () => {
   const followUsRoutes = require("./routes/followUs.route");
   const coinRoutes = require("./routes/coins.route");
   const redeemRotues = require("./routes/redeem.route");
+  const specialOfferRoutes=require("./routes/specialOffer.route");
 
   // routes
   app.use("/auth", authRoute());
@@ -70,6 +71,7 @@ const run = () => {
   app.use("/follows", followUsRoutes());
   app.use("/coins", coinRoutes());
   app.use("/redeem", redeemRotues());
+  app.use("/special", specialOfferRoutes());
 };
 
 connectToDB((err) => {
