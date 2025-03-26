@@ -53,6 +53,7 @@ import OffersAndProducts from "../AdminDashboard/OfferAndProducts/OfferAndProduc
 import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProducts/SpecialProductForm/SpecialProductForm";
 import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
 import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
+import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
 
 
 const router = createBrowserRouter([
@@ -86,8 +87,12 @@ const router = createBrowserRouter([
         element: <RechargeCard />,
       },
       {
-        path: "special-offer-details/:id",
+        path: "/special-offer-details/:id",
         element: <SpecialOfferDetails />,
+      },
+      {
+        path: "/mobile-recharge",
+        element: <MobileRecharge />,
       },
       {
         path: "/contact",

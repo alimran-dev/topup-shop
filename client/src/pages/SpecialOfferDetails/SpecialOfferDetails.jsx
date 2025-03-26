@@ -5,11 +5,12 @@ import { TbCurrencyTaka } from "react-icons/tb";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
-
+import useAuth from "../../hooks/useAuth";
 
 const SpecialOfferDetails = () => {
     const { id } = useParams();
     const [offer, setOffer] = useState(null);
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [btnLoading, setBtnLoading] = useState(false);
     const axiosPublic = useAxiosPublic();
@@ -32,38 +33,45 @@ const SpecialOfferDetails = () => {
         e.preventDefault();
         setBtnLoading(true);
 
-        // Get input values as an array
+        // Get input values as an object
         const formData = new FormData(e.target);
-        const inputValues = offer?.inputs?.map((input) => `${input}: ${formData.get(input) || ""}`);
+        const inputValues = offer?.inputs?.reduce((acc, input) => {
+            acc[input] = formData.get(input) || "";
+            return acc;
+        }, {});
 
         // Check if any field is empty
-        if (inputValues.some(value => value.trim() === "")) {
+        if (Object.values(inputValues).some(value => value.trim() === "")) {
             toast.error("Please fill the boxes!");
             setBtnLoading(false);
             return;
         }
 
+        const orderData = {
+            id,
+            email: user?.email,
+            info: inputValues
+        }
 
-        console.log(inputValues);
+        try {
+            const res = await axiosPublic.post("/order/new/special", orderData);
 
-        setBtnLoading(false);
-        toast.success("Success");
+            console.log("res-------", res.data);
 
 
-        // try {
-        //     const res = await axiosPublic.post("/special/purchase", { id, inputs: inputValues });
-
-        //     if (res.data.success) {
-        //         toast.success("Purchase successful!");
-        //     } else {
-        //         toast.error("Purchase failed. Please try again.");
-        //     }
-        // } catch (error) {
-        //     toast.error("Something went wrong. Try again later.");
-        // }
-        // finally{
-        //     setBtnLoading(false);
-        // }
+            if (res.data.success) {
+                toast.success("Purchase successful!");
+            } else {
+                toast.error("Purchase failed. Please try again.");
+            }
+        } catch (error) {
+            console.log(error);
+            
+            toast.error(error?.response?.statusText || "Something went wrong. Try again later.");
+        }
+        finally {
+            setBtnLoading(false);
+        }
     };
 
 

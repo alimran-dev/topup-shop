@@ -35,15 +35,29 @@ const CardsOptions = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axiosPublic
-      .get(
-        `/option/all?category=recharge&id=${location.state?.id}&docName=${location.state?.docName}`
-      )
-      .then((res) => {
-        setOptions(res.data);
-        setIsLoading(false);
-      });
-    setPrice(selected.price * quantity);
+    if (location?.state?.docName == "mbMinCombo") {
+      axiosPublic
+        .get(
+          `/option/all?category=recharge&docName=minOffer&id=${location?.state?.id}`
+        )
+        .then((res) => {
+          
+          setOptions(res.data);
+          setIsLoading(false);
+        });
+      setPrice(selected.price * quantity);
+    }
+    else {
+      axiosPublic
+        .get(
+          `/option/all?category=recharge&id=${location.state?.id}&docName=${location.state?.docName}`
+        )
+        .then((res) => {
+          setOptions(res.data);
+          setIsLoading(false);
+        });
+      setPrice(selected.price * quantity);
+    }
   }, [
     axiosPublic,
     location.state?.docName,
@@ -52,7 +66,7 @@ const CardsOptions = () => {
     selected.price,
   ]);
 
-  console.log(options);
+
 
   const handlePurchase = () => {
 
@@ -63,12 +77,12 @@ const CardsOptions = () => {
 
     if (location?.state?.docName == "mbMinCombo") {
 
-      if(mobileNumber == ""){
+      if (mobileNumber == "") {
         toast.error('Please Fill Mobile Number')
       }
 
       console.log(mobileNumber, rechargeType);
-      
+
 
       console.log("hitted");
 
@@ -103,6 +117,10 @@ const CardsOptions = () => {
     }
 
   };
+
+
+  // console.log("location--------", location?.state);
+  // console.log(options);
 
 
   return (

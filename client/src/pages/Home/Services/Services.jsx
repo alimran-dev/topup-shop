@@ -52,19 +52,20 @@ const Services = () => {
               title="Recharge Card [All sim]"
             />
           </div>
-          <div className="flex-1">
-            <ServiceCard
-              image={rechargeOffer}
-              path="#"
-              title="Minutes & MB offer [All sim]"
-            />
-          </div>
-          {/* new recharge card */}
+          {/* new mb min combo card */}
           <div onClick={() => navigate("/cards/companies", {state: "mbMinCombo"})} className="flex-1">
             <ServiceCard
               image={rechargeOffer}
               path="/cards/companies"
               title="Minutes & MB offer"
+            />
+          </div>
+          {/* new manual recharge card */}
+          <div className="flex-1">
+            <ServiceCard
+              image={rechargeOffer}
+              path="/mobile-recharge"
+              title="Balance Recharge"
             />
           </div>
         </div>
