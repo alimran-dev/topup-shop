@@ -67,7 +67,7 @@ const addSpecialOffer = async (req, res) => {
       inputs.length == 0
     ) {
       return res.status(400).send({ message: "Invalid Request" });
-    } else if ((!priceInt && priceInt < 0) || (!stockInt && stockInt < 0)) {
+    } else if ((isNaN(priceInt) || priceInt < 0) || (isNaN(stockInt) || stockInt < 0)) {
       return res.status(400).send({ message: "Invalid price or stock" });
     } else if (type !== "balance" && type !== "coin") {
       return res.status(400).send({ message: "Invalid balance type" });
@@ -121,7 +121,7 @@ const updateSpecialOffer = async (req, res) => {
       inputs.length == 0
     ) {
       return res.status(400).send({ message: "Invalid Request" });
-    } else if ((!priceInt && priceInt < 0) || (!stockInt && stockInt < 0)) {
+    } else if ((isNaN(priceInt) || priceInt < 0) || (isNaN(stockInt) || stockInt < 0)) {
       return res.status(400).send({ message: "Invalid price or stock" });
     } else if (type !== "balance" && type !== "coin") {
       return res.status(400).send({ message: "Invalid balance type" });

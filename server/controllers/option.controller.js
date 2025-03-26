@@ -246,6 +246,12 @@ const addOption = async (req, res) => {
     } else if (category === "recharge") {
       const { docName, name, price, description, category, operator } =
         req.body || {};
+        const priceInt=parseInt(price);
+        if(docName!=="mbCard" && docName!=="minCard" && docName!=="balanceCard" && docName!=="mbOffer" && docName!=="minOffer" && docName!=="mbAndMinOffer"){
+          return res.status(400).send({message: "Invalid docName"});
+        } else if(isNaN(priceInt) || priceInt<0){
+          return res.status(400).send({message: "Invalid price"});
+        }
       const companyDb = await rechargeCollection.findOne({
         docName: "companies",
         name: operator,
@@ -294,6 +300,9 @@ const updateOption = async (req, res) => {
   try {
     const { id, category, name, price, description } = req.body || {};
     const filter = { _id: new ObjectId(id) };
+    if(isNaN(parseInt(price)) || parseInt(price)<0){
+      return res.status(400).send({message: "Invalid Price"});
+    }
     const updatedOption = {
       $set: {
         name: name,
