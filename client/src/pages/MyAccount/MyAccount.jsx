@@ -144,6 +144,9 @@ const MyAccount = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  console.log(user);
+  
+
   return (
     <div>
       <Loader isLoading={isLoading} />
