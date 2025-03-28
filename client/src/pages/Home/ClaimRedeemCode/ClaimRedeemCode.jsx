@@ -7,9 +7,8 @@ import toast from 'react-hot-toast';
 const ClaimRedeemCode = () => {
 
     const [btnLoading, setBtnLoading] = useState(false);
-    const { user, setUser } = useAuth();
+    const { user } = useAuth();
     const axiosPrivate = useAxiosPrivate();
-
 
 
     // redeem code claim fn
@@ -19,25 +18,32 @@ const ClaimRedeemCode = () => {
         setBtnLoading(true);
 
         const code = { code: e.target.code.value };
+        // console.log(code);
 
-        console.log(code);
+        // if user is not varified
+        if (!user?.isVerified) {
+            setBtnLoading(false);
+            toast.error("Please Verify Your Email!");
+            return;
+        }
 
-
+        // api call
         try {
             const res = await axiosPrivate.patch("/redeem/check", code);
-            console.log("redeem-------------", res.data);
+            if (res?.data?.success) {
+                toast.success(res?.data?.message || "Code Clamined!");
+            }
+            else {
+                toast.error("Something Went Wrong!");
+            }
         } catch (error) {
             // console.error("Error fetching claimed codes:", error);
-            toast.error(error.response.data.message || "Something Went Wrong!")
+            toast.error(error.response.data.message || "Something Went Wrong!");
         } finally {
 
             setBtnLoading(false);
         }
     };
-
-
-    // console.log(user);
-
 
 
     return (

@@ -19,6 +19,7 @@ const OrderHistory = ({ order }) => {
     updateTime,
     codes,
     feedback,
+    subCategory,
     info,
   } = order || {};
   const handleCopy = async () => {
@@ -125,9 +126,6 @@ const OrderHistory = ({ order }) => {
           }
           {/* feedback */}
 
-
-
-
         </div>
       </div>
 
@@ -185,11 +183,15 @@ const OrderHistory = ({ order }) => {
               {/* order summary */}
               <div>
                 <h4 className="font-bold pb-2">Order Summary</h4>
+
+
                 <p className="flex items-center gap-3 pb-1">
                   <span className="w-24 font-semibold">Category</span>
                   <span>:</span>
-                  <span>{category}</span>
+                  <span>{subCategory ||category}</span>
                 </p>
+
+
                 <p className="flex items-center gap-3 pb-1">
                   <span className="w-24 font-semibold">Package</span>
                   <span>:</span>

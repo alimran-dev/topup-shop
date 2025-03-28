@@ -41,6 +41,9 @@ const MyOrders = () => {
   }, [axiosPrivate, loading, user?.email, limit]);
 
 
+  console.log(orders);
+  
+
   return (
     <div>
       <Loader isLoading={isLoading} />

@@ -213,7 +213,7 @@ const OrderCard = ({ order }) => {
             <span className="font-bold pr-1">Price:</span><TbCurrencyTaka /> {price}
           </p>
           {info && Object.entries(info).map(([key, value], idx) => (
-            <p key={idx} className="flex items-center gap-3">
+            <div key={idx} className="flex items-center gap-3">
               <span className="font-bold">{key}: </span>
               <p className="flex items-center gap-1">
                 <span>{value}</span>
@@ -223,7 +223,7 @@ const OrderCard = ({ order }) => {
                   </button>
                 </CopyToClipboard>
               </p>
-            </p>
+            </div>
           ))}
         </div>
 
