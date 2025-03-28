@@ -6,6 +6,7 @@ import { FaExternalLinkAlt } from "react-icons/fa";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const SpecialOfferDetails = () => {
     const { id } = useParams();
@@ -14,6 +15,7 @@ const SpecialOfferDetails = () => {
     const [loading, setLoading] = useState(false);
     const [btnLoading, setBtnLoading] = useState(false);
     const axiosPublic = useAxiosPublic();
+    const axiosPrivate = useAxiosPrivate();
 
 
     // load offers
@@ -47,34 +49,40 @@ const SpecialOfferDetails = () => {
             return;
         }
 
+        // if user is not varified
+        if(!user?.isVerified){
+            setBtnLoading(false);
+            toast.error("Please Verify Your Email!");
+            return;
+        }
+
         const orderData = {
             id,
             email: user?.email,
             info: inputValues
-        }
+        };
+
+        // console.log(orderData);
+        
 
         try {
-            const res = await axiosPublic.post("/order/new/special", orderData);
+            const res = await axiosPrivate.post("/order/new/special", orderData);
 
-            console.log("res-------", res.data);
-
-
+            // console.log("res-------", res.data);
             if (res.data.success) {
                 toast.success("Purchase successful!");
             } else {
                 toast.error("Purchase failed. Please try again.");
             }
         } catch (error) {
-            console.log(error);
-            
-            toast.error(error?.response?.statusText || "Something went wrong. Try again later.");
+            // console.log(error);
+            toast.error(error?.response?.data?.message || "Something went wrong. Try again later.");
         }
         finally {
             setBtnLoading(false);
         }
     };
-
-
+    
 
     if (loading) {
         return <div className="py-10 text-center">Loading...</div>

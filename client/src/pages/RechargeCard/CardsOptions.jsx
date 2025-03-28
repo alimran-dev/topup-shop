@@ -36,11 +36,14 @@ const CardsOptions = () => {
 
   useEffect(() => {
     if (location?.state?.docName == "mbMinCombo") {
+      console.log("hitted min combo api");
+      
       axiosPublic
         .get(
-          `/option/all?category=recharge&docName=minOffer&id=${location?.state?.id}`
+          `/option/all?category=recharge&docName=mbOffer&id=${location?.state?.id}`
         )
         .then((res) => {
+          console.log(res.data);
           
           setOptions(res.data);
           setIsLoading(false);

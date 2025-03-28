@@ -2,15 +2,20 @@ import { useState } from "react";
 import { allCategories } from "../../utils/categories";
 
 
-const FilterOrders = () => {
+const FilterOrders = ({setOrders}) => {
 
     const [searchEmail, setSearchEmail] = useState('');
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const categories = allCategories();
 
+    // filter with email
+    const handleFilterByEmail = async() => {
+        
+    };
 
-    const handleFilter = (e) => {
+    // filter fm
+    const handleFilter = async(e) => {
         e.preventDefault();
 
         const category = e.target.category.value;
@@ -21,7 +26,6 @@ const FilterOrders = () => {
             toDate,
             category,
             subCategory,
-            email: searchEmail,
         });
     };
 
