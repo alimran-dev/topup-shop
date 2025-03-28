@@ -417,12 +417,12 @@ const orderSpecialOffer = async (req, res) => {
     }
     const user = await userCollection.findOne({ email: email });
     if (!user) {
-      return res.status(401).send({ error: "User Not Found" });
+      return res.status(401).send({ message: "User Not Found" });
     } else if (
       (option.type === "balance" && user.balance < option.price) ||
       (option.type === "coin" && user.coins < option.price)
     ) {
-      return res.status(400).send({ error: "You don't have enough balance" });
+      return res.status(400).send({ message: "You don't have enough balance" });
     }
     const userUpdateDoc = {};
     if (option.type === "balance") {
