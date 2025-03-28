@@ -51,7 +51,7 @@ const SpecialOffers = () => {
                 className="w-full"
             >
                 {offers?.map(offer => (
-                    <SwiperSlide key={offer?.id}>
+                    <SwiperSlide key={offer?._id}>
                         <div className="block">
                             <div className="bg-white rounded-md p-4 text-center border border-gray-300 h-full flex flex-col justify-center relative">
                                 <p className={`absolute top-2 right-2 text-white text-[10px] md:text-xs font-semibold badge ${offer?.stock > 0 ? 'badge-success' : 'badge-error'}`}>

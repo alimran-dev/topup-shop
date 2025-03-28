@@ -1,37 +1,36 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-
+import toast from 'react-hot-toast';
 
 
 const ClaimRedeemCode = () => {
 
-    const [loading, setLoading] = useState(false);
     const [btnLoading, setBtnLoading] = useState(false);
     const { user, setUser } = useAuth();
     const axiosPrivate = useAxiosPrivate();
 
 
-    useEffect(() => {
-        const fetchData= async () => {
-
-        };
-
-        fetchData();
-    }, []);
-
 
     // redeem code claim fn
-    const handleClaimRedeemCode = async () => {
-        setBtnLoading(true);
-        try {
-            const res = await axiosPrivate.get(`/redeem/check`);
-            console.log("redeem-------------", res.data);
+    const handleClaimRedeemCode = async (e) => {
 
-            // setClaimedCodes(res.data);
+        e.preventDefault()
+        setBtnLoading(true);
+
+        const code = { code: e.target.code.value };
+
+        console.log(code);
+
+
+        try {
+            const res = await axiosPrivate.patch("/redeem/check", code);
+            console.log("redeem-------------", res.data);
         } catch (error) {
-            console.error("Error fetching claimed codes:", error);
+            // console.error("Error fetching claimed codes:", error);
+            toast.error(error.response.data.message || "Something Went Wrong!")
         } finally {
+
             setBtnLoading(false);
         }
     };
@@ -46,7 +45,7 @@ const ClaimRedeemCode = () => {
             <h2 className="text-center text-primary text-base md:text-xl font-bold mb-2 uppercase">Claim Redeem Code</h2>
             <form onSubmit={handleClaimRedeemCode}>
                 <div className="relative">
-                    <input type="text" className="input !rounded-full" placeholder="Type Redeem Code..." />
+                    <input type="text" name="code" className="input !rounded-full" placeholder="Type Redeem Code..." />
                     <button type="submit" className="absolute top-2 right-2 bg-primary px-5 py-1 text-white rounded-full" disabled={btnLoading}>
                         {btnLoading ? "Loading..." : "Claim"}
                     </button>
