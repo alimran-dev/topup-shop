@@ -25,7 +25,7 @@ app.use(
 );
 app.use(passport.initialize());
 
-webpush.generateVAPIDKeys(
+webpush.setVapidDetails(
   "mailto:abir932islam@gmail.com",
   process.env.VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY

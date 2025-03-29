@@ -17,25 +17,28 @@ const subscribe=async (req,res)=>{
 }
 
 
-const sendNotification=async(req,res)=>{
-  try{
-    const user=await userCollection.findOne({email: "test@gmail.com"});
-    // webpush.generateVAPIDKeys(
-    //   "mailto:support@mezbashop.com",
-    //   process.env.VAPID_PUBLIC_KEY,
-    //   process.env.VAPID_PRIVATE_KEY
-    // );
-    console.log(user);
+const sendNotification = async (req, res) => {
+  try {
+    const user = await userCollection.findOne({email: "test@gmail.com"});
     
-    const payload={
-      title: "Test notification",
-      body: "Helllllo"
+    if (!user || !user.subscription) {
+      return res.status(404).send({ success: false, error: "User or subscription not found" });
     }
-    webpush.sendNotification(user.subscription, JSON.stringify(payload));
-    res.send("Notification sent")
-  }catch(err){
-    console.error("Notification: ", err);
-    res.status(500).send({ success: false, error: "Internal Server Error" });
+
+    const payload = {
+      title: "Test notification",
+      body: "Hello from MezbaShop"
+    };
+
+    await webpush.sendNotification(
+      user.subscription, 
+      JSON.stringify(payload)
+    );
+    
+    res.send({ success: true, message: "Notification sent" });
+  } catch (err) {
+    console.error("Notification error: ", err);
+    res.status(500).send({ success: false, error: err.message });
   }
 }
 
