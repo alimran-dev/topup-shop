@@ -19,8 +19,8 @@ const CardCategory = () => {
             title={"MB"}
             path="./../options"
             state={location.state?.docName === "mbMinOffer"
-              ? { id: location.state?.id, docName: "mbOffer", service: "recharge", title: "MB Offer" }
-              : { id: location.state?.id, docName: "mbCard", service: "recharge", title: "MB Card" }}
+              ? { id: location.state?.id, docName: "mbOffer", type: "offerCard", title: "MB Offer" }
+              : { id: location.state?.id, docName: "mbCard", title: "MB Card" }}
           />
         </div>
         <div className="flex-1">
@@ -29,8 +29,8 @@ const CardCategory = () => {
             title={"Minutes"}
             path="./../options"
             state={location.state?.docName === "mbMinOffer"
-              ? { id: location.state?.id, docName: "minOffer", service: "recharge", title: "Minute Offer" }
-              : { id: location.state?.id, docName: "minCard", service: "recharge", title: "Minute Card" }}
+              ? { id: location.state?.id, docName: "minOffer", type: "offerCard", title: "Minute Offer" }
+              : { id: location.state?.id, docName: "minCard", title: "Minute Card" }}
           />
         </div>
         <div className="flex-1">
@@ -39,8 +39,8 @@ const CardCategory = () => {
             title={location.state?.docName == "mbMinOffer" ? "MB + Minutes" : "Balance"}
             path="./../options"
             state={location.state?.docName === "mbMinOffer"
-              ? { id: location.state?.id, docName: "mbAndMinOffer", service: "recharge", title: "MB & Minute Combo Offer" }
-              : { id: location.state?.id, docName: "balanceCard", service: "recharge", title: "Balance Card" }}
+              ? { id: location.state?.id, docName: "mbAndMinOffer", type: "offerCard", title: "MB & Minute Combo Offer" }
+              : { id: location.state?.id, docName: "balanceCard", title: "Balance Card" }}
           />
         </div>
       </div>
