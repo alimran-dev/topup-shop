@@ -28,7 +28,7 @@ const countSpentMonth = async (email) => {
   ];
   const orderStats = await orderCollection.aggregate(pipeline).toArray();
   const totalSpent = orderStats.length > 0 ? orderStats[0].totalSpent : 0;
-  console.log(totalSpent);
+  // console.log(totalSpent);
   return totalSpent;
 };
 
@@ -349,7 +349,7 @@ const getAllUser = async (req, res) => {
     const { page, limit, search } = req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
-    console.log(pageInt, limitInt);
+    // console.log(pageInt, limitInt);
     let filter = {};
     if (search) {
       filter = { email: { $regex: new RegExp(search, "i") } };
