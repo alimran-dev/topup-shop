@@ -11,7 +11,7 @@ const OptionCard = ({ idx, option, selected, setSelected, purchaseRef }) => {
             setSelected({ idx, name, price });
             
             setTimeout(() => {
-                purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }, 200); // Delay to ensure the selection is set before scrolling
         }
 

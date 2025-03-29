@@ -53,7 +53,7 @@ const Services = () => {
             />
           </div>
           {/* new mb min combo card */}
-          <div onClick={() => navigate("/cards/companies", {state: "mbMinCombo"})} className="flex-1">
+          <div onClick={() => navigate("/cards/companies", {state: "mbMinOffer"})} className="flex-1">
             <ServiceCard
               image={rechargeOffer}
               path="/cards/companies"

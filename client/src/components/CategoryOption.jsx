@@ -8,7 +8,7 @@ const CategoryOption = ({ option, selected, setSelected, purchaseRef }) => {
       setSelected({ _id, name, price });
 
       setTimeout(() => {
-        purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }, 200); // Delay to ensure the selection is set before scrolling
     }
   };

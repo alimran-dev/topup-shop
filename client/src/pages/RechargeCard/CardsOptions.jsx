@@ -35,7 +35,7 @@ const CardsOptions = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location?.state?.docName == "mbMinCombo") {
+    if (location?.state?.docName == "mbMinOffer") {
       console.log("hitted min combo api");
       
       axiosPublic
@@ -70,7 +70,6 @@ const CardsOptions = () => {
   ]);
 
 
-
   const handlePurchase = () => {
 
     setError("");
@@ -78,7 +77,7 @@ const CardsOptions = () => {
 
 
 
-    if (location?.state?.docName == "mbMinCombo") {
+    if (location?.state?.docName == "mbOffer" || location?.state?.docName == "minOffer" || location?.state?.docName == "mbAndMinOffer") {
 
       if (mobileNumber == "") {
         toast.error('Please Fill Mobile Number')
@@ -131,16 +130,16 @@ const CardsOptions = () => {
       <Loader isLoading={isLoading} />
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img
-          src={location.state?.docName == "mbMinCombo" ? rechargeImg : unipin}
+          src={location.state?.service == "recharge" ? rechargeImg : unipin}
           alt=""
           className="w-24 h-20 md:w-28 md:h-24 rounded-[30px]"
         />
         <div>
           <p className="text-xl md:text-2xl font-semibold">
-            {location.state?.docName == "mbMinCombo" ? "MB & Minutes" : "Unipin Voucher (BDT)"}
+            {location.state?.service == "recharge" ? location?.state?.title : "Unipin Voucher (BDT)"}
           </p>
           {
-            !location.state?.docName == "mbMinCombo" &&
+            location.state?.service != "recharge" &&
             <p className="md:text-lg font-medium text-gray-500">Game / Top-Up</p>
           }
 
@@ -148,7 +147,7 @@ const CardsOptions = () => {
       </div>
       <div className="grid md:grid-cols-3 gap-5">
         {
-          location.state?.docName != "mbMinCombo" &&
+          location.state?.service != "recharge" &&
           <div className="border-2 rounded p-3 md:hidden">
             <Link
               to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
@@ -162,7 +161,7 @@ const CardsOptions = () => {
         <div className="md:col-span-2 border-2 rounded">
           <h1 className="text-xl font-semibold py-2 px-5 border-b-2 flex items-center gap-2">
             <TbSquareRoundedNumber1Filled className="text-red-500" />
-            {location.state?.docName == "mbMinCombo" ? "Select Item" : "Select Category"}
+            {location.state?.docName == "mbMinOffer" ? "Select Item" : "Select Category"}
           </h1>
           <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
@@ -178,7 +177,7 @@ const CardsOptions = () => {
         <div>
 
           {
-            location.state?.docName != "mbMinCombo" &&
+            location.state?.service != "recharge" &&
             <div className="border-2 rounded p-3 mb-3 hidden md:block">
               <Link
                 to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
@@ -190,7 +189,7 @@ const CardsOptions = () => {
             </div>
           }
           {
-            location.state?.docName != "mbMinCombo" &&
+           location.state?.service != "recharge" &&
             <div className="text-xl font-semibold py-2 px-5 border-2 rounded flex md:flex-col lg:flex-row items-center gap-2 w-full">
               <h2 className="flex-1 flex items-center gap-2">
                 <TbSquareRoundedNumber2Filled className="text-red-500" /> Quantity
@@ -217,11 +216,9 @@ const CardsOptions = () => {
             </div>
           }
 
-
-
-          {/* inputs for mbMinCombo */}
+          {/* inputs for mbMinOffer */}
           {
-            location.state?.docName == "mbMinCombo" &&
+            location.state?.docName == "mbMinOffer" &&
             <form className="p-3 border rounded">
               <div>
                 <label>Mobile Number</label>
