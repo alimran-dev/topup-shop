@@ -2,7 +2,7 @@ import { TbCurrencyTaka } from "react-icons/tb";
 import PropTypes from "prop-types";
 
 const OptionCard = ({ option, selected, setSelected }) => {
-  const { _id, name, price, description, inStock } = option || {};
+  const { _id, name, price, description, stock: inStock } = option || {};
 
   return (
     <div

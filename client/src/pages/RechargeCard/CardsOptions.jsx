@@ -19,7 +19,7 @@ import toast from 'react-hot-toast';
 
 
 const CardsOptions = () => {
-  const [selected, setSelected] = useState({ _id: "", price: 0 });
+  const [selected, setSelected] = useState({ id: "", price: 0 });
   const [quantity, setQuantity] = useState(1);
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,8 +57,9 @@ const CardsOptions = () => {
     setError("");
     setIsLoading(true);
     
+    // console.log(selected.id, selected.price);
   
-    if (!selected._id || !selected.price || !quantity) {
+    if (!selected.id || !selected.price) {
       setError("Please select an option");
       setIsLoading(false);
       return;
@@ -70,13 +71,18 @@ const CardsOptions = () => {
         toast.error('Please Fill Mobile Number')
       }
 
-      console.log(mobileNumber, rechargeType);
+      // console.log(mobileNumber, rechargeType);
 
-      const orderData = {};
+      const orderData = {
+        id: selected.id,
+        email: user.email,
+        type: rechargeType,
+        phone: mobileNumber
+      };
 
       // api call
       axiosPrivate
-        .post("/order/new/auto/card", orderData)
+        .post("/order/recharge/offer", orderData)
         .then((res) => {
           console.log(res.data);
           setIsLoading(false);

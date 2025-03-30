@@ -1,6 +1,7 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { cookieOption } = require("../utils/cookieOption");
+const notificationSender = require("../utils/notificationSender");
 const {
   orderCollection,
   unipinCollection,
@@ -238,6 +239,17 @@ const orderDynamic = async (req, res) => {
         { _id: new ObjectId(id) },
         { $set: { options: service.options } }
       );
+      const adminUsers = await userCollection.find({ role: "admin" }).toArray();
+      adminUsers.map((admin) => {
+        if (admin.subscription) {
+          notificationSender(
+            admin.subscription,
+            "New Pending Order",
+            option.name,
+            "https://mezbashop.com/dashboard/orders"
+          );
+        }
+      });
       const result = await orderCollection.insertOne(order);
       res.send({ ...result, success: true, price: option.price });
     } else {
@@ -252,43 +264,49 @@ const orderDynamic = async (req, res) => {
   }
 };
 
-const orderRechargeOffer=async(req,res)=>{
-  try{
-    const {id,email,type,phone}=req.body || {};
-    const emailInToken=req.user?.email;
-    if(email!==emailInToken){
+const orderRechargeOffer = async (req, res) => {
+  try {
+    const { id, email, type, phone } = req.body || {};
+    const orderTime = new Date();
+    const emailInToken = req.user?.email;
+    if (email !== emailInToken) {
       return res
-      .cookie("access-token", "", cookieOption(0))
-      .status(401)
-      .send({ message: "unauthorized" });
+        .cookie("access-token", "", cookieOption(0))
+        .status(401)
+        .send({ message: "unauthorized" });
     }
-    const user=await userCollection.findOne({email: email});
-    if(!user){
-      return res.send({success: false, message: "User does not exists"});
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.send({ success: false, message: "User does not exists" });
     }
-    const option=await rechargeCollection.findOne({_id: new ObjectId(id)});
-    if(!option){
-      return res.send({success: false, message: "Option does not exists"});
+    const option = await rechargeCollection.findOne({ _id: new ObjectId(id) });
+    if (!option) {
+      return res.send({ success: false, message: "Option does not exists" });
     }
-    if(!option.stock){
-      return res.send({success: false, message: "Stock out"});
+    if (!option.stock) {
+      return res.send({ success: false, message: "Stock out" });
     }
-    if(option.price>user.balance){
-      return res.send({success: false, message: "You don't have enough balance"});
+    if (option.price > user.balance) {
+      return res.send({
+        success: false,
+        message: "You don't have enough balance",
+      });
     }
     const userUpdate = await userCollection.updateOne(
       { email: email },
       {
         $set: {
-          balance: user.balance - orderPrice,
-          spent: user.spent + orderPrice,
+          balance: user.balance - option.price,
+          spent: user.spent + option.price,
           orders: user.orders + 1,
         },
       }
     );
-    if(userUpdate.modifiedCount){
+    if (userUpdate.modifiedCount) {
       const ordersCount = await orderCollection.countDocuments();
-      const simCompany=await rechargeCollection.findOne({_id: new ObjectId(option.docId)});
+      const simCompany = await rechargeCollection.findOne({
+        _id: new ObjectId(option.docId),
+      });
       const order = {
         optionID: new ObjectId(id),
         orderID: ordersCount + 1000,
@@ -304,18 +322,29 @@ const orderRechargeOffer=async(req,res)=>{
         info: {
           Type: type,
           Number: phone,
-          Sim: simCompany.name
-        }
+          Sim: simCompany.name,
+        },
       };
-      const result=await orderCollection.insertOne(order);
-      return res.send({...result,success: true, price: option.price});
+      const adminUsers = await userCollection.find({ role: "admin" }).toArray();
+      adminUsers.map((admin) => {
+        if (admin.subscription) {
+          notificationSender(
+            admin.subscription,
+            "New Pending Order",
+            option.name,
+            "https://mezbashop.com/dashboard/orders"
+          );
+        }
+      });
+      const result = await orderCollection.insertOne(order);
+      return res.send({ ...result, success: true, price: option.price });
     }
-    res.send({success: false, message: "Something went wrong"});
-  }catch(err){
+    res.send({ success: false, message: "Something went wrong" });
+  } catch (err) {
     console.error("orderRechargeOffer: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
 const orderBalanceRecharge = async (req, res) => {
   try {
@@ -323,8 +352,8 @@ const orderBalanceRecharge = async (req, res) => {
     const priceInt = parseInt(price);
     if (!email) {
       return res.status(400).send({ message: "Must provide user email" });
-    }else if(!phone){
-      return res.status(400).send({message: "Must provide phone number"});
+    } else if (!phone) {
+      return res.status(400).send({ message: "Must provide phone number" });
     } else if (isNaN(priceInt) || priceInt < 20) {
       return res
         .status(400)
@@ -370,9 +399,20 @@ const orderBalanceRecharge = async (req, res) => {
         info: {
           Type: type,
           Sim: company,
-          Number: phone
+          Number: phone,
         },
       };
+      const adminUsers = await userCollection.find({ role: "admin" }).toArray();
+      adminUsers.map((admin) => {
+        if (admin.subscription) {
+          notificationSender(
+            admin.subscription,
+            "New Pending Order",
+            `${price} taka recharge`,
+            "https://mezbashop.com/dashboard/orders"
+          );
+        }
+      });
       const result = await orderCollection.insertOne(order);
       return res.send({ ...result, success: true, price: priceInt });
     }
@@ -383,7 +423,7 @@ const orderBalanceRecharge = async (req, res) => {
   }
 };
 
-const orderSpecialOffer = async (req, res) => {
+const orderSpecialOffer = async (req, res) => { 
   try {
     const { id, email, info } = req.body || {};
     if (!email || !id) {
@@ -462,6 +502,17 @@ const orderSpecialOffer = async (req, res) => {
         { _id: new ObjectId(id) },
         { $set: updatedDoc, $push: { claimedBy: email } }
       );
+      const adminUsers = await userCollection.find({ role: "admin" }).toArray();
+      adminUsers.map((admin) => {
+        if (admin.subscription) {
+          notificationSender(
+            admin.subscription,
+            "New Pending Order",
+            option.title,
+            "https://mezbashop.com/dashboard/orders"
+          );
+        }
+      });
       const result = await orderCollection.insertOne(order);
       return res.send({ ...result, price: option.price, type: option.type });
     }

@@ -94,7 +94,7 @@ const getOption = async (req, res) => {
 const getAllOption = async (req, res) => {
   try {
     const { category, id, docName } = req.query;
-    console.log(category);
+    // console.log(category);
     const filterOption = {
       sort: { uc: 1 },
       projection: {

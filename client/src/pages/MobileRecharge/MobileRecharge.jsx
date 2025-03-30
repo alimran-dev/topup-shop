@@ -49,7 +49,7 @@ const MobileRecharge = () => {
         const rechargeData = { ...inputValues, companyName: selectedCompany?.name };
         // console.log(rechargeData);
 
-        navigate('/confirmPurchase', { state: { name: "balanceRecharge", orderData: rechargeData } });
+        navigate('/confirmPurchase', { state: { name: "balanceRecharge", orderData: rechargeData, inputValues } });
     };
 
 

@@ -20,6 +20,7 @@ const OrderCard = ({ order }) => {
   const {
     _id,
     orderID,
+    subCategory,
     category,
     name,
     email,
@@ -192,7 +193,7 @@ const OrderCard = ({ order }) => {
         <div className="w-full capitalize">
           <p className="capitalize">
             <span className="font-bold">Category: </span>
-            {category}
+            {subCategory || category}
           </p>
           <p className="">
             <span className="font-bold">Package: </span>
