@@ -94,19 +94,28 @@ const ConfirmPurchase = () => {
         }
 
         if (name == "balanceRecharge") {
+
+            const data = {
+                email: user?.email,
+                price: orderData?.amount,
+                phone: orderData?.number,
+                company: orderData?.companyName,
+                type: orderData?.type,
+            };
+
             axiosPrivate
-                .post("/order/new/auto/shell", orderData)
+                .post("/order/recharge/balance", data)
                 .then((res) => {
-                    console.log(res.data);
+                    // console.log(res.data, "-------recharge order");
                     toast.success("Order Placed Successfully!");
                     setLoading(false);
-                    // setUser({
-                    //     ...user,
-                    //     balance: user?.balance - res.data?.price,
-                    //     orders: user?.orders + 1,
-                    //     spent: user?.spent + selected?.price,
-                    // });
-                    navigate("/myOrders");
+                    setUser({
+                        ...user,
+                        balance: user?.balance - res.data?.price,
+                        orders: user?.orders + 1,
+                        spent: user?.spent + selected?.price,
+                    });
+                    // navigate("/myOrders");
                 })
                 .catch((err) => {
                     toast.error(err.response.data.error || 'Failed to purchase!');
@@ -115,11 +124,11 @@ const ConfirmPurchase = () => {
         }
     };
 
+
+    // load page from the top
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
-    console.log(orderData);
     
 
     return (
@@ -130,22 +139,22 @@ const ConfirmPurchase = () => {
                 {
                     name == "balanceRecharge" ?
                         <div className="px-4 py-2">
-                             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                                 <span className="w-24 font-semibold">Number</span>
                                 <span>:</span>
                                 <span>{orderData?.number}</span>
                             </p>
-                             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                                 <span className="w-24 font-semibold">Amount</span>
                                 <span>:</span>
                                 <span>৳{orderData?.amount}</span>
                             </p>
-                             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                                 <span className="w-24 font-semibold">Operator</span>
                                 <span>:</span>
                                 <span>{orderData?.companyName}</span>
                             </p>
-                             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                                 <span className="w-24 font-semibold">Type</span>
                                 <span>:</span>
                                 <span>{orderData?.type}</span>
