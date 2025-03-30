@@ -142,7 +142,7 @@ const SubCategory = () => {
 
                     {
                         allData?.inputs?.length > 0 && (
-                            <div ref={purchaseRef} className="text-xl font-semibold border-2 rounded w-full">
+                            <div className="text-xl font-semibold border-2 rounded w-full">
                                 <h2 className="flex-1 flex items-center gap-2 border-b-2 px-5 py-3">
                                     <TbSquareRoundedNumber2Filled className="text-red-500" />
                                     Additional Information
@@ -171,7 +171,7 @@ const SubCategory = () => {
                     }
 
 
-                    <div className="border-2 rounded my-3">
+                    <div ref={purchaseRef} className="border-2 rounded my-3">
                         <h2 className="text-xl text-center font-semibold border-b-2 py-2">
                             Summary
                         </h2>

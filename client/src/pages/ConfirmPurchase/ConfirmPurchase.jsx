@@ -185,11 +185,6 @@ const ConfirmPurchase = () => {
                                     ))}
                                 </>
                             }
-                            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
-                                <span className="w-24 font-semibold normal-case">E-mail</span>
-                                <span>:</span>
-                                <span>{user?.email}</span>
-                            </p>
                         </div>
                 }
                 <div className="flex justify-center mt-4">

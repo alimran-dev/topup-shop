@@ -38,6 +38,12 @@ const MobileRecharge = () => {
             return;
         }
 
+        // check the amount upper 20
+        if (e.target.amount.value < 20) {
+            toast.error("Amount Must Upper Than 20");
+            return;
+        }
+
         const selectedCompany = companies.find(company => company?._id == formData.get("operator"));
 
         const rechargeData = { ...inputValues, companyName: selectedCompany?.name };
@@ -77,7 +83,7 @@ const MobileRecharge = () => {
                     </div>
                     <div>
                         <label className="input-label">Select Type</label>
-                        <select name="type" className="input" defaultValue={""} required>
+                        <select name="type" className="input" defaultValue={"prepaid"} required>
                             <option value="" disabled>Choose One</option>
                             <option value="prepaid">Prepaid</option>
                             <option value="postpaid">Postpaid</option>

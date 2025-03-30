@@ -5,6 +5,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { allCategories } from "../../utils/categories";
 import toast from "react-hot-toast";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
+import { FiEdit } from "react-icons/fi";
 import Swal from "sweetalert2";
 import UpdateOption from "./UpdateOption/UpdateOption";
 
@@ -89,7 +90,10 @@ const Options = () => {
         <div>
             <div className="flex flex-col md:flex-row justify-between items-center md:gap-4 pb-5">
                 <h2 className="title !mx-0">All Options</h2>
-                <Link to={"/dashboard/addOption"} className="button flex items-center gap-1 md:text-xl bg-gradient"><FaPlus />Add New Option</Link>
+                <div className="flex items-center gap-3">
+                    <Link to={"/dashboard/addOption"} className="button flex items-center gap-1 md:text-xl bg-gradient"><FaPlus />Add Option</Link>
+                    <Link to={"/dashboard/updateOptions"} className="button flex items-center gap-1 md:text-xl bg-gradient"><FiEdit />Update Option</Link>
+                </div>
             </div>
 
             {/* filter form */}

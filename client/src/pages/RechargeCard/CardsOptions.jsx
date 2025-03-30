@@ -1,9 +1,8 @@
-import unipin from "../../assets/images/unipin.jpg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { useEffect, useState } from "react";
 import Loader from "../../components/Loader";
-import { MdArrowOutward } from "react-icons/md";
+// import { MdArrowOutward } from "react-icons/md";
 import {
   TbCurrencyTaka,
   TbSquareRoundedNumber1Filled,
@@ -35,32 +34,15 @@ const CardsOptions = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location?.state?.docName == "mbMinCombo") {
-      console.log("hitted min combo api");
-      
-      axiosPublic
-        .get(
-          `/option/all?category=recharge&docName=mbOffer&id=${location?.state?.id}`
-        )
-        .then((res) => {
-          console.log(res.data);
-          
-          setOptions(res.data);
-          setIsLoading(false);
-        });
-      setPrice(selected.price * quantity);
-    }
-    else {
-      axiosPublic
-        .get(
-          `/option/all?category=recharge&id=${location.state?.id}&docName=${location.state?.docName}`
-        )
-        .then((res) => {
-          setOptions(res.data);
-          setIsLoading(false);
-        });
-      setPrice(selected.price * quantity);
-    }
+    axiosPublic
+      .get(
+        `/option/all?category=recharge&id=${location.state?.id}&docName=${location.state?.docName}`
+      )
+      .then((res) => {
+        setOptions(res.data);
+        setIsLoading(false);
+      });
+    setPrice(selected.price * quantity);
   }, [
     axiosPublic,
     location.state?.docName,
@@ -70,15 +52,12 @@ const CardsOptions = () => {
   ]);
 
 
-
   const handlePurchase = () => {
 
     setError("");
     // setIsLoading(true);
 
-
-
-    if (location?.state?.docName == "mbMinCombo") {
+    if (location?.state?.type == "offerCard") {
 
       if (mobileNumber == "") {
         toast.error('Please Fill Mobile Number')
@@ -131,24 +110,20 @@ const CardsOptions = () => {
       <Loader isLoading={isLoading} />
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img
-          src={location.state?.docName == "mbMinCombo" ? rechargeImg : unipin}
+          src={rechargeImg}
           alt=""
           className="w-24 h-20 md:w-28 md:h-24 rounded-[30px]"
         />
         <div>
           <p className="text-xl md:text-2xl font-semibold">
-            {location.state?.docName == "mbMinCombo" ? "MB & Minutes" : "Unipin Voucher (BDT)"}
+            {location?.state?.title}
           </p>
-          {
-            !location.state?.docName == "mbMinCombo" &&
-            <p className="md:text-lg font-medium text-gray-500">Game / Top-Up</p>
-          }
 
         </div>
       </div>
       <div className="grid md:grid-cols-3 gap-5">
-        {
-          location.state?.docName != "mbMinCombo" &&
+        {/* {
+          location.state?.type != "offerCard" &&
           <div className="border-2 rounded p-3 md:hidden">
             <Link
               to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
@@ -158,11 +133,11 @@ const CardsOptions = () => {
               কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
             </Link>
           </div>
-        }
+        } */}
         <div className="md:col-span-2 border-2 rounded">
           <h1 className="text-xl font-semibold py-2 px-5 border-b-2 flex items-center gap-2">
             <TbSquareRoundedNumber1Filled className="text-red-500" />
-            {location.state?.docName == "mbMinCombo" ? "Select Item" : "Select Category"}
+            {location.state?.docName == "mbMinOffer" ? "Select Item" : "Select Category"}
           </h1>
           <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
@@ -177,8 +152,8 @@ const CardsOptions = () => {
         </div>
         <div>
 
-          {
-            location.state?.docName != "mbMinCombo" &&
+          {/* {
+            location.state?.type != "offerCard" &&
             <div className="border-2 rounded p-3 mb-3 hidden md:block">
               <Link
                 to={"https://youtu.be/GLM0yU_Xzkg?si=qo_Ma0WOVVgU7kQ_"}
@@ -188,9 +163,9 @@ const CardsOptions = () => {
                 কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
               </Link>
             </div>
-          }
+          } */}
           {
-            location.state?.docName != "mbMinCombo" &&
+            location.state?.type != "offerCard" &&
             <div className="text-xl font-semibold py-2 px-5 border-2 rounded flex md:flex-col lg:flex-row items-center gap-2 w-full">
               <h2 className="flex-1 flex items-center gap-2">
                 <TbSquareRoundedNumber2Filled className="text-red-500" /> Quantity
@@ -217,11 +192,9 @@ const CardsOptions = () => {
             </div>
           }
 
-
-
-          {/* inputs for mbMinCombo */}
+          {/* inputs for mbMinOffer */}
           {
-            location.state?.docName == "mbMinCombo" &&
+            location.state?.type == "offerCard" &&
             <form className="p-3 border rounded">
               <div>
                 <label>Mobile Number</label>

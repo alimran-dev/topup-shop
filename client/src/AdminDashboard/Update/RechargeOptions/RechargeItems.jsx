@@ -11,6 +11,8 @@ const RechargeItems = () => {
   const { category } = useParams();
   const axiosPrivate = useAxiosPrivate();
   const location = useLocation();
+  
+
   useEffect(() => {
     axiosPrivate
       .get(

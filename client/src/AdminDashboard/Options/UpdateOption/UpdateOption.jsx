@@ -28,7 +28,7 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }
         axiosPrivate.patch('/option/admin/update/dynamic', updatedOption).then((res) => {
 
             if (res.data.acknowledged) {
-                toast.success("Option Added Successfully!");
+                toast.success("Option Updated Successfully!");
                 setLoading(false);
                 form.reset();
                 setOptions(prevOptions =>

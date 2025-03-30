@@ -15,26 +15,32 @@ const CardCategory = () => {
       <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
         <div className="flex-1">
           <CompanyCard
-            image={location.state?.docName == "mbMinCombo" ? rechargeImg : airdrop}
+            image={location.state?.docName == "mbMinOffer" ? rechargeImg : airdrop}
             title={"MB"}
             path="./../options"
-            state={{ id: location.state?.id, docName: location.state?.docName ? location.state.docName : "mbCard" }}
+            state={location.state?.docName === "mbMinOffer"
+              ? { id: location.state?.id, docName: "mbOffer", type: "offerCard", title: "MB Offer" }
+              : { id: location.state?.id, docName: "mbCard", title: "MB Card" }}
           />
         </div>
         <div className="flex-1">
           <CompanyCard
-            image={location.state?.docName == "mbMinCombo" ? rechargeImg : airdrop}
+            image={location.state?.docName == "mbMinOffer" ? rechargeImg : airdrop}
             title={"Minutes"}
             path="./../options"
-            state={{ id: location.state?.id, docName: location.state?.docName ? location.state.docName : "mbCard" }}
+            state={location.state?.docName === "mbMinOffer"
+              ? { id: location.state?.id, docName: "minOffer", type: "offerCard", title: "Minute Offer" }
+              : { id: location.state?.id, docName: "minCard", title: "Minute Card" }}
           />
         </div>
         <div className="flex-1">
           <CompanyCard
-            image={location.state?.docName == "mbMinCombo" ? rechargeImg : airdrop}
-            title={location.state?.docName == "mbMinCombo" ? "MB + Minutes" : "Balance"}
+            image={location.state?.docName == "mbMinOffer" ? rechargeImg : airdrop}
+            title={location.state?.docName == "mbMinOffer" ? "MB + Minutes" : "Balance"}
             path="./../options"
-            state={{ id: location.state?.id, docName: location.state?.docName ? location.state.docName : "mbCard" }}
+            state={location.state?.docName === "mbMinOffer"
+              ? { id: location.state?.id, docName: "mbAndMinOffer", type: "offerCard", title: "MB & Minute Combo Offer" }
+              : { id: location.state?.id, docName: "balanceCard", title: "Balance Card" }}
           />
         </div>
       </div>

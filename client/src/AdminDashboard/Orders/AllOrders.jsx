@@ -10,6 +10,8 @@ import FilterOrders from "./FilterOrders";
 const AllOrders = () => {
   const [orders, setOrders] = useState([]);
   const [totalOrders, setTotalOrders] = useState(0);
+  const [searchEmail, setSearchEmail] = useState("");
+  const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const axiosPrivate = useAxiosPrivate();
   const limit = 5;
@@ -18,9 +20,9 @@ const AllOrders = () => {
 
   const getOrders = () => {
     axiosPrivate
-      .get(`/order/admin/all?page=${page}&limit=${limit}&search=${""}`)
+      .get(`/order/admin/all?page=${page}&limit=${limit}&search=${searchEmail}`)
       .then((res) => {
-        // console.log(res.data);
+        console.log(res.data);
         setOrders([...orders, ...res.data.orders]);
         setTotalOrders(res.data?.totalOrders);
         setIsLoading(false);
@@ -32,14 +34,15 @@ const AllOrders = () => {
     }
   };
   useEffect(() => {
+    setOrders([]);
     getOrders();
-  }, []);
+  }, [searchEmail]);
 
 
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <FilterOrders setOrders={setOrders} />
+      <FilterOrders setSearchEmail={setSearchEmail} setFormData={setFormData} />
       {orders.length <= 0 ? (
         <div className="h-[40vh] w-full flex items-center justify-center">
           <p className="text-4xl font-semibold">No Orders yet</p>

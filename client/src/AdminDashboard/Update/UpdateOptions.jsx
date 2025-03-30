@@ -34,9 +34,9 @@ const UpdateOptions = () => {
         </div>
         <div className="flex-1">
           <ServiceCard
-            path="./"
+            path="./cards"
             image={rechargeOffer}
-            title="Minutes & MB offer [All Sim]"
+            title="Minutes & MB offer"
           />
         </div>
       </div>

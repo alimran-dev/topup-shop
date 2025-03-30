@@ -6,8 +6,7 @@ import RechargeItems from "./RechargeItems";
 const RechargeOptions = () => {
   const location = useLocation();
 
-    console.log(location.state);
-  if (location.state === null) {
+  if (location.state?.simCompany) {
     return <SimCompanies />;
   } else if(location.state?.type==="companies") {
       return <CardCategory />;
