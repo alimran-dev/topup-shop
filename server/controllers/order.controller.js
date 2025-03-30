@@ -176,72 +176,6 @@ const orderAuto = async (req, res) => {
   }
 };
 
-const orderManual = async (req, res) => {
-  try {
-    const { id, email, uid } = req.body;
-    const { category } = req.params;
-    const orderTime = new Date();
-    if (!id || !email || !uid) {
-      return res.status(400).send({ error: "Item Not Found" });
-    }
-    const emailInToken = req.user?.email;
-    if (email !== emailInToken) {
-      return res
-        .cookie("access-token", "", cookieOption(0))
-        .status(401)
-        .send({ message: "unauthorized" });
-    }
-    const filter = { _id: new ObjectId(id) };
-    let option;
-    if (category === "offer") {
-      option = await rechargeCollection.findOne(filter);
-    }
-    if (!option) {
-      return res.status(400).send({ error: "Item Not Found" });
-    }
-    const orderPrice = option.price;
-    const user = await userCollection.findOne({ email: email });
-    if (!user) {
-      return res.status(401).send({ error: "User Not Found" });
-    } else if (user.balance < orderPrice) {
-      return res.status(400).send({ error: "You don't have enough balance" });
-    }
-    const userUpdate = await userCollection.updateOne(
-      { email: email },
-      {
-        $set: {
-          balance: user.balance - orderPrice,
-          spent: user.spent + orderPrice,
-          orders: user.orders + 1,
-        },
-      }
-    );
-    if (userUpdate.modifiedCount > 0) {
-      const ordersCount = await orderCollection.countDocuments();
-      const order = {
-        optionID: new ObjectId(id),
-        orderID: ordersCount + 1000,
-        email: email,
-        category: category === "weekly" ? "weekly & monthly" : category,
-        name: `${option.name} (${
-          category === "offer" ? "Number" : "UID"
-        }: ${uid})`,
-        price: orderPrice,
-        orderTime: orderTime,
-        updateTime: new Date(),
-        status: "pending",
-        feedback: "",
-      };
-      console.log(order);
-      const result = await orderCollection.insertOne(order);
-      res.status(201).send({ orderID: result.insertedId, price: orderPrice });
-    }
-  } catch (err) {
-    console.error("Error: ", err.message);
-    res.status(500).send({ success: false, error: "Internal Server Error" });
-  }
-};
-
 const orderDynamic = async (req, res) => {
   try {
     const { id, email, index, name, price, info } = req.body;
@@ -318,12 +252,79 @@ const orderDynamic = async (req, res) => {
   }
 };
 
+const orderRechargeOffer=async(req,res)=>{
+  try{
+    const {id,email,type,phone}=req.body || {};
+    const emailInToken=req.user?.email;
+    if(email!==emailInToken){
+      return res
+      .cookie("access-token", "", cookieOption(0))
+      .status(401)
+      .send({ message: "unauthorized" });
+    }
+    const user=await userCollection.findOne({email: email});
+    if(!user){
+      return res.send({success: false, message: "User does not exists"});
+    }
+    const option=await rechargeCollection.findOne({_id: new ObjectId(id)});
+    if(!option){
+      return res.send({success: false, message: "Option does not exists"});
+    }
+    if(!option.stock){
+      return res.send({success: false, message: "Stock out"});
+    }
+    if(option.price>user.balance){
+      return res.send({success: false, message: "You don't have enough balance"});
+    }
+    const userUpdate = await userCollection.updateOne(
+      { email: email },
+      {
+        $set: {
+          balance: user.balance - orderPrice,
+          spent: user.spent + orderPrice,
+          orders: user.orders + 1,
+        },
+      }
+    );
+    if(userUpdate.modifiedCount){
+      const ordersCount = await orderCollection.countDocuments();
+      const simCompany=await rechargeCollection.findOne({_id: new ObjectId(option.docId)});
+      const order = {
+        optionID: new ObjectId(id),
+        orderID: ordersCount + 1000,
+        email: email,
+        category: "Recharge and Offers",
+        subCategory: "Recharge Offer",
+        name: `${option.name}`,
+        price: option.price,
+        orderTime: orderTime,
+        updateTime: new Date(),
+        status: "pending",
+        feedback: "",
+        info: {
+          Type: type,
+          Number: phone,
+          Sim: simCompany.name
+        }
+      };
+      const result=await orderCollection.insertOne(order);
+      return res.send({...result,success: true, price: option.price});
+    }
+    res.send({success: false, message: "Something went wrong"});
+  }catch(err){
+    console.error("orderRechargeOffer: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+}
+
 const orderBalanceRecharge = async (req, res) => {
   try {
-    const { email, price, company, type } = req.body || {};
+    const { email, phone, price, company, type } = req.body || {};
     const priceInt = parseInt(price);
     if (!email) {
       return res.status(400).send({ message: "Must provide user email" });
+    }else if(!phone){
+      return res.status(400).send({message: "Must provide phone number"});
     } else if (isNaN(priceInt) || priceInt < 20) {
       return res
         .status(400)
@@ -369,6 +370,7 @@ const orderBalanceRecharge = async (req, res) => {
         info: {
           Type: type,
           Sim: company,
+          Number: phone
         },
       };
       const result = await orderCollection.insertOne(order);
@@ -544,8 +546,8 @@ module.exports = {
   getAllOrder,
   getLastOrder,
   orderAuto,
-  orderManual,
   orderDynamic,
+  orderRechargeOffer,
   orderBalanceRecharge,
   orderSpecialOffer,
   getAllOrderAdmin,

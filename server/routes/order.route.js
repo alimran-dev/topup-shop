@@ -5,7 +5,6 @@ const { verifyAdmin } = require("../middlewares/verifyAdmin");
 const {
   getAllOrder,
   orderAuto,
-  orderManual,
   getAllOrderAdmin,
   getPending,
   orderProcess,
@@ -13,6 +12,7 @@ const {
   getLastOrder,
   orderBalanceRecharge,
   orderSpecialOffer,
+  orderRechargeOffer,
 } = require("../controllers/order.controller");
 
 const orderRoute = () => {
@@ -20,7 +20,7 @@ const orderRoute = () => {
   router.get("/all", verifyToken, getAllOrder);
   router.get("/last", getLastOrder);
   router.post("/new/auto/:category", verifyToken, orderAuto);
-  router.post("/new/manual/:category", verifyToken, orderManual);
+  router.post("/recharge/offer", verifyToken, orderRechargeOffer);
   router.post("/new/dynamic", verifyToken, orderDynamic);
   router.post("/new/special", verifyToken, orderSpecialOffer);
   router.post("/recharge/balance", verifyToken, orderBalanceRecharge);
