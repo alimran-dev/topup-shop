@@ -53,6 +53,11 @@ const MobileRecharge = () => {
     };
 
 
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div>
             <h2 className="title">Mobile Recharge</h2>

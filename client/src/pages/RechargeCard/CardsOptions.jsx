@@ -55,7 +55,14 @@ const CardsOptions = () => {
   const handlePurchase = () => {
 
     setError("");
-    // setIsLoading(true);
+    setIsLoading(true);
+    
+  
+    if (!selected._id || !selected.price || !quantity) {
+      setError("Please select an option");
+      setIsLoading(false);
+      return;
+    }
 
     if (location?.state?.type == "offerCard") {
 
@@ -65,10 +72,27 @@ const CardsOptions = () => {
 
       console.log(mobileNumber, rechargeType);
 
+      const orderData = {};
 
-      console.log("hitted");
+      // api call
+      axiosPrivate
+        .post("/order/new/auto/card", orderData)
+        .then((res) => {
+          console.log(res.data);
+          setIsLoading(false);
+          setUser({
+            ...user,
+            balance: user?.balance - res.data?.price,
+            orders: user?.orders + 1,
+            spent: user?.spent + price,
+          });
+          navigate("/myOrders");
+        })
+        .catch((err) => {
+          setError(err.response.data.error || "Something went wrong!");
+          setIsLoading(false);
+        });
 
-      // api
     }
     else {
       const order = { id: selected._id, email: user?.email, quantity };
