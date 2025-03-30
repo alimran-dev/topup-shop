@@ -39,19 +39,6 @@ const updateCoinSetting = async (req, res) => {
       daily,
       perReview,
     } = req.body || {};
-    if (
-      !parseInt(referFrom) ||
-      !parseInt(referTo) ||
-      !parseInt(firstLevelAmount) ||
-      !parseFloat(firstLevelCoin) ||
-      !parseInt(secondLevelAmount) ||
-      !parseFloat(secondLevelCoin) ||
-      !parseFloat(thirdLevelCoin) ||
-      !parseInt(daily) ||
-      !parseInt(perReview)
-    ) {
-      return res.status(400).send({ message: "Invalid Request" });
-    }
     const setting = {
       type: "settings",
       referFrom: parseInt(referFrom),

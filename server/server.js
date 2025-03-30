@@ -4,6 +4,7 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const passport = require("passport");
+const webpush = require("web-push");
 const port = process.env.PORT || 5000;
 const { connectToDB } = require("./config/db");
 require("./middlewares/passport");
@@ -24,6 +25,12 @@ app.use(
 );
 app.use(passport.initialize());
 
+webpush.setVapidDetails(
+  "mailto:abir932islam@gmail.com",
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
+
 const run = () => {
   app.get("/", (req, res) => {
     res.send("top-up shop server is running...");
@@ -34,7 +41,6 @@ const run = () => {
   const userRoute = require("./routes/user.route");
   const optionRoute = require("./routes/option.route");
   const addCodesRoute = require("./routes/addCodes.route");
-  const specialOfferRoute = require("./routes/specialOffer.route");
   const orderRoute = require("./routes/order.route");
   const paymentMethodRoute = require("./routes/paymentMethod.route");
   const noticeRoute = require("./routes/notice.route");
@@ -49,13 +55,15 @@ const run = () => {
   const bannerRoutes = require("./routes/banner.route");
   const followUsRoutes = require("./routes/followUs.route");
   const coinRoutes = require("./routes/coins.route");
+  const redeemRotues = require("./routes/redeem.route");
+  const specialOfferRoutes = require("./routes/specialOffer.route");
+  const notificationRoutes = require("./routes/notification.route");
 
   // routes
   app.use("/auth", authRoute());
   app.use("/user", userRoute());
   app.use("/option", optionRoute());
   app.use("/code", addCodesRoute());
-  app.use("/special", specialOfferRoute());
   app.use("/order", orderRoute());
   app.use("/payment", paymentMethodRoute());
   app.use("/notice", noticeRoute());
@@ -70,6 +78,9 @@ const run = () => {
   app.use("/banners", bannerRoutes());
   app.use("/follows", followUsRoutes());
   app.use("/coins", coinRoutes());
+  app.use("/redeem", redeemRotues());
+  app.use("/special", specialOfferRoutes());
+  app.use("/notification", notificationRoutes());
 };
 
 connectToDB((err) => {

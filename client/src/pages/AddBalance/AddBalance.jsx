@@ -75,7 +75,7 @@ const AddBalance = () => {
               Click To Add
             </button>
             <Link
-              to={"https://youtu.be/n2vD7oK0pfo?si=KjNmVbyrh-XmNqMd"}
+              to={"https://youtube.com/playlist?list=PLdbvk3gLADUkaCx2O2jMikx9g8aIzkN14&si=TBP6-bErly1LjxOv"}
               target="_blank"
               className="text-blue-700 font-semibold flex items-center gap-1 mt-5"
             >

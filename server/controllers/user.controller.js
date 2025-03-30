@@ -28,7 +28,7 @@ const countSpentMonth = async (email) => {
   ];
   const orderStats = await orderCollection.aggregate(pipeline).toArray();
   const totalSpent = orderStats.length > 0 ? orderStats[0].totalSpent : 0;
-  console.log(totalSpent);
+  // console.log(totalSpent);
   return totalSpent;
 };
 
@@ -224,7 +224,7 @@ const forgetPassword = async (req, res) => {
             from: '"Mezba Shop" <no-reply@mezbashop.com>',
             to: email,
             subject: "Reset Mezba Shop Password",
-            text: `${randomNumber}`,
+            text: `Your OTP to reset the password is: ${randomNumber}. This is valid for 5 minutes.`,
           });
           // console.log(mailInfo);
           return res.send({ success: true, message: "OTP sent" });
@@ -349,7 +349,7 @@ const getAllUser = async (req, res) => {
     const { page, limit, search } = req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
-    console.log(pageInt, limitInt);
+    // console.log(pageInt, limitInt);
     let filter = {};
     if (search) {
       filter = { email: { $regex: new RegExp(search, "i") } };
@@ -398,7 +398,7 @@ const verifyUser=async(req,res)=>{
           from: '"Mezba Shop" <no-reply@mezbashop.com>',
           to: email,
           subject: "Verify Mezba Shop Account",
-          text: `${randomNumber}`,
+          text: `Your OTP for account verification is: ${randomNumber}. OTP is valid for 5 minutes.`,
         });
         // console.log(mailInfo);
         return res.send({success: true, message: "OTP sent successfull"});

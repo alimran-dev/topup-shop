@@ -1,26 +1,19 @@
-const express = require("express");
-const router = express.Router();
+const express=require("express");
+const { getSpecialOffer, getAllSpecialOffer, getAllSpecialOfferAdmin, addSpecialOffer, updateSpecialOffer, deleteSpecialOffer } = require("../controllers/specialOffer.controller");
 const { verifyAdmin } = require("../middlewares/verifyAdmin");
-const {
-  getOffer,
-  getAllOffers,
-  updateOffer,
-  newOffer,
-  deleteOffer,
-} = require("../controllers/specialOffer.controller");
-const { updateStock } = require("../controllers/option.controller");
+const router=express.Router();
 
-const specialOfferRoute = () => {
-  // /special/
-  router.get("/offer/:id", getOffer);
-  router.get("/offers/:server", getAllOffers);
 
-  // admin
-  router.patch("/offer/update", verifyAdmin, updateOffer);
-  router.patch("/offer/stock", verifyAdmin, updateStock);
-  router.post("/offer/new", verifyAdmin, newOffer);
-  router.delete("/offer/delete", verifyAdmin, deleteOffer);
+const specialOfferRoutes=()=>{
+  // /special
+  router.get("/get",getSpecialOffer);
+  router.get("/all",getAllSpecialOffer);
+  // for admin
+  router.get("/admin/all",verifyAdmin,getAllSpecialOfferAdmin);
+  router.post("/new",verifyAdmin,addSpecialOffer);
+  router.patch("/update",verifyAdmin,updateSpecialOffer);
+  router.delete("/delete",verifyAdmin,deleteSpecialOffer);
   return router;
-};
+}
 
-module.exports = specialOfferRoute;
+module.exports=specialOfferRoutes;

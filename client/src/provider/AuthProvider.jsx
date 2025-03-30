@@ -12,6 +12,7 @@ import {
 } from "firebase/auth";
 import app from "../firebase/firebase.config";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import RegisterWorker from "../utils/registerServiceWorker";
 
 export const AuthContext = createContext(null);
 
@@ -19,7 +20,6 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
-
   const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
   const axiosPrivate = useAxiosPrivate();
@@ -53,6 +53,17 @@ const AuthProvider = ({ children }) => {
         const currentUser = res.data;
         currentUser.balance = parseFloat(currentUser.balance.toFixed(2));
         setUser(currentUser);
+
+        // notification subscription
+        const subscription = sessionStorage.getItem("subscription");
+        if (!subscription) {
+          RegisterWorker().then(() => {
+            axiosPrivate.post("/notification/subscribe", {
+              sub: JSON.parse(sessionStorage.getItem("subscription")),
+            });
+          });
+        }
+        
         setLoading(false);
       })
       .catch((err) => {
@@ -74,7 +85,7 @@ const AuthProvider = ({ children }) => {
     logOut,
     auth,
   };
-  
+
   return (
     <AuthContext.Provider value={AuthInfo}>{children}</AuthContext.Provider>
   );

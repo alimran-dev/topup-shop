@@ -1,12 +1,15 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { cookieOption } = require("../utils/cookieOption");
-const orderCollection = dbCollections.orderCollection;
-const unipinCollection = dbCollections.unipinCollection;
-const shellCollection = dbCollections.shellCollection;
-const userCollection = dbCollections.userCollection;
-const rechargeCollection = dbCollections.rechargeCollection;
-const serviceCollection = dbCollections.serviceCollection;
+const {
+  orderCollection,
+  unipinCollection,
+  shellCollection,
+  userCollection,
+  rechargeCollection,
+  serviceCollection,
+  specialOfferCollection,
+} = dbCollections || {};
 
 const getAllOrder = async (req, res) => {
   try {
@@ -54,6 +57,7 @@ const getLastOrder = async (req, res) => {
           $project: {
             package: "$name",
             price: 1,
+            status: 1,
             "userDetails.name": 1,
             "userDetails.photo": 1,
           },
@@ -62,6 +66,7 @@ const getLastOrder = async (req, res) => {
           $project: {
             package: 1,
             price: 1,
+            status: 1,
             name: "$userDetails.name",
             photo: "$userDetails.photo",
           },
@@ -293,7 +298,7 @@ const orderDynamic = async (req, res) => {
         feedback: "",
         info: info,
       };
-      console.log(order);
+      console.log("dynamic order--", order);
       service.options[parseInt(index)].stock--;
       await serviceCollection.updateOne(
         { _id: new ObjectId(id) },
@@ -313,13 +318,165 @@ const orderDynamic = async (req, res) => {
   }
 };
 
+const orderBalanceRecharge = async (req, res) => {
+  try {
+    const { email, price, company, type } = req.body || {};
+    const priceInt = parseInt(price);
+    if (!email) {
+      return res.status(400).send({ message: "Must provide user email" });
+    } else if (isNaN(priceInt) || priceInt < 20) {
+      return res
+        .status(400)
+        .send({ message: "Amount must be minimum 20 taka" });
+    }
+    const orderTime = new Date();
+    const emailInToken = req.user?.email;
+    if (email !== emailInToken) {
+      return res
+        .cookie("access-token", "", cookieOption(0))
+        .status(401)
+        .send({ message: "unauthorized" });
+    }
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.status(401).send({ error: "User Not Found" });
+    } else if (user.balance < priceInt) {
+      return res.status(400).send({ error: "You don't have enough balance" });
+    }
+    const userUpdate = await userCollection.updateOne(
+      { email: email },
+      {
+        $set: {
+          balance: user.balance - priceInt,
+          spent: user.spent + priceInt,
+          orders: user.orders + 1,
+        },
+      }
+    );
+    const ordersCount = await orderCollection.countDocuments();
+    if (userUpdate.modifiedCount > 0) {
+      const order = {
+        orderID: ordersCount + 1000,
+        email: email,
+        category: "Recharge and Offers",
+        subCategory: "Balance Recharge",
+        name: `${price} taka recharge`,
+        price: priceInt,
+        orderTime: orderTime,
+        updateTime: new Date(),
+        status: "pending",
+        feedback: "",
+        info: {
+          Type: type,
+          Sim: company,
+        },
+      };
+      const result = await orderCollection.insertOne(order);
+      return res.send({ ...result, success: true, price: priceInt });
+    }
+    res.status(400).send({ message: "Something wrong" });
+  } catch (err) {
+    console.error("Order Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const orderSpecialOffer = async (req, res) => {
+  try {
+    const { id, email, info } = req.body || {};
+    if (!email || !id) {
+      return res.status(400).send({ message: "Invalid request" });
+    }
+    const orderTime = new Date();
+    const emailInToken = req.user?.email;
+    if (email !== emailInToken) {
+      return res
+        .cookie("access-token", "", cookieOption(0))
+        .status(401)
+        .send({ message: "unauthorized" });
+    }
+    const option = await specialOfferCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    if (!option) {
+      return res.status(400).send({ message: "Product not found" });
+    }
+    if (!option.isActive) {
+      return res.status(400).send({ message: "Offer is not active now" });
+    }
+    if (Object.keys(info).length !== option.inputs.length) {
+      return res.status(400).send({ message: "Invalid order" });
+    }
+    if (option.claimedBy.includes(email)) {
+      return res
+        .status(400)
+        .send({ message: "You already claimed this offer" });
+    }
+    if (option.stock <= 0) {
+      return res.status(400).send({ message: "Stock out" });
+    }
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.status(401).send({ message: "User Not Found" });
+    } else if (
+      (option.type === "balance" && user.balance < option.price) ||
+      (option.type === "coin" && user.coins < option.price)
+    ) {
+      return res.status(400).send({ message: "You don't have enough balance" });
+    }
+    const userUpdateDoc = {};
+    if (option.type === "balance") {
+      userUpdateDoc.balance = user.balance - option.price;
+      userUpdateDoc.spent = user.spent + option.price;
+      userUpdateDoc.orders = user.orders + 1;
+    } else if (option.type === "coin") {
+      userUpdateDoc.coins = user.coins - option.price;
+    }
+    const userUpdate = await userCollection.updateOne(
+      { email: email },
+      {
+        $set: userUpdateDoc,
+      }
+    );
+    const ordersCount = await orderCollection.countDocuments();
+    if (userUpdate.modifiedCount > 0) {
+      const order = {
+        orderID: ordersCount + 1000,
+        email: email,
+        category: "Special Offer",
+        subCategory: "Special Offer",
+        name: option.title,
+        price: option.price,
+        orderTime: orderTime,
+        updateTime: new Date(),
+        status: "pending",
+        feedback: "",
+        info: { ...info, type: option.type },
+      };
+      const updatedDoc = {
+        stock: option.stock - 1,
+      };
+      await specialOfferCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedDoc, $push: { claimedBy: email } }
+      );
+      const result = await orderCollection.insertOne(order);
+      return res.send({ ...result, price: option.price, type: option.type });
+    }
+    res.status(400).send({ message: "Something went wrong" });
+  } catch (err) {
+    console.error("Order Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const getAllOrderAdmin = async (req, res) => {
   try {
     const { page, limit, search } = req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
     console.log(pageInt, limitInt);
-    const filter = {};
+    let filter = {};
     if (search) {
       filter = { email: { $regex: new RegExp(search, "i") } };
     }
@@ -389,6 +546,8 @@ module.exports = {
   orderAuto,
   orderManual,
   orderDynamic,
+  orderBalanceRecharge,
+  orderSpecialOffer,
   getAllOrderAdmin,
   getPending,
   orderProcess,

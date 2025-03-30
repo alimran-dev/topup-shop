@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from 'react-hot-toast';
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { AiFillEye, AiFillEyeInvisible, AiFillYoutube } from "react-icons/ai";
 
 
 const ForgotPassword = () => {
@@ -209,6 +209,9 @@ const ForgotPassword = () => {
                     </button>
                 </form>
             )}
+
+            {/* tutorial link */}
+            <Link to={'https://youtube.com/playlist?list=PLdbvk3gLADUnzPTqrLQbfvPN9B904Ir6B&si=pD_oV0RF08HUoY0H'} target="_blank" className="flex items-center gap-2 justify-center text-blue-600 font-semibold text-sm"><AiFillYoutube className="text-red-700 text-2xl" /> কিভাবে পাসওয়ার্ড রিসেট করবেন?</Link>
         </div>
     );
 };

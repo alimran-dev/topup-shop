@@ -28,16 +28,16 @@ const AdModal = () => {
   useEffect(() => {
     const lastModalTime = localStorage.getItem("lastModalTime");
     const currentTime = new Date().getTime();
-    
+
     // If 3 hours (10800000 ms) have passed or no time is set in localStorage
-    if (!lastModalTime || currentTime - lastModalTime >= 10800000) {
+    if (!lastModalTime || currentTime - lastModalTime >= 3 * 60 * 60 * 1000) {
       setShowModal(true);
     }
   }, []);
 
   // Stop scroll when modal is open
   useEffect(() => {
-    if (showModal) {
+    if (showModal && ads) {
       document.body.classList.add("no-scroll");
     } else {
       document.body.classList.remove("no-scroll");
@@ -46,7 +46,7 @@ const AdModal = () => {
     return () => {
       document.body.classList.remove("no-scroll");
     };
-  }, [showModal]);
+  }, [ads, showModal]);
 
   // Handle modal close and save the time to localStorage
   const handleCloseModal = () => {
@@ -55,11 +55,19 @@ const AdModal = () => {
   };
 
   return (
-    showModal && ads && (
+    showModal &&
+    ads && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
-        <div ref={modalRef} className="w-[700px] bg-white p-5 rounded-lg relative">
+        <div
+          ref={modalRef}
+          className="w-[700px] bg-white p-5 rounded-lg relative"
+        >
           {ads.imageUrl ? (
-            <Link to={ads.linkTo || "#"} target="_blank" className="flex justify-center">
+            <Link
+              to={ads.linkTo || "#"}
+              target="_blank"
+              className="flex justify-center"
+            >
               <img
                 src={ads.imageUrl}
                 alt="Ad Modal"
