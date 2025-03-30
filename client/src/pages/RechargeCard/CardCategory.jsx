@@ -6,7 +6,7 @@ import rechargeImg from "../../assets/images/recharge-card.jpeg";
 
 const CardCategory = () => {
   const location = useLocation();
-  console.log(location.state);
+  // console.log(location.state);
   return (
     <div>
       <h2 className="text-center text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 -mt-5 w-fit mx-auto">
