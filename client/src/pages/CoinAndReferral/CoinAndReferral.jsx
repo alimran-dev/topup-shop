@@ -1,9 +1,9 @@
 import DailyCoinClaim from "../Home/DailyCoinClaim/DailyCoinClaim";
-import { RiCoinFill } from "react-icons/ri";
 import ReferralLinks from "./ReferralLinks/ReferralLinks";
 import UploadVideo from "./UploadVideo/UploadVideo";
 import ReferralEarnings from "./ReferralEarnings/ReferralEarnings";
 import { useEffect } from "react";
+import Coin from "../../components/reusuable/Coin/Coin";
 
 const CoinAndReferral = () => {
 
@@ -20,7 +20,7 @@ const CoinAndReferral = () => {
             <div className="bg-primary text-center py-5 md:py-10 rounded-md text-white font-semibold">
                 <h2 className="text-xl md:text-2xl">Your Coin Balance</h2>
                 <p className="flex justify-center items-center gap-1">
-                    <RiCoinFill className="mt-1 text-yellow-500" />
+                    <Coin />
                     <span>500</span>
                 </p>
             </div>

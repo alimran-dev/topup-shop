@@ -30,7 +30,12 @@ const AddBalance = () => {
     });
   }, [axiosPrivate]);
 
-  
+
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="space-y-5">
       <Loader isLoading={isLoading} />

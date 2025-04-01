@@ -17,7 +17,7 @@ const MyOrders = () => {
   const { user, loading } = useAuth();
   const limit = 5;
   const page = Math.ceil(orders.length / limit + 1);
-  
+
   const getOrders = () => {
     if (!loading) {
       axiosPrivate
@@ -41,8 +41,10 @@ const MyOrders = () => {
   }, [axiosPrivate, loading, user?.email, limit]);
 
 
-  console.log(orders);
-  
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div>
@@ -58,7 +60,7 @@ const MyOrders = () => {
         </Link>
       </div>
 
-     
+
 
       {/* orders */}
       <div className="my-8">

@@ -5,10 +5,10 @@ import "swiper/css/navigation";
 import { Pagination, Navigation } from "swiper/modules";
 import { useEffect, useRef, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { BsCoin } from "react-icons/bs";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import Coin from "../../../components/reusuable/Coin/Coin";
 
 
 const SpecialOffers = () => {
@@ -57,12 +57,12 @@ const SpecialOffers = () => {
                                 <p className={`absolute top-2 right-2 text-white text-[10px] md:text-xs font-semibold badge ${offer?.stock > 0 ? 'badge-success' : 'badge-error'}`}>
                                     {offer?.stock > 0 ? "In Stock" : "Stock Out"}
                                 </p>
-                                <img src={offer?.image} className="w-full max-h-36 object-cover" alt={offer?.title || "Offer image"} />
+                                <img src={offer?.image} className="w-full h-20 md:h-36 object-fill" alt={offer?.title || "Offer image"} />
                                 <h3 className="text-xs md:text-lg font-semibold mb-1 pt-3">{offer?.title}</h3>
-                                <p className="text-lg font-bold text-blue-600 flex justify-center items-center">
+                                <p className="text-lg font-bold text-primary flex justify-center items-center">
                                     {
                                         offer?.type == "coin" ?
-                                            <BsCoin className="mr-1" /> : <TbCurrencyTaka />
+                                            <Coin /> : <TbCurrencyTaka />
                                     }
                                     {offer?.price}
                                 </p>

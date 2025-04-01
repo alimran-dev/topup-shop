@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { uploadImage } from "../../utils/uploadImage";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
@@ -37,6 +37,13 @@ const AddAdvertisement = () => {
       console.log(error);
     }
   }
+
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+
   return (
     <div>
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">

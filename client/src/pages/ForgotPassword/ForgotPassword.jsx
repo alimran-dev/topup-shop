@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from 'react-hot-toast';
@@ -92,6 +92,12 @@ const ForgotPassword = () => {
             setLoading(false);
         }
     };
+
+
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <div className="space-y-5 max-w-xl mx-auto p-5 ">

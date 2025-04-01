@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Loader from "../../components/Loader";
 // import { MdArrowOutward } from "react-icons/md";
 import {
@@ -12,14 +12,13 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 import { IoInformationCircleOutline } from "react-icons/io5";
 import useAuth from "../../hooks/useAuth";
 import { HiOutlineInformationCircle } from "react-icons/hi";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import OptionCard from "./OptionCard";
 import rechargeImg from "../../assets/images/recharge-card.jpeg";
 import toast from 'react-hot-toast';
 
 
 const CardsOptions = () => {
-  const [selected, setSelected] = useState({ id: "", price: 0 });
+  const [selected, setSelected] = useState({ id: "", name: "", price: 0 });
   const [quantity, setQuantity] = useState(1);
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,11 +26,12 @@ const CardsOptions = () => {
   const [error, setError] = useState("");
   const location = useLocation();
   const axiosPublic = useAxiosPublic();
-  const axiosPrivate = useAxiosPrivate();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [mobileNumber, setMobileNumber] = useState("");
   const [rechargeType, setRechargeType] = useState("prepaid");
   const navigate = useNavigate();
+  const purchaseRef = useRef(null);
+
 
   useEffect(() => {
     axiosPublic
@@ -52,23 +52,45 @@ const CardsOptions = () => {
   ]);
 
 
+  console.log(selected.id, selected.price);
+  console.log(user.balance);
+
+
   const handlePurchase = () => {
 
     setError("");
     setIsLoading(true);
-    
-    // console.log(selected.id, selected.price);
-  
+
+    // check option selected or not
     if (!selected.id || !selected.price) {
       setError("Please select an option");
       setIsLoading(false);
       return;
     }
 
+    // check funds
+    if (selected.price > user?.balance) {
+      toast.error('Insufficient Funds!');
+      navigate("/addBalance")
+      setIsLoading(false);
+      return;
+    }
+
     if (location?.state?.type == "offerCard") {
 
+      // check if number is empty
       if (mobileNumber == "") {
-        toast.error('Please Fill Mobile Number')
+        toast.error('Please Fill Mobile Number');
+        setIsLoading(false);
+        return;
+      }
+
+      // check bd number
+      const bdMobileRegex = /^(?:\+8801|01)[3-9]\d{8}$/;
+      if (!bdMobileRegex.test(mobileNumber)) {
+        toast.error("Please enter valid BD number");
+        setIsLoading(false);
+        return;
       }
 
       // console.log(mobileNumber, rechargeType);
@@ -80,52 +102,20 @@ const CardsOptions = () => {
         phone: mobileNumber
       };
 
-      // api call
-      axiosPrivate
-        .post("/order/recharge/offer", orderData)
-        .then((res) => {
-          console.log(res.data);
-          setIsLoading(false);
-          setUser({
-            ...user,
-            balance: user?.balance - res.data?.price,
-            orders: user?.orders + 1,
-            spent: user?.spent + price,
-          });
-          navigate("/myOrders");
-        })
-        .catch((err) => {
-          setError(err.response.data.error || "Something went wrong!");
-          setIsLoading(false);
-        });
-
+      setIsLoading(false);
+      navigate("/confirmPurchase", { state: { name: "recharge", category: "offerCard", company: location?.state?.companyName, option: selected, orderData, } });
     }
     else {
-      const order = { id: selected._id, email: user?.email, quantity };
-
-      if (!selected._id || !selected.price || !quantity) {
+      if (!selected.id || !selected.price) {
         setError("Please select option and quantity");
         setIsLoading(false);
         return;
       }
 
-      axiosPrivate
-        .post("/order/new/auto/card", order)
-        .then((res) => {
-          // console.log(res.data);
-          setIsLoading(false);
-          setUser({
-            ...user,
-            balance: user?.balance - res.data?.price,
-            orders: user?.orders + 1,
-            spent: user?.spent + price,
-          });
-          navigate("/myOrders");
-        })
-        .catch((err) => {
-          setError(err.response.data.error);
-          setIsLoading(false);
-        });
+      const orderData = { id: selected.id, email: user?.email, quantity };
+
+      setIsLoading(false);
+      navigate("/confirmPurchase", { state: { name: "recharge", category: "rechargeCard", company: location?.state?.companyName, option: selected, orderData } })
     }
 
   };
@@ -133,6 +123,12 @@ const CardsOptions = () => {
 
   // console.log("location--------", location?.state);
   // console.log(options);
+
+
+  // page appear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
 
   return (
@@ -169,13 +165,14 @@ const CardsOptions = () => {
             <TbSquareRoundedNumber1Filled className="text-red-500" />
             {location.state?.docName == "mbMinOffer" ? "Select Item" : "Select Category"}
           </h1>
-          <div className="col-span-2 grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+          <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
               <OptionCard
                 option={option}
                 selected={selected}
                 setSelected={setSelected}
                 key={option._id}
+                purchaseRef={purchaseRef}
               />
             ))}
           </div>
@@ -225,7 +222,7 @@ const CardsOptions = () => {
           {/* inputs for mbMinOffer */}
           {
             location.state?.type == "offerCard" &&
-            <form className="p-3 border rounded">
+            <form ref={purchaseRef} className="p-3 border rounded">
               <div>
                 <label>Mobile Number</label>
                 <input type="number" onChange={(e) => setMobileNumber(e.target.value)} className="w-full px-3 py-1 rounded border mt-1 mb-3" placeholder="Type mobile number" value={mobileNumber} required />

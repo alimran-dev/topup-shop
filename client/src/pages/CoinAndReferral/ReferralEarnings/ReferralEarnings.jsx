@@ -1,4 +1,4 @@
-import { RiCoinFill } from "react-icons/ri";
+import Coin from "../../../components/reusuable/Coin/Coin";
 
 const ReferralEarnings = () => {
 
@@ -18,7 +18,7 @@ const ReferralEarnings = () => {
                 <div className="text-center">Daily Claim</div>
                 <div className="flex justify-end items-center gap-1">
                     200
-                    <RiCoinFill className="text-yellow-500 translate-y-[2px]" />
+                    <Coin />
                 </div>
             </div>
             

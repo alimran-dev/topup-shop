@@ -64,6 +64,11 @@ const SignUp = () => {
             setIsLoading(false);
             navigate("/");
           }
+          else if (res.data.userExist) {
+            setError("User Exist!")
+            setLoading(false);
+            setIsLoading(false);
+          }
           else {
             setError("Sign Up Failed!")
             setLoading(false);

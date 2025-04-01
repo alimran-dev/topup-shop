@@ -11,8 +11,7 @@ import ClaimRedeemCode from "./ClaimRedeemCode/ClaimRedeemCode";
 
 const Home = () => {
   
-
-
+  
   // page apear from top
   useEffect(() => {
     window.scrollTo(0, 0);

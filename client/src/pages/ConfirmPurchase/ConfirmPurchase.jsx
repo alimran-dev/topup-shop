@@ -10,7 +10,8 @@ const ConfirmPurchase = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const { user, setUser } = useAuth();
-  const { name, selected, inputValues, orderData } = location.state;
+  const { name, category, selected, inputValues, orderData } = location.state;
+
 
   const handlePurchase = () => {
     setLoading(true);
@@ -125,6 +126,49 @@ const ConfirmPurchase = () => {
           setLoading(false);
         });
     }
+
+    if (name == "recharge") {
+      if (category == "rechargeCard") {
+        axiosPrivate
+          .post("/order/new/auto/card", orderData)
+          .then((res) => {
+            // console.log(res.data);
+            setLoading(false);
+            setUser({
+              ...user,
+              balance: user?.balance - res.data?.price,
+              orders: user?.orders + 1,
+              // spent: user?.spent + price,
+            });
+            toast.success("Purchase Successfully!");
+            navigate("/myOrders");
+          })
+          .catch((err) => {
+            toast.error(err.response.data.error || "Something went wrong!");
+            setLoading(false);
+          });
+      }
+      if (category == "offerCard") {
+        axiosPrivate
+          .post("/order/recharge/offer", orderData)
+          .then((res) => {
+            console.log(res.data);
+            setLoading(false);
+            setUser({
+              ...user,
+              balance: user?.balance - res.data?.price,
+              orders: user?.orders + 1,
+              // spent: user?.spent + price,
+            });
+            toast.success("Purchase Successfully!");
+            navigate("/myOrders");
+          })
+          .catch((err) => {
+            toast.error(err.response.data.error || "Something went wrong!");
+            setLoading(false);
+          });
+      }
+    }
   };
 
   // load page from the top
@@ -139,7 +183,63 @@ const ConfirmPurchase = () => {
         <h2 className="font-bold text-lg py-2 mb-2 text-center bg-slate-100">
           Order Sumarry
         </h2>
-        {name == "balanceRecharge" ? (
+
+        {/* for recharge */}
+        {
+          name == "recharge" &&
+          <div className="px-4 py-2">
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">Package</span>
+              <span>:</span>
+              <span className="capitalize">{location.state?.option?.name}</span>
+            </p>
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">Price</span>
+              <span>:</span>
+              <span>৳{location.state?.option?.price}</span>
+            </p>
+            {
+              category == "rechargeCard" &&
+              <>
+                <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                  <span className="w-24 font-semibold">Quantity</span>
+                  <span>:</span>
+                  <span className="capitalize">{location.state?.orderData?.quantity}</span>
+                </p>
+              </>
+            }
+            {
+              category == "offerCard" &&
+              <>
+                <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                  <span className="w-24 font-semibold">Type</span>
+                  <span>:</span>
+                  <span className="capitalize">{location.state?.orderData?.type}</span>
+                </p>
+                <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+                  <span className="w-24 font-semibold">Mobile</span>
+                  <span>:</span>
+                  <span>{location.state?.orderData?.phone}</span>
+                </p>
+              </>
+            }
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">E-mail</span>
+              <span>:</span>
+              <span>{user?.email}</span>
+            </p>
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">Company</span>
+              <span>:</span>
+              <span>{location.state?.company}</span>
+            </p>
+
+          </div>
+        }
+
+        {/* for balance recharge */}
+        {
+          name == "balanceRecharge" &&
           <div className="px-4 py-2">
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Number</span>
@@ -162,7 +262,11 @@ const ConfirmPurchase = () => {
               <span>{orderData?.type}</span>
             </p>
           </div>
-        ) : (
+        }
+
+        {/* for unipin, dynamic or shell */}
+        {
+          (name == "unipin" || name == "shell" || name == "dynamic") &&
           <div className="px-4 py-2">
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Option</span>
@@ -197,7 +301,7 @@ const ConfirmPurchase = () => {
               </>
             )}
           </div>
-        )}
+        }
         <div className="flex justify-center mt-4">
           <button
             onClick={handlePurchase}

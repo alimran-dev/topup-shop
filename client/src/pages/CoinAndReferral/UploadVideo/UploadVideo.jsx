@@ -1,8 +1,8 @@
-import { RiCoinFill } from "react-icons/ri";
 import { FaRegDotCircle } from "react-icons/fa";
 import { useState } from "react";
 // import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
+import Coin from "../../../components/reusuable/Coin/Coin";
 
 const UploadVideo = () => {
     const [loading, setLoading] = useState(false);
@@ -77,7 +77,7 @@ const UploadVideo = () => {
     return (
         <div className="px-4 py-3 md:py-6 border border-slate-300 rounded-md">
             <h3 className="font-bold">Upload Video Link</h3>
-            <p className="flex gap-1">Get <span className="font-semibold flex items-center gap-1">+2000 Coins<RiCoinFill className="translate-y-[3px] text-yellow-500" /></span></p>
+            <p className="flex gap-1">Get <span className="font-semibold flex items-center gap-1">+2000 Coins <Coin /></span></p>
             <form onSubmit={handleUploadVideo} className="mt-3 mb-5 flex gap-2">
                 <input type="text" name="link" className="input flex-1" placeholder="Enter video link" />
                 <button type="submit" className="button" disabled={loading}>

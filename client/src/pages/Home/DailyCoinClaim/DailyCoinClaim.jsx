@@ -13,19 +13,21 @@ const DailyCoinClaim = () => {
     const axiosPrivate = useAxiosPrivate();
 
     useEffect(() => {
-        setLoading(true);
+        if (user) {
+            setLoading(true);
 
-        axiosPrivate.get("/coins/daily").then((res) => {
-            // console.log(res.data);
-            setShow(res.data.success || false);
-            setCoin(res.data.daily || 0);
-            setLoading(false);
-        }).catch(err => {
-            // console.log(err);
-            setLoading(false);
-            toast.error(err.response?.data?.message || "Failed to load data!");
-        });
-    }, [axiosPrivate]);
+            axiosPrivate.get("/coins/daily").then((res) => {
+                // console.log(res.data);
+                setShow(res.data.success || false);
+                setCoin(res.data.daily || 0);
+                setLoading(false);
+            }).catch(err => {
+                // console.log(err);
+                setLoading(false);
+                toast.error(err.response?.data?.message || "Failed to load data!");
+            });
+        }
+    }, [user, axiosPrivate]);
 
     // coin claim fn
     const handleClaimCoin = async () => {
@@ -34,9 +36,16 @@ const DailyCoinClaim = () => {
 
         axiosPrivate.patch("/coins/daily", { email: user?.email }).then((res) => {
             // console.log(res.data);
-            setShow(res.data.success || false);
-            setLoading(false);
-            toast.success('Coin Claimed!');
+            if (res.data.success) {
+                toast.success(res.data.message || 'Coin Claimed!');
+                setShow(res.data.success || false);
+                setLoading(false);
+            }
+            else {
+                toast.error(res.data.message || 'Claim Failed!');
+                setShow(res.data.success || false);
+                setLoading(false);
+            }
         }).catch(err => {
             // console.log(err);
             setLoading(false);

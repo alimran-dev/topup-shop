@@ -85,10 +85,15 @@ const SubCategory = () => {
         }
 
         else {
-            navigate('/confirmPurchase', { state: { name: "dynamic", selected, inputValues, orderData:allData } });
+            navigate('/confirmPurchase', { state: { name: "dynamic", selected, inputValues, orderData: allData } });
         }
     };
-    
+
+
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <div className="flex flex-col gap-5">

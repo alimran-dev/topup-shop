@@ -50,13 +50,9 @@ const Unipin = () => {
     }
 
     else {
-      navigate('/confirmPurchase', { state: { name: "unipin", selected, orderData:order } });
+      navigate('/confirmPurchase', { state: { name: "unipin", selected, orderData: order } });
     }
   };
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   useEffect(() => {
     axiosPublic.get(`/option/all?category=unipin`).then((res) => {
@@ -66,6 +62,12 @@ const Unipin = () => {
     });
     setPrice(selected.price * quantity);
   }, [axiosPublic, quantity, selected.price]);
+
+
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
 
   return (

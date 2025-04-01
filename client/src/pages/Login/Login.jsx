@@ -18,7 +18,7 @@ const Login = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  
+
   useEffect(() => {
     const success = searchParams.get("success");
     if (success === "true") {
@@ -56,6 +56,7 @@ const Login = () => {
             spent: res?.data?.spent,
             orders: res?.data?.orders,
             coins: res?.data?.coins,
+            isVerified: res?.data?.isVerified,
           };
 
           setUser(LoggedUserData);
@@ -91,10 +92,15 @@ const Login = () => {
   }, [location.state, navigate, user]);
 
 
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div>
       <Loader isLoading={isLoading || redirecting} />
-      <div  className="w-full md:w-96 border block mx-auto px-5 pb-5 shadow-md">
+      <div className="w-full md:w-96 border block mx-auto px-5 pb-5 shadow-md">
         <div>
           <h2 className="text-3xl text-center font-bold py-5 bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent w-fit mx-auto">
             Login
@@ -113,7 +119,7 @@ const Login = () => {
         </div>
         <form
           onSubmit={handleLogin}
-          >
+        >
           <div className="space-y-1">
             <label htmlFor="email" className="input-label">
               Email

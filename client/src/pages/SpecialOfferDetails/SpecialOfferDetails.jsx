@@ -1,12 +1,12 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { BsCoin } from "react-icons/bs";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import Coin from "../../components/reusuable/Coin/Coin";
 
 const SpecialOfferDetails = () => {
     const { id } = useParams();
@@ -16,7 +16,7 @@ const SpecialOfferDetails = () => {
     const [btnLoading, setBtnLoading] = useState(false);
     const axiosPublic = useAxiosPublic();
     const axiosPrivate = useAxiosPrivate();
-
+    const navigate = useNavigate();
 
     // load offers
     useEffect(() => {
@@ -35,6 +35,13 @@ const SpecialOfferDetails = () => {
         e.preventDefault();
         setBtnLoading(true);
 
+        // check stock
+        if (!offer?.stock) {
+            toast.error("Stock Out!");
+            setBtnLoading(false);
+            return;
+        }
+
         // Get input values as an object
         const formData = new FormData(e.target);
         const inputValues = offer?.inputs?.reduce((acc, input) => {
@@ -50,9 +57,10 @@ const SpecialOfferDetails = () => {
         }
 
         // if user is not varified
-        if(!user?.isVerified){
+        if (!user?.isVerified) {
             setBtnLoading(false);
             toast.error("Please Verify Your Email!");
+            navigate("/myAccount");
             return;
         }
 
@@ -63,7 +71,7 @@ const SpecialOfferDetails = () => {
         };
 
         // console.log(orderData);
-        
+
 
         try {
             const res = await axiosPrivate.post("/order/new/special", orderData);
@@ -82,11 +90,19 @@ const SpecialOfferDetails = () => {
             setBtnLoading(false);
         }
     };
-    
+
+
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
 
     if (loading) {
         return <div className="py-10 text-center">Loading...</div>
     }
+
+
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -94,12 +110,12 @@ const SpecialOfferDetails = () => {
                 <p className={`absolute top-2 right-2 text-white text-[10px] md:text-xs font-semibold badge ${offer?.stock > 0 ? 'badge-success' : 'badge-error'}`}>
                     {offer?.stock > 0 ? "In Stock" : "Stock Out"}
                 </p>
-                <img src={offer?.image} className="w-full h-full object-cover" alt={offer?.title || "Offer image"} />
+                <img src={offer?.image} className="w-full h-32 md:h-72 object-fill" alt={offer?.title || "Offer image"} />
                 <h2 className="text-lg md:text-3xl font-bold my-3">{offer?.title}</h2>
                 <p className="text-lg font-bold flex justify-center items-center text-primary">
                     {
                         offer?.type == "coin" ?
-                            <BsCoin className="mr-1" /> : <TbCurrencyTaka />
+                            <Coin /> : <TbCurrencyTaka />
                     }
                     {offer?.price}
                 </p>
