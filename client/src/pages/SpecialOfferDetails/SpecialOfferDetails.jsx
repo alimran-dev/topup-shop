@@ -8,6 +8,7 @@ import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Coin from "../../components/reusuable/Coin/Coin";
 
+
 const SpecialOfferDetails = () => {
     const { id } = useParams();
     const [offer, setOffer] = useState(null);
@@ -72,13 +73,13 @@ const SpecialOfferDetails = () => {
 
         // console.log(orderData);
 
-
         try {
             const res = await axiosPrivate.post("/order/new/special", orderData);
 
             // console.log("res-------", res.data);
             if (res.data.success) {
                 toast.success("Purchase successful!");
+                navigate("/myOrders");
             } else {
                 toast.error("Purchase failed. Please try again.");
             }

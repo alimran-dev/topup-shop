@@ -15,6 +15,8 @@ import { HiOutlineInformationCircle } from "react-icons/hi";
 import OptionCard from "./OptionCard";
 import rechargeImg from "../../assets/images/recharge-card.jpeg";
 import toast from 'react-hot-toast';
+import bkashLogo from '../../assets/images/bkash.png';
+import nagadLogo from '../../assets/images/nagad.png';
 
 
 const CardsOptions = () => {
@@ -50,10 +52,6 @@ const CardsOptions = () => {
     quantity,
     selected.price,
   ]);
-
-
-  console.log(selected.id, selected.price);
-  console.log(user.balance);
 
 
   const handlePurchase = () => {
@@ -165,7 +163,7 @@ const CardsOptions = () => {
             <TbSquareRoundedNumber1Filled className="text-red-500" />
             {location.state?.docName == "mbMinOffer" ? "Select Item" : "Select Category"}
           </h1>
-          <div className="col-span-2 grid grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
+          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
               <OptionCard
                 option={option}
@@ -237,8 +235,6 @@ const CardsOptions = () => {
             </form>
           }
 
-
-
           <div className="border-2 rounded mt-3">
             <h2 className="text-xl text-center font-semibold border-b-2 py-2">
               Summary
@@ -251,7 +247,7 @@ const CardsOptions = () => {
                     আপনার ব্যালেন্সঃ{" "}
                     <span className="flex items-center font-semibold text-red-600">
                       <TbCurrencyTaka />
-                      {user?.balance}
+                      {(user?.balance)?.toFixed(2)}
                     </span>
                   </p>
                 </>
@@ -271,7 +267,7 @@ const CardsOptions = () => {
                     আপনার অবশিষ্ট ব্যালেন্সঃ{" "}
                     <span className="flex items-center font-semibold text-red-600">
                       <TbCurrencyTaka />
-                      {user?.balance - price}
+                      {(user?.balance - price)?.toFixed(2)}
                     </span>
                   </p>
                 </>
@@ -283,18 +279,27 @@ const CardsOptions = () => {
               )}
               {user ? (
                 <div className="space-y-3">
-                  <Link
-                    to={"/addBalance"}
-                    className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit"
-                  >
-                    Add Balance
-                  </Link>
                   <button
                     onClick={handlePurchase}
                     className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
                   >
                     Purchase
                   </button>
+                  <Link to={"/addBalance"} className="block p-3 rounded border-2">
+                    <button
+                      className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2"
+                    >
+                      Add Balance
+                    </button>
+                    <div className="flex justify-center items-center py-3">
+                      <div className="w-20 h-fit">
+                        <img src={bkashLogo} className="w-full h-full object-contain" alt="Bkash Logo" />
+                      </div>
+                      <div className="w-20 h-fit">
+                        <img src={nagadLogo} className="w-full h-full object-contain" alt="Nagad Logo" />
+                      </div>
+                    </div>
+                  </Link>
                 </div>
               ) : (
                 <Link

@@ -38,12 +38,11 @@ const DailyCoinClaim = () => {
             // console.log(res.data);
             if (res.data.success) {
                 toast.success(res.data.message || 'Coin Claimed!');
-                setShow(res.data.success || false);
+                setShow(false);
                 setLoading(false);
             }
             else {
                 toast.error(res.data.message || 'Claim Failed!');
-                setShow(res.data.success || false);
                 setLoading(false);
             }
         }).catch(err => {
