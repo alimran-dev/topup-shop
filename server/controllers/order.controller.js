@@ -423,7 +423,7 @@ const orderBalanceRecharge = async (req, res) => {
   }
 };
 
-const orderSpecialOffer = async (req, res) => { 
+const orderSpecialOffer = async (req, res) => {
   try {
     const { id, email, info } = req.body || {};
     if (!email || !id) {
@@ -514,7 +514,12 @@ const orderSpecialOffer = async (req, res) => {
         }
       });
       const result = await orderCollection.insertOne(order);
-      return res.send({ ...result, price: option.price, type: option.type });
+      return res.send({
+        ...result,
+        success: true,
+        price: option.price,
+        type: option.type,
+      });
     }
     res.status(400).send({ message: "Something went wrong" });
   } catch (err) {

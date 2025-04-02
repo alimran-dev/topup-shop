@@ -277,36 +277,48 @@ const forgetPassword = async (req, res) => {
   }
 };
 
-const changePassword=async(req,res)=>{
-  try{
-    const user=req.user || {};
-    const {email, oldPassword, newPassword}=req.body || {};
+const changePassword = async (req, res) => {
+  try {
+    const user = req.user || {};
+    const { email, oldPassword, newPassword } = req.body || {};
     // console.log(user, email);
-    if(user?.email!==email){
-      return res.send({success: false, message: "Unauthorized User"});
+    if (user?.email !== email) {
+      return res.send({ success: false, message: "Unauthorized User" });
     }
-    const userInDb=await userCollection.findOne({email: email});
-    if(!userInDb){
-      return res.send({success: false, message: "User not found"});
+    const userInDb = await userCollection.findOne({ email: email });
+    if (!userInDb) {
+      return res.send({ success: false, message: "User not found" });
     }
-    const isCorrectPassword=await bcrypt.compare(oldPassword?.toString(),userInDb?.password);
-    if(!isCorrectPassword){
-      return res.send({success: false, message: "Incorrect Old password"});
+    const isCorrectPassword = await bcrypt.compare(
+      oldPassword?.toString(),
+      userInDb?.password
+    );
+    if (!isCorrectPassword) {
+      return res.send({ success: false, message: "Incorrect Old password" });
     }
-    if(newPassword?.toString().length<6){
-      return res.send({success: false, message: "Password must be at least 6 digit"});
+    if (newPassword?.toString().length < 6) {
+      return res.send({
+        success: false,
+        message: "Password must be at least 6 digit",
+      });
     }
-    const newPasswordHash=await bcrypt.hash(newPassword.toString(),10);
-    const result=await userCollection.updateOne({_id: userInDb._id},{$set: {password: newPasswordHash}});
-    if(result.modifiedCount){
-      return res.send({success: true, message: "Password changed successfully"});
+    const newPasswordHash = await bcrypt.hash(newPassword.toString(), 10);
+    const result = await userCollection.updateOne(
+      { _id: userInDb._id },
+      { $set: { password: newPasswordHash } }
+    );
+    if (result.modifiedCount) {
+      return res.send({
+        success: true,
+        message: "Password changed successfully",
+      });
     }
-    res.send({success: false, message: "Something went wrong"});
-  }catch(err){
+    res.send({ success: false, message: "Something went wrong" });
+  } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
 const updateUser = async (req, res) => {
   try {
@@ -356,7 +368,7 @@ const getAllUser = async (req, res) => {
     }
     const totalUsers = await userCollection.countDocuments(filter);
     const result = await userCollection
-      .find(filter)
+      .find(filter, { sort: { _id: -1 } })
       .project({ password: 0 })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt)
@@ -368,32 +380,35 @@ const getAllUser = async (req, res) => {
   }
 };
 
-const verifyUser=async(req,res)=>{
-  try{
-    const user=req.user || {};
-    const {email,otp}=req.body || {};
-    if(user?.email!==email){
-      return res.send({success: false, message: "Unauthorized user"});
+const verifyUser = async (req, res) => {
+  try {
+    const user = req.user || {};
+    const { email, otp } = req.body || {};
+    if (user?.email !== email) {
+      return res.send({ success: false, message: "Unauthorized user" });
     }
-    const userInDb=await userCollection.findOne({email: email});
-    if(!userInDb){
-      return res.send({success: false, message: "User not found"});
+    const userInDb = await userCollection.findOne({ email: email });
+    if (!userInDb) {
+      return res.send({ success: false, message: "User not found" });
     }
-    const now=new Date().getTime();
-    const lastOTPsent=userInDb?.verify?.time;
-    const lastOTPsentDuration=(now-lastOTPsent?.getTime())/1000;
-    if(lastOTPsent && ((now-lastOTPsentDuration<=30))){
-      return res.send({success: false, message: "Please wait 30 seconds"});
+    const now = new Date().getTime();
+    const lastOTPsent = userInDb?.verify?.time;
+    const lastOTPsentDuration = (now - lastOTPsent?.getTime()) / 1000;
+    if (lastOTPsent && now - lastOTPsentDuration <= 30) {
+      return res.send({ success: false, message: "Please wait 30 seconds" });
     }
-    if(email && !otp){
+    if (email && !otp) {
       const randomNumber = Math.floor(
         100000 + Math.random() * 900000
       ).toString();
       // console.log("OTP", randomNumber);
       const genOTP = await bcrypt.hash(randomNumber, 10);
-      const verifyObj = { otp: genOTP, time: new Date()};
-      const result=await userCollection.updateOne({_id: userInDb._id},{$set: {verify: verifyObj}});
-      if(result.modifiedCount){
+      const verifyObj = { otp: genOTP, time: new Date() };
+      const result = await userCollection.updateOne(
+        { _id: userInDb._id },
+        { $set: { verify: verifyObj } }
+      );
+      if (result.modifiedCount) {
         const mailInfo = await transporter.sendMail({
           from: '"Mezba Shop" <no-reply@mezbashop.com>',
           to: email,
@@ -401,31 +416,37 @@ const verifyUser=async(req,res)=>{
           text: `Your OTP for account verification is: ${randomNumber}. OTP is valid for 5 minutes.`,
         });
         // console.log(mailInfo);
-        return res.send({success: true, message: "OTP sent successfull"});
+        return res.send({ success: true, message: "OTP sent successfull" });
       }
     }
-    if(email && otp){
-      const isOtpCorrect=await bcrypt.compare(otp?.toString(),userInDb?.verify?.otp);
-      if(!isOtpCorrect){
-        return res.send({success: false, message: "Incorrect OTP"});
+    if (email && otp) {
+      const isOtpCorrect = await bcrypt.compare(
+        otp?.toString(),
+        userInDb?.verify?.otp
+      );
+      if (!isOtpCorrect) {
+        return res.send({ success: false, message: "Incorrect OTP" });
       }
-      const now=new Date();
-      const lastOTPsent=userInDb?.verify?.time;
-      const duration=(now.getTime()-lastOTPsent?.getTime())/1000;
-      if(lastOTPsent && duration>300){
-        return res.send({success: false, message: "OTP Expired. Try again."});
+      const now = new Date();
+      const lastOTPsent = userInDb?.verify?.time;
+      const duration = (now.getTime() - lastOTPsent?.getTime()) / 1000;
+      if (lastOTPsent && duration > 300) {
+        return res.send({ success: false, message: "OTP Expired. Try again." });
       }
-      const result=await userCollection.updateOne({_id: userInDb._id}, {$set: {isVerified: true}});
-      if(result.modifiedCount){
-        return res.send({success: true, message: "User email verified"});
+      const result = await userCollection.updateOne(
+        { _id: userInDb._id },
+        { $set: { isVerified: true } }
+      );
+      if (result.modifiedCount) {
+        return res.send({ success: true, message: "User email verified" });
       }
     }
-    res.send({success: false, message: "Something went wrong"});
-  }catch(err){
+    res.send({ success: false, message: "Something went wrong" });
+  } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
 const updateUserStatus = async (req, res) => {
   try {

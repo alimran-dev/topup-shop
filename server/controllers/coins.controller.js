@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { coinSettingCollection, coinHistoryCollection, userCollection } =
   dbCollections || {};
@@ -46,6 +47,7 @@ const getCoinSettings = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
 const claimDailyCoin = async (req, res) => {
   try {
     const { email } = req.body || {};
@@ -145,38 +147,150 @@ const updateCoinSetting = async (req, res) => {
   }
 };
 
-const getReviewAmount=async(req,res)=>{
-  try{
-    const coinSettings=await coinSettingCollection.findOne({type: "settings"});
-    if(!coinSettings){
-      return res.send({success: false, message: "Coin Settings does not exists"});
+const getReviewAmount = async (req, res) => {
+  try {
+    const coinSettings = await coinSettingCollection.findOne({
+      type: "settings",
+    });
+    if (!coinSettings) {
+      return res.send({
+        success: false,
+        message: "Coin Settings does not exists",
+      });
     }
-    res.send({success: true, perReview: coinSettings.perReview});
-  }catch(err){
+    res.send({ success: true, perReview: coinSettings.perReview });
+  } catch (err) {
     console.error("getReviewAmount: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
-const claimReviewAmount=async(req,res)=>{
-  try{
+};
 
-  }catch(err){
+const claimReviewAmount = async (req, res) => {
+  try {
+    const { email, url } = req.body || {};
+    const emailInToken = req.user?.email;
+    if (email !== emailInToken) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Invalid Request" });
+    }
+    const coinSettings = await coinSettingCollection.findOne({
+      type: "settings",
+    });
+    if (!coinSettings) {
+      return res.send({ success: false, message: "coin settings not found" });
+    }
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.send({ success: false, message: "User not found" });
+    }
+    const coinHistory = {
+      email: email,
+      name: "Review Offer Claim",
+      status: "pending",
+      amount: coinSettings.perReview,
+      createdAt: new Date(),
+      info: {
+        Link: url,
+      },
+    };
+    const result = await coinHistoryCollection.insertOne(coinHistory);
+    if (result.insertedId) {
+      return res.send({ success: true, ...result });
+    }
+    res.send({ success: false, ...result, message: "something went wrong" });
+  } catch (err) {
     console.error("claimReviewAmount: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
-const changeReviewStatus=async(req,res)=>{
-  try{
+};
 
-  }catch(err){
+const changeReviewStatus = async (req, res) => {
+  try {
+    const { id, status } = req.body || {};
+    const coinHistory = await coinHistoryCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    if (!coinHistory) {
+      return res.send({ success: false, message: "Coin history not found" });
+    }
+    if (coinHistory.status === "success" || coinHistory.status === "cancel") {
+      return res.send({ success: false, message: "Already claimed once" });
+    }
+    const user = await userCollection.findOne({ email: coinHistory.email });
+    if (!user) {
+      return res.send({ success: false, message: "User not found" });
+    }
+    if (status === "success") {
+      const updateUser = await userCollection.updateOne(
+        { email: user.email },
+        {
+          $set: {
+            coins: user.coins + coinHistory.amount,
+          },
+        }
+      );
+    }
+    const updateCoinHistory = await coinHistoryCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          status: status,
+        },
+      }
+    );
+    if (updateCoinHistory.modifiedCount) {
+      return res.send({
+        success: true,
+        message: "Status changed successfully",
+        status,
+      });
+    }
+    res.send({ success: false, message: "Something went wrong" });
+  } catch (err) {
     console.error("changeReviewStatus: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
+
+const getCoinHistory = async (req, res) => {
+  try {
+    const { page, limit, email } = req.query || {};
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
+    if (!pageInt || !limitInt) {
+      return res.status(400).send({ message: "Invalid page or limit value" });
+    }
+    const { email: emailInToken, role } = req.user || {};
+    let filter = {};
+    if (role === "user") {
+      if (email && email !== emailInToken) {
+        return res.status(400).send({ message: "Invalid user email" });
+      }
+      filter = { email: emailInToken };
+    } else if (role === "admin") {
+      filter = { email: { $regex: new RegExp(email, "i") } };
+    }
+    const totalHistory = await coinHistoryCollection.countDocuments(filter);
+    const result = await coinHistoryCollection
+      .find(filter)
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt)
+      .toArray();
+    res.send({ history: result, totalHistory });
+  } catch (err) {
+    console.error("getCoinHistory: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
 
 module.exports = {
   getDailyCoinNumber,
   getCoinSettings,
   claimDailyCoin,
   updateCoinSetting,
+  getReviewAmount,
+  claimReviewAmount,
+  changeReviewStatus,
+  getCoinHistory,
 };
