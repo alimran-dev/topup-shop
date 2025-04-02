@@ -14,7 +14,9 @@ const UpdateDelete = () => {
   const nameRef = useRef(null);
   const priceRef = useRef(null);
   const descriptionRef = useRef(null);
+  const stockRef = useRef(null);
   const location = useLocation();
+
 
   const handleUpdate = () => {
     if (nameRef.current && priceRef.current) {
@@ -22,10 +24,16 @@ const UpdateDelete = () => {
       const name = nameRef.current?.value;
       const price = priceRef.current?.value;
       const description = descriptionRef.current?.value;
-      const updatedOption = { id, category: `${category==="cards"?"recharge":category}`, name, price, description };
-      // console.log(updatedOption);
+      const stock = stockRef.current?.value;
+
+
+      const updatedOption = { id, category: `${category === "cards" ? "recharge" : category}`, name, price, description, ...(option?.category === "offer" && { type: "offer", stock }) };
+
+      console.log(updatedOption);
       axiosPrivate.patch("/option/admin/update", updatedOption).then((res) => {
         setIsLoading(false);
+        // console.log(res.data);
+
         if (res.data?.modifiedCount > 0) {
           Swal.fire({
             title: "Option Updated",
@@ -39,6 +47,8 @@ const UpdateDelete = () => {
       });
     }
   };
+
+
   const handleDelete = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -51,7 +61,7 @@ const UpdateDelete = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axiosPrivate
-          .delete(`/option/admin/delete?id=${id}&category=${category==="cards"?"recharge":category}`)
+          .delete(`/option/admin/delete?id=${id}&category=${category === "cards" ? "recharge" : category}`)
           .then((res) => {
             // console.log(res.data);
             if (res.data?.deletedCount > 0) {
@@ -66,6 +76,8 @@ const UpdateDelete = () => {
       }
     });
   };
+
+
   const handleStock = () => {
     Swal.fire({
       title: `${stock ? "Stock Out?" : "In Stock?"}`,
@@ -96,11 +108,11 @@ const UpdateDelete = () => {
       }
     });
   };
+
   useEffect(() => {
     axiosPrivate
       .get(
-        `/option?category=${
-          category === "cards" ? "recharge" : category
+        `/option?category=${category === "cards" ? "recharge" : category
         }&id=${id}&docName=${location.state?.docName}`
       )
       .then((res) => {
@@ -109,14 +121,18 @@ const UpdateDelete = () => {
         setStock(res.data?.stock);
       });
   }, [axiosPrivate, category, id, location.state?.docName]);
-  console.log(option);
+
+
+  // console.log(option, "api");
+
+
   return (
     <div className="-mt-5">
       <Loader isLoading={isLoading} />
       <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
         Update or Delete [{category}]
       </h1>
-      <div className="flex flex-col md:flex-row w-2/3 mx-auto justify-center items-center gap-5 mt-5">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-5 mt-5">
         <div className="space-y-2">
           <label
             htmlFor="name"
@@ -131,6 +147,22 @@ const UpdateDelete = () => {
             className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
             placeholder="Example: 20 UC"
             defaultValue={option?.name}
+          />
+        </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="price"
+            className="block text-xl font-medium text-gray-700"
+          >
+            Option Price
+          </label>
+          <input
+            type="text"
+            name="price"
+            ref={priceRef}
+            className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+            placeholder="Example: 50"
+            defaultValue={option?.price}
           />
         </div>
         {category === "cards" ? (
@@ -153,22 +185,27 @@ const UpdateDelete = () => {
         ) : (
           <></>
         )}
-        <div className="space-y-2">
-          <label
-            htmlFor="price"
-            className="block text-xl font-medium text-gray-700"
-          >
-            Option Price
-          </label>
-          <input
-            type="text"
-            name="price"
-            ref={priceRef}
-            className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
-            placeholder="Example: 50"
-            defaultValue={option?.price}
-          />
-        </div>
+        {
+          option?.category == "offer" &&
+          <>
+            <div className="space-y-2">
+              <label
+                htmlFor="description"
+                className="block text-xl font-medium text-gray-700"
+              >
+                Stock
+              </label>
+              <input
+                type="number"
+                name="stock"
+                className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+                ref={stockRef}
+                placeholder="Example: 0"
+                defaultValue={option?.stock}
+              />
+            </div>
+          </>
+        }
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 w-fit mt-3 mx-auto">
         <button
@@ -178,9 +215,9 @@ const UpdateDelete = () => {
           Delete
         </button>
         {category === "idcode" ||
-        category === "weekly-monthly" ||
-        category === "airdrop" ||
-        category === "lessIsMore" ? (
+          category === "weekly-monthly" ||
+          category === "airdrop" ||
+          category === "lessIsMore" ? (
           <>
             {stock ? (
               <button

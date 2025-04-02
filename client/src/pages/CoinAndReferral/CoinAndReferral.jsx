@@ -4,9 +4,11 @@ import UploadVideo from "./UploadVideo/UploadVideo";
 import ReferralEarnings from "./ReferralEarnings/ReferralEarnings";
 import { useEffect } from "react";
 import Coin from "../../components/reusuable/Coin/Coin";
+import useAuth from "../../hooks/useAuth";
 
 const CoinAndReferral = () => {
 
+    const { user } = useAuth();
 
     // page apear from top
     useEffect(() => {
@@ -21,7 +23,7 @@ const CoinAndReferral = () => {
                 <h2 className="text-xl md:text-2xl">Your Coin Balance</h2>
                 <p className="flex justify-center items-center gap-1">
                     <Coin />
-                    <span>500</span>
+                    <span>{user?.coins}</span>
                 </p>
             </div>
 

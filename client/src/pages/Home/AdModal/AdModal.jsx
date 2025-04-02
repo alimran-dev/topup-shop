@@ -60,18 +60,18 @@ const AdModal = () => {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
         <div
           ref={modalRef}
-          className="w-[700px] bg-white p-5 rounded-lg relative"
+          className="max-w-4xl bg-white p-2 md:p-5 rounded-lg relative"
         >
           {ads.imageUrl ? (
             <Link
-              to={ads.linkTo || "#"}
+              to={ads.path || "#"}
               target="_blank"
               className="flex justify-center"
             >
               <img
                 src={ads.imageUrl}
                 alt="Ad Modal"
-                className="cursor-pointer rounded-lg"
+                className="w-full max-h-[500px] object-contain cursor-pointer rounded-lg"
                 onClick={handleCloseModal}
               />
             </Link>

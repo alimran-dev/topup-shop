@@ -2,6 +2,7 @@ import { useState } from "react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import toast from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
 
 
 const ClaimRedeemCode = () => {
@@ -9,6 +10,7 @@ const ClaimRedeemCode = () => {
     const [btnLoading, setBtnLoading] = useState(false);
     const { user } = useAuth();
     const axiosPrivate = useAxiosPrivate();
+    const navigate = useNavigate();
 
 
     // redeem code claim fn
@@ -24,6 +26,7 @@ const ClaimRedeemCode = () => {
         if (!user?.isVerified) {
             setBtnLoading(false);
             toast.error("Please Verify Your Email!");
+            navigate("/myAccount")
             return;
         }
 
@@ -40,7 +43,6 @@ const ClaimRedeemCode = () => {
             // console.error("Error fetching claimed codes:", error);
             toast.error(error.response.data.message || "Something Went Wrong!");
         } finally {
-
             setBtnLoading(false);
         }
     };
