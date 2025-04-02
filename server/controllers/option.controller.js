@@ -244,13 +244,16 @@ const addOption = async (req, res) => {
         result = await lessIsMoreCollection.insertOne(optionManual);
       }
     } else if (category === "recharge") {
-      const { docName, name, price, description, category, operator } =
+      const { docName, name, price, description, category, operator, stock } =
         req.body || {};
         const priceInt=parseInt(price);
+        const stockInt=parseInt(stock);
         if(docName!=="mbCard" && docName!=="minCard" && docName!=="balanceCard" && docName!=="mbOffer" && docName!=="minOffer" && docName!=="mbAndMinOffer"){
           return res.status(400).send({message: "Invalid docName"});
         } else if(isNaN(priceInt) || priceInt<0){
           return res.status(400).send({message: "Invalid price"});
+        } else if(docName.includes("Offer") && isNaN(stockInt) && stockInt<0){
+          return res.status(400).send({message: "Invalid stock"});
         }
       const companyDb = await rechargeCollection.findOne({
         docName: "companies",
@@ -266,7 +269,7 @@ const addOption = async (req, res) => {
         operator,
       };
       if (category === "card") rechargeOption.codes = [];
-      else if (category === "offer") rechargeOption.stock = true;
+      else if (category === "offer") rechargeOption.stock = stockInt;
       result = await rechargeCollection.insertOne(rechargeOption);
     } else {
       return res.send({ message: "category not matched" });
@@ -298,7 +301,7 @@ const addDynamicOption = async (req, res) => {
 
 const updateOption = async (req, res) => {
   try {
-    const { id, category, name, price, description } = req.body || {};
+    const { id, category, name, price, description, type, stock } = req.body || {};
     const filter = { _id: new ObjectId(id) };
     if(isNaN(parseInt(price)) || parseInt(price)<0){
       return res.status(400).send({message: "Invalid Price"});
@@ -311,6 +314,13 @@ const updateOption = async (req, res) => {
     };
     if (category === "recharge" && description) {
       updatedOption.$set.description = description;
+      if(type==="offer"){
+        const stockInt=parseInt(stock);
+        if(isNaN(stockInt) || stockInt<0){
+          return res.status(400).send({message: "Invalid stock"});
+        }
+        updateOption.$set.stock=stockInt;
+      }
     }
     let result;
     if (category === "unipin") {
@@ -406,7 +416,7 @@ const deleteOption = async (req, res) => {
     } else if (category === "recharge") {
       result = await rechargeCollection.deleteOne(filter);
     }
-    console.log(category, id, result);
+    // console.log(category, id, result);
     res.send(result);
   } catch (err) {
     console.error("Error: ", err.message);

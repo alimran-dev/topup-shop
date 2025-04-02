@@ -283,7 +283,7 @@ const orderRechargeOffer = async (req, res) => {
     if (!option) {
       return res.send({ success: false, message: "Option does not exists" });
     }
-    if (!option.stock) {
+    if (option.stock===0) {
       return res.send({ success: false, message: "Stock out" });
     }
     if (option.price > user.balance) {
@@ -325,6 +325,10 @@ const orderRechargeOffer = async (req, res) => {
           Sim: simCompany.name,
         },
       };
+      // option stock update
+      await rechargeCollection.updateOne({_id: new ObjectId(id)},{$set: {stock: option.stock-1}});
+
+      // notification to the admins
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {
         if (admin.subscription) {

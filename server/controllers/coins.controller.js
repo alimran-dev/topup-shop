@@ -273,7 +273,7 @@ const getCoinHistory = async (req, res) => {
     }
     const totalHistory = await coinHistoryCollection.countDocuments(filter);
     const result = await coinHistoryCollection
-      .find(filter)
+      .find(filter, {sort: {createdAt: -1}})
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt)
       .toArray();
