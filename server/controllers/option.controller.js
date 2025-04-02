@@ -319,7 +319,7 @@ const updateOption = async (req, res) => {
         if(isNaN(stockInt) || stockInt<0){
           return res.status(400).send({message: "Invalid stock"});
         }
-        updateOption.$set.stock=stockInt;
+        updatedOption.$set.stock=stockInt;
       }
     }
     let result;
