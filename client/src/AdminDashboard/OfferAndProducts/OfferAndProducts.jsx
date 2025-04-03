@@ -5,11 +5,11 @@ import SpecialProducts from "./SpecialProducts/SpecialProducts";
 
 const OffersAndProducts = () => {
 
-    const [selectedTab, setSelectedTab] = useState("offers");
+    const [selectedTab, setSelectedTab] = useState("special offers");
 
     const tabItems = [
-        { id: 1, name: "offers" },
-        { id: 2, name: "special products" },
+        { id: 1, name: "special offers" },
+        { id: 2, name: "coin products" },
     ];
     
 
@@ -30,10 +30,10 @@ const OffersAndProducts = () => {
             {/* content */}
             <div className="py-2 md:py-5">
                 {
-                    selectedTab == "offers" && <Offers />
+                    selectedTab == "special offers" && <Offers />
                 }
                 {
-                    selectedTab == "special products" && <SpecialProducts />
+                    selectedTab == "coin products" && <SpecialProducts />
                 }
             </div>
 

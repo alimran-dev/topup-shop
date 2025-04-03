@@ -33,6 +33,8 @@ const AllOrders = () => {
       getOrders();
     }
   };
+
+  
   useEffect(() => {
     setOrders([]);
     getOrders();
