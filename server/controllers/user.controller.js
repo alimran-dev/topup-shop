@@ -2,6 +2,7 @@ const { cookieOption } = require("../utils/cookieOption");
 const { dbCollections } = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const { transporter } = require("../config/nodemailer");
 const userCollection = dbCollections.userCollection;
 const orderCollection = dbCollections.orderCollection;
@@ -62,10 +63,33 @@ const googleCallback = async (req, res) => {
     if (user?.email) {
       const userInDb = await userCollection.findOne({ email: user.email });
       if (!userInDb) {
+        let attempt = 0;
+        let isExist;
+        let referID;
+        while (attempt < 15) {
+          const hash = crypto
+            .createHash("sha256")
+            .update(user.email + Date.now())
+            .digest("hex");
+          referID = Buffer.from(hash, "hex")
+            .toString("base64")
+            .replace(/[+/=]/g, "")
+            .substring(0, 8);
+          isExist = await userCollection.findOne({ referID: referID });
+          if (!isExist) {
+            break;
+          }
+        }
+        if (isExist) {
+          return res.redirect(
+            `${process.env.FRONTEND_DOMAIN}/login?success=false`
+          );
+        }
         const newUser = {
           email: user.email,
           password: "loginWithGoogle",
           isVerified: true,
+          referID: referID,
           name: user.name,
           phone: "",
           photo: user.photo,
@@ -98,6 +122,10 @@ const googleCallback = async (req, res) => {
           `${process.env.FRONTEND_DOMAIN}/login?success=false`
         );
       } else {
+        await userCollection.updateOne(
+          { email: user.email },
+          { $set: { name: user.name, photo: user.photo, isVerified: true } }
+        );
         const token = jwt.sign(
           { email: userInDb.email, role: userInDb.role },
           process.env.ACCESS_TOKEN_SECRET,
@@ -163,8 +191,32 @@ const newUser = async (req, res) => {
       return res.send({ userExist: true, newUser: false });
     }
     const hashPassword = await bcrypt.hash(user.password, 10);
+    let attempt = 0;
+    let isExist;
+    let referID;
+    while (attempt < 15) {
+      const hash = crypto
+        .createHash("sha256")
+        .update(user.email + Date.now())
+        .digest("hex");
+      referID = Buffer.from(hash, "hex")
+        .toString("base64")
+        .replace(/[+/=]/g, "")
+        .substring(0, 8);
+      isExist = await userCollection.findOne({ referID: referID });
+      if (!isExist) {
+        break;
+      }
+    }
+    if (isExist) {
+      return res.send({
+        success: false,
+        message: "Failed to generate refer ID",
+      });
+    }
     const newUser = {
       email: user.email,
+      referID: referID,
       password: hashPassword,
       isVerified: false,
       name: user.name,
@@ -504,6 +556,54 @@ const updateUserBalance = async (req, res) => {
   }
 };
 
+const genRefer = async (email) => {
+  let attempt = 0;
+  let isExist;
+  let referID;
+  while (attempt < 15) {
+    const hash = crypto
+      .createHash("sha256")
+      .update(email + Date.now())
+      .digest("hex");
+    referID = Buffer.from(hash, "hex")
+      .toString("base64")
+      .replace(/[+/=]/g, "")
+      .substring(0, 8);
+    isExist = await userCollection.findOne({ referID: referID });
+    if (!isExist) {
+      break;
+    }
+  }
+  if (isExist) {
+    return null;
+  }
+  return referID;
+};
+
+const tempReferIDGen = async (req, res) => {
+  try {
+    const users = await userCollection.find().toArray();
+    const updatePromises = users.map(async (user) => {
+      const referID = await genRefer(user.email);
+      if (referID) {
+        await userCollection.updateOne(
+          { _id: user._id },
+          { $set: { referID } }
+        );
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const result = await Promise.all(updatePromises);
+    const successUpdates = result.filter((res) => res).length;
+    res.send({ updateCount: successUpdates, totalCount: users.length });
+  } catch (err) {
+    console.error("tempReferIDGen: ", err.message);
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   userProfile,
   googleCallback,
@@ -516,4 +616,5 @@ module.exports = {
   verifyUser,
   updateUserStatus,
   updateUserBalance,
+  tempReferIDGen,
 };

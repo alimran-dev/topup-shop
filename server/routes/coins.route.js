@@ -11,10 +11,12 @@ const {
   claimReviewAmount,
   changeReviewStatus,
   getCoinHistory,
+  coinsLeadearboard,
 } = require("../controllers/coins.controller");
 
 const coinRotues = () => {
   // /coins/
+  router.get("/leaderboard", coinsLeadearboard);
   router.get("/history", verifyToken, getCoinHistory);
   router.get("/daily", verifyToken, getDailyCoinNumber);
   router.get("/review", verifyToken, getReviewAmount);

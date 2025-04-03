@@ -17,7 +17,7 @@ const getAllOrder = async (req, res) => {
     const { email, page, limit } = req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
-    console.log({ email, pageInt, limitInt });
+    // console.log({ email, pageInt, limitInt });
     const emailDecoded = req.user?.email;
     if (email !== emailDecoded) {
       return res.status(401).send({ error: "unauthorized" });
@@ -61,6 +61,7 @@ const getLastOrder = async (req, res) => {
             status: 1,
             "userDetails.name": 1,
             "userDetails.photo": 1,
+            "userDetails.isVerified": 1,
           },
         },
         {
@@ -70,6 +71,7 @@ const getLastOrder = async (req, res) => {
             status: 1,
             name: "$userDetails.name",
             photo: "$userDetails.photo",
+            isVerified: "$userDetails.isVerified",
           },
         },
       ])
@@ -167,7 +169,7 @@ const orderAuto = async (req, res) => {
         status: "complete",
         feedback: "",
       };
-      console.log(order);
+      console.log("orderAuto: ", order);
       const result = await orderCollection.insertOne(order);
       res.status(201).send({ orderID: result.insertedId, price: orderPrice });
     }
@@ -283,7 +285,7 @@ const orderRechargeOffer = async (req, res) => {
     if (!option) {
       return res.send({ success: false, message: "Option does not exists" });
     }
-    if (option.stock===0) {
+    if (option.stock === 0) {
       return res.send({ success: false, message: "Stock out" });
     }
     if (option.price > user.balance) {
@@ -326,7 +328,10 @@ const orderRechargeOffer = async (req, res) => {
         },
       };
       // option stock update
-      await rechargeCollection.updateOne({_id: new ObjectId(id)},{$set: {stock: option.stock-1}});
+      await rechargeCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { stock: option.stock - 1 } }
+      );
 
       // notification to the admins
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
@@ -534,14 +539,33 @@ const orderSpecialOffer = async (req, res) => {
 
 const getAllOrderAdmin = async (req, res) => {
   try {
-    const { page, limit, search } = req.query;
+    const { page, limit, search, fromDate, toDate, category, subCategory } =
+      req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
-    console.log(pageInt, limitInt);
+    // console.log(pageInt, limitInt);
     let filter = {};
     if (search) {
       filter = { email: { $regex: new RegExp(search, "i") } };
     }
+    const fromDateObj = new Date(fromDate);
+    const toDateObj = new Date(toDate);
+    if (
+      fromDate &&
+      toDate &&
+      (isNaN(fromDateObj.getTime()) || isNaN(toDateObj.getTime()))
+    ) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    if (fromDate) {
+      filter = {
+        ...filter,
+        orderTime: { $gte: fromDateObj, $lte: toDateObj },
+        category: category,
+        subCategory: subCategory,
+      };
+    }
+    // console.log(filter);
     const totalOrders = await orderCollection.countDocuments(filter);
     const result = await orderCollection
       .find(filter, { sort: { updateTime: -1 } })
@@ -560,7 +584,7 @@ const getPending = async (req, res) => {
     const { page, limit } = req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
-    console.log(pageInt, limitInt);
+    // console.log(pageInt, limitInt);
     const totalOrders = await orderCollection.countDocuments({
       status: "pending",
     });
@@ -602,6 +626,22 @@ const orderProcess = async (req, res) => {
   }
 };
 
+const archivedUnipins = async (req, res) => {
+  try {
+    const { search } = req.query || {};
+    if (!search) {
+      return res.send([]);
+    }
+    const result = await orderCollection
+      .find({ codes: { $in: [new RegExp(search, "i")] } })
+      .toArray();
+    res.send(result);
+  } catch (err) {
+    console.error("archivedUnipins: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   getAllOrder,
   getLastOrder,
@@ -613,4 +653,5 @@ module.exports = {
   getAllOrderAdmin,
   getPending,
   orderProcess,
+  archivedUnipins,
 };

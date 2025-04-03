@@ -273,7 +273,7 @@ const getCoinHistory = async (req, res) => {
     }
     const totalHistory = await coinHistoryCollection.countDocuments(filter);
     const result = await coinHistoryCollection
-      .find(filter, {sort: {createdAt: -1}})
+      .find(filter, { sort: { createdAt: -1 } })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt)
       .toArray();
@@ -284,6 +284,24 @@ const getCoinHistory = async (req, res) => {
   }
 };
 
+const coinsLeadearboard = async (req, res) => {
+  try {
+    const result = await userCollection
+      .find(
+        {},
+        {
+          sort: { coins: -1 },
+          projection: { name: 1, photo: 1, coins: 1, isVerified: 1 },
+        }
+      )
+      .limit(10)
+      .toArray();
+    res.send(result);
+  } catch (err) {
+    console.error("currentTopLeadearboard: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
 module.exports = {
   getDailyCoinNumber,
   getCoinSettings,
@@ -293,4 +311,5 @@ module.exports = {
   claimReviewAmount,
   changeReviewStatus,
   getCoinHistory,
+  coinsLeadearboard,
 };
