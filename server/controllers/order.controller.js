@@ -635,7 +635,7 @@ const archivedUnipins = async (req, res) => {
       return res.status(400).send({ message: "Invalid Request" });
     }
     if (!search) {
-      return res.send([]);
+      return res.send({orders: 0, totalOrders: 0});
     }
     const filter = { codes: { $in: [new RegExp(search, "i")] } };
     const result = await orderCollection
