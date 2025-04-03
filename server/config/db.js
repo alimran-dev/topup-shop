@@ -51,6 +51,7 @@ const connectToDB = (cb) => {
       dbCollections.coinHistoryCollection = database.collection("coinHistory");
       dbCollections.redeemCodesCollection = database.collection("redeemCodes");
       dbCollections.reviewsCollection = database.collection("reviews");
+      dbCollections.referHistoryCollection=database.collection("referHistory");
       module.exports = { dbCollections };
       return cb();
     })

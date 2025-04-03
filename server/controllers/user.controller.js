@@ -4,9 +4,15 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { transporter } = require("../config/nodemailer");
-const userCollection = dbCollections.userCollection;
-const orderCollection = dbCollections.orderCollection;
-const transactionCollection = dbCollections.transactionCollection;
+const { ObjectId } = require("mongodb");
+const {
+  userCollection,
+  orderCollection,
+  transactionCollection,
+  coinSettingCollection,
+  coinHistoryCollection,
+  referHistoryCollection,
+} = dbCollections || {};
 require("dotenv").config();
 
 const countSpentMonth = async (email) => {
@@ -60,22 +66,25 @@ const userProfile = async (req, res) => {
 const googleCallback = async (req, res) => {
   try {
     const user = req.user;
+    const { referID } = req.query.state
+      ? JSON.parse(req.query.state)
+      : null || {};
     if (user?.email) {
       const userInDb = await userCollection.findOne({ email: user.email });
       if (!userInDb) {
         let attempt = 0;
         let isExist;
-        let referID;
+        let newReferID;
         while (attempt < 15) {
           const hash = crypto
             .createHash("sha256")
             .update(user.email + Date.now())
             .digest("hex");
-          referID = Buffer.from(hash, "hex")
+          newReferID = Buffer.from(hash, "hex")
             .toString("base64")
             .replace(/[+/=]/g, "")
             .substring(0, 8);
-          isExist = await userCollection.findOne({ referID: referID });
+          isExist = await userCollection.findOne({ referID: newReferID });
           if (!isExist) {
             break;
           }
@@ -89,7 +98,7 @@ const googleCallback = async (req, res) => {
           email: user.email,
           password: "loginWithGoogle",
           isVerified: true,
-          referID: referID,
+          referID: newReferID,
           name: user.name,
           phone: "",
           photo: user.photo,
@@ -100,6 +109,61 @@ const googleCallback = async (req, res) => {
           spent: 0,
           orders: 0,
         };
+        if (referID) {
+          const referredBy = await userCollection.findOne({ referID: referID });
+          if (!referredBy || !referredBy.isVerified) {
+            return res.redirect(
+              `${process.env.FRONTEND_DOMAIN}/login?success=false`
+            );
+          }
+          newUser.referredBy = referredBy.email;
+          const coinSettings = await coinSettingCollection.findOne({
+            type: "settings",
+          });
+          if (!coinSettings) {
+            return res.redirect(
+              `${process.env.FRONTEND_DOMAIN}/login?success=false`
+            );
+          }
+          const coinHistoryReferFrom = {
+            email: referredBy.email,
+            name: "Refer Bonus",
+            status: "success",
+            amount: coinSettings.referFrom,
+            createdAt: new Date(),
+          };
+          const coinHistoryReferTo = {
+            email: user.email,
+            name: "Refer Bonus",
+            status: "success",
+            amount: coinSettings.referTo,
+            createdAt: new Date(),
+          };
+          const coinHistoryInsert = await coinHistoryCollection.insertMany([
+            coinHistoryReferFrom,
+            coinHistoryReferTo,
+          ]);
+          if (coinHistoryInsert.insertedCount !== 2) {
+            return res.redirect(
+              `${process.env.FRONTEND_DOMAIN}/login?success=false`
+            );
+          }
+          const referHistory = {
+            referredBy: referredBy.email,
+            referredTo: user.email,
+            coinReferFrom: coinSettings.referFrom,
+            coinReferTo: coinSettings.referTo,
+            coinHistoryIDs: coinHistoryInsert.insertedIds,
+            status: "success",
+            createdAt: new Date(),
+          };
+          await referHistoryCollection.insertOne(referHistory);
+          await userCollection.updateOne(
+            { _id: referredBy._id },
+            { $set: { coins: referredBy.coins + coinSettings.referFrom } }
+          );
+          newUser.coins = coinSettings.referTo;
+        }
         const insertNewUser = await userCollection.insertOne(newUser);
         if (insertNewUser.insertedId) {
           const token = jwt.sign(
@@ -229,6 +293,58 @@ const newUser = async (req, res) => {
       spent: 0,
       orders: 0,
     };
+    if (user.referID) {
+      const referredBy = await userCollection.findOne({
+        referID: user.referID,
+      });
+      if (!referredBy || !referredBy.isVerified) {
+        return res.send({ success: false, message: "Refer id is not valid" });
+      }
+      newUser.referredBy = referredBy.email;
+      const coinSettings = await coinSettingCollection.findOne({
+        type: "settings",
+      });
+      if (!coinSettings) {
+        return res.send({ success: false, message: "Coin Settings not found" });
+      }
+      const coinHistoryReferFrom = {
+        email: referredBy.email,
+        name: "Refer Bonus",
+        status: "pending",
+        amount: coinSettings.referFrom,
+        createdAt: new Date(),
+      };
+      const coinHistoryReferTo = {
+        email: user.email,
+        name: "Refer Bonus",
+        status: "pending",
+        amount: coinSettings.referTo,
+        createdAt: new Date(),
+      };
+      const coinHistoryInsert = await coinHistoryCollection.insertMany([
+        coinHistoryReferFrom,
+        coinHistoryReferTo,
+      ]);
+      if (coinHistoryInsert.insertedCount !== 2) {
+        return res.send({
+          success: false,
+          message: "Refer coin history insert failed",
+        });
+      }
+      const referHistory = {
+        referredBy: referredBy.email,
+        referredTo: user.email,
+        coinReferFrom: coinSettings.referFrom,
+        coinReferTo: coinSettings.referTo,
+        coinHistoryIDs: [
+          coinHistoryInsert?.insertedIds[0]?.toString(),
+          coinHistoryInsert?.insertedIds[1]?.toString(),
+        ],
+        status: "pending",
+        createdAt: new Date(),
+      };
+      await referHistoryCollection.insertOne(referHistory);
+    }
     // console.log(newUser);
     const result = await userCollection.insertOne(newUser);
     if (result.insertedId) {
@@ -484,6 +600,37 @@ const verifyUser = async (req, res) => {
       const duration = (now.getTime() - lastOTPsent?.getTime()) / 1000;
       if (lastOTPsent && duration > 300) {
         return res.send({ success: false, message: "OTP Expired. Try again." });
+      }
+      if (userInDb.referredBy) {
+        const referHistory = await referHistoryCollection.findOne({
+          referredTo: userInDb.email,
+        });
+        if (!referHistory) {
+          return res.send({
+            success: false,
+            message: "Refer history not found",
+          });
+        }
+        await referHistoryCollection.updateOne(
+          { _id: referHistory._id },
+          { $set: { status: "success" } }
+        );
+        await coinHistoryCollection.updateOne(
+          { _id: new ObjectId(referHistory.coinHistoryIDs[0]) },
+          { $set: { status: "success" } }
+        );
+        await coinHistoryCollection.updateOne(
+          { _id: new ObjectId(referHistory.coinHistoryIDs[1]) },
+          { $set: { status: "success" } }
+        );
+        await userCollection.updateOne(
+          { email: referHistory.referredBy },
+          { $inc: { coins: referHistory.coinReferFrom } }
+        );
+        await userCollection.updateOne(
+          { email: referHistory.referredTo },
+          { $inc: { coins: referHistory.coinReferTo } }
+        );
       }
       const result = await userCollection.updateOne(
         { _id: userInDb._id },

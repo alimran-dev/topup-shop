@@ -22,8 +22,9 @@ const userRoute = () => {
   // /user/
   router.get("/profile", verifyToken, userProfile);
   router.get(
-    "/google/login",
-    passport.authenticate("google", { scope: ["profile", "email"] })
+    "/google/login",(req,res,next)=>{
+      passport.authenticate("google", { scope: ["profile", "email"], state: JSON.stringify(req.query) })(req,res,next)
+    }
   );
   router.get(
     "/google/callback",

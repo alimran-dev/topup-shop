@@ -628,14 +628,23 @@ const orderProcess = async (req, res) => {
 
 const archivedUnipins = async (req, res) => {
   try {
-    const { search } = req.query || {};
+    const { page, limit, search } = req.query || {};
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
+    if (isNaN(pageInt) || isNaN(limitInt)) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
     if (!search) {
       return res.send([]);
     }
+    const filter = { codes: { $in: [new RegExp(search, "i")] } };
     const result = await orderCollection
-      .find({ codes: { $in: [new RegExp(search, "i")] } })
+      .find(filter)
+      .skip((pageInt - 1) * limitInt)
+      .limit(limitInt)
       .toArray();
-    res.send(result);
+    const total = await orderCollection.countDocuments(filter);
+    res.send({ orders: result, total });
   } catch (err) {
     console.error("archivedUnipins: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
