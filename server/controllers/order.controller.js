@@ -644,7 +644,7 @@ const archivedUnipins = async (req, res) => {
       .limit(limitInt)
       .toArray();
     const total = await orderCollection.countDocuments(filter);
-    res.send({ orders: result, total });
+    res.send({ orders: result, totalOrders: total });
   } catch (err) {
     console.error("archivedUnipins: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
