@@ -703,6 +703,29 @@ const updateUserBalance = async (req, res) => {
   }
 };
 
+const allReferHistory = async (req, res) => {
+  try {
+    const { email: emailInToken, role } = req.user || {};
+    const { page, limit, referredBy, referredTo } = req.query || {};
+    // console.log("allReferHistory: ",page,limit,referredBy,referredTo);
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
+    if (isNaN(pageInt) || isNaN(limitInt)) {
+      return res.send({ message: "Invalid page or limit value" });
+    }
+    if (role === "user" && referredBy !== emailInToken) {
+      return res.send({ success: false, message: "Invalid user email" });
+    }
+    const filter = {$or: [{referredBy: { $regex: new RegExp(referredBy, "i") }},{referredTo: { $regex: new RegExp(referredTo, "i") }}]};
+    const totalRef=await referHistoryCollection.countDocuments(filter);
+    const result = await referHistoryCollection.find(filter,{sort: {createdAt: -1}}).skip((pageInt-1)*limitInt).limit(limitInt).toArray();
+    res.send({history: result, totalRef});
+  } catch (err) {
+    console.error("allReferHistory: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const genRefer = async (email) => {
   let attempt = 0;
   let isExist;
@@ -764,4 +787,5 @@ module.exports = {
   updateUserStatus,
   updateUserBalance,
   tempReferIDGen,
+  allReferHistory
 };
