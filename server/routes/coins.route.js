@@ -30,7 +30,7 @@ const coinRotues = () => {
   router.get("/settings", verifyAdmin, getCoinSettings);
   router.post("/review", verifyToken, claimReviewAmount);
   router.post("/product/add", verifyAdmin, addCoinProducts);
-  router.post("product/update", verifyAdmin, updateCoinProducts);
+  router.patch("/product/update", verifyAdmin, updateCoinProducts);
   router.patch("/review/status", verifyAdmin, changeReviewStatus);
   router.patch("/settings", verifyAdmin, updateCoinSetting);
   router.patch("/daily", verifyToken, claimDailyCoin);

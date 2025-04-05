@@ -392,7 +392,8 @@ const updateCoinProducts = async (req, res) => {
       isNaN(stockInt) ||
       priceInt <= 0 ||
       stockInt < 0 ||
-      inputs.length === 0
+      inputs.length === 0 ||
+      isActive===undefined
     ) {
       return res.status(400).send({ message: "Invalid Request" });
     }
@@ -402,8 +403,7 @@ const updateCoinProducts = async (req, res) => {
       shortDescription,
       stock: stockInt,
       isActive,
-      inputs,
-      createdAt: new Date(),
+      inputs
     };
     const result = await coinProductsCollection.updateOne(
       { _id: new ObjectId(id) },
