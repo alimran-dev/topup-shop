@@ -10,11 +10,12 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import axios from "axios";
 import Loader from "../../components/Loader";
 import Swal from "sweetalert2";
-import verifiedIcon from '../../assets/images/verified-icon.png';
+// import verifiedIcon from '../../assets/images/verified-icon.png';
 import VerifyUser from "./VerifyUser/VerifyUser";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { AiFillYoutube } from "react-icons/ai";
+import UserName from "../../components/reusuable/UserName/UserName";
 
 const imgApi = import.meta.env.VITE_IMGAPI;
 const MyAccount = () => {
@@ -156,7 +157,7 @@ const MyAccount = () => {
             alt=""
             className="w-28 h-28 gradient-border rounded-full bg-slate-400"
           />
-          <img src={verifiedIcon} className={`${user?.isVerified ? '' : 'hidden'} w-8 absolute top-2 -right-1`} alt="" />
+          {/* <img src={verifiedIcon} className={`${user?.isVerified ? '' : 'hidden'} w-8 absolute top-2 -right-1`} alt="" /> */}
         </div>
         <div className="flex justify-center items-center gap-1">
           <p className={`px-3 py-1 text-xs text-white rounded-full ${user?.isVerified ? 'bg-green-600 ' : 'bg-slate-500 '} `}>{user?.isVerified ? 'Verified' : 'Unverified'}</p>
@@ -164,7 +165,7 @@ const MyAccount = () => {
         </div>
         <Link to={'https://youtube.com/playlist?list=PLdbvk3gLADUlo8G5hLwoo5P8c2NFwUqSx&si=5P-_kwcluTh57iE0'} target="_blank" className={`${user?.isVerified?"hidden":"flex"} items-center justify-center gap-1 text-xs text-blue-500 font-semibold`}><AiFillYoutube className="text-red-500 text-xl" /> কিভাবে ভেরিফাই করবেন?</Link>
         <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 capitalize">
-          {user?.name}
+          <UserName name={user?.name} isVerified={user?.isVerified} />
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 my-8">

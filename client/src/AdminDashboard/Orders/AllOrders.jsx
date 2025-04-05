@@ -24,6 +24,8 @@ const AllOrders = () => {
 
 
   const getOrders = () => {
+    console.log(formData, "---------from fn");
+    
     axiosPrivate
       .get(`/order/admin/all`, {
         params: {
@@ -56,8 +58,8 @@ const AllOrders = () => {
   }, [searchEmail]);
 
   // console.log(searchEmail);
-  // console.log(formData);
-  console.log(orders, "--------orders");
+  console.log(formData);
+  // console.log(orders, "--------orders");
 
 
 

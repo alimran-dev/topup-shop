@@ -1,13 +1,39 @@
 import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
 import { allCategories } from "../../utils/categories";
-import { useState } from "react";
+
 
 const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getOrders, setOrders }) => {
-    const categories = allCategories();
 
-    // State for handling date inputs
+    const categories = allCategories();
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [subCategories, setSubCategories] = useState([]);
     const [fromDate, setFromDate] = useState(formData.fromDate || "");
     const [toDate, setToDate] = useState(formData.toDate || "");
+    const axiosPrivate = useAxiosPrivate();
+
+
+    // get subcategories
+    useEffect(() => {
+        if (selectedCategory) {
+            axiosPrivate.get("/services").then((res) => {
+                const data = res?.data || [];
+                // console.log("log", res.data);
+                const filterSubCategories = data?.filter(item => item?.category == selectedCategory)
+                setSubCategories(filterSubCategories.map(item => ({
+                    id: item._id,
+                    title: item.title,
+                    category: item.category
+                })));
+            }).catch(err => {
+                console.log(err);
+                toast.error("Failed to load sub-categories");
+            });
+        }
+    }, [axiosPrivate, selectedCategory]);
+
 
     const handleEmail = (email) => {
         setFormData({
@@ -30,6 +56,11 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
             category: form.category.value,
             subCategory: form.subCategory.value,
         };
+
+        // if(!formData?.fromDate || !formData?.toDate || !formData?.category || !formData?.subCategory){
+        //     toast.error("Fill All Input");
+        //     return;
+        // }
 
         setFormData(formData);  // Update the formData state with the new values
         setOrders([]);           // Reset the orders before getting new data
@@ -96,7 +127,9 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         className="input"
                         name="category"
                         defaultValue={""}
-                        // onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        onChange={(e) => 
+                        {setSelectedCategory(e.target.value), setSubCategories([])}
+                        }
                     >
                         <option value="" disabled>
                             Choose One
@@ -114,13 +147,13 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         className="input"
                         name="subCategory"
                         defaultValue={""}
-                        // value={formData.subCategory}
-                        // onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+                    // value={formData.subCategory}
+                    // onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
                     >
                         <option value="" disabled>
                             Choose One
                         </option>
-                        {categories?.map((category, idx) => (
+                        {subCategories?.map((category, idx) => (
                             <option key={idx}>
                                 {category?.title}
                             </option>

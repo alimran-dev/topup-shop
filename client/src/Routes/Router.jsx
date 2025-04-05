@@ -44,7 +44,7 @@ import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/Upda
 import CoinAndReferaal from "../pages/CoinAndReferral/CoinAndReferral";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
-import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
+import LeaderBoard from "../pages/LeaderBoard/LeaderBoard";
 import Referral from "../AdminDashboard/Referral/Referral";
 import History from "../AdminDashboard/Referral/History/History";
 import Store from "../pages/Store/Store";
@@ -191,10 +191,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/leaderboards",
+        path: "/leaderboard",
         element: (
           <PrivateRoute>
-            <LeaderBoards />
+            <LeaderBoard />
           </PrivateRoute>
         ),
       },

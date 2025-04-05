@@ -13,7 +13,7 @@ const navItems = [
   { to: "/myTransactions", icon: TfiMenuAlt, label: "My Transactions" },
   { to: "/coinsAndReferral", icon: BsCoin, label: "Coins & Referral" },
   { to: "/store", icon: MdOutlineStorefront, label: "Store" },
-  { to: "/leaderboards", icon: MdOutlineLeaderboard, label: "Leaderboards" },
+  { to: "/leaderboard", icon: MdOutlineLeaderboard, label: "Leaderboard" },
 ];
 
 const   UserNav = ({ setIsOpen }) => {

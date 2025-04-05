@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 import { BsCoin } from "react-icons/bs";
 import { RiCoinFill } from "react-icons/ri";
+import useAuth from "../../hooks/useAuth";
 
 
 const Store = () => {
+
+    const { user } = useAuth();
 
     const products = [
         { id: 1, name: "Product 1", description: "Limited-time discount on coins!", price: 100, stock: 10 },
@@ -24,7 +27,7 @@ const Store = () => {
                 <h2 className="text-xl md:text-2xl">Your Coin Balance</h2>
                 <p className="flex justify-center items-center gap-1">
                     <RiCoinFill className="mt-1 text-yellow-500" />
-                    <span>500</span>
+                    <span>{user?.coins}</span>
                 </p>
             </div>
 
