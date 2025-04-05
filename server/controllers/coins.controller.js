@@ -1,7 +1,11 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
-const { coinSettingCollection, coinHistoryCollection, userCollection } =
-  dbCollections || {};
+const {
+  coinSettingCollection,
+  coinHistoryCollection,
+  userCollection,
+  coinProductsCollection,
+} = dbCollections || {};
 
 const getDailyCoinNumber = async (req, res) => {
   try {
@@ -302,6 +306,131 @@ const coinsLeadearboard = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
+const getCoinProduct = async (req, res) => {
+  try {
+    const { id } = req.query || {};
+    const { role } = req.user || {};
+    if (!id) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    const result = await coinProductsCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    if (role === "user" && !result.isActive) {
+      return res.send(null);
+    }
+    res.send(result);
+  } catch (err) {
+    console.error("getCoinProduct: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const getAllCoinProducts = async (req, res) => {
+  try {
+    const { role } = req.user || {};
+    let filter = {};
+    if (role === "user") {
+      filter = { isActive: true };
+    }
+    const result = await coinProductsCollection
+      .find(filter, { sort: { price: 1 } })
+      .toArray();
+    res.send(result);
+  } catch (err) {
+    console.error("getAllCoinProducts: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const addCoinProducts = async (req, res) => {
+  try {
+    const { title, shortDescription, price, stock, inputs } = req.body || {};
+    const priceInt = parseInt(price);
+    const stockInt = parseInt(stock);
+    if (
+      !title ||
+      !shortDescription ||
+      isNaN(priceInt) ||
+      isNaN(stockInt) ||
+      priceInt <= 0 ||
+      stockInt < 0 ||
+      inputs.length === 0
+    ) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    const product = {
+      title,
+      price: priceInt,
+      shortDescription,
+      stock: stockInt,
+      isActive: true,
+      inputs,
+      createdAt: new Date(),
+    };
+    const result = await coinProductsCollection.insertOne(product);
+    res.send(result);
+  } catch (err) {
+    console.error("addCoinProducts: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const updateCoinProducts = async (req, res) => {
+  try {
+    const { id } = req.query || {};
+    const { title, shortDescription, price, stock, isActive, inputs } =
+      req.body || {};
+    const priceInt = parseInt(price);
+    const stockInt = parseInt(stock);
+    if (
+      !id ||
+      !title ||
+      !shortDescription ||
+      isNaN(priceInt) ||
+      isNaN(stockInt) ||
+      priceInt <= 0 ||
+      stockInt < 0 ||
+      inputs.length === 0
+    ) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    const product = {
+      title,
+      price: priceInt,
+      shortDescription,
+      stock: stockInt,
+      isActive,
+      inputs,
+      createdAt: new Date(),
+    };
+    const result = await coinProductsCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: product }
+    );
+    res.send(result);
+  } catch (err) {
+    console.error("updateCoinProducts: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const deleteCoinProducts = async (req, res) => {
+  try {
+    const { id } = req.query || {};
+    if (!id) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    const result = await coinProductsCollection.deleteOne({
+      _id: new ObjectId(id),
+    });
+    res.send(result);
+  } catch (err) {
+    console.error("deleteCoinProducts: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
 module.exports = {
   getDailyCoinNumber,
   getCoinSettings,
@@ -312,4 +441,9 @@ module.exports = {
   changeReviewStatus,
   getCoinHistory,
   coinsLeadearboard,
+  getCoinProduct,
+  getAllCoinProducts,
+  addCoinProducts,
+  updateCoinProducts,
+  deleteCoinProducts,
 };
