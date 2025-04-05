@@ -1,17 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Offers from "./Offers/Offers";
 import SpecialProducts from "./SpecialProducts/SpecialProducts";
+import { useLocation } from "react-router-dom";
 
 
 const OffersAndProducts = () => {
 
     const [selectedTab, setSelectedTab] = useState("special offers");
+    const { state } = useLocation();
 
     const tabItems = [
         { id: 1, name: "special offers" },
         { id: 2, name: "coin products" },
     ];
-    
+
+    useEffect(() => {
+        if(state?.page == "coinProducts"){
+            setSelectedTab("coin products")
+        }
+        else{
+            setSelectedTab("special offers")
+        }
+    }, [state]);
+
+
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <div>

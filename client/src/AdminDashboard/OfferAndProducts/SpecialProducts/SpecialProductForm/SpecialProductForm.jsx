@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
 
 
 const SpecialProductForm = () => {
@@ -7,11 +9,11 @@ const SpecialProductForm = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [inputValue, setInputValue] = useState("");
+    const axiosPrivate = useAxiosPrivate();
     const [formData, setFormData] = useState({
         title: "",
         stock: "",
         price: "",
-        type: "",
         inputs: [],
         shortDescription: ""
     });
@@ -19,17 +21,36 @@ const SpecialProductForm = () => {
     // Fetch existing offer data if editing
     useEffect(() => {
         if (id) {
-            fetch(`/api/offers/${id}`)
-                .then((res) => res.json())
-                .then((data) => setFormData(data))
-                .catch((err) => console.error("Error fetching offer:", err));
+            const fetchProduct = async () => {
+                try {
+                    const res = await axiosPrivate.get(`/coins/product?id=${id}`);
+                    // console.log(res.data);
+                    setFormData(res.data);
+                } catch (error) {
+                    console.error("Error fetching product:", error);
+                    toast.error(error.response.data.message || "Failed to load product");
+                }
+            };
+            fetchProduct();
         }
-    }, [id]);
+    }, [id, axiosPrivate]);
 
     // Handle input changes
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'isActive') {
+            setFormData({
+                ...formData,
+                [name]: value === 'true' ? true : false // Convert string to boolean
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
     };
+    
 
     // Handle adding a new input label
     const handleAddInput = (e) => {
@@ -56,29 +77,68 @@ const SpecialProductForm = () => {
         e.preventDefault();
         setLoading(true);
 
-        console.log(formData);
-        
+        // console.log(formData);
 
-        // call api here
-        navigate("/dashboard/offersAndProducts");
-        setLoading(false);
+        if (id) {
+            // update api
+            try {
+                const res = await axiosPrivate.patch(`/coins/product/update?id=${id}`, formData);
+                if (res.data?.modifiedCount > 0 || res.data?.acknowledged) {
+                    toast.success("Updated Successfully!");
+                    navigate("/dashboard/offersAndProducts", { state: { page: "coinProducts" } });
+                } else {
+                    toast.error("Update failed!");
+                }
+            } catch (err) {
+                // console.error(err);
+                toast.error(err.response.data.message || "Failed to update product!");
+            } finally {
+                setLoading(false);
+            }
+        }
 
+        else {
+            // add api
+            try {
+                const res = await axiosPrivate.post("/coins/product/add", formData);
+                // console.log(res.data);
+                if (res.data?.insertedId) {
+                    toast.success("Added Successfully!")
+                    navigate("/dashboard/offersAndProducts", { state: { page: "coinProducts" } });
+                }
+                else {
+                    toast.error("Something Went Wrong!")
+                }
+            }
+            catch (err) {
+                // console.log(err);
+                toast.error(err.response.data.message || "Failed to add!")
+            }
+            finally {
+                setLoading(false);
+            }
+        }
     };
 
     return (
         <div>
-            <h2 className="title">{id ? "Edit Special Product" : "Add Special Product"}</h2>
+            <h2 className="title">{id ? "Edit Coin Product" : "Add Coin Product"}</h2>
             <div className="pt-5 max-w-3xl mx-auto">
                 <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className={`grid grid-cols-1 ${id && "md:grid-cols-2"} gap-5`}>
                         <div>
                             <label className="input-label">Title</label>
                             <input type="text" name="title" className="input" value={formData.title} onChange={handleChange} placeholder="Title" required />
                         </div>
-                        <div>
-                            <label className="input-label">Stock</label>
-                            <input type="number" name="stock" className="input" value={formData.stock} onChange={handleChange} placeholder="Stock" required />
-                        </div>
+                        {id &&
+                            <div>
+                                <label className="input-label">Status</label>
+                                <select name="isActive" className="input" value={formData.isActive} onChange={handleChange} >
+                                    <option value={true}>Active</option>
+                                    <option value={false}>Inactive</option>
+                                </select>
+                            </div>
+                        }
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
                         <div>
@@ -86,12 +146,8 @@ const SpecialProductForm = () => {
                             <input type="number" name="price" className="input" value={formData.price} onChange={handleChange} placeholder="Price" required />
                         </div>
                         <div>
-                            <label className="input-label">Type</label>
-                            <select name="type" className="input" value={formData.type} onChange={handleChange} required>
-                                <option value="" disabled>Choose One</option>
-                                <option value="taka">Taka</option>
-                                <option value="coin">Coin</option>
-                            </select>
+                            <label className="input-label">Stock</label>
+                            <input type="number" name="stock" className="input" value={formData.stock} onChange={handleChange} placeholder="Stock" required />
                         </div>
                     </div>
 

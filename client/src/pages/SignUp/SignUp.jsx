@@ -1,8 +1,7 @@
 import { FcGoogle } from "react-icons/fc";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
@@ -13,11 +12,13 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { user, setUser, googleLogin, setLoading } = useAuth();
+  const { user, setUser, setLoading } = useAuth();
   const navigate = useNavigate();
-  const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref');
 
+  
   // sign up fn
   const handleSignUp = (e) => {
     e.preventDefault();
@@ -29,7 +30,8 @@ const SignUp = () => {
     const phone = form.phone.value;
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
-    const userData = { name, email, phone, password };
+    const referID = form.referID.value;
+    const userData = { name, email, phone, password, referID };
 
 
     const passRegex = /^.{6,}$/;
@@ -91,52 +93,8 @@ const SignUp = () => {
 
   // google login
   const handleGoogle = () => {
-    setIsLoading(true);
     setError("");
-    googleLogin()
-      .then((result) => {
-        const { email, displayName, phoneNumber, photoURL } = result.user;
-        const user = {
-          email: email,
-          name: displayName,
-          phone: phoneNumber,
-          photo: photoURL,
-        };
-
-        axiosPublic.post("/user/new", user).then((res) => {
-          console.log(res.data);
-          axiosPrivate
-            .post("/auth/jwt", { email })
-            .then((res) => {
-              console.log(res.data);
-              axiosPrivate
-                .get("/user/profile")
-                .then((res) => {
-                  const currentUser = res.data;
-                  currentUser.balance = parseFloat(
-                    currentUser.balance.toFixed(2)
-                  );
-                  setUser(currentUser);
-                  // console.log(res.data);
-                  setIsLoading(false);
-                  setLoading(false);
-                })
-                .catch((err) => {
-                  setIsLoading(false);
-                  console.error(err);
-                  setError("Authentication Failed");
-                });
-            })
-            .catch((err) => {
-              setIsLoading(false);
-              console.log(err);
-            });
-        });
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        console.error(err);
-      });
+    window.open(`${import.meta.env.VITE_SERVER_DOMAIN}/user/google/login?referID=${referralCode}`, '_self');
   };
 
   useEffect(() => {
@@ -243,6 +201,19 @@ const SignUp = () => {
               {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
             </span>
           </div>
+        </div>
+        <div className="space-y-1 mt-3">
+          <label htmlFor="phone" className="input-label">
+            Refer Code
+          </label>
+          <input
+            type="text"
+            name="referID"
+            className="input"
+            placeholder="Refer code"
+            defaultValue={referralCode ? referralCode : ""}
+            disabled={referralCode}
+          />
         </div>
         {error && (
           <p className="text-lg font-medium text-red-500 text-center mt-2">

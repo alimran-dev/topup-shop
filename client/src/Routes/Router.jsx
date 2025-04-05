@@ -54,6 +54,7 @@ import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProduc
 import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
 import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
 import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
+import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
 
 
 const router = createBrowserRouter([
@@ -187,6 +188,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <Store />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/store/:id",
+        element: (
+          <PrivateRoute>
+            <CoinProductDetail />
           </PrivateRoute>
         ),
       },
