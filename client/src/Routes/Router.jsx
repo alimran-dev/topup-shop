@@ -55,6 +55,8 @@ import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/Offer
 import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
 import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
 import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
+import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
+import ReferralHistory from "../pages/CoinAndReferral/ReferralHistory/ReferralHistory";
 
 
 const router = createBrowserRouter([
@@ -180,6 +182,22 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <CoinAndReferaal />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/coinsAndReferral/coinHistory",
+        element: (
+          <PrivateRoute>
+            <CoinHistory />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/coinsAndReferral/referralHistory",
+        element: (
+          <PrivateRoute>
+            <ReferralHistory />
           </PrivateRoute>
         ),
       },

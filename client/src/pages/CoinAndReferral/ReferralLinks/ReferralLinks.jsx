@@ -30,7 +30,7 @@ const ReferralLinks = () => {
         },
         {
             icon: messengerIcon,
-            url: `fb-messenger://share/?link=${encodeURIComponent(referralUrl)}`
+            url: `https://www.messenger.com/share?link=${encodeURIComponent(referralUrl)}`
         },
         {
             icon: emailIcon,
@@ -41,7 +41,7 @@ const ReferralLinks = () => {
             url: `https://imo.im/share?text=${encodeURIComponent(referralUrl)}`
         }
     ];
-
+    
     return (
         <div className="py-4 md:py-8 border-2 border-slate-300 rounded-md text-center">
             <h3 className="font-bold">Refer Your Friend & Get Coins </h3>
