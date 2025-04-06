@@ -49,9 +49,6 @@ const ReferralHistory = () => {
         window.scrollTo(0, 0);
     }, []);
 
-    console.log(history);
-
-
 
     if (loading) {
         return <div className="py-8 text-center">Loading...</div>
@@ -76,10 +73,10 @@ const ReferralHistory = () => {
                                 history.map((item) => (
                                     <div key={item?._id} className="bg-slate-100 px-4 py-2 flex justify-between items-center text-xs md:text-sm">
                                         <div>
-                                            <div className="text-center pb-1">Refered By: {item?.referredBy}</div>
+                                            <div className="text-center pb-1">Refered To: {item?.referredTo}</div>
                                             <div className="flex items-center gap-1">
                                                 <Coin />
-                                                {item?.coinReferTo}
+                                                {item?.coinReferFrom}
                                             </div>
                                         </div>
                                         <div className={`badge ${item?.status == "success" ? "badge-success" : "badge-error"} text-white capitalize text-[10px] md:text-xs`}>

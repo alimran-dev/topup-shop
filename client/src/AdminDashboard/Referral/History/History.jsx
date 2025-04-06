@@ -10,18 +10,21 @@ const History = () => {
     const [historyData, setHistoryData] = useState([]);
     const [totalData, setTotalData] = useState(0);
     const [loading, setloading] = useState(false);
-    const [email, setEmail] = useState('');
     const limit = 10;
     const page = Math.ceil(historyData.length / limit + 1);
     const axiosPrivate = useAxiosPrivate();
+    const [formData, setFormData] = useState({
+        referedBy: "",
+        referTo: "",
+    });
 
 
     const fetchData = async () => {
         try {
-            const res = await axiosPrivate.get(`/coins/history?page=${page}&limit=${limit}&email=${email}`);
-            console.log(res.data);
+            const res = await axiosPrivate.get(`/user/refer/history?page=${page}&limit=${limit}&referredBy=${formData?.referedBy}&referredTo=${formData?.referTo}`);
+            console.log(res.data, "---------data");
             setHistoryData([...historyData, ...res.data.history]);
-            setTotalData(res.data?.totalHistory || 0)
+            setTotalData(res.data?.totalRef || 0)
         }
         catch (err) {
             console.log(err);
@@ -37,10 +40,25 @@ const History = () => {
         }
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const data = {
+            referedBy: e.target.referedBy.value,
+            referTo: e.target.referTo.value
+        };
+
+        console.log(data);
+        
+        setFormData(data)
+        setHistoryData([]);
+        fetchData();
+    };
+
     useEffect(() => {
         setHistoryData([]);
         fetchData();
-    }, [email]);
+    }, []);
 
 
     if (loading) {
@@ -52,10 +70,38 @@ const History = () => {
             <h2 className="title">Referral History</h2>
 
             {/* user email for filter */}
-            <div className="max-w-xl mx-auto">
-                <label className="input-label">User{"'"}s Email</label>
-                <input type="email" className="input" onChange={(e) => setEmail(e.target.value)} placeholder="User's Email" />
-            </div>
+            {/* Filter form */}
+            <form
+                onSubmit={handleSubmit}
+                className="max-w-xl mx-auto flex flex-col md:flex-row items-center"
+            >
+                <div className="flex-1 grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="input-label">Referred By</label>
+                        <input
+                            type="email"
+                            name="referedBy"
+                            className="input"
+                            placeholder="Referred by..."
+                        />
+                    </div>
+                    <div>
+                        <label className="input-label">Referred To</label>
+                        <input
+                            type="email"
+                            name="referTo"
+                            className="input"
+                            placeholder="Refer to..."
+                        />
+                    </div>
+                </div>
+                <button
+                    type="submit"
+                    className="button mt-4 md:mt-10 md:ml-5"
+                >
+                    Search
+                </button>
+            </form>
 
             {/* all history */}
             {
@@ -73,10 +119,15 @@ const History = () => {
                                 {historyData.map((item) => (
                                     <div key={item?._id} className="flex justify-between items-center bg-slate-100 px-4 py-2 rounded-sm">
                                         <div>
-                                            <p>{item?.email}</p>
+                                            <div className="flex items-center gap-2 text-xs pb-1">
+                                                <span className="font-semibold">Refer From:</span>
+                                                <span>{item?.referredBy}</span>
+                                                <span className="mt-1"><Coin /> {item?.coinReferFrom}</span>
+                                            </div>
                                             <div className="flex items-center gap-2 text-xs">
-                                                <span>{item?.name}</span>
-                                                <span><Coin />{item?.amount}</span>
+                                                <span className="font-semibold">Refer To:</span>
+                                                <span>{item?.referredTo}</span>
+                                                <span className="mt-1"><Coin /> {item?.coinReferTo}</span>
                                             </div>
                                         </div>
                                         <div>

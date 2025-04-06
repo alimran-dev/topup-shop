@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
 import { allCategories } from "../../utils/categories";
+import { useNavigate } from "react-router-dom";
 
 
 const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getOrders, setOrders }) => {
@@ -13,6 +14,7 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
     const [fromDate, setFromDate] = useState(formData.fromDate || "");
     const [toDate, setToDate] = useState(formData.toDate || "");
     const axiosPrivate = useAxiosPrivate();
+    const navigate = useNavigate();
 
 
     // get subcategories
@@ -36,6 +38,10 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
 
 
     const handleEmail = (email) => {
+
+        setFromDate("");
+        setToDate("");
+
         setFormData({
             fromDate: "",
             toDate: "",
@@ -71,14 +77,24 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
         const value = e.target.value;
         setFromDate(value);
 
-        // If a fromDate is selected, enable the toDate input
         if (value && !toDate) {
-            setToDate(value); // Set toDate to fromDate when it's initially selected
+            setToDate(value);
         }
     };
 
     const handleToDateChange = (e) => {
         setToDate(e.target.value);
+    };
+
+    const handleViewSummary = () => {
+        const { fromDate, toDate, category, subCategory } = formData;
+
+        if (!searchEmail || !fromDate || !toDate || !category || !subCategory) {
+            toast.error("Please fill all inputs!");
+            return;
+        }
+        const dataWithEmail = { ...formData, email: searchEmail };
+        navigate("/dashboard/orders/viewSummary", { state: { filterData: dataWithEmail } })
     };
 
     return (
@@ -115,8 +131,8 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         name="toDate"
                         className="input"
                         value={toDate}
-                        min={fromDate} // Ensure toDate can't be earlier than fromDate
-                        disabled={!fromDate} // Disable toDate if fromDate is not set
+                        min={fromDate}
+                        disabled={!fromDate}
                         onChange={handleToDateChange}
                         placeholder="to date. (yyyy/mm/dd)"
                     />
@@ -127,8 +143,8 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         className="input"
                         name="category"
                         defaultValue={""}
-                        onChange={(e) => 
-                        {setSelectedCategory(e.target.value), setSubCategories([])}
+                        value={formData?.category}
+                        onChange={(e) => { setSelectedCategory(e.target.value), setSubCategories([]) }
                         }
                     >
                         <option value="" disabled>
@@ -147,7 +163,7 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         className="input"
                         name="subCategory"
                         defaultValue={""}
-                    // value={formData.subCategory}
+                        value={formData.subCategory}
                     // onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
                     >
                         <option value="" disabled>
@@ -160,9 +176,12 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         ))}
                     </select>
                 </div>
-                <div className="flex justify-center items-end">
-                    <button type="submit" className="w-full !py-3 h-fit button">
+                <div className="col-span-2 md:col-span-1 flex justify-center items-end gap-2 mt-3 md:mt-0 mb-1">
+                    <button type="submit" className="w-full py-2 text-white font-semibold rounded-md bg-primary">
                         Search
+                    </button>
+                    <button onClick={handleViewSummary} className="w-full py-2 text-white font-semibold rounded-md bg-primary">
+                        View Summary
                     </button>
                 </div>
             </form>

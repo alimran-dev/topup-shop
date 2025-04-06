@@ -57,6 +57,7 @@ import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
 import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
 import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
 import ReferralHistory from "../pages/CoinAndReferral/ReferralHistory/ReferralHistory";
+import ViewSummary from "../AdminDashboard/Orders/ViewSummary/ViewSummary";
 
 
 const router = createBrowserRouter([
@@ -307,6 +308,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/orders",
         element: <Orders />,
+      },
+      {
+        path: "/dashboard/orders/viewSummary",
+        element: <ViewSummary />,
       },
       {
         path: "/dashboard/referral",

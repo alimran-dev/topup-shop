@@ -25,7 +25,7 @@ const AllOrders = () => {
 
   const getOrders = () => {
     // console.log(formData, "---------from fn");
-    
+
     axiosPrivate
       .get(`/order/admin/all`, {
         params: {
@@ -39,7 +39,7 @@ const AllOrders = () => {
         },
       })
       .then((res) => {
-        console.log(res.data,"-------res");
+        console.log(res.data, "-------res");
         setOrders([...orders, ...res.data.orders]);
         setTotalOrders(res.data?.totalOrders);
         setIsLoading(false);
@@ -55,7 +55,7 @@ const AllOrders = () => {
   useEffect(() => {
     setOrders([]);
     getOrders();
-  }, [searchEmail]);
+  }, [searchEmail, formData]);
 
   // console.log(searchEmail);
   // console.log(formData);
