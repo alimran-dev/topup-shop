@@ -19,7 +19,7 @@ const getSpecialOffer = async (req, res) => {
 const getAllSpecialOffer = async (req, res) => {
   try {
     const result = await specialOfferCollection
-      .find({isActive: true})
+      .find({isActive: true}, {sort: {sequence: 1}})
       .project({ claimedBy: 0 })
       .toArray();
     res.send(result);
@@ -32,7 +32,7 @@ const getAllSpecialOffer = async (req, res) => {
 const getAllSpecialOfferAdmin = async (req, res) => {
   try {
     const result = await specialOfferCollection
-      .find()
+      .find({},{sort: {sequence: 1}})
       .project({ claimedBy: 0 })
       .toArray();
     res.send(result);
@@ -51,12 +51,14 @@ const addSpecialOffer = async (req, res) => {
       type,
       price,
       stock,
+      sequence,
       tutorialTitle,
       tutorialUrl,
       inputs,
     } = req.body || {};
     const priceInt = parseInt(price);
     const stockInt = parseInt(stock);
+    const sequenceInt=parseInt(sequence);
     if (
       !title ||
       !shortDescription ||
@@ -64,6 +66,7 @@ const addSpecialOffer = async (req, res) => {
       !type ||
       !tutorialTitle ||
       !tutorialUrl ||
+      isNaN(sequenceInt) ||
       inputs.length == 0
     ) {
       return res.status(400).send({ message: "Invalid Request" });
@@ -80,6 +83,7 @@ const addSpecialOffer = async (req, res) => {
       shortDescription,
       price: priceInt,
       stock: stockInt,
+      sequence: sequenceInt,
       tutorialTitle,
       tutorialUrl,
       inputs,
@@ -103,6 +107,7 @@ const updateSpecialOffer = async (req, res) => {
       type,
       price,
       stock,
+      sequence,
       isActive,
       tutorialTitle,
       tutorialUrl,
@@ -111,6 +116,7 @@ const updateSpecialOffer = async (req, res) => {
     const { id } = req.query || {};
     const priceInt = parseInt(price);
     const stockInt = parseInt(stock);
+    const sequenceInt=parseInt(sequence);
     if (
       !id ||
       !title ||
@@ -118,6 +124,7 @@ const updateSpecialOffer = async (req, res) => {
       !type ||
       !tutorialTitle ||
       !tutorialUrl ||
+      isNaN(sequenceInt) ||
       inputs.length == 0
     ) {
       return res.status(400).send({ message: "Invalid Request" });
@@ -133,6 +140,7 @@ const updateSpecialOffer = async (req, res) => {
       shortDescription,
       price: priceInt,
       stock: stockInt,
+      sequence: sequenceInt,
       tutorialTitle,
       tutorialUrl,
       inputs,
