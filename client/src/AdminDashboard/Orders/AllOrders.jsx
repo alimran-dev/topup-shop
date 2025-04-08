@@ -39,7 +39,7 @@ const AllOrders = () => {
         },
       })
       .then((res) => {
-        console.log(res.data, "-------res");
+        // console.log(res.data, "-------res");
         setOrders([...orders, ...res.data.orders]);
         setTotalOrders(res.data?.totalOrders);
         setIsLoading(false);
@@ -53,6 +53,8 @@ const AllOrders = () => {
 
 
   useEffect(() => {
+    console.log("hitted useffect");
+    
     setOrders([]);
     getOrders();
   }, [searchEmail, formData]);

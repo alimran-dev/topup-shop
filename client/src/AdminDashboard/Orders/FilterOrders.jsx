@@ -6,13 +6,14 @@ import { allCategories } from "../../utils/categories";
 import { useNavigate } from "react-router-dom";
 
 
-const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getOrders, setOrders }) => {
+const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, setOrders }) => {
 
     const categories = allCategories();
     const [selectedCategory, setSelectedCategory] = useState("");
     const [subCategories, setSubCategories] = useState([]);
-    const [fromDate, setFromDate] = useState(formData.fromDate || "");
-    const [toDate, setToDate] = useState(formData.toDate || "");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const [selectedSubCategory, setSelectedSubCategory] = useState("");
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
 
@@ -41,6 +42,8 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
 
         setFromDate("");
         setToDate("");
+        setSelectedCategory("");
+        setSelectedSubCategory("");
 
         setFormData({
             fromDate: "",
@@ -49,28 +52,6 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
             subCategory: "",
         });
         setSearchEmail(email);
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // Directly access the form values on submit
-        const form = e.target;
-        const formData = {
-            fromDate: form.fromDate.value,
-            toDate: form.toDate.value,
-            category: form.category.value,
-            subCategory: form.subCategory.value,
-        };
-
-        // if(!formData?.fromDate || !formData?.toDate || !formData?.category || !formData?.subCategory){
-        //     toast.error("Fill All Input");
-        //     return;
-        // }
-
-        setFormData(formData);  // Update the formData state with the new values
-        setOrders([]);           // Reset the orders before getting new data
-        getOrders();             // Call the getOrders function
     };
 
     const handleFromDateChange = (e) => {
@@ -86,16 +67,37 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
         setToDate(e.target.value);
     };
 
-    const handleViewSummary = () => {
-        const { fromDate, toDate, category, subCategory } = formData;
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
-        if (!searchEmail || !fromDate || !toDate || !category || !subCategory) {
+        // Directly access the form values on submit
+        const formData = {
+            fromDate: fromDate,
+            toDate: toDate,
+            category: selectedCategory,
+            subCategory: selectedSubCategory,
+        };
+
+        if (!fromDate || !toDate || !selectedCategory || !selectedSubCategory) {
+            toast.error("Fill All Input");
+            return;
+        }
+
+        setFormData(formData);
+        setOrders([]);
+    };
+
+
+    const handleViewSummary = () => {
+
+        if (!searchEmail || !fromDate || !toDate || !selectedCategory || !selectedSubCategory) {
             toast.error("Please fill all inputs!");
             return;
         }
-        const dataWithEmail = { ...formData, email: searchEmail };
-        navigate("/dashboard/orders/viewSummary", { state: { filterData: dataWithEmail } })
+        const filterData = { fromDate, toDate, selectedCategory, selectedSubCategory, searchEmail };
+        navigate("/dashboard/orders/viewSummary", { state: { filterData } })
     };
+
 
     return (
         <div className="my-5">
@@ -143,8 +145,8 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         className="input"
                         name="category"
                         defaultValue={""}
-                        value={formData?.category}
-                        onChange={(e) => { setSelectedCategory(e.target.value), setSubCategories([]) }
+                        value={selectedCategory}
+                        onChange={(e) => { setSelectedCategory(e.target.value), setSubCategories([]), setSelectedSubCategory("") }
                         }
                     >
                         <option value="" disabled>
@@ -163,8 +165,8 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                         className="input"
                         name="subCategory"
                         defaultValue={""}
-                        value={formData.subCategory}
-                    // onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+                        value={selectedSubCategory}
+                        onChange={(e) => setSelectedSubCategory(e.target.value)}
                     >
                         <option value="" disabled>
                             Choose One
@@ -180,7 +182,7 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getO
                     <button type="submit" className="w-full py-2 text-white font-semibold rounded-md bg-primary">
                         Search
                     </button>
-                    <button onClick={handleViewSummary} className="w-full py-2 text-white font-semibold rounded-md bg-primary">
+                    <button type="button" onClick={handleViewSummary} className="w-full py-2 text-white font-semibold rounded-md bg-primary">
                         View Summary
                     </button>
                 </div>
@@ -194,7 +196,6 @@ FilterOrders.propTypes = {
     setSearchEmail: PropTypes.func.isRequired,
     setFormData: PropTypes.func.isRequired,
     setOrders: PropTypes.func.isRequired,
-    getOrders: PropTypes.func.isRequired,
     formData: PropTypes.shape({
         fromDate: PropTypes.string,
         toDate: PropTypes.string,

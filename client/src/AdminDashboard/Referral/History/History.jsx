@@ -3,15 +3,16 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import InfiniteScroll from "react-infinite-scroll-component";
 import InfinityLoader from "../../../components/InfinityLoader";
 import Coin from "../../../components/reusuable/Coin/Coin";
+import toast from "react-hot-toast";
 
 
 const History = () => {
 
     const [historyData, setHistoryData] = useState([]);
     const [totalData, setTotalData] = useState(0);
-    const [loading, setloading] = useState(false);
-    const limit = 10;
-    const page = Math.ceil(historyData.length / limit + 1);
+    const [loading, setLoading] = useState(false);
+    const limit = 5;
+    const page = 1;
     const axiosPrivate = useAxiosPrivate();
     const [formData, setFormData] = useState({
         referedBy: "",
@@ -20,6 +21,7 @@ const History = () => {
 
 
     const fetchData = async () => {
+        setLoading(true);
         try {
             const res = await axiosPrivate.get(`/user/refer/history?page=${page}&limit=${limit}&referredBy=${formData?.referedBy}&referredTo=${formData?.referTo}`);
             console.log(res.data, "---------data");
@@ -28,9 +30,10 @@ const History = () => {
         }
         catch (err) {
             console.log(err);
+            toast.error(err?.response?.data?.message || "Error Fetching Data!")
         }
         finally {
-            setloading(false);
+            setLoading(false);
         }
     };
 
@@ -49,17 +52,23 @@ const History = () => {
         };
 
         console.log(data);
-        
+
         setFormData(data)
         setHistoryData([]);
-        fetchData();
+        // fetchData();
     };
 
     useEffect(() => {
         setHistoryData([]);
         fetchData();
-    }, []);
+    }, [formData]);
 
+
+
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     if (loading) {
         return <div className="py-8 text-center">Loading...</div>
