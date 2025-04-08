@@ -24,7 +24,7 @@ const FollowUs = () => {
             setFollowUsData(res.data || []);
             setLoading(false);
         }).catch(err => {
-            console.log(err);
+            // console.log(err);
             setLoading(false);
             toast.error("Failed to load data!")
         });

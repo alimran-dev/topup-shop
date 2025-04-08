@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import Avatar from "../../../components/reusuable/Avatar/Avatar";
+import UserName from "../../../components/reusuable/UserName/UserName";
 
 const LastOrders = () => {
     const [lastOrders, setLastOrders] = useState([]);
@@ -21,7 +22,7 @@ const LastOrders = () => {
         };
         fetchLastOrders();
     }, [axiosPublic]);
-    
+
 
     return (
         <div className="max-w-5xl mx-auto pb-8">
@@ -43,7 +44,7 @@ const LastOrders = () => {
                                                     <Avatar />
                                             }
                                             <div>
-                                                <p>{order?.name}</p>
+                                            <UserName name={order?.name} isVerified={order?.isVerified} iconClass="w-4 h-4" />
                                                 <p className="text-center text-[10px] text-xs">
                                                     {order?.package} - ৳{order?.price}
                                                 </p>

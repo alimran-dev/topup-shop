@@ -14,6 +14,8 @@ const {
   orderSpecialOffer,
   orderRechargeOffer,
   archivedUnipins,
+  orderCoinProduct,
+  getAllOrderSummary,
 } = require("../controllers/order.controller");
 
 const orderRoute = () => {
@@ -21,11 +23,13 @@ const orderRoute = () => {
   router.get("/all", verifyToken, getAllOrder);
   router.get("/last", getLastOrder);
   router.get("/archived", archivedUnipins);
+  router.get("/summary",verifyAdmin,getAllOrderSummary);
   router.post("/new/auto/:category", verifyToken, orderAuto);
   router.post("/recharge/offer", verifyToken, orderRechargeOffer);
   router.post("/new/dynamic", verifyToken, orderDynamic);
   router.post("/new/special", verifyToken, orderSpecialOffer);
   router.post("/recharge/balance", verifyToken, orderBalanceRecharge);
+  router.post("/coin/product", verifyToken, orderCoinProduct);
 
   // admin
   router.get("/admin/all", verifyAdmin, getAllOrderAdmin);

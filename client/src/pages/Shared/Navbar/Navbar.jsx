@@ -10,6 +10,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useIsAdmin from "../../../hooks/useIsAdmin";
 import AdminNav from "./components/AdminNav";
 import UserNav from "./components/UserNav";
+import UserName from "../../../components/reusuable/UserName/UserName";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -129,7 +130,7 @@ const Navbar = () => {
                   />
                   <div className="flex-1">
                     <p className="text-lg font-bold text-gray-800">
-                      {user?.name}
+                      <UserName name={user?.name} isVerified={user?.isVerified} />
                     </p>
                     <p className="font-medium overflow-hidden">
                       {user?.email}

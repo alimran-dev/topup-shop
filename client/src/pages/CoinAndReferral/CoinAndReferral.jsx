@@ -1,10 +1,12 @@
 import DailyCoinClaim from "../Home/DailyCoinClaim/DailyCoinClaim";
 import ReferralLinks from "./ReferralLinks/ReferralLinks";
 import UploadVideo from "./UploadVideo/UploadVideo";
-import ReferralEarnings from "./ReferralEarnings/ReferralEarnings";
 import { useEffect } from "react";
 import Coin from "../../components/reusuable/Coin/Coin";
 import useAuth from "../../hooks/useAuth";
+import { FaHistory } from "react-icons/fa";
+import { Link } from "react-router-dom";
+
 
 const CoinAndReferral = () => {
 
@@ -30,7 +32,17 @@ const CoinAndReferral = () => {
             <DailyCoinClaim />
             <ReferralLinks />
             <UploadVideo />
-            <ReferralEarnings />
+
+            <div className="flex justify-between items-center px-4">
+                <Link to={"/coinsAndReferral/coinHistory"} className="flex  items-center gap-1 text-blue-600 font-semibold">
+                    <FaHistory />
+                    Coin History
+                </Link>
+                <Link to={"/coinsAndReferral/referralHistory"} className="flex  items-center gap-1 text-blue-600 font-semibold">
+                    <FaHistory />
+                    Referral History
+                </Link>
+            </div>
 
         </div>
     );

@@ -10,7 +10,25 @@ const {
   rechargeCollection,
   serviceCollection,
   specialOfferCollection,
+  coinProductsCollection,
+  coinSettingCollection,
 } = dbCollections || {};
+
+const referPurchaseCoin = async (user, price, res) => {
+  try {
+    const { spent } = user || {};
+    const coinSettings = await coinSettingCollection.findOne({
+      type: "settings",
+    });
+    if (!coinSettings) {
+      return res.send({ success: false, message: "coin settings not found" });
+    }
+    const level1 = price - Math.min(coinSettings.firstLevelAmount - spent, 0);
+  } catch (err) {
+    console.error("referPurchaseCoin: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
 
 const getAllOrder = async (req, res) => {
   try {
@@ -167,6 +185,7 @@ const orderAuto = async (req, res) => {
         updateTime: new Date(),
         codes: takenCodes,
         status: "complete",
+        type: "balance",
         feedback: "",
       };
       console.log("orderAuto: ", order);
@@ -233,6 +252,7 @@ const orderDynamic = async (req, res) => {
         updateTime: new Date(),
         status: "pending",
         feedback: "",
+        type: "balance",
         info: info,
       };
       console.log("dynamic order--", order);
@@ -321,6 +341,7 @@ const orderRechargeOffer = async (req, res) => {
         updateTime: new Date(),
         status: "pending",
         feedback: "",
+        type: "balance",
         info: {
           Type: type,
           Number: phone,
@@ -405,6 +426,7 @@ const orderBalanceRecharge = async (req, res) => {
         updateTime: new Date(),
         status: "pending",
         feedback: "",
+        type: "balance",
         info: {
           Type: type,
           Sim: company,
@@ -502,7 +524,8 @@ const orderSpecialOffer = async (req, res) => {
         updateTime: new Date(),
         status: "pending",
         feedback: "",
-        info: { ...info, type: option.type },
+        type: option.type,
+        info: { ...info },
       };
       const updatedDoc = {
         stock: option.stock - 1,
@@ -537,6 +560,81 @@ const orderSpecialOffer = async (req, res) => {
   }
 };
 
+const orderCoinProduct = async (req, res) => {
+  try {
+    const { id, email, info } = req.body || {};
+    if (!id || !email) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    const orderTime = new Date();
+    const emailInToken = req.user?.email;
+    if (email !== emailInToken) {
+      return res
+        .cookie("access-token", "", cookieOption(0))
+        .status(401)
+        .send({ message: "unauthorized" });
+    }
+    const option = await coinProductsCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    if (!option) {
+      return res.status(400).send({ message: "Product not found" });
+    }
+    if (!option.isActive) {
+      return res.status(400).send({ message: "Offer is not active now" });
+    }
+    if (Object.keys(info).length !== option.inputs.length) {
+      return res.status(400).send({ message: "Invalid order" });
+    }
+    if (option.stock <= 0) {
+      return res.status(400).send({ message: "Stock out" });
+    }
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.status(401).send({ message: "User Not Found" });
+    } else if (user.coins < option.price) {
+      return res.status(400).send({ message: "You don't have enough balance" });
+    }
+    const userUpdate = await userCollection.updateOne(
+      { email: email },
+      { $set: { coins: user.coins - option.price } }
+    );
+    const ordersCount = await orderCollection.countDocuments();
+    if (userUpdate.modifiedCount) {
+      const order = {
+        orderID: ordersCount + 1000,
+        email: email,
+        category: "Coin Product",
+        subCategory: "Coin Product",
+        name: option.title,
+        price: option.price,
+        orderTime: orderTime,
+        updateTime: new Date(),
+        status: "pending",
+        feedback: "",
+        type: "coin",
+        info: info,
+      };
+      const updatedDoc = {
+        stock: option.stock - 1,
+      };
+      await coinProductsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedDoc }
+      );
+      const result = await orderCollection.insertOne(order);
+      return res.send({
+        ...result,
+        success: true,
+        price: option.price,
+      });
+    }
+  } catch (err) {
+    console.error("orderCoinProduct: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const getAllOrderAdmin = async (req, res) => {
   try {
     const { page, limit, search, fromDate, toDate, category, subCategory } =
@@ -561,9 +659,13 @@ const getAllOrderAdmin = async (req, res) => {
       filter = {
         ...filter,
         orderTime: { $gte: fromDateObj, $lte: toDateObj },
-        category: category,
-        subCategory: subCategory,
       };
+    }
+    if (category) {
+      filter.category = category;
+    }
+    if (subCategory) {
+      filter.subCategory = subCategory;
     }
     // console.log(filter);
     const totalOrders = await orderCollection.countDocuments(filter);
@@ -575,6 +677,99 @@ const getAllOrderAdmin = async (req, res) => {
     res.send({ orders: result, totalOrders });
   } catch (err) {
     console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const getAllOrderSummary = async (req, res) => {
+  try {
+    const { search, fromDate, toDate, category, subCategory } = req.query;
+    let filter = {};
+    if (search) {
+      filter = { email: { $regex: new RegExp(search, "i") } };
+    }
+    const fromDateObj = new Date(fromDate);
+    const toDateObj = new Date(toDate);
+    if (
+      fromDate &&
+      toDate &&
+      (isNaN(fromDateObj.getTime()) || isNaN(toDateObj.getTime()))
+    ) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    if (fromDate) {
+      filter = {
+        ...filter,
+        orderTime: { $gte: fromDateObj, $lte: toDateObj },
+      };
+    }
+    if (category) {
+      filter.category = category;
+    }
+    if (subCategory) {
+      filter.subCategory = subCategory;
+    }
+    // console.log(filter);
+    const result = await orderCollection
+      .aggregate([
+        { $match: filter },
+        {
+          $facet: {
+            totalOrders: [{ $count: "count" }],
+            coinOrders: [{ $match: { type: "coin" } }, { $count: "count" }],
+            balanceOrders: [
+              { $match: { type: "balance" } },
+              { $count: "count" },
+            ],
+            coinOrderAmount: [
+              { $match: { type: "coin" } },
+              { $group: { _id: null, totalAmount: { $sum: "$price" } } },
+            ],
+            balanceOrderAmount: [
+              { $match: { type: "balance" } },
+              { $group: { _id: null, totalAmount: { $sum: "$price" } } },
+            ],
+            totalCodeLength: [
+              {
+                $match: { codes: { $exists: true } },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalLength: { $sum: { $size: "$codes" } },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            "Total Orders": { $arrayElemAt: ["$totalOrders.count", 0] },
+            "Total Coin Product Order": {
+              $arrayElemAt: ["$coinOrders.count", 0],
+            },
+            "Total Balance Product Order": {
+              $arrayElemAt: ["$balanceOrders.count", 0],
+            },
+            "Coin Product Order Amount": {
+              $arrayElemAt: ["$coinOrderAmount.totalAmount", 0],
+            },
+            "Balance Product Order Amount": {
+              $arrayElemAt: ["$balanceOrderAmount.totalAmount", 0],
+            },
+            "Total Codes": {
+              $ifNull: [
+                { $arrayElemAt: ["$totalCodeLength.totalLength", 0] },
+                0,
+              ],
+            },
+          },
+        },
+      ])
+      .toArray();
+    res.send(result);
+  } catch (err) {
+    console.error("getAllOrderSummary: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
@@ -635,7 +830,7 @@ const archivedUnipins = async (req, res) => {
       return res.status(400).send({ message: "Invalid Request" });
     }
     if (!search) {
-      return res.send({orders: [], totalOrders: 0});
+      return res.send({ orders: [], totalOrders: 0 });
     }
     const filter = { codes: { $in: [new RegExp(search, "i")] } };
     const result = await orderCollection
@@ -659,7 +854,9 @@ module.exports = {
   orderRechargeOffer,
   orderBalanceRecharge,
   orderSpecialOffer,
+  orderCoinProduct,
   getAllOrderAdmin,
+  getAllOrderSummary,
   getPending,
   orderProcess,
   archivedUnipins,

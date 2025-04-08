@@ -1,41 +1,127 @@
-import { useState } from "react";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import toast from "react-hot-toast";
 import { allCategories } from "../../utils/categories";
+import { useNavigate } from "react-router-dom";
 
-const FilterOrders = ({ setSearchEmail, setFormData }) => {
+
+const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, getOrders, setOrders }) => {
+
     const categories = allCategories();
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [subCategories, setSubCategories] = useState([]);
+    const [fromDate, setFromDate] = useState(formData.fromDate || "");
+    const [toDate, setToDate] = useState(formData.toDate || "");
+    const axiosPrivate = useAxiosPrivate();
+    const navigate = useNavigate();
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // get subcategories
+    useEffect(() => {
+        if (selectedCategory) {
+            axiosPrivate.get("/services").then((res) => {
+                const data = res?.data || [];
+                // console.log("log", res.data);
+                const filterSubCategories = data?.filter(item => item?.category == selectedCategory)
+                setSubCategories(filterSubCategories.map(item => ({
+                    id: item._id,
+                    title: item.title,
+                    category: item.category
+                })));
+            }).catch(err => {
+                console.log(err);
+                toast.error("Failed to load sub-categories");
+            });
+        }
+    }, [axiosPrivate, selectedCategory]);
+
+
+    const handleEmail = (email) => {
+
+        setFromDate("");
+        setToDate("");
+
+        setFormData({
+            fromDate: "",
+            toDate: "",
+            category: "",
+            subCategory: "",
+        });
+        setSearchEmail(email);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // Directly access the form values on submit
+        const form = e.target;
+        const formData = {
+            fromDate: form.fromDate.value,
+            toDate: form.toDate.value,
+            category: form.category.value,
+            subCategory: form.subCategory.value,
+        };
+
+        // if(!formData?.fromDate || !formData?.toDate || !formData?.category || !formData?.subCategory){
+        //     toast.error("Fill All Input");
+        //     return;
+        // }
+
+        setFormData(formData);  // Update the formData state with the new values
+        setOrders([]);           // Reset the orders before getting new data
+        getOrders();             // Call the getOrders function
+    };
+
+    const handleFromDateChange = (e) => {
+        const value = e.target.value;
+        setFromDate(value);
+
+        if (value && !toDate) {
+            setToDate(value);
+        }
+    };
+
+    const handleToDateChange = (e) => {
+        setToDate(e.target.value);
+    };
+
+    const handleViewSummary = () => {
+        const { fromDate, toDate, category, subCategory } = formData;
+
+        if (!searchEmail || !fromDate || !toDate || !category || !subCategory) {
+            toast.error("Please fill all inputs!");
+            return;
+        }
+        const dataWithEmail = { ...formData, email: searchEmail };
+        navigate("/dashboard/orders/viewSummary", { state: { filterData: dataWithEmail } })
     };
 
     return (
         <div className="my-5">
-            {/* user email search */}
+            {/* Email input */}
             <div className="max-w-3xl mx-auto border border-slate-200 p-5 mt-3 mb-6 shadow-md rounded-md">
                 <label className="input-label">User{"'"}s Email</label>
                 <input
-                    onChange={(e) => setSearchEmail(e.target.value)}
                     type="email"
                     className="input"
                     placeholder="User's Email"
+                    value={searchEmail}
+                    onChange={(e) => handleEmail(e.target.value)}
                 />
             </div>
 
-            {/* filter form */}
-            <form className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-5">
+            {/* Filter Form */}
+            <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-5">
                 <div>
                     <label className="input-label">From</label>
                     <input
                         type="date"
                         name="fromDate"
                         className="input"
-                        onChange={(e) => {
-                            setFromDate(e.target.value);
-                            handleInputChange(e);
-                        }}
+                        value={fromDate}
+                        onChange={handleFromDateChange}
+                        placeholder="from date. (yyyy/mm/dd)"
                     />
                 </div>
                 <div>
@@ -44,12 +130,11 @@ const FilterOrders = ({ setSearchEmail, setFormData }) => {
                         type="date"
                         name="toDate"
                         className="input"
+                        value={toDate}
                         min={fromDate}
                         disabled={!fromDate}
-                        onChange={(e) => {
-                            setToDate(e.target.value);
-                            handleInputChange(e);
-                        }}
+                        onChange={handleToDateChange}
+                        placeholder="to date. (yyyy/mm/dd)"
                     />
                 </div>
                 <div>
@@ -58,11 +143,17 @@ const FilterOrders = ({ setSearchEmail, setFormData }) => {
                         className="input"
                         name="category"
                         defaultValue={""}
-                        onChange={handleInputChange}
+                        value={formData?.category}
+                        onChange={(e) => { setSelectedCategory(e.target.value), setSubCategories([]) }
+                        }
                     >
-                        <option value="" disabled>Choose One</option>
+                        <option value="" disabled>
+                            Choose One
+                        </option>
                         {categories?.map((category, idx) => (
-                            <option key={idx} value={category?.title}>{category?.title}</option>
+                            <option key={idx}>
+                                {category?.title}
+                            </option>
                         ))}
                     </select>
                 </div>
@@ -72,20 +163,44 @@ const FilterOrders = ({ setSearchEmail, setFormData }) => {
                         className="input"
                         name="subCategory"
                         defaultValue={""}
-                        onChange={handleInputChange}
+                        value={formData.subCategory}
+                    // onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
                     >
-                        <option value="" disabled>Choose One</option>
-                        {categories?.map((category, idx) => (
-                            <option key={idx} value={category?.title}>{category?.title}</option>
+                        <option value="" disabled>
+                            Choose One
+                        </option>
+                        {subCategories?.map((category, idx) => (
+                            <option key={idx}>
+                                {category?.title}
+                            </option>
                         ))}
                     </select>
                 </div>
-                <div className="flex justify-center items-end">
-                    <button type="submit" className="w-full !py-3 h-fit button">Search</button>
+                <div className="col-span-2 md:col-span-1 flex justify-center items-end gap-2 mt-3 md:mt-0 mb-1">
+                    <button type="submit" className="w-full py-2 text-white font-semibold rounded-md bg-primary">
+                        Search
+                    </button>
+                    <button onClick={handleViewSummary} className="w-full py-2 text-white font-semibold rounded-md bg-primary">
+                        View Summary
+                    </button>
                 </div>
             </form>
         </div>
     );
+};
+
+FilterOrders.propTypes = {
+    searchEmail: PropTypes.string.isRequired,
+    setSearchEmail: PropTypes.func.isRequired,
+    setFormData: PropTypes.func.isRequired,
+    setOrders: PropTypes.func.isRequired,
+    getOrders: PropTypes.func.isRequired,
+    formData: PropTypes.shape({
+        fromDate: PropTypes.string,
+        toDate: PropTypes.string,
+        category: PropTypes.string,
+        subCategory: PropTypes.string,
+    }).isRequired,
 };
 
 export default FilterOrders;

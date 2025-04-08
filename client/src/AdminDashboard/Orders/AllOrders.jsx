@@ -11,18 +11,35 @@ const AllOrders = () => {
   const [orders, setOrders] = useState([]);
   const [totalOrders, setTotalOrders] = useState(0);
   const [searchEmail, setSearchEmail] = useState("");
-  const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const axiosPrivate = useAxiosPrivate();
   const limit = 5;
   const page = Math.ceil(orders.length / limit + 1);
-  
+  const [formData, setFormData] = useState({
+    fromDate: "",
+    toDate: "",
+    category: "",
+    subCategory: "",
+  });
+
 
   const getOrders = () => {
+    // console.log(formData, "---------from fn");
+
     axiosPrivate
-      .get(`/order/admin/all?page=${page}&limit=${limit}&search=${searchEmail}`)
+      .get(`/order/admin/all`, {
+        params: {
+          page,
+          limit,
+          search: searchEmail,
+          fromDate: formData?.fromDate,
+          toDate: formData?.toDate,
+          category: formData?.category,
+          subCategory: formData?.subCategory,
+        },
+      })
       .then((res) => {
-        console.log(res.data);
+        console.log(res.data, "-------res");
         setOrders([...orders, ...res.data.orders]);
         setTotalOrders(res.data?.totalOrders);
         setIsLoading(false);
@@ -33,16 +50,23 @@ const AllOrders = () => {
       getOrders();
     }
   };
+
+
   useEffect(() => {
     setOrders([]);
     getOrders();
-  }, [searchEmail]);
+  }, [searchEmail, formData]);
+
+  // console.log(searchEmail);
+  // console.log(formData);
+  // console.log(orders, "--------orders");
+
 
 
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <FilterOrders setSearchEmail={setSearchEmail} setFormData={setFormData} />
+      <FilterOrders searchEmail={searchEmail} setSearchEmail={setSearchEmail} formData={formData} setFormData={setFormData} getOrders={getOrders} setOrders={setOrders} />
       {orders.length <= 0 ? (
         <div className="h-[40vh] w-full flex items-center justify-center">
           <p className="text-4xl font-semibold">No Orders yet</p>

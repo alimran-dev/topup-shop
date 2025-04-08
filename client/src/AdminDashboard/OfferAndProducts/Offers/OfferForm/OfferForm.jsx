@@ -28,9 +28,11 @@ const OfferForm = () => {
         if (id) {
             axiosPrivate.get(`/special/get?id=${id}`)
                 .then(({ data }) => {
+                    // console.log(data);
                     setFormData({
                         ...data,
-                        inputs: data.inputs.join(", ")
+                        inputs: data.inputs.join(", "),
+                        ...(id ? { isActive: data.isActive } : {})
                     });
                     if (data.image) {
                         setPreview(data.image); // Show existing image
@@ -42,8 +44,14 @@ const OfferForm = () => {
 
     // Handle input changes
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+    
+        setFormData({
+            ...formData,
+            [name]: name === "isActive" ? value === "true" : value, // Convert to boolean
+        });
     };
+    
 
     // Handle image selection
     const handleImage = (e) => {
@@ -73,15 +81,16 @@ const OfferForm = () => {
                 price: Number(formData.price),
                 stock: Number(formData.stock),
                 inputs: formData.inputs.split(",").map((input) => input.trim()),
+                ...(id && { isActive: formData.isActive })
             };
 
-            // console.log(payload);
+            // console.log(payload, "-----------payload");
 
             if (id) {
                 // Update existing offer
                 const res = await axiosPrivate.patch(`/special/update?id=${id}`, payload);
                 // console.log(res.data);
-                
+
                 if (res.data.acknowledged) {
                     toast.success("Offer Updated Successfully!");
                 }
@@ -108,6 +117,7 @@ const OfferForm = () => {
             setLoading(false);
         }
     };
+
 
     return (
         <div>
@@ -147,7 +157,7 @@ const OfferForm = () => {
                     </div>
 
                     {/* Extra Fields */}
-                    <div className="space-y-2 mt-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
                         <div>
                             <label className="input-label">Tutorial Title</label>
                             <input type="text" name="tutorialTitle" className="input" value={formData.tutorialTitle} onChange={handleChange} placeholder="Tutorial Title" />
@@ -163,11 +173,22 @@ const OfferForm = () => {
                             <input type="text" name="inputs" className="input" value={formData.inputs} onChange={handleChange} placeholder="Enter inputs, separated by commas" />
                         </div>
 
-                        {/* Textarea / Description */}
-                        <div>
-                            <label className="input-label">Short Description</label>
-                            <textarea name="shortDescription" className="input h-20" value={formData.shortDescription} onChange={handleChange} placeholder="Short Description" required></textarea>
-                        </div>
+                        {id &&
+                            <div>
+                                <label className="input-label">Type</label>
+                                <select name="isActive" className="input" onChange={handleChange} value={formData.isActive}>
+                                    <option value={""} disabled>Choose One</option>
+                                    <option value={true}>Active</option>
+                                    <option value={false}>Inactive</option>
+                                </select>
+                            </div>
+                        }
+                    </div>
+
+                    {/* Textarea / Description */}
+                    <div>
+                        <label className="input-label">Short Description</label>
+                        <textarea name="shortDescription" className="input h-20" value={formData.shortDescription} onChange={handleChange} placeholder="Short Description" required></textarea>
                     </div>
 
                     <button className="button mt-6 mx-auto flex" disabled={loading}>

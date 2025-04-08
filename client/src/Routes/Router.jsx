@@ -44,7 +44,7 @@ import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/Upda
 import CoinAndReferaal from "../pages/CoinAndReferral/CoinAndReferral";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
-import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
+import LeaderBoard from "../pages/LeaderBoard/LeaderBoard";
 import Referral from "../AdminDashboard/Referral/Referral";
 import History from "../AdminDashboard/Referral/History/History";
 import Store from "../pages/Store/Store";
@@ -54,6 +54,10 @@ import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProduc
 import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
 import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
 import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
+import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
+import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
+import ReferralHistory from "../pages/CoinAndReferral/ReferralHistory/ReferralHistory";
+import ViewSummary from "../AdminDashboard/Orders/ViewSummary/ViewSummary";
 
 
 const router = createBrowserRouter([
@@ -183,6 +187,22 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/coinsAndReferral/coinHistory",
+        element: (
+          <PrivateRoute>
+            <CoinHistory />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/coinsAndReferral/referralHistory",
+        element: (
+          <PrivateRoute>
+            <ReferralHistory />
+          </PrivateRoute>
+        ),
+      },
+      {
         path: "/store",
         element: (
           <PrivateRoute>
@@ -191,10 +211,18 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/leaderboards",
+        path: "/store/:id",
         element: (
           <PrivateRoute>
-            <LeaderBoards />
+            <CoinProductDetail />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/leaderboard",
+        element: (
+          <PrivateRoute>
+            <LeaderBoard />
           </PrivateRoute>
         ),
       },
@@ -280,6 +308,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/orders",
         element: <Orders />,
+      },
+      {
+        path: "/dashboard/orders/viewSummary",
+        element: <ViewSummary />,
       },
       {
         path: "/dashboard/referral",
