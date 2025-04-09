@@ -9,7 +9,6 @@ import toast from "react-hot-toast";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { TiTick } from "react-icons/ti";
 
-
 const OrderCard = ({ order }) => {
   const [newStatus, setNewStatus] = useState(order?.status);
   const [newFeedback, setNewFeedback] = useState(order?.feedback);
@@ -35,7 +34,6 @@ const OrderCard = ({ order }) => {
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
   const [copied, setCopied] = useState({});
-
 
   const handleCopyUid = async () => {
     const uidRegex = /\(UID: (.+?)\)/;
@@ -82,8 +80,7 @@ const OrderCard = ({ order }) => {
           toast.success("Order Updated Successfully!");
           setLoading(false);
           window.location.reload();
-        }
-        else {
+        } else {
           toast.error("Something Went Wrong!");
           setLoading(false);
         }
@@ -138,26 +135,28 @@ const OrderCard = ({ order }) => {
   return (
     <div>
       <div className="px-4 py-5 border-2 rounded shadow-xl">
-
         {/* order id - category - package - status */}
         <div className="flex justify-between border-b border-b-slate-300 pb-4 mb-3">
           <div>
             <h3 className="flex gap-1 text-xl">
-              <p className="font-bold flex items-center"><FaHashtag /> Order ID: </p>
+              <p className="font-bold flex items-center">
+                <FaHashtag /> Order ID:{" "}
+              </p>
               {orderID}
             </h3>
             <p className="opacity-90 normal-case">E-mail: {email}</p>
           </div>
           <div>
             <span
-              className={`font-bold border px-3 py-1 capitalize text-xs ${status === "complete"
-                ? "text-green-800 border-green-800"
-                : status === "pending"
+              className={`font-bold border px-3 py-1 capitalize text-xs ${
+                status === "complete"
+                  ? "text-green-800 border-green-800"
+                  : status === "pending"
                   ? "text-yellow-500 border-yellow-500"
                   : status === "cancelled"
-                    ? "text-red-500 border-red-500"
-                    : ""
-                } rounded-full`}
+                  ? "text-red-500 border-red-500"
+                  : ""
+              } rounded-full`}
             >
               • {status}
             </span>
@@ -199,9 +198,9 @@ const OrderCard = ({ order }) => {
             <span className="font-bold">Package: </span>
             {name}
             {category === "idcode" ||
-              category === "weekly & monthly" ||
-              category === "airdrop" ||
-              category === "lessIsMore" ? (
+            category === "weekly & monthly" ||
+            category === "airdrop" ||
+            category === "lessIsMore" ? (
               <MdContentCopy
                 onClick={handleCopyUid}
                 className="inline-block text-green-500 text-lg cursor-pointer ml-2"
@@ -211,21 +210,27 @@ const OrderCard = ({ order }) => {
             )}
           </p>
           <p className="flex items-center">
-            <span className="font-bold pr-1">Price:</span><TbCurrencyTaka /> {price}
+            <span className="font-bold pr-1">Price:</span>
+            <TbCurrencyTaka /> {price}
           </p>
-          {info && Object.entries(info).map(([key, value], idx) => (
-            <div key={idx} className="flex items-center gap-3">
-              <span className="font-bold">{key}: </span>
-              <p className="flex items-center gap-1">
-                <span>{value}</span>
-                <CopyToClipboard text={value}>
-                  <button onClick={() => handleCopyInfo(key)} className={`${copied[key] ? "text-green-700" : ""}`} disabled={copied[key]} >
-                  {copied[key] ? <TiTick /> : <MdContentCopy />}
-                  </button>
-                </CopyToClipboard>
-              </p>
-            </div>
-          ))}
+          {info &&
+            Object.entries(info).map(([key, value], idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <span className="font-bold">{key}: </span>
+                <p className="flex items-center gap-1">
+                  <span>{value}</span>
+                  <CopyToClipboard text={value}>
+                    <button
+                      onClick={() => handleCopyInfo(key)}
+                      className={`${copied[key] ? "text-green-700" : ""}`}
+                      disabled={copied[key]}
+                    >
+                      {copied[key] ? <TiTick /> : <MdContentCopy />}
+                    </button>
+                  </CopyToClipboard>
+                </p>
+              </div>
+            ))}
         </div>
 
         {/* times */}
@@ -244,7 +249,9 @@ const OrderCard = ({ order }) => {
 
         {/* feedback */}
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" || category === "shell" || category === "card" ? (
+          {subCategory === "unipin" ||
+          subCategory === "shell" ||
+          subCategory === "card" ? (
             <div>
               <textarea
                 disabled
@@ -262,7 +269,6 @@ const OrderCard = ({ order }) => {
             </div>
           ) : (
             <div>
-
               <textarea
                 onChange={(e) => setNewFeedback(e.target.value)}
                 defaultValue={feedback}
@@ -274,11 +280,10 @@ const OrderCard = ({ order }) => {
                 disabled={loading || isDisable}
                 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed mt-5"
               >
-                {loading ? 'Please Wait' : 'Update'}
+                {loading ? "Please Wait" : "Update"}
               </button>
             </div>
           )}
-
         </div>
       </div>
     </div>
