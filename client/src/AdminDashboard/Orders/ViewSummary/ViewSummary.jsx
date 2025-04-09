@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 const ViewSummary = () => {
 
-    const [summaryData, setSummaryData] = useState([]);
+    const [summaryData, setSummaryData] = useState([{}]);
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
     const { state } = useLocation();
@@ -16,7 +16,7 @@ const ViewSummary = () => {
         setLoading(false);
         const fetchData = async () => {
             try {
-                const res = await axiosPrivate.get("", state?.filterData);
+                const res = await axiosPrivate.get(`/order/summary?search&fromDate=${state?.filterData?.fromDate}&toDate=${state?.filterData?.toDate}&category=${state?.filterData?.category}&subCategory=${state?.filterData?.subCategory}`);
                 console.log(res.data);
                 setSummaryData(res?.data || []);
             }
@@ -29,12 +29,6 @@ const ViewSummary = () => {
         }
         fetchData();
     }, [axiosPrivate, state?.filterData]);
-
-
-
-    console.log(summaryData);
-
-
 
     if (loading) {
         return <div className='py-8 text-center'>Loading...</div>
@@ -62,26 +56,16 @@ const ViewSummary = () => {
                     Order Sumarry
                 </h2>
                 <div className="px-4 py-2">
-                    <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
-                        <span className="w-28 font-semibold">Total Order</span>
-                        <span>:</span>
-                        <span>10</span>
-                    </p>
-                    <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
-                        <span className="w-28 font-semibold">Total Amount</span>
-                        <span>:</span>
-                        <span>৳1000</span>
-                    </p>
-                    <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
-                        <span className="w-28 font-semibold">Spam Order</span>
-                        <span>:</span>
-                        <span>5</span>
-                    </p>
-                    <p className="flex items-center gap-2">
-                        <span className="w-28 font-semibold">New Order</span>
-                        <span>:</span>
-                        <span>10</span>
-                    </p>
+                    {
+                        summaryData &&
+                        Object.entries(summaryData[0])?.map(([key, value]) => (
+                            <p key={key} className="flex items-center gap-2">
+                                <span className="font-semibold capitalize">{key}</span>
+                                <span>:</span>
+                                <span>{value}</span>
+                            </p>
+                        ))
+                    }
                 </div>
             </div>
         </div>
