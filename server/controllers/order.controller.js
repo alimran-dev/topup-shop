@@ -12,22 +12,69 @@ const {
   specialOfferCollection,
   coinProductsCollection,
   coinSettingCollection,
+  coinHistoryCollection,
 } = dbCollections || {};
 
-const referPurchaseCoin = async (user, price, res) => {
-  try {
-    const { spent } = user || {};
-    const coinSettings = await coinSettingCollection.findOne({
-      type: "settings",
-    });
-    if (!coinSettings) {
-      return res.send({ success: false, message: "coin settings not found" });
+// to handle coin for every purchase of any referred user
+const referPurchaseCoin = (user, price, status) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { email, spent, referredBy } = user || {};
+      const coinSettings = await coinSettingCollection.findOne({
+        type: "settings",
+      });
+      if (!coinSettings) {
+        reject({ message: "coin settings not found" });
+      }
+      const {
+        firstLevelAmount,
+        secondLevelAmount,
+        firstLevelCoin,
+        secondLevelCoin,
+        thirdLevelCoin,
+      } = coinSettings || {};
+      const level1 =
+        Math.max(0, Math.min(firstLevelAmount - spent, price)) *
+        (firstLevelCoin / 100);
+      const level2 =
+        Math.max(
+          0,
+          Math.min(secondLevelAmount, spent + price) -
+            firstLevelAmount -
+            Math.max(0, spent - firstLevelAmount)
+        ) *
+        (secondLevelCoin / 100);
+      const level3 =
+        (Math.max(0, spent + price - secondLevelAmount) -
+          Math.max(0, spent - secondLevelAmount)) *
+        (thirdLevelCoin / 100);
+      const totalCoin = Math.round(level1 + level2 + level3);
+      const coinHistory = {
+        email: referredBy,
+        name: "Refer Purchase Bonus",
+        status: status,
+        amount: totalCoin,
+        createdAt: new Date(),
+        info: {
+          User: email,
+          "Purchase Amount": price,
+        },
+      };
+      const coinHistoryInsert = await coinHistoryCollection.insertOne(
+        coinHistory
+      );
+      if (status === "success") {
+        await userCollection.updateOne(
+          { email: referredBy },
+          { $set: { $inc: { coins: totalCoin } } }
+        );
+      }
+      resolve(coinHistoryInsert.insertedId);
+    } catch (err) {
+      console.error("referPurchaseCoin: ", err.message);
+      reject(err);
     }
-    const level1 = price - Math.min(coinSettings.firstLevelAmount - spent, 0);
-  } catch (err) {
-    console.error("referPurchaseCoin: ", err.message);
-    res.status(500).send({ success: false, error: "Internal Server Error" });
-  }
+  });
 };
 
 const getAllOrder = async (req, res) => {
@@ -188,6 +235,30 @@ const orderAuto = async (req, res) => {
         type: "balance",
         feedback: "",
       };
+      if (user.referredBy) {
+        const referHistoryId = await referPurchaseCoin(
+          user,
+          option.price,
+          "success"
+        );
+        // console.log('referHistoryId--', referHistoryId?.toString());
+        order.referHistoryId = referHistoryId;
+      }
+      if(option.coin){
+        const coinHistory = {
+          email: email,
+          name: "Product Purchase Bonus",
+          status: "success",
+          amount: option.coin * quantity,
+          createdAt: new Date(),
+          info: {
+            "Product Price": option.price,
+          },
+        };
+        const coinHistoryInsert=await coinHistoryCollection.insertOne(coinHistory);
+        order.coinBonusID=coinHistoryInsert.insertedId;
+        await userCollection.updateOne({email: email},{$set: {$inc: {coins: coinHistory.amount}}});
+      }
       console.log("orderAuto: ", order);
       const result = await orderCollection.insertOne(order);
       res.status(201).send({ orderID: result.insertedId, price: orderPrice });
@@ -255,6 +326,29 @@ const orderDynamic = async (req, res) => {
         type: "balance",
         info: info,
       };
+      if (user.referredBy) {
+        const referHistoryId = await referPurchaseCoin(
+          user,
+          option.price,
+          "pending"
+        );
+        // console.log('referHistoryId--', referHistoryId?.toString());
+        order.referHistoryId = referHistoryId;
+      }
+      if(option.coin){
+        const coinHistory = {
+          email: email,
+          name: "Product Purchase Bonus",
+          status: "pending",
+          amount: option.coin,
+          createdAt: new Date(),
+          info: {
+            "Product Price": option.price,
+          },
+        };
+        const coinHistoryInsert=await coinHistoryCollection.insertOne(coinHistory);
+        order.coinBonusID=coinHistoryInsert.insertedId;
+      }
       console.log("dynamic order--", order);
       service.options[parseInt(index)].stock--;
       await serviceCollection.updateOne(
@@ -354,6 +448,31 @@ const orderRechargeOffer = async (req, res) => {
         { $set: { stock: option.stock - 1 } }
       );
 
+      if (user.referredBy) {
+        const referHistoryId = await referPurchaseCoin(
+          user,
+          option.price,
+          "pending"
+        );
+        // console.log('referHistoryId--', referHistoryId?.toString());
+        order.referHistoryId = referHistoryId;
+      }
+
+      if(option.coin){
+        const coinHistory = {
+          email: email,
+          name: "Product Purchase Bonus",
+          status: "pending",
+          amount: option.coin,
+          createdAt: new Date(),
+          info: {
+            "Product Price": option.price,
+          },
+        };
+        const coinHistoryInsert=await coinHistoryCollection.insertOne(coinHistory);
+        order.coinBonusID=coinHistoryInsert.insertedId;
+      }
+
       // notification to the admins
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {
@@ -433,6 +552,15 @@ const orderBalanceRecharge = async (req, res) => {
           Number: phone,
         },
       };
+      if (user.referredBy) {
+        const referHistoryId = await referPurchaseCoin(
+          user,
+          priceInt,
+          "pending"
+        );
+        // console.log('referHistoryId--', referHistoryId?.toString());
+        order.referHistoryId = referHistoryId;
+      }
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {
         if (admin.subscription) {
@@ -527,6 +655,15 @@ const orderSpecialOffer = async (req, res) => {
         type: option.type,
         info: { ...info },
       };
+      if (user.referredBy && option.type === "balance") {
+        const referHistoryId = await referPurchaseCoin(
+          user,
+          option.price,
+          "pending"
+        );
+        // console.log('referHistoryId--', referHistoryId?.toString());
+        order.referHistoryId = referHistoryId;
+      }
       const updatedDoc = {
         stock: option.stock - 1,
       };
@@ -808,6 +945,27 @@ const orderProcess = async (req, res) => {
     };
     const order = await orderCollection.findOne(filter);
     const result = await orderCollection.updateOne(filter, updateOrder);
+    if (order.referHistoryId) {
+      const coinHistory = await coinHistoryCollection.findOne({
+        _id: new ObjectId(order.referHistoryId),
+      });
+      if (newStatus === "complete") {
+        await userCollection.updateOne(
+          { email: coinHistory.email },
+          { $set: { $inc: { coins: coinHistory.amount } } }
+        );
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "success" } }
+        );
+      }
+      if (newStatus === "cancelled") {
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "cancel" } }
+        );
+      }
+    }
     if (newStatus === "cancelled") {
       await userCollection.updateOne(
         { email: order.email },
