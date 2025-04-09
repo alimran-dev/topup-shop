@@ -18,7 +18,8 @@ const AddOption = () => {
     const price = parseInt(form.price.value) || 0;
     const uc = parseInt(form.uc.value) || 0;
     const category = form.category.value;
-    const option = { name, price, category, uc };
+    const coin = form.coin.value;
+    const option = { name, price, category, uc, coin };
     // console.log(option);
     axiosPrivate.post(`/option/admin/add/${category}`, option).then((res) => {
       if (res.data.insertedId) {
@@ -64,6 +65,8 @@ const AddOption = () => {
   // };
 
   const handleAddRecharge = (e) => {
+    console.log("hitted");
+
     e.preventDefault();
     setError2("");
     const form = e.target;
@@ -73,9 +76,18 @@ const AddOption = () => {
     const operator = form.operator.value;
     const category = form.category.value;
     const type = form.types.value;
-    const stock = form.stock.value;
-    const option = { name, price, description, operator, category, docName: type, stock };
-    console.log(option);
+    const stock = form?.stock?.value;
+    const coin = form.coin.value;
+    const option = {
+      name, price, description, operator, category, docName: type, coin
+    };
+
+    if(category == "offer"){
+      option.stock = stock;
+    }
+
+    // console.log(option);
+
     axiosPrivate.post(`/option/admin/add/recharge`, option).then((res) => {
       if (res.data.insertedId) {
         Swal.fire({
@@ -200,6 +212,21 @@ const AddOption = () => {
                 Less Is More
               </option>
             </select>
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="uc"
+              className="block text-xl font-medium text-gray-700"
+            >
+              Bonus Coin Amount
+            </label>
+            <input
+              type="number"
+              name="coin"
+              required
+              className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+              placeholder="Example: 100"
+            />
           </div>
         </div>
         <div>
@@ -416,6 +443,21 @@ const AddOption = () => {
               />
             </div>
           }
+          <div className="space-y-2">
+            <label
+              htmlFor="price"
+              className="block text-xl font-medium text-gray-700"
+            >
+              Bonus Coin Amount
+            </label>
+            <input
+              type="number"
+              name="coin"
+              required
+              className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+              placeholder="Example: 100"
+            />
+          </div>
         </div>
         <div>
           <p className="text-center font-medium text-red-500 pb-2">{error2}</p>

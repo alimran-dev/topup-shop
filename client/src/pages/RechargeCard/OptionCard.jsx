@@ -4,12 +4,12 @@ import toast from "react-hot-toast";
 
 
 const OptionCard = ({ option, selected, setSelected, purchaseRef }) => {
-  
-  const { _id, name, price, description, stock: inStock } = option || {};
+
+  const { _id, name, price, description, stock: inStock, coin } = option || {};
 
   const handleSelect = () => {
     if (inStock) {
-      setSelected({ id: _id, name, price });
+      setSelected({ id: _id, name, price, coin });
       setTimeout(() => {
         purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 200);

@@ -17,10 +17,11 @@ import rechargeImg from "../../assets/images/recharge-card.jpeg";
 import toast from 'react-hot-toast';
 import bkashLogo from '../../assets/images/bkash.png';
 import nagadLogo from '../../assets/images/nagad.png';
+import Coin from "../../components/reusuable/Coin/Coin";
 
 
 const CardsOptions = () => {
-  const [selected, setSelected] = useState({ id: "", name: "", price: 0 });
+  const [selected, setSelected] = useState({ id: "", name: "", price: 0, coin: 0 });
   const [quantity, setQuantity] = useState(1);
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -252,6 +253,14 @@ const CardsOptions = () => {
                   </p>
                 </>
               )}
+              <p className="text-sm flex gap-1">
+                <IoInformationCircleOutline className="text-lg" />
+                বোনাস কয়েনঃ
+                <span className="flex items-center font-semibold text-red-600">
+                  <Coin />
+                  {selected?.coin || 0}
+                </span>
+              </p>
               <p className="text-sm flex gap-1">
                 <IoInformationCircleOutline className="text-lg" />
                 প্রোডাক্টের মোট মূল্যঃ

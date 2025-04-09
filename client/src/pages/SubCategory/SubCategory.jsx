@@ -10,6 +10,7 @@ import OptionCard from "./OptionCard";
 import toast from "react-hot-toast";
 import bkashLogo from '../../assets/images/bkash.png';
 import nagadLogo from '../../assets/images/nagad.png';
+import Coin from "../../components/reusuable/Coin/Coin";
 
 
 const SubCategory = () => {
@@ -17,7 +18,7 @@ const SubCategory = () => {
     const { id } = useParams();
 
     const [allData, setAllData] = useState([]);
-    const [selected, setSelected] = useState({ _id: "", price: 0 });
+    const [selected, setSelected] = useState({ _id: "", price: 0, coin: 0 });
     const [options, setOptions] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [price, setPrice] = useState(0);
@@ -193,6 +194,14 @@ const SubCategory = () => {
                                     </p>
                                 </>
                             )}
+                            <p className="text-sm flex gap-1">
+                                <IoInformationCircleOutline className="text-lg" />
+                                বোনাস কয়েনঃ
+                                <span className="flex items-center font-semibold text-red-600">
+                                    <Coin />
+                                    {selected?.coin || 0}
+                                </span>
+                            </p>
                             <p className="text-sm flex gap-1">
                                 <IoInformationCircleOutline className="text-lg" />
                                 প্রোডাক্টের মোট মূল্যঃ

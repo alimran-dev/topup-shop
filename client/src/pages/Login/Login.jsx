@@ -42,24 +42,10 @@ const Login = () => {
 
     try {
       axiosPrivate.post("/user/login", userCredentials).then((res) => {
+
         if (res?.data?._id) {
 
-          const LoggedUserData = {
-            _id: res?.data?.insertedId,
-            email: res?.data?.email,
-            name: res?.data?.name,
-            photo: res?.data?.photo,
-            phone: res.data?.phone || "",
-            role: res?.data?.role,
-            balance: res?.data?.balance,
-            isBanned: res?.data?.isBanned,
-            spent: res?.data?.spent,
-            orders: res?.data?.orders,
-            coins: res?.data?.coins,
-            isVerified: res?.data?.isVerified,
-          };
-
-          setUser(LoggedUserData);
+          setUser(res?.data || {});
           setError("");
           setLoading(false);
           setIsLoading(false);

@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { MdContentCopy } from "react-icons/md";
 import PropTypes from "prop-types";
 import { FaHashtag } from "react-icons/fa";
+import Coin from "../../components/reusuable/Coin/Coin";
 
 const OrderHistory = ({ order }) => {
   const codesRef = useRef(null);
@@ -20,6 +21,7 @@ const OrderHistory = ({ order }) => {
     feedback,
     subCategory,
     info,
+    type,
   } = order || {};
   const handleCopy = async () => {
     if (codesRef.current) {
@@ -70,7 +72,8 @@ const OrderHistory = ({ order }) => {
               </h3>
               <p className="opacity-90 normal-case">Package: {name}</p>
               <p className="opacity-90 normal-case flex items-center">
-                Price: <TbCurrencyTaka className="mt-[1px]" />
+                Price: 
+                {type == "coin" ? <Coin /> : <TbCurrencyTaka />}
                 {price}
               </p>
             </div>
@@ -208,9 +211,8 @@ const OrderHistory = ({ order }) => {
                   <span className="w-24 font-semibold">Price</span>
                   <span>:</span>
                   <span className="flex items-center">
-                    <TbCurrencyTaka />
-                    {price}
-                  </span>
+                    {type == "coin" ? <Coin /> : <TbCurrencyTaka />}
+                    {price}</span>
                 </p>
                 {info &&
                   Object.entries(info).map(([key, value], idx) => (

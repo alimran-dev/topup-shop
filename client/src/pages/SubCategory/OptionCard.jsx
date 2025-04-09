@@ -4,12 +4,12 @@ import { TbCurrencyTaka } from 'react-icons/tb';
 
 const OptionCard = ({ idx, option, selected, setSelected, purchaseRef }) => {
 
-    const { name, price, stock } = option || {};
+    const { name, price, stock, coin } = option || {};
 
     const handleSelect = () => {
         if (!stock === null || !stock == 0) {
-            setSelected({ idx, name, price });
-            
+            setSelected({ idx, name, price, coin });
+
             setTimeout(() => {
                 purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }, 200); // Delay to ensure the selection is set before scrolling

@@ -32,7 +32,8 @@ const OfferForm = () => {
                     setFormData({
                         ...data,
                         inputs: data.inputs.join(", "),
-                        ...(id ? { isActive: data.isActive } : {})
+                        ...(id ? { isActive: data.isActive } : {}),
+                        ...(id ? { sequence: data.sequence } : {}),
                     });
                     if (data.image) {
                         setPreview(data.image); // Show existing image
@@ -45,13 +46,13 @@ const OfferForm = () => {
     // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
-    
+
         setFormData({
             ...formData,
             [name]: name === "isActive" ? value === "true" : value, // Convert to boolean
         });
     };
-    
+
 
     // Handle image selection
     const handleImage = (e) => {
@@ -81,7 +82,8 @@ const OfferForm = () => {
                 price: Number(formData.price),
                 stock: Number(formData.stock),
                 inputs: formData.inputs.split(",").map((input) => input.trim()),
-                ...(id && { isActive: formData.isActive })
+                ...(id && { isActive: formData.isActive }),
+                ...(id && { sequence: formData.sequence }),
             };
 
             // console.log(payload, "-----------payload");
@@ -156,7 +158,6 @@ const OfferForm = () => {
                         {preview && <img src={preview} alt="Preview" className="mt-3 max-h-48 object-cover" />}
                     </div>
 
-                    {/* Extra Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
                         <div>
                             <label className="input-label">Tutorial Title</label>
@@ -168,12 +169,15 @@ const OfferForm = () => {
                             <input type="text" name="tutorialUrl" className="input" value={formData.tutorialUrl} onChange={handleChange} placeholder="Tutorial URL" />
                         </div>
 
-                        <div>
+                        <div className="md:col-span-2">
                             <label className="input-label">Inputs (comma-separated)</label>
                             <input type="text" name="inputs" className="input" value={formData.inputs} onChange={handleChange} placeholder="Enter inputs, separated by commas" />
                         </div>
+                    </div>
 
-                        {id &&
+                    {
+                        id &&
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-5">
                             <div>
                                 <label className="input-label">Type</label>
                                 <select name="isActive" className="input" onChange={handleChange} value={formData.isActive}>
@@ -182,8 +186,12 @@ const OfferForm = () => {
                                     <option value={false}>Inactive</option>
                                 </select>
                             </div>
-                        }
-                    </div>
+                            <div>
+                                <label className="input-label">Sequence</label>
+                                <input type="number" name="sequence" className="input" value={formData?.sequence} onChange={handleChange} placeholder="Enter sequence" />
+                            </div>
+                        </div>
+                    }
 
                     {/* Textarea / Description */}
                     <div>

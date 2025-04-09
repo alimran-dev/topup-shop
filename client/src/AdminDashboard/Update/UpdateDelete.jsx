@@ -15,6 +15,7 @@ const UpdateDelete = () => {
   const priceRef = useRef(null);
   const descriptionRef = useRef(null);
   const stockRef = useRef(null);
+  const coinRef = useRef(null);
   const location = useLocation();
 
 
@@ -25,9 +26,10 @@ const UpdateDelete = () => {
       const price = priceRef.current?.value;
       const description = descriptionRef.current?.value;
       const stock = stockRef.current?.value;
+      const coin = coinRef.current?.value;
 
 
-      const updatedOption = { id, category: `${category === "cards" ? "recharge" : category}`, name, price, description, ...(option?.category === "offer" && { type: "offer", stock }) };
+      const updatedOption = { id, category: `${category === "cards" ? "recharge" : category}`, name, price, description, coin, ...(option?.category === "offer" && { type: "offer", stock }) };
 
       console.log(updatedOption);
       axiosPrivate.patch("/option/admin/update", updatedOption).then((res) => {
@@ -206,6 +208,23 @@ const UpdateDelete = () => {
             </div>
           </>
         }
+
+        <div className="space-y-2">
+          <label
+            htmlFor="coin"
+            className="block text-xl font-medium text-gray-700"
+          >
+            Coin
+          </label>
+          <input
+            type="number"
+            name="coin"
+            className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+            ref={coinRef}
+            placeholder="Example: 0"
+            defaultValue={option?.coin}
+          />
+        </div>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 w-fit mt-3 mx-auto">
         <button

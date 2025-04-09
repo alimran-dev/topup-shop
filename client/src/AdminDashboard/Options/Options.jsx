@@ -86,6 +86,11 @@ const Options = () => {
     };
 
 
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-center md:gap-4 pb-5">
@@ -191,6 +196,7 @@ const Options = () => {
                                                                 <th className="px-3 py-1 border border-slate-400">Name</th>
                                                                 <th className="px-3 py-1 border border-slate-400">Price</th>
                                                                 <th className="px-3 py-1 border border-slate-400">Stock</th>
+                                                                <th className="px-3 py-1 border border-slate-400">Coin</th>
                                                                 <th className="px-3 py-1 border border-slate-400">Action</th>
                                                             </tr>
                                                         </thead>
@@ -202,6 +208,7 @@ const Options = () => {
                                                                         <td className="px-3 py-1 border border-slate-400">{option?.name}</td>
                                                                         <td className="px-3 py-1 border border-slate-400">৳{option?.price}</td>
                                                                         <td className="px-3 py-1 border border-slate-400">{option?.stock}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400">{option?.coin}</td>
                                                                         <td className="px-3 py-1 border border-slate-400 flex justify-center items-center gap-4">
                                                                             <button onClick={() => document.getElementById(`update_option_desktop_${idx}`).showModal()} className="text-3xl text-blue-700"><AiFillEdit /></button>
                                                                             <UpdateOption idx={idx} option={option} selectedSubCategoryId={selectedSubCategoryId} setOptions={setOptions} screen={'desktop'} />

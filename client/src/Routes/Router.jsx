@@ -58,6 +58,7 @@ import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
 import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
 import ReferralHistory from "../pages/CoinAndReferral/ReferralHistory/ReferralHistory";
 import ViewSummary from "../AdminDashboard/Orders/ViewSummary/ViewSummary";
+import AdminCoinHistory from "../AdminDashboard/OfferAndProducts/SpecialProducts/CoinHistory/CoinHistory";
 
 
 const router = createBrowserRouter([
@@ -256,6 +257,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/offersAndProducts/manageOffer/:id?",
         element: <OfferForm />,
+      },
+      {
+        path: "/dashboard/offersAndProducts/coin/history",
+        element: <AdminCoinHistory />,
       },
       {
         path: "/dashboard/banner",

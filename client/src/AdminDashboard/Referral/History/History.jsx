@@ -3,14 +3,15 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import InfiniteScroll from "react-infinite-scroll-component";
 import InfinityLoader from "../../../components/InfinityLoader";
 import Coin from "../../../components/reusuable/Coin/Coin";
+import toast from "react-hot-toast";
 
 
 const History = () => {
 
     const [historyData, setHistoryData] = useState([]);
     const [totalData, setTotalData] = useState(0);
-    const [loading, setloading] = useState(false);
-    const limit = 10;
+    const [loading, setLoading] = useState(true);
+    const limit = 5;
     const page = Math.ceil(historyData.length / limit + 1);
     const axiosPrivate = useAxiosPrivate();
     const [formData, setFormData] = useState({
@@ -22,15 +23,16 @@ const History = () => {
     const fetchData = async () => {
         try {
             const res = await axiosPrivate.get(`/user/refer/history?page=${page}&limit=${limit}&referredBy=${formData?.referedBy}&referredTo=${formData?.referTo}`);
-            console.log(res.data, "---------data");
+            // console.log(res.data, "---------data");
             setHistoryData([...historyData, ...res.data.history]);
             setTotalData(res.data?.totalRef || 0)
         }
         catch (err) {
-            console.log(err);
+            // console.log(err);
+            toast.error(err?.response?.data?.message || "Error Fetching Data!")
         }
         finally {
-            setloading(false);
+            setLoading(false);
         }
     };
 
@@ -48,18 +50,21 @@ const History = () => {
             referTo: e.target.referTo.value
         };
 
-        console.log(data);
-        
         setFormData(data)
         setHistoryData([]);
-        fetchData();
+        // fetchData();
     };
 
     useEffect(() => {
         setHistoryData([]);
         fetchData();
-    }, []);
+    }, [formData]);
 
+
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     if (loading) {
         return <div className="py-8 text-center">Loading...</div>
@@ -69,7 +74,6 @@ const History = () => {
         <div>
             <h2 className="title">Referral History</h2>
 
-            {/* user email for filter */}
             {/* Filter form */}
             <form
                 onSubmit={handleSubmit}
@@ -79,7 +83,7 @@ const History = () => {
                     <div>
                         <label className="input-label">Referred By</label>
                         <input
-                            type="email"
+                            type="text"
                             name="referedBy"
                             className="input"
                             placeholder="Referred by..."
@@ -88,7 +92,7 @@ const History = () => {
                     <div>
                         <label className="input-label">Referred To</label>
                         <input
-                            type="email"
+                            type="text"
                             name="referTo"
                             className="input"
                             placeholder="Refer to..."

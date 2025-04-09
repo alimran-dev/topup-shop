@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Coin from "../../components/reusuable/Coin/Coin";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
 
 
 const CoinProductDetail = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [inputValues, setInputValues] = useState({});
+    const { user } = useAuth();
     const axiosPrivate = useAxiosPrivate();
-
-    console.log(id);
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (id) {
@@ -32,6 +33,42 @@ const CoinProductDetail = () => {
             fetchData();
         }
     }, [id, axiosPrivate]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setInputValues((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handlePurchase = async () => {
+        if (!product?.stock) {
+            toast.error("Product is out of stock!");
+            return;
+        }
+
+        const info = { ...inputValues };
+
+        if (Object.keys(inputValues).length === 0) {
+            toast.error("Please Fill The Inputs!");
+            return;
+        }
+
+        const payload = {
+            id: product?._id,
+            email: user?.email,
+            info: info,
+        };
+
+        try {
+            await axiosPrivate.post("/order/coin/product", payload);
+            toast.success("Purchase Successful!");
+            navigate("/myOrders")
+        } catch (err) {
+            toast.error(err?.response?.data?.message || "Failed to place order!");
+        }
+    };
 
 
     if (loading) {
@@ -55,15 +92,16 @@ const CoinProductDetail = () => {
                     {product?.stock > 0 ? "In Stock" : "Out of Stock"}
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-2 mt-3">
                     {product?.inputs?.map((input, idx) =>
-                        <input key={idx} type="text" name={input} className="border px-2 py-1 rounded outline-none" placeholder={input} required />
+                        <input key={idx} type="text" name={input} className="border px-2 py-1 rounded outline-none" placeholder={input} required onChange={handleInputChange} />
                     )}
                 </div>
 
                 <button
                     className={`mt-4 px-4 py-2 button ${!product?.stock > 0 && '!bg-gray-400 cursor-not-allowed'}`}
                     disabled={product?.stock === 0}
+                    onClick={handlePurchase}
                 >
                     Purchase
                 </button>
