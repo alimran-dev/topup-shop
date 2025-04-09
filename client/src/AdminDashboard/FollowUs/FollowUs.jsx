@@ -59,6 +59,11 @@ const FollowUs = () => {
         });
     };
 
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div>
             <AddFollowUs setFollowUsData={setFollowUsData} />

@@ -20,8 +20,9 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }
         const price = parseInt(form.price.value) || 0;
         const id = selectedSubCategoryId;
         const stock = parseInt(form.stock.value);
+        const coin = parseInt(form.coin.value);
 
-        const updatedOption = { index, name, price, id, stock };
+        const updatedOption = { index, name, price, id, stock, coin };
 
         // console.log(updatedOption);
 
@@ -40,9 +41,16 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }
                 toast.error("Something Went Wrong!");
                 setLoading(false);
             }
-            document.getElementById(`update_option_${idx}`).close();
+            if (screen == "mobile") {
+                document.getElementById(`update_option_mobile_${idx}`).close();
+            }
+            else{
+                document.getElementById(`update_option_desktop_${idx}`).close();
+            }
         });
     };
+
+    console.log(idx);
 
 
     return (
@@ -105,6 +113,22 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }
                                 placeholder="Example: 40"
                             />
                         </div>
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="price"
+                                className="block text-xl font-medium text-gray-700"
+                            >
+                                Coin
+                            </label>
+                            <input
+                                type="number"
+                                name="coin"
+                                defaultValue={option?.coin}
+                                required
+                                className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+                                placeholder="Example: 40"
+                            />
+                        </div>
                         <div>
                             <button
                                 type="submit"
@@ -128,6 +152,7 @@ UpdateOption.propTypes = {
         name: PropTypes.string,
         price: PropTypes.number,
         stock: PropTypes.number,
+        coin: PropTypes.number,
     }),
     selectedSubCategoryId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     setOptions: PropTypes.func,

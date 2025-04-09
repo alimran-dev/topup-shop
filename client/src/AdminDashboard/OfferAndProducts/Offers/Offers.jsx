@@ -63,7 +63,7 @@ const Offers = () => {
             <div className="flex justify-center md:justify-end pt-3 pb-5">
                 <Link to={"/dashboard/offersAndProducts/manageOffer"} className="button flex items-center gap-1">
                     <FaPlus />
-                    All Offer
+                    Add Offer
                 </Link>
             </div>
 
@@ -95,13 +95,16 @@ const Offers = () => {
                                 <p><strong>Type:</strong> {offer?.type}</p>
                             </div>
 
-                            <div className="opacity-75 pt-1">
-                                <strong>Inputs: </strong>
-                                {offer?.inputs?.map((input, idx) =>
-                                    <span key={idx} className="mr-1">
-                                        {input}{idx < offer.inputs.length - 1 ? "," : ""}
-                                    </span>
-                                )}
+                            <div className="opacity-75 pt-1 flex justify-between items-center">
+                                <div>
+                                    <strong>Inputs: </strong>
+                                    {offer?.inputs?.map((input, idx) =>
+                                        <span key={idx} className="mr-1">
+                                            {input}{idx < offer.inputs.length - 1 ? "," : ""}
+                                        </span>
+                                    )}
+                                </div>
+                                <p><strong>Sequence:</strong> {offer?.sequence}</p>
                             </div>
 
                             {/* Buttons */}

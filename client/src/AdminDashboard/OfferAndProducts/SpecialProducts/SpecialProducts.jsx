@@ -5,6 +5,7 @@ import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import Coin from "../../../components/reusuable/Coin/Coin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import { FaHistory } from "react-icons/fa";
 
 const SpecialProducts = () => {
     const [products, setProducts] = useState([]);
@@ -58,13 +59,16 @@ const SpecialProducts = () => {
     return (
         <div className="px-4">
             {/* Add new btn */}
-            <div className="flex justify-center md:justify-end pt-3 pb-5">
+            <div className="flex justify-center md:justify-end gap-3 pt-3 pb-5">
                 <Link
                     to="/dashboard/offersAndProducts/manageSpecialProduct"
-                    className="button flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-md transition"
-                >
+                    className="button flex items-center gap-1">
                     <FaPlus />
-                    All Coin Product
+                    Add Coin Product
+                </Link>
+                <Link to="/dashboard/offersAndProducts/coin/history" className="text-blue-700 font-semibold flex items-center gap-1">
+                    <FaHistory />
+                    Coin History
                 </Link>
             </div>
 

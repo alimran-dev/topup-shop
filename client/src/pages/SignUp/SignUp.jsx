@@ -12,13 +12,14 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showReferInput, setShowReferInput] = useState(false);
   const { user, setUser, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('ref');
 
-  
+
   // sign up fn
   const handleSignUp = (e) => {
     e.preventDefault();
@@ -30,9 +31,8 @@ const SignUp = () => {
     const phone = form.phone.value;
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
-    const referID = form.referID.value;
+    const referID = form.referID?.value;
     const userData = { name, email, phone, password, referID };
-
 
     const passRegex = /^.{6,}$/;
 
@@ -45,22 +45,7 @@ const SignUp = () => {
         axiosPrivate.post("/user/new", userData).then((res) => {
           // console.log(res.data);
           if (res?.data?.insertedId) {
-
-            const signedUserData = {
-              _id: res?.data?.insertedId,
-              email: res?.data?.email,
-              name: res?.data?.name,
-              photo: res?.data?.photo,
-              phone: res.data?.phone || "",
-              role: res?.data?.role,
-              balance: res?.data?.balance,
-              isBanned: res?.data?.isBanned,
-              spent: res?.data?.spent,
-              orders: res?.data?.orders,
-              coins: res?.data?.coins,
-            };
-
-            setUser(signedUserData);
+            setUser(res?.data || {});
             setError("");
             setLoading(false);
             setIsLoading(false);
@@ -98,10 +83,13 @@ const SignUp = () => {
   };
 
   useEffect(() => {
+    if (referralCode) {
+      setShowReferInput(true);
+    }
     if (user) {
       navigate("/");
     }
-  }, [navigate, user]);
+  }, [navigate, user, referralCode]);
 
 
   return (
@@ -202,18 +190,25 @@ const SignUp = () => {
             </span>
           </div>
         </div>
-        <div className="space-y-1 mt-3">
-          <label htmlFor="phone" className="input-label">
-            Refer Code
-          </label>
-          <input
-            type="text"
-            name="referID"
-            className="input"
-            placeholder="Refer code"
-            defaultValue={referralCode ? referralCode : ""}
-            disabled={referralCode}
-          />
+        <div>
+          {
+            !showReferInput ?
+              <button type="button" onClick={() => setShowReferInput(true)} className="mt-3 text-blue-700">Enter Refer Code</button>
+              :
+              <div className="space-y-1 mt-3">
+                <label htmlFor="phone" className="input-label">
+                  Refer Code
+                </label>
+                <input
+                  type="text"
+                  name="referID"
+                  className="input"
+                  placeholder="Refer code"
+                  defaultValue={referralCode ? referralCode : ""}
+                  disabled={referralCode}
+                />
+              </div>
+          }
         </div>
         {error && (
           <p className="text-lg font-medium text-red-500 text-center mt-2">

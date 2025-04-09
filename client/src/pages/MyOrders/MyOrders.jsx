@@ -10,6 +10,7 @@ import InfinityLoader from "../../components/InfinityLoader";
 
 
 const MyOrders = () => {
+
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalOrder, setTotalOrder] = useState(0);
@@ -39,7 +40,6 @@ const MyOrders = () => {
     getOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, loading, user?.email, limit]);
-
 
   // page apear from top
   useEffect(() => {

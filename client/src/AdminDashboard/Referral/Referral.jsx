@@ -101,6 +101,11 @@ const Referral = () => {
         }
     };
 
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div className="max-w-4xl mx-auto">
             <div className="flex justify-between items-center">

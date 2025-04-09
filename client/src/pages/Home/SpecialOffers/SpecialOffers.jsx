@@ -2,7 +2,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { Pagination, Navigation } from "swiper/modules";
+import { Pagination, Navigation, Autoplay } from "swiper/modules";
 import { useEffect, useRef, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { TbCurrencyTaka } from "react-icons/tb";
@@ -51,8 +51,13 @@ const SpecialOffers = () => {
                                 1024: { slidesPerView: 3 },
                                 1280: { slidesPerView: 4 },
                             }}
+                            loop
+                            autoplay={{
+                                delay: 3000,
+                                disableOnInteraction: false,
+                            }}
                             // pagination={{ clickable: true }}
-                            modules={[Pagination, Navigation]}
+                            modules={[Pagination, Navigation, Autoplay]}
                             className="w-full"
                         >
                             {offers?.map(offer => (

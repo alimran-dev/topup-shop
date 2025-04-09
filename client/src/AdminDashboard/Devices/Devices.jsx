@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import DevicesCard from "./DevicesCard";
 import Swal from "sweetalert2";
@@ -37,6 +37,12 @@ const Devices = () => {
       setIsLoading(false);
     });
   }, []);
+
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div>
       <Loader isLoading={isLoading} />

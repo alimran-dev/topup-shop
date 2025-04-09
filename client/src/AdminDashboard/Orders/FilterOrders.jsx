@@ -90,10 +90,10 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, setO
 
     const handleViewSummary = () => {
 
-        if (!searchEmail || !fromDate || !toDate || !selectedCategory || !selectedSubCategory) {
-            toast.error("Please fill all inputs!");
-            return;
-        }
+        // if (!searchEmail || !fromDate || !toDate || !selectedCategory || !selectedSubCategory) {
+        //     toast.error("Please fill all inputs!");
+        //     return;
+        // }
         const filterData = { fromDate, toDate, selectedCategory, selectedSubCategory, searchEmail };
         navigate("/dashboard/orders/viewSummary", { state: { filterData } })
     };

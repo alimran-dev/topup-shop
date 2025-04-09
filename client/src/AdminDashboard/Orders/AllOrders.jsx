@@ -54,7 +54,7 @@ const AllOrders = () => {
 
   useEffect(() => {
     console.log("hitted useffect");
-    
+
     setOrders([]);
     getOrders();
   }, [searchEmail, formData]);
@@ -64,6 +64,10 @@ const AllOrders = () => {
   // console.log(orders, "--------orders");
 
 
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div>
