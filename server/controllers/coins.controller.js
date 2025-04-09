@@ -65,6 +65,9 @@ const claimDailyCoin = async (req, res) => {
     if (!user) {
       return res.send({ success: false, message: "User not found" });
     }
+    if(!user.isVerified){
+      return res.send({success: false, message: "Email is not verified"});
+    }
     const duration =
       (new Date().getTime() - new Date(user.coinLastClaim).getTime()) /
       (1000 * 60 * 60);
