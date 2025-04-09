@@ -17,7 +17,7 @@ const getOption = async (req, res) => {
         name: 1,
         price: 1,
         uc: 1,
-        coins: 1,
+        coin: 1,
         stock: {
           $cond: {
             if: {
@@ -45,7 +45,7 @@ const getOption = async (req, res) => {
       projection: {
         name: 1,
         price: 1,
-        coins: 1,
+        coin: 1,
         category: 1,
         description: 1,
         stock: {
@@ -102,7 +102,7 @@ const getAllOption = async (req, res) => {
       projection: {
         name: 1,
         price: 1,
-        coins: 1,
+        coin: 1,
         uc: 1,
         category: 1,
         stock: {
@@ -132,7 +132,7 @@ const getAllOption = async (req, res) => {
       projection: {
         name: 1,
         price: 1,
-        coins: 1,
+        coin: 1,
         category: 1,
         description: 1,
         stock: {
@@ -201,19 +201,19 @@ const getAllOption = async (req, res) => {
 const addOption = async (req, res) => {
   try {
     const category = req.params.category;
-    const { name, price, uc, coins } = req.body;
+    const { name, price, uc, coin } = req.body;
     const priceInt = parseInt(price);
-    const coinsInt = parseInt(coins);
-    if (isNaN(priceInt) || isNaN(coinsInt)) {
-      return res.status(400).send({ message: "Invalid Price or coins" });
+    const coinInt = parseInt(coin);
+    if (isNaN(priceInt) || isNaN(coinInt)) {
+      return res.status(400).send({ message: "Invalid Price or coin" });
     }
-    const option = { category, name, price, uc, coins: coinsInt, codes: [] };
+    const option = { category, name, price, uc, coin: coinInt, codes: [] };
     const optionManual = {
       category,
       name,
       price,
       uc,
-      coins: coinsInt,
+      coin: coinInt,
       stock: true,
     };
     let result;
@@ -286,7 +286,7 @@ const addOption = async (req, res) => {
         docName,
         name,
         price: parseInt(price),
-        coins: coinsInt,
+        coin: coinInt,
         description,
         docId: companyDb._id.toString(),
         category,
@@ -307,17 +307,17 @@ const addOption = async (req, res) => {
 
 const addDynamicOption = async (req, res) => {
   try {
-    const { name, price, id, coins } = req.body;
+    const { name, price, id, coin } = req.body;
     const priceInt = parseInt(price);
-    const coinsInt = parseInt(coins);
-    if (isNaN(priceInt) || isNaN(coinsInt)) {
-      return res.send({ success: false, message: "Invalid Price or Coins" });
+    const coinInt = parseInt(coin);
+    if (isNaN(priceInt) || isNaN(coinInt)) {
+      return res.send({ success: false, message: "Invalid Price or coin" });
     }
     if (name && parseInt(price) && id) {
       const filter = { _id: new ObjectId(id) };
       const result = await serviceCollection.updateOne(filter, {
         $push: {
-          options: { name, price: parseInt(price), coins: coinsInt, stock: 0 },
+          options: { name, price: parseInt(price), coin: coinInt, stock: 0 },
         },
       });
       res.send(result);
@@ -332,18 +332,18 @@ const addDynamicOption = async (req, res) => {
 
 const updateOption = async (req, res) => {
   try {
-    const { id, category, name, price, description, type, stock, coins } =
+    const { id, category, name, price, description, type, stock, coin } =
       req.body || {};
     const filter = { _id: new ObjectId(id) };
-    const coinsInt = parseInt(coins);
-    if (isNaN(coinsInt) || isNaN(parseInt(price)) || parseInt(price) < 0) {
-      return res.status(400).send({ message: "Invalid Price or coins" });
+    const coinInt = parseInt(coin);
+    if (isNaN(coinInt) || isNaN(parseInt(price)) || parseInt(price) < 0) {
+      return res.status(400).send({ message: "Invalid Price or coin" });
     }
     const updatedOption = {
       $set: {
         name: name,
         price: parseInt(price),
-        coins: coinsInt,
+        coin: coinInt,
       },
     };
     if (category === "recharge" && description) {
@@ -381,11 +381,11 @@ const updateOption = async (req, res) => {
 
 const updateDynamicOption = async (req, res) => {
   try {
-    const { id, index, name, price, coins, stock } = req.body;
+    const { id, index, name, price, coin, stock } = req.body;
     const priceInt = parseInt(price);
-    const coinsInt = parseInt(coins);
-    if (isNaN(coinsInt) || isNaN(priceInt)) {
-      return res.send({ success: false, message: "Invalid Price or Coins" });
+    const coinInt = parseInt(coin);
+    if (isNaN(coinInt) || isNaN(priceInt)) {
+      return res.send({ success: false, message: "Invalid Price or coin" });
     }
     const service = await serviceCollection.findOne({ _id: new ObjectId(id) });
     if (!service) {
@@ -401,7 +401,7 @@ const updateDynamicOption = async (req, res) => {
     service.options[parseInt(index)].name = name;
     service.options[parseInt(index)].price = parseInt(price);
     service.options[parseInt(index)].stock = parseInt(stock);
-    service.options[parseInt(index)].coins = coinsInt;
+    service.options[parseInt(index)].coin = coinInt;
     const result = await serviceCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { options: service.options } }

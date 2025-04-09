@@ -51,14 +51,12 @@ const addSpecialOffer = async (req, res) => {
       type,
       price,
       stock,
-      sequence,
       tutorialTitle,
       tutorialUrl,
       inputs,
     } = req.body || {};
     const priceInt = parseInt(price);
     const stockInt = parseInt(stock);
-    const sequenceInt=parseInt(sequence);
     if (
       !title ||
       !shortDescription ||
@@ -66,7 +64,6 @@ const addSpecialOffer = async (req, res) => {
       !type ||
       !tutorialTitle ||
       !tutorialUrl ||
-      isNaN(sequenceInt) ||
       inputs.length == 0
     ) {
       return res.status(400).send({ message: "Invalid Request" });
@@ -75,6 +72,7 @@ const addSpecialOffer = async (req, res) => {
     } else if (type !== "balance" && type !== "coin") {
       return res.status(400).send({ message: "Invalid balance type" });
     }
+    const totalOffers=await specialOfferCollection.countDocuments();
     const newOffer = {
       type,
       isActive: true,
@@ -83,7 +81,7 @@ const addSpecialOffer = async (req, res) => {
       shortDescription,
       price: priceInt,
       stock: stockInt,
-      sequence: sequenceInt,
+      sequence: totalOffers+1,
       tutorialTitle,
       tutorialUrl,
       inputs,
