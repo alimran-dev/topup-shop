@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import InfiniteScroll from "react-infinite-scroll-component";
 import InfinityLoader from "../../../../components/InfinityLoader";
 import Coin from "../../../../components/reusuable/Coin/Coin";
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 
 
@@ -45,6 +47,39 @@ const AdminCoinHistory = () => {
         fetchData();
     }, [searchEmail]);
 
+
+    const handleUpdateStatus = (e, id) => {
+
+        const status = e.target.value;
+
+        const payload = { id, status };
+
+        Swal.fire({
+            title: "Are you sure?",
+            html: `Updated Status Will Be <span style="color: #e91e63; font-weight: bold; font-style: capitalize;">${status}</span>`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Change"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await axiosPrivate.patch("/coins/review/status", payload);
+                    // console.log(res.data);
+                    toast.success(res?.data?.message || "Status Updated!");
+                    setHistoryData(prev =>
+                        prev.map(item =>
+                            item._id === id ? { ...item, status } : item
+                        )
+                    );
+                }
+                catch (err) {
+                    toast.error(err.response?.data?.message || "Somehitng Went Wrong!")
+                }
+            }
+        });
+    };
 
     // page apear from top
     useEffect(() => {
@@ -91,20 +126,46 @@ const AdminCoinHistory = () => {
                                                 <span className="mt-1"><Coin /> {item?.amount}</span>
                                             </div>
                                             <p className="text-sm">{item?.name}</p>
+                                            <div>
+                                                {item?.info &&
+                                                    Object.entries(item?.info)?.map(([key, value]) => (
+                                                        <div key={key}>
+                                                            <strong>{key}:</strong>{" "}
+                                                            {value?.includes("http") ?
+                                                                <Link to={value} className="text-blue-700" target="_blank">
+                                                                    {value}
+                                                                </Link>
+                                                                :
+                                                                <span>{value}</span>
+                                                            }
+                                                        </div>
+                                                    ))}
+                                            </div>
                                         </div>
                                         <div>
-                                            <div className={`badge ${item?.status == "pending" ? "badge-error" : "badge-success"} text-white capitalize`}>
-                                                {item?.status}
-                                            </div>
+                                            {
+                                                (item?.name == "Review Offer Claim" && item?.status == "pending") ?
+                                                    <div>
+                                                        <select onChange={(e) => handleUpdateStatus(e, item?._id)} className="px-3 border" defaultValue={item?.status || "pending"}>
+                                                            <option value="pending" disabled>Pending</option>
+                                                            <option value="success">Success</option>
+                                                            <option value="cancel">Cancel</option>
+                                                        </select>
+                                                    </div>
+                                                    :
+                                                    <div className={`badge ${item?.status == "pending" ? "badge-warning" : item?.status == "cancel" ? "badge-error" : "badge-success"} text-white capitalize`}>
+                                                        {item?.status}
+                                                    </div>
+                                            }
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </InfiniteScroll>
-                    </div>
+                    </div >
             }
 
-        </div>
+        </div >
     );
 };
 

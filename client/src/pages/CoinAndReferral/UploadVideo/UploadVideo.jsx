@@ -53,8 +53,11 @@ const UploadVideo = () => {
 
         const reviewData = {
             email: user?.email,
-            url: user?.videoUrl,
+            url: videoUrl,
         }
+
+        console.log(reviewData);
+        
 
         try {
             const res = await axiosPrivate.post("/coins/review", reviewData);
