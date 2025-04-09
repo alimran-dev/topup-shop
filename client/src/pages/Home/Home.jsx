@@ -10,8 +10,8 @@ import SpecialOffers from "./SpecialOffers/SpecialOffers";
 import ClaimRedeemCode from "./ClaimRedeemCode/ClaimRedeemCode";
 
 const Home = () => {
-  
-  
+
+
   // page apear from top
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -25,7 +25,7 @@ const Home = () => {
       <Notice />
       <Banner />
       <ClaimRedeemCode />
-      <SpecialOffers />
+        <SpecialOffers />
       <Services />
       <LastOrders />
       <FollowUs />

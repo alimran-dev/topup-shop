@@ -39,7 +39,7 @@ const SpecialOffers = () => {
                 offers?.length == 0 ?
                     <></>
                     :
-                    <div className={`${offers?.length >= 3 ? "pb-16 md:pb-20" : "md:pb-3"} md:pt-5 relative`}>
+                    <div className={`${offers?.length >= 3 ? "pb-10 md:pb-20" : "md:pb-3"} md:pt-5 relative`}>
                         <h2 className="title">Special Offers</h2>
                         <Swiper
                             onSwiper={(swiper) => (swiperRef.current = swiper)}
@@ -87,15 +87,15 @@ const SpecialOffers = () => {
                         <div className={`${offers?.length < 3 && "hidden"} absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-4`}>
                             <button
                                 onClick={() => swiperRef.current?.slidePrev()}
-                                className="p-2 bg-primary text-white rounded-full hover:bg-gray-900 transition"
+                                className="p-1 md:p-2 bg-primary text-white rounded-full hover:bg-gray-900 transition text-lg md:text-2xl"
                             >
-                                <IoIosArrowBack size={24} />
+                                <IoIosArrowBack />
                             </button>
                             <button
                                 onClick={() => swiperRef.current?.slideNext()}
-                                className="p-2 bg-primary text-white rounded-full hover:bg-gray-900 transition"
+                                className="p-1 md:p-2 bg-primary text-white rounded-full hover:bg-gray-900 transition text-lg md:text-2xl"
                             >
-                                <IoIosArrowForward size={24} />
+                                <IoIosArrowForward />
                             </button>
                         </div>
                     </div>

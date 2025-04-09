@@ -14,10 +14,11 @@ import useAuth from "../../hooks/useAuth";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import bkashLogo from '../../assets/images/bkash.png';
 import nagadLogo from '../../assets/images/nagad.png';
+import Coin from "../../components/reusuable/Coin/Coin";
 
 
 const Shell = () => {
-  const [selected, setSelected] = useState({ _id: "", price: 0 });
+  const [selected, setSelected] = useState({ _id: "", price: 0, coin: 0 });
   const [quantity, setQuantity] = useState(1);
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -136,6 +137,14 @@ const Shell = () => {
                   </p>
                 </>
               )}
+               <p className="text-sm flex gap-1">
+                <IoInformationCircleOutline className="text-lg" />
+                বোনাস কয়েনঃ
+                <span className="flex items-center font-semibold text-red-600">
+                  <Coin />
+                  {selected?.coin || 0}
+                </span>
+              </p>
               <p className="text-sm flex gap-1">
                 <IoInformationCircleOutline className="text-lg" />
                 প্রোডাক্টের মোট মূল্যঃ
