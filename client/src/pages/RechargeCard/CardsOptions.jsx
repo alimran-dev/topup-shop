@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import bkashLogo from '../../assets/images/bkash.png';
 import nagadLogo from '../../assets/images/nagad.png';
 import Coin from "../../components/reusuable/Coin/Coin";
+import RechargeModal from "./RechargeModal";
 
 
 const CardsOptions = () => {
@@ -132,6 +133,7 @@ const CardsOptions = () => {
 
   return (
     <div className="flex flex-col gap-5">
+      <RechargeModal />
       <Loader isLoading={isLoading} />
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img

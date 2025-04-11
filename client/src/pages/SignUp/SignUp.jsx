@@ -8,6 +8,7 @@ import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 
 const SignUp = () => {
+
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +19,15 @@ const SignUp = () => {
   const axiosPrivate = useAxiosPrivate();
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('ref');
+
+  useEffect(() => {
+    if (referralCode) {
+      setShowReferInput(true);
+    }
+    if (user) {
+      navigate("/");
+    }
+  }, [navigate, user, referralCode]);
 
 
   // sign up fn
@@ -82,14 +92,10 @@ const SignUp = () => {
     window.open(`${import.meta.env.VITE_SERVER_DOMAIN}/user/google/login?referID=${referralCode}`, '_self');
   };
 
+  // page apear from top
   useEffect(() => {
-    if (referralCode) {
-      setShowReferInput(true);
-    }
-    if (user) {
-      navigate("/");
-    }
-  }, [navigate, user, referralCode]);
+    window.scrollTo(0, 0);
+  }, []);
 
 
   return (
@@ -191,23 +197,26 @@ const SignUp = () => {
           </div>
         </div>
         <div>
+          <div>
+            <button type="button" onClick={() => setShowReferInput(!showReferInput)} className="mt-3 text-blue-700">
+              {showReferInput ? "Hide Refer Code" : "Enter Refer Code"}
+            </button>
+          </div>
           {
-            !showReferInput ?
-              <button type="button" onClick={() => setShowReferInput(true)} className="mt-3 text-blue-700">Enter Refer Code</button>
-              :
-              <div className="space-y-1 mt-3">
-                <label htmlFor="phone" className="input-label">
-                  Refer Code
-                </label>
-                <input
-                  type="text"
-                  name="referID"
-                  className="input"
-                  placeholder="Refer code"
-                  defaultValue={referralCode ? referralCode : ""}
-                  disabled={referralCode}
-                />
-              </div>
+            showReferInput &&
+            <div className="space-y-1 mt-1">
+              <label htmlFor="phone" className="input-label">
+                Refer Code
+              </label>
+              <input
+                type="text"
+                name="referID"
+                className="input"
+                placeholder="Refer code"
+                defaultValue={referralCode ? referralCode : ""}
+                disabled={referralCode}
+              />
+            </div>
           }
         </div>
         {error && (
