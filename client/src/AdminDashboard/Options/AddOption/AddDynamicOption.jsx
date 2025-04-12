@@ -45,7 +45,8 @@ const AddDynamicOption = () => {
         const price = parseInt(form.price.value) || 0;
         const id = form.subCategory.value;
         const coin = form.coin.value;
-        const newOption = { name, price, id, coin };
+        const stock = form.stock.value;
+        const newOption = { name, price, id, coin, stock };
 
         // console.log(newOption);
 
@@ -180,6 +181,21 @@ const AddDynamicOption = () => {
                             required
                             className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
                             placeholder="Example: 100"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label
+                            htmlFor="coin"
+                            className="block text-xl font-medium text-gray-700"
+                        >
+                            Stock
+                        </label>
+                        <input
+                            type="number"
+                            name="stock"
+                            required
+                            className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+                            placeholder="Example: 25"
                         />
                     </div>
                 </div>
