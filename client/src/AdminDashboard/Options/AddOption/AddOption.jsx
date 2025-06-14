@@ -65,7 +65,7 @@ const AddOption = () => {
   // };
 
   const handleAddRecharge = (e) => {
-    console.log("hitted");
+    // console.log("hitted");
 
     e.preventDefault();
     setError2("");

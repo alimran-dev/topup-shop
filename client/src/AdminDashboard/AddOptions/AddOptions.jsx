@@ -69,7 +69,7 @@ const AddOptions = () => {
     const category = form.category.value;
     const type = form.types.value;
     const option = { name, price, description, operator, category, docName: type };
-    console.log(option);
+    // console.log(option);
     axiosPrivate.post(`/option/admin/add/recharge`, option).then((res) => {
       if (res.data.insertedId) {
         Swal.fire({

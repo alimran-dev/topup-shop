@@ -199,7 +199,7 @@ const SignUp = () => {
         <div>
           <div>
             <button type="button" onClick={() => setShowReferInput(!showReferInput)} className="mt-3 text-blue-700">
-              {showReferInput ? "Hide Refer Code" : "Enter Refer Code"}
+              {showReferInput ? "Hide Refer Code" : "Refer Code"}
             </button>
           </div>
           {

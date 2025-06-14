@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Coin from "../../components/reusuable/Coin/Coin";
+import { AiFillYoutube } from "react-icons/ai";
 
 
 const SpecialOfferDetails = () => {
@@ -135,6 +136,7 @@ const SpecialOfferDetails = () => {
                 </form>
                 <div className="mt-5 md:mt-10 text-blue-700 font-semibold">
                     <Link to={offer?.tutorialUrl || "/"} target="_blank" className="flex justify-center items-center gap-1">
+                    <AiFillYoutube className="text-red-700 text-2xl" />
                         {offer?.tutorialTitle}
                         <FaExternalLinkAlt />
                     </Link>

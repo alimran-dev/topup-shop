@@ -28,7 +28,7 @@ const Offers = () => {
 
     // offer delete fn
     const handleDelete = (id) => {
-        console.log(`Deleting offer with ID: ${id}`);
+        // console.log(`Deleting offer with ID: ${id}`);
         Swal.fire({
             title: "Are you sure?",
             icon: "warning",
@@ -39,7 +39,7 @@ const Offers = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const res = await axiosPrivate.delete(`/special/delete?id=${id}`);
-                console.log(res.data);
+                // console.log(res.data);
                 if (res.data.acknowledged) {
                     setOffers((prevOffers) => prevOffers?.filter((offer) => offer?._id !== id));
                     toast.success('Deleted!');

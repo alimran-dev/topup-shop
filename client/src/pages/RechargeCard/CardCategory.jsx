@@ -1,7 +1,11 @@
 import { useLocation } from "react-router-dom";
 import CompanyCard from "../SimCompanies/CompanyCard";
-import airdrop from "../../assets/images/airdrop.jpeg";
-import rechargeImg from "../../assets/images/recharge-card.jpeg";
+import mbCard from "../../assets/images/recharge/mb-card2.jpeg";
+import minCard from "../../assets/images/recharge/minutes-card2.jpeg";
+import balanceCard from "../../assets/images/recharge/balance-card2.jpeg";
+import mbOffer from "../../assets/images/recharge/mb-offer2.jpeg";
+import minOffer from "../../assets/images/recharge/minutes-offer2.jpeg";
+import mbAndMinOffer from "../../assets/images/recharge/mbAndMinutesOffer2.jpeg";
 
 
 const CardCategory = () => {
@@ -15,7 +19,7 @@ const CardCategory = () => {
       <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
         <div className="flex-1">
           <CompanyCard
-            image={location.state?.docName == "mbMinOffer" ? rechargeImg : airdrop}
+            image={location.state?.docName == "mbMinOffer" ? mbOffer : mbCard}
             title={"MB"}
             path="./../options"
             state={location.state?.docName === "mbMinOffer"
@@ -25,7 +29,7 @@ const CardCategory = () => {
         </div>
         <div className="flex-1">
           <CompanyCard
-            image={location.state?.docName == "mbMinOffer" ? rechargeImg : airdrop}
+            image={location.state?.docName == "mbMinOffer" ? minOffer : minCard}
             title={"Minutes"}
             path="./../options"
             state={location.state?.docName === "mbMinOffer"
@@ -35,7 +39,7 @@ const CardCategory = () => {
         </div>
         <div className="flex-1">
           <CompanyCard
-            image={location.state?.docName == "mbMinOffer" ? rechargeImg : airdrop}
+            image={location.state?.docName == "mbMinOffer" ? mbAndMinOffer : balanceCard}
             title={location.state?.docName == "mbMinOffer" ? "MB + Minutes" : "Balance"}
             path="./../options"
             state={location.state?.docName === "mbMinOffer"

@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { TbCurrencyTaka } from "react-icons/tb";
 
 const CategoryOption = ({ option, selected, setSelected, purchaseRef }) => {
-  const { _id, category, name, price, stock, coin } = option || {};
+  const { _id, category, subCategory, name, price, stock, coin } = option || {};
   const handleSelect = () => {
     if (stock === null || stock > 0 || stock === true) {
       setSelected({ _id, name, price, coin });

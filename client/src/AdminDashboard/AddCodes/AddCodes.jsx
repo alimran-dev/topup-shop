@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import AddModal from "./AddModal";
+import AddModal from "./UnipinModal/AddModal";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import ShellModal from "./ShellModal";
 import Loader from "../../components/Loader";
 import RechargeModal from "./RechargeModal/RechargeModal";
+import UnipinConfirmation from "./UnipinModal/UnipinConfirmation";
 
 const AddCodes = () => {
   const [selected, setSelected] = useState("unipin");
@@ -13,6 +14,9 @@ const AddCodes = () => {
   const [isOpenCards, setIsOpenCards] = useState(false);
   const [shellOptions, setShellOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadToAuto, setIsUploadToAuto] = useState(true);
+  const [isOpenUnipinConfirmation, setIsOpenUnipinConfirmation] =
+    useState(false);
   const [codesArray, setCodesArray] = useState([
     { uc: 20, codes: [] },
     { uc: 36, codes: [] },
@@ -126,8 +130,17 @@ const AddCodes = () => {
         setIsOpen={setIsOpen}
         codesArray={codesArray}
         selected={selected}
+        isUploadToAuto={isUploadToAuto}
+        setIsUploadToAuto={setIsUploadToAuto}
+        setIsOpenUnipinConfirmation={setIsOpenUnipinConfirmation}
+      />
+      <UnipinConfirmation
+        codesArray={codesArray}
+        isOpenUnipinConfirmation={isOpenUnipinConfirmation}
         resetTextarea={resetTextarea}
         setInputs={setInputs}
+        setIsOpenUnipinConfirmation={setIsOpenUnipinConfirmation}
+        isUploadToAuto={isUploadToAuto}
       />
       <ShellModal
         isOpenShell={isOpenShell}

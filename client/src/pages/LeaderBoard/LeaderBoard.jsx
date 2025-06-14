@@ -23,8 +23,11 @@ const LeaderBoard = () => {
             try {
                 const res = await axiosPrivate.get("/coins/leaderboard");
                 // console.log(res.data);
-                setData(res.data);
-                setFirstOne(res.data[0]);
+                if(Array.isArray(res?.data)){
+                    const [first,...remaing]=res.data || [];
+                    setData(remaing);
+                    setFirstOne(first || {});
+                }
             }
             catch (err) {
                 // console.log("Error from leaderboard", err);
@@ -56,7 +59,7 @@ const LeaderBoard = () => {
                 {/* 1st place */}
                 <div className="pt-10 pb-4 md:pb-8 flex flex-col items-center bg-primary rounded-t-md text-white">
                     <div className='w-fit relative'>
-                        <img src={firstOne?.image ? firstOne?.image : avatar} className="w-16 object-cover rounded-full" alt="user image" />
+                        <img src={firstOne?.photo ? firstOne?.photo : avatar} className="w-16 object-cover rounded-full" alt="user image" />
                         <img src={crownImg} className='w-20 absolute -top-8 left-1/2 -translate-x-1/2' alt="crown icon" />
                     </div>
                     <h3 className="text-lg md:text-xl font-bold py-2">
@@ -75,7 +78,7 @@ const LeaderBoard = () => {
                             <div key={idx} className='w-full flex items-center gap-4 bg-slate-200 px-2 py-1 rounded-md'>
                                 <p className="w-5">{idx + 2}</p>
                                 <div className='flex-1 flex items-center gap-1'>
-                                    <img src={user?.image ? user?.image : avatar} className="w-8 object-cover rounded-full" alt="user image" />
+                                    <img src={user?.photo ? user?.photo : avatar} className="w-8 object-cover rounded-full" alt="user image" />
                                     <UserName name={user?.name} isVerified={user?.isVerified} iconClass="w-4 h-4" />
                                 </div>
                                 <p className='flex items-center gap-1'>

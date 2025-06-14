@@ -53,11 +53,11 @@ const AllOrders = () => {
 
 
   useEffect(() => {
-    console.log("hitted useffect");
-
     setOrders([]);
+    console.log(searchEmail,orders.length);
+
     getOrders();
-  }, [searchEmail, formData]);
+  }, [searchEmail]);
 
   // console.log(searchEmail);
   // console.log(formData);

@@ -5,10 +5,10 @@ import toast from "react-hot-toast";
 
 const OptionCard = ({ option, selected, setSelected, purchaseRef }) => {
 
-  const { _id, name, price, description, stock: inStock, coin } = option || {};
-
+  const { _id, name, price, description, stock: inStock, coin, subCategory } = option || {};
+  console.log(subCategory);
   const handleSelect = () => {
-    if (inStock) {
+    if (inStock===null || inStock) {
       setSelected({ id: _id, name, price, coin });
       setTimeout(() => {
         purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -28,7 +28,7 @@ const OptionCard = ({ option, selected, setSelected, purchaseRef }) => {
         : ""
         }`}
     >
-      {!inStock && (
+      {inStock!==null && !inStock && (
         <p
           className={`absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white px-2 py-0.5 rounded text-xs border whitespace-nowrap bg-[#E61C55]`}
         >
@@ -45,7 +45,7 @@ const OptionCard = ({ option, selected, setSelected, purchaseRef }) => {
           : ""
           }`}
       >
-        <p className="inline-flex items-center font-medium">
+        <p className="inline-flex items-center font-medium">{subCategory==="offer" && <span className="text-xs">অফার মূল্য</span>}
           <TbCurrencyTaka /> {price}
         </p>
       </div>

@@ -144,7 +144,7 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, setO
                     <select
                         className="input"
                         name="category"
-                        defaultValue={""}
+                        // defaultValue={""}
                         value={selectedCategory}
                         onChange={(e) => { setSelectedCategory(e.target.value), setSubCategories([]), setSelectedSubCategory("") }
                         }
@@ -164,7 +164,7 @@ const FilterOrders = ({ searchEmail, setSearchEmail, setFormData, formData, setO
                     <select
                         className="input"
                         name="subCategory"
-                        defaultValue={""}
+                        // defaultValue={""}
                         value={selectedSubCategory}
                         onChange={(e) => setSelectedSubCategory(e.target.value)}
                     >

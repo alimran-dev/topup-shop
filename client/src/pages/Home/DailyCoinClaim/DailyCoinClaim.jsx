@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useAuth from "../../../hooks/useAuth";
 import toast from 'react-hot-toast';
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useNavigate } from "react-router-dom";
 
 
 const DailyCoinClaim = () => {
@@ -11,6 +12,7 @@ const DailyCoinClaim = () => {
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
     const axiosPrivate = useAxiosPrivate();
+    const navigate=useNavigate();
 
     useEffect(() => {
         if (user) {
@@ -33,6 +35,11 @@ const DailyCoinClaim = () => {
     const handleClaimCoin = async () => {
 
         setLoading(true);
+        if(!user?.isVerified){
+            navigate("/myAccount");
+            setLoading(false);
+            return;
+        }
 
         axiosPrivate.patch("/coins/daily", { email: user?.email }).then((res) => {
             // console.log(res.data);

@@ -4,9 +4,11 @@ import "./AddBalance.css";
 import { MdArrowOutward } from "react-icons/md";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
+import { allLinks } from "../../utils/constants";
+import NoticeView from "../Home/Notice/NoticeView";
 
 const AddBalance = () => {
-
+  const [isOpen,setIsOpen]=useState(true);
   const [err, setErr] = useState("");
   const [offer, setOffer] = useState({ offer: "" });
   const [isLoading, setIsLoading] = useState(true);
@@ -39,17 +41,7 @@ const AddBalance = () => {
   return (
     <div className="space-y-5">
       <Loader isLoading={isLoading} />
-      <div
-        className={`relative ${offer?.offer?.length > 0 ? "" : "hidden"
-          }`}
-      >
-        <h2 className="text-center border-b-2 border-[#FA6023] py-1.5 text-lg font-bold">
-          Offer
-        </h2>
-        <div className="px-3 py-3 text-sm">
-          <p>{offer?.offer || ""}</p>
-        </div>
-      </div>
+      <NoticeView isOpen={isOpen} notice={offer?.offer} setIsOpen={setIsOpen} title="Offer" />
       <div className="w-fit mx-auto">
         <div className="bg-white rounded">
           <h2 className="title !mb-0">
@@ -80,7 +72,7 @@ const AddBalance = () => {
               Click To Add
             </button>
             <Link
-              to={"https://youtube.com/playlist?list=PLdbvk3gLADUkaCx2O2jMikx9g8aIzkN14&si=TBP6-bErly1LjxOv"}
+              to={allLinks.balanceAddTutorial || "#"}
               target="_blank"
               className="text-blue-700 font-semibold flex items-center gap-1 mt-5"
             >

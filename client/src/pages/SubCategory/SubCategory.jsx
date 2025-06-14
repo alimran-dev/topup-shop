@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import bkashLogo from '../../assets/images/bkash.png';
 import nagadLogo from '../../assets/images/nagad.png';
 import Coin from "../../components/reusuable/Coin/Coin";
+import { AiFillYoutube } from "react-icons/ai";
 
 
 const SubCategory = () => {
@@ -120,6 +121,7 @@ const SubCategory = () => {
                         target="_blank"
                         className="text-blue-700 font-semibold flex items-center justify-center gap-1 capitalize"
                     >
+                        <AiFillYoutube className="text-red-700 text-2xl" />
                         {allData?.tutorialText} <MdArrowOutward />
                     </Link>
                 </div>
@@ -142,7 +144,7 @@ const SubCategory = () => {
                             target="_blank"
                             className="text-blue-700 font-semibold flex items-center justify-center gap-1 capitalize"
                         >
-                            {allData?.tutorialText} <MdArrowOutward className="" />{" "}
+                         <AiFillYoutube className="text-red-700 text-2xl" />   {allData?.tutorialText} <MdArrowOutward className="" />{" "}
                         </Link>
                     </div>
 

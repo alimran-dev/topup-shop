@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const RechargeModal = () => {
 
-    const isOpen = true;
+    const isOpen = false;
 
     
     // disable scrolling

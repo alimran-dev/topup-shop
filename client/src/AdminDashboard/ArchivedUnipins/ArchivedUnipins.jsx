@@ -21,7 +21,7 @@ const ArchivedUnipins = () => {
         setLoading(true);
         try {
             const res = await axiosPrivate.get(`/order/archived?page=${page}&limit=${limit}&search=${searchText}`);
-            console.log(res.data), "------------res";
+            // console.log(res.data), "------------res";
             setOrders(res?.data?.orders || []);
             setTotalOrders(res?.data?.totalOrders || 0);
         }

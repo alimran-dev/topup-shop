@@ -81,7 +81,7 @@ const Notice = () => {
           id=""
           className="border-2 border-[#FA6023] focus:outline-[#E61C55] rounded-md w-full md:w-3/5 mx-auto block px-3 py-2 h-40 md:h-44"
           placeholder="Type your notice here"
-          defaultValue={notice.notice}
+          defaultValue={notice?.notice}
         ></textarea>
         <button
           type="submit"
@@ -99,7 +99,7 @@ const Notice = () => {
           id=""
           className="border-2 border-[#FA6023] focus:outline-[#E61C55] rounded-md w-full md:w-3/5 mx-auto block px-3 py-2 h-40 md:h-44"
           placeholder="Type your offer here"
-          defaultValue={offer.offer}
+          defaultValue={offer?.offer}
         ></textarea>
         <button
           type="submit"

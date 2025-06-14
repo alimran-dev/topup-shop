@@ -208,7 +208,7 @@ const PayNew = ({ id, amount, number, fee, provider, category }) => {
           <></>
         )}
 
-        {err && <p className="text-center font-medium text-[#C90008]">{err}</p>}
+        {err && <p className="text-center font-medium text-[#C90008]" dangerouslySetInnerHTML={{__html: err}} />}
         <button
           type="submit"
           className="w-full bg-[#C90008] py-2 text-lg font-semibold uppercase text-white rounded-lg hover:opacity-80"

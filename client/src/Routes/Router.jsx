@@ -59,6 +59,7 @@ import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
 import ReferralHistory from "../pages/CoinAndReferral/ReferralHistory/ReferralHistory";
 import ViewSummary from "../AdminDashboard/Orders/ViewSummary/ViewSummary";
 import AdminCoinHistory from "../AdminDashboard/OfferAndProducts/SpecialProducts/CoinHistory/CoinHistory";
+import ClaimRedeemCode from "../pages/Home/ClaimRedeemCode/ClaimRedeemCode";
 
 
 const router = createBrowserRouter([
@@ -226,6 +227,10 @@ const router = createBrowserRouter([
             <LeaderBoard />
           </PrivateRoute>
         ),
+      },
+      {
+        path: "/redeem-code",
+        element: <ClaimRedeemCode />
       },
     ],
   },

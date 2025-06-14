@@ -1,12 +1,12 @@
 import PropTypes from "prop-types";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Swal from "sweetalert2";
-import bkashLogo from '../../assets/images/bkash.png';
-
+import bkashLogo from "../../assets/images/bkash.png";
 
 const PaymentsCard = ({ method, methods, setMethods }) => {
   const axiosPrivate = useAxiosPrivate();
-  const { _id, provider, category, bonus, fee, number, status, type } = method || {};
+  const { _id, provider, category, bonus, fee, number, status, type } =
+    method || {};
 
   const handleUpdateMethod = (e) => {
     e.preventDefault();
@@ -20,12 +20,10 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
     if (type !== "auto") {
       method.number = form.number.value;
     }
-    
 
     axiosPrivate
       .patch(`/payment/method/admin/update?id=${_id}`, method)
       .then((res) => {
-        
         if (res.data.modifiedCount > 0) {
           Swal.fire({
             toast: true,
@@ -35,8 +33,7 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
             showConfirmButton: false,
             timer: 3000,
           });
-        }
-        else{
+        } else {
           Swal.fire({
             toast: true,
             title: "Failed To Update!",
@@ -49,6 +46,7 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
       });
   };
   const handleDeleteMethod = () => {
+    console.log("hitted");
     Swal.fire({
       title: `Delete ${number}`,
       icon: "warning",
@@ -87,21 +85,24 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
               <label htmlFor="provider" className="font-semibold mr-2">
                 Provider:{" "}
               </label>
-              {
-                type == "auto" ?
-                  <img src={bkashLogo} className="w-20 object-contain inline" alt="bkash logo" />
-                  :
-                  <select
-                    name="provider"
-                    id=""
-                    className="px-3 py-1 rounded"
-                    defaultValue={provider}
-                    disabled
-                  >
-                    <option value="bkash">Bkash</option>
-                    <option value="nagad">Nagad</option>
-                  </select>
-              }
+              {type == "auto" ? (
+                <img
+                  src={bkashLogo}
+                  className="w-20 object-contain inline"
+                  alt="bkash logo"
+                />
+              ) : (
+                <select
+                  name="provider"
+                  id=""
+                  className="px-3 py-1 rounded"
+                  defaultValue={provider}
+                  disabled
+                >
+                  <option value="bkash">Bkash</option>
+                  <option value="nagad">Nagad</option>
+                </select>
+              )}
             </div>
             <div className={`${type == "auto" && "hidden"}`}>
               <label htmlFor="category" className="font-semibold mr-2">
@@ -162,7 +163,7 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                 required
               />
             </div>
-            {type != "auto" &&
+            {type != "auto" && (
               <div>
                 <label htmlFor="number" className="font-semibold mr-2">
                   Number:{" "}
@@ -176,7 +177,7 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                   required
                 />
               </div>
-            }
+            )}
             <div>
               <label htmlFor="status" className="font-semibold mr-2">
                 Status:{" "}
@@ -184,8 +185,9 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
               <select
                 name="status"
                 id=""
-                className={`px-3 py-1 rounded font-semibold ${status === "active" ? "text-green-700" : "text-red-500"
-                  }`}
+                className={`px-3 py-1 rounded font-semibold ${
+                  status === "active" ? "text-green-700" : "text-red-500"
+                }`}
                 defaultValue={status}
               >
                 <option value="active">Active</option>
@@ -201,14 +203,15 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
           >
             Update
           </button>
-          {type != "auto" &&
+          {type != "auto" && (
             <button
+              type="button"
               onClick={handleDeleteMethod}
               className="px-5 py-1 text-lg font-semibold bg-red-500 text-white rounded"
             >
               Delete
             </button>
-          }
+          )}
         </div>
       </form>
     </div>

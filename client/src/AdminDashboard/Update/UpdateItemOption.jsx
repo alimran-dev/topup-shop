@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const UpdateItemOption = ({ option }) => {
   const navigate = useNavigate();
-  const { _id, category, name, price, stock } = option || {};
+  const { _id, category, name, price, stock, subCategory } = option || {};
   return (
     <div
       onClick={() => navigate(`./${_id}`)}

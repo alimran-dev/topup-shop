@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 const ClaimRedeemCode = () => {
 
     const [btnLoading, setBtnLoading] = useState(false);
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
 
@@ -35,6 +35,11 @@ const ClaimRedeemCode = () => {
             const res = await axiosPrivate.patch("/redeem/check", code);
             if (res?.data?.success) {
                 toast.success(res?.data?.message || "Code Clamined!");
+                if(res?.data?.type==="balance"){
+                    setUser({...user,balance: user?.balance+res?.data?.amount})
+                }else if(res?.data?.type==="coin"){
+                    setUser({...user,coins: user?.coins+res?.data?.amount});
+                }
             }
             else {
                 toast.error("Something Went Wrong!");

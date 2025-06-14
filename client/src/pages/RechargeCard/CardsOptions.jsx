@@ -13,16 +13,22 @@ import { IoInformationCircleOutline } from "react-icons/io5";
 import useAuth from "../../hooks/useAuth";
 import { HiOutlineInformationCircle } from "react-icons/hi";
 import OptionCard from "./OptionCard";
-import rechargeImg from "../../assets/images/recharge-card.jpeg";
-import toast from 'react-hot-toast';
-import bkashLogo from '../../assets/images/bkash.png';
-import nagadLogo from '../../assets/images/nagad.png';
+import cardImg from "../../assets/images/recharge-card.jpeg";
+import offerImg from "../../assets/images/recharge-offer.jpeg";
+import toast from "react-hot-toast";
+import bkashLogo from "../../assets/images/bkash.png";
+import nagadLogo from "../../assets/images/nagad.png";
 import Coin from "../../components/reusuable/Coin/Coin";
 import RechargeModal from "./RechargeModal";
-
+import { allLinks } from "../../utils/constants";
 
 const CardsOptions = () => {
-  const [selected, setSelected] = useState({ id: "", name: "", price: 0, coin: 0 });
+  const [selected, setSelected] = useState({
+    id: "",
+    name: "",
+    price: 0,
+    coin: 0,
+  });
   const [quantity, setQuantity] = useState(1);
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +41,6 @@ const CardsOptions = () => {
   const [rechargeType, setRechargeType] = useState("prepaid");
   const navigate = useNavigate();
   const purchaseRef = useRef(null);
-
 
   useEffect(() => {
     axiosPublic
@@ -55,9 +60,7 @@ const CardsOptions = () => {
     selected.price,
   ]);
 
-
   const handlePurchase = () => {
-
     setError("");
     setIsLoading(true);
 
@@ -70,17 +73,16 @@ const CardsOptions = () => {
 
     // check funds
     if (selected.price > user?.balance) {
-      toast.error('Insufficient Funds!');
-      navigate("/addBalance")
+      toast.error("Insufficient Funds!");
+      navigate("/addBalance");
       setIsLoading(false);
       return;
     }
 
     if (location?.state?.type == "offerCard") {
-
       // check if number is empty
       if (mobileNumber == "") {
-        toast.error('Please Fill Mobile Number');
+        toast.error("Please Fill Mobile Number");
         setIsLoading(false);
         return;
       }
@@ -99,13 +101,20 @@ const CardsOptions = () => {
         id: selected.id,
         email: user.email,
         type: rechargeType,
-        phone: mobileNumber
+        phone: mobileNumber,
       };
 
       setIsLoading(false);
-      navigate("/confirmPurchase", { state: { name: "recharge", category: "offerCard", company: location?.state?.companyName, option: selected, orderData, } });
-    }
-    else {
+      navigate("/confirmPurchase", {
+        state: {
+          name: "recharge",
+          category: "offerCard",
+          company: location?.state?.companyName,
+          option: selected,
+          orderData,
+        },
+      });
+    } else {
       if (!selected.id || !selected.price) {
         setError("Please select option and quantity");
         setIsLoading(false);
@@ -115,21 +124,25 @@ const CardsOptions = () => {
       const orderData = { id: selected.id, email: user?.email, quantity };
 
       setIsLoading(false);
-      navigate("/confirmPurchase", { state: { name: "recharge", category: "rechargeCard", company: location?.state?.companyName, option: selected, orderData } })
+      navigate("/confirmPurchase", {
+        state: {
+          name: "recharge",
+          category: "rechargeCard",
+          company: location?.state?.companyName,
+          option: selected,
+          orderData,
+        },
+      });
     }
-
   };
-
 
   // console.log("location--------", location?.state);
   // console.log(options);
-
 
   // page appear from top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
 
   return (
     <div className="flex flex-col gap-5">
@@ -137,7 +150,7 @@ const CardsOptions = () => {
       <Loader isLoading={isLoading} />
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img
-          src={rechargeImg}
+          src={location.state?.type === "offerCard" ? offerImg : cardImg}
           alt=""
           className="w-24 h-20 md:w-28 md:h-24 rounded-[30px]"
         />
@@ -145,7 +158,6 @@ const CardsOptions = () => {
           <p className="text-xl md:text-2xl font-semibold">
             {location?.state?.title}
           </p>
-
         </div>
       </div>
       <div className="grid md:grid-cols-3 gap-5">
@@ -164,7 +176,9 @@ const CardsOptions = () => {
         <div className="md:col-span-2 border-2 rounded">
           <h1 className="text-xl font-semibold py-2 px-5 border-b-2 flex items-center gap-2">
             <TbSquareRoundedNumber1Filled className="text-red-500" />
-            {location.state?.docName == "mbMinOffer" ? "Select Item" : "Select Category"}
+            {location.state?.docName == "mbMinOffer"
+              ? "Select Item"
+              : "Select Category"}
           </h1>
           <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-3 md:px-5 py-5">
             {options?.map((option) => (
@@ -179,7 +193,6 @@ const CardsOptions = () => {
           </div>
         </div>
         <div>
-
           {/* {
             location.state?.type != "offerCard" &&
             <div className="border-2 rounded p-3 mb-3 hidden md:block">
@@ -192,11 +205,11 @@ const CardsOptions = () => {
               </Link>
             </div>
           } */}
-          {
-            location.state?.type != "offerCard" &&
+          {location.state?.type != "offerCard" && (
             <div className="text-xl font-semibold py-2 px-5 border-2 rounded flex md:flex-col lg:flex-row items-center gap-2 w-full">
               <h2 className="flex-1 flex items-center gap-2">
-                <TbSquareRoundedNumber2Filled className="text-red-500" /> Quantity
+                <TbSquareRoundedNumber2Filled className="text-red-500" />{" "}
+                Quantity
               </h2>
               <div className="flex items-center gap-2 border-[3px] rounded-full">
                 <span
@@ -218,25 +231,35 @@ const CardsOptions = () => {
                 </span>
               </div>
             </div>
-          }
+          )}
 
           {/* inputs for mbMinOffer */}
-          {
-            location.state?.type == "offerCard" &&
+          {location.state?.type == "offerCard" && (
             <form ref={purchaseRef} className="p-3 border rounded">
               <div>
                 <label>Mobile Number</label>
-                <input type="number" onChange={(e) => setMobileNumber(e.target.value)} className="w-full px-3 py-1 rounded border mt-1 mb-3" placeholder="Type mobile number" value={mobileNumber} required />
+                <input
+                  type="number"
+                  onChange={(e) => setMobileNumber(e.target.value)}
+                  className="w-full px-3 py-1 rounded border mt-1 mb-3"
+                  placeholder="Type mobile number"
+                  value={mobileNumber}
+                  required
+                />
               </div>
               <div>
                 <label>Type</label>
-                <select onChange={(e) => setRechargeType(e.target.value)} className="w-full px-3 py-1 rounded border mt-1" value={rechargeType}>
+                <select
+                  onChange={(e) => setRechargeType(e.target.value)}
+                  className="w-full px-3 py-1 rounded border mt-1"
+                  value={rechargeType}
+                >
                   <option value="prepaid">Prepaid</option>
                   <option value="postpaid">Postpaid</option>
                 </select>
               </div>
             </form>
-          }
+          )}
 
           <div className="border-2 rounded mt-3">
             <h2 className="text-xl text-center font-semibold border-b-2 py-2">
@@ -250,7 +273,7 @@ const CardsOptions = () => {
                     আপনার ব্যালেন্সঃ{" "}
                     <span className="flex items-center font-semibold text-red-600">
                       <TbCurrencyTaka />
-                      {(user?.balance)?.toFixed(2)}
+                      {user?.balance?.toFixed(2)}
                     </span>
                   </p>
                 </>
@@ -296,18 +319,27 @@ const CardsOptions = () => {
                   >
                     Purchase
                   </button>
-                  <Link to={"/addBalance"} className="block p-3 rounded border-2">
-                    <button
-                      className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2"
-                    >
+                  <Link
+                    to={"/addBalance"}
+                    className="block p-3 rounded border-2"
+                  >
+                    <button className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2">
                       Add Balance
                     </button>
                     <div className="flex justify-center items-center py-3">
                       <div className="w-20 h-fit">
-                        <img src={bkashLogo} className="w-full h-full object-contain" alt="Bkash Logo" />
+                        <img
+                          src={bkashLogo}
+                          className="w-full h-full object-contain"
+                          alt="Bkash Logo"
+                        />
                       </div>
                       <div className="w-20 h-fit">
-                        <img src={nagadLogo} className="w-full h-full object-contain" alt="Nagad Logo" />
+                        <img
+                          src={nagadLogo}
+                          className="w-full h-full object-contain"
+                          alt="Nagad Logo"
+                        />
                       </div>
                     </div>
                   </Link>
@@ -334,19 +366,54 @@ const CardsOptions = () => {
           <p className="text-lg font-semibold">
             অর্ডার করার আগে ভালো ভাবে পড়ে নিন
           </p>
-          <p>⦿ শুধুমাত্র BD সার্ভারে VOUCHER দিয়ে টপ আপ হবে</p>
-          <p>
-            ⦿ কোড রিডিম করুন{" "}
-            <span className="font-medium">shop.garena.my </span> থেকে ।
-          </p>
-          <p>
-            ⦿ UPBD দেখালে <span className="font-medium">Unipin Gift Card</span>{" "}
-            এ ব্যবহার করতে হবে
-          </p>
-          <p>
-            ⦿ BDMB দেখালে <span className="font-medium">Unipin Voucher</span> এ
-            ব্যবহার করতে হবে
-          </p>
+          {location.state?.type !== "offerCard" && (
+            <>
+              <p>
+                ⦿ কার্ড যে ভাবে পাবেন ঠিক সেই ভাবে কপি করে ডায়েল করবে। অথবা যে
+                আছে সেই ভাবে লিখে ডায়েল করলেই হবে।{" "}
+              </p>
+              <p>⦿ কোন ধরনের সমস্যা হলে অবশ্যই আমাদের সাথে যোগাযোগ করবেন। </p>
+              <p>
+                ⦿ আমাদের হোয়াটসঅ্যাপ নাম্বার ঃ{" "}
+                <Link
+                  to={allLinks.whatsappSupport}
+                  className="text-blue-500 font-medium"
+                >
+                  {allLinks.whatsappSupport.replace("https://wa.me/+88", "")}
+                </Link>
+              </p>
+              <p>⦿ কার্ড কিনার পর তা পরিবর্তন করে দেওয়া হয় না।</p>
+              <p>⦿ যে কোন সমস্যা হলে অবশ্যই ১২ যন্টার মধ্যে যোগাযোগ করবেন।</p>
+              <p>⦿ গ্রামীণ ব্যালেন্স জানতে *121*1*2#</p>
+              <p>⦿ বাংলালিংক ব্যালেন্স জানতে *121*1#</p>
+            </>
+          )}
+          {location.state?.type === "offerCard" && (
+            <>
+              <p>
+                ⦿ যে সিম এ অফার নিবেন সেই সিমে কোন লোন থাকা যাবে না। লোন থাকলে
+                টাকা ঠিকই যাবে কিন্তু কোম্পানি তার লোন এর টাকা কেটে নেয়।
+              </p>
+              <p>⦿ নাম্বার দেওয়ার সময় অবশ্যই চেক করে দেখে দিবেন। </p>
+              <p>⦿ কোন ধরনের সমস্যা হলে অবশ্যই আমাদের সাথে যোগাযোগ করবেন। </p>
+              <p>
+                ⦿ আমাদের হোয়াটসঅ্যাপ নাম্বার ঃ{" "}
+                <Link
+                  to={allLinks.whatsappSupport}
+                  className="text-blue-500 font-medium"
+                >
+                  {allLinks.whatsappSupport.replace("https://wa.me/+88", "")}
+                </Link>
+              </p>
+              <p>
+                ⦿ যদি কোন কারণে এ আপনি যে অফার টি নিতে চাচ্ছেন কিন্তু আমরা দিতে
+                না পারি তবে আপনি চাইলে টাকা ব্যাক করা হবে।
+              </p>
+              <p>⦿ যে কোন সমস্যা হলে অবশ্যই ১২ যন্টার মধ্যে যোগাযোগ করবেন।</p>
+              <p>⦿ গ্রামীণ ব্যালেন্স জানতে *121*1*2#</p>
+              <p>⦿ বাংলালিংক ব্যালেন্স জানতে *121*1#</p>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import unipin from "../../../assets/images/unipin.jpg";
 import shell from "../../../assets/images/shell.jpg";
 import rechargeCard from "../../../assets/images/recharge-card.jpeg";
 import rechargeOffer from "../../../assets/images/recharge-offer.jpeg";
+import rechargeBalance from "../../../assets/images/recharge-balance.jpeg";
 import { useEffect, useState } from "react";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import { useNavigate } from "react-router-dom";
@@ -63,7 +64,7 @@ const Services = () => {
           {/* new manual recharge card */}
           <div className="flex-1">
             <ServiceCard
-              image={rechargeOffer}
+              image={rechargeBalance}
               path="/mobile-recharge"
               title="Balance Recharge"
             />

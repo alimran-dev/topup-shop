@@ -17,6 +17,8 @@ import { MdArrowOutward } from "react-icons/md";
 import bkashLogo from '../../assets/images/bkash.png';
 import nagadLogo from '../../assets/images/nagad.png';
 import Coin from "../../components/reusuable/Coin/Coin";
+import { allLinks } from "../../utils/constants";
+import { AiFillYoutube } from "react-icons/ai";
 
 
 
@@ -90,10 +92,11 @@ const Unipin = () => {
       <div className="grid md:grid-cols-3 gap-5">
         <div className="border-2 rounded p-3 md:hidden">
           <Link
-            to={"https://youtube.com/playlist?list=PLdbvk3gLADUlRm5asrnO4v-NGPm2VLOFG&si=MqRLCbWUk-SpV5ni"}
+            to={allLinks.unipinTutorial || "#"}
             target="_blank"
             className="text-blue-700 font-semibold flex items-center justify-center gap-1"
           >
+            <AiFillYoutube className="text-red-700 text-2xl" />
             কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
           </Link>
         </div>
@@ -117,10 +120,11 @@ const Unipin = () => {
         <div>
           <div className="border-2 rounded p-3 mb-3 hidden md:block">
             <Link
-              to={"https://youtube.com/playlist?list=PLdbvk3gLADUlRm5asrnO4v-NGPm2VLOFG&si=MqRLCbWUk-SpV5ni"}
+              to={allLinks.unipinTutorial || "#"}
               target="_blank"
               className="text-blue-700 font-semibold flex items-center justify-center gap-1"
             >
+              <AiFillYoutube className="text-red-700 text-2xl" />
               কিভাবে টপ আপ করবেন ভিডিও <MdArrowOutward className="" />{" "}
             </Link>
           </div>

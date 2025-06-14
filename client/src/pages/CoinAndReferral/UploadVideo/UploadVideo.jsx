@@ -38,6 +38,10 @@ const UploadVideo = () => {
     // upload video fn
     const handleUploadVideo = async (e) => {
         e.preventDefault();
+        if(!user?.isVerified){
+            navigate("/myAccount");
+            return;
+        }
         setLoading(true);
 
         const videoUrl = e.target.link.value;
