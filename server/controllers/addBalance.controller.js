@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
+const { CONSTANTS } = require("../utils/constants");
 const transactionCollection = dbCollections.transactionCollection;
 const paymentMethodCollection = dbCollections.paymentMethodCollection;
 const userCollection = dbCollections.userCollection;
@@ -45,14 +46,21 @@ const addBalance = async (req, res) => {
     const method = await paymentMethodCollection.findOne({
       _id: new ObjectId(id),
     });
-    const { provider, category, bonus, fee, number } = method || {};
+    const { provider, category, bonus, fee, number, special_bonus } =
+      method || {};
+    let willAdd = parseFloat((amount + (amount * bonus) / 100).toFixed(2));
+    if (amount % 5 === 0) {
+      willAdd = parseFloat(
+        (amount + (amount * special_bonus) / 100).toFixed(2)
+      );
+    }
     const transaction = {
       method: provider + " " + category,
       amount,
-      bonus,
+      bonus: amount % 5 === 0 ? special_bonus : bonus,
       fee,
       toPay: Math.ceil(amount + (amount * fee) / 100),
-      willAdd: parseFloat((amount + (amount * bonus) / 100).toFixed(2)),
+      willAdd,
       number,
       email,
       previousBalance,
@@ -91,22 +99,36 @@ const checkAddBalance = async (req, res) => {
       });
     }
     if (invoice.attempt > 4) {
-      const { modifiedCount } = await userCollection.updateOne(
-        { email: email },
-        { $set: { isBanned: true } }
-      );
-      if (modifiedCount) {
+      const user = await userCollection.findOne({ email: email });
+      const duration =
+        (new Date().getTime() - user?.lastAttemptAddMoney?.getTime()) /
+        (1000 * 60);
+      const waitingDurationSeconds = 5;
+      if (duration < waitingDurationSeconds) {
         return res.send({
           success: false,
-          isBanned: true,
+          isBanned: false,
           attempt: invoice.attempt,
-          message: "You have reached the limit to check.",
+          message: `<p>অনুগ্রহ করে ${Math.ceil(
+            waitingDurationSeconds - duration
+          )} মিনিট পরে চেষ্টা করুন অথবা আমাদের সাথে যোগাযোগ করুন। <a href="${
+            CONSTANTS.whatsappSupport
+          }" style="color: blue;" target="_blank">WhatsApp</a> </p>`,
         });
       }
+      await transactionCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { attempt: 0 } }
+      );
+      invoice.attempt = 0;
     }
     await transactionCollection.updateOne(
       { _id: new ObjectId(id) },
       { $inc: { attempt: 1 }, $set: { trxID } }
+    );
+    await userCollection.updateOne(
+      { email: email },
+      { $set: { lastAttemptAddMoney: new Date() } }
     );
     const provider = invoice?.method.split(" ")[0];
     const category = invoice?.method.split(" ")[1];

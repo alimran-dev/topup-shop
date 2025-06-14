@@ -49,8 +49,14 @@ const bkashCreatePayment = async (req, res) => {
     if (!user) {
       return res.send({ success: false, message: "User not found" });
     }
-    const { bonus, fee } = paymentMethod || {};
+    const { bonus, special_bonus, fee } = paymentMethod || {};
     const toPay = Math.ceil(amount + (amount * fee) / 100);
+    let willAdd = parseFloat((amount + (amount * bonus) / 100).toFixed(2));
+    if (amount % 5 === 0) {
+      willAdd = parseFloat(
+        (amount + (amount * special_bonus) / 100).toFixed(2)
+      );
+    }
     const invNumber = require("crypto").randomUUID().split("-")[4];
     const { data } = await axiosBkash.post(
       "/tokenized/checkout/create",
@@ -76,10 +82,10 @@ const bkashCreatePayment = async (req, res) => {
     const transaction = {
       method: "Bkash Payment",
       amount: parseInt(amount),
-      bonus,
+      bonus: amount % 5 === 0 ? special_bonus : bonus,
       fee,
       toPay,
-      willAdd: parseFloat((amount + (amount * bonus) / 100).toFixed(2)),
+      willAdd,
       number: "",
       email,
       previousBalance: parseFloat(user.balance.toFixed(2)),
@@ -123,11 +129,8 @@ const bkashCallback = async (req, res) => {
           timeout: 5000,
         }
       );
-      console.log("status--",status, "execute payment--", data);
-      if (
-        data?.transactionStatus === "Completed" &&
-        data?.statusMessage === "Successful"
-      ) {
+      console.log("status--", status, "execute payment--", data);
+      if (data?.transactionStatus === "Completed") {
         const transaction = await transactionCollection.findOne({
           paymentID: paymentID,
           status: "pending",
@@ -158,7 +161,9 @@ const bkashCallback = async (req, res) => {
       }
     }
     console.log("status--", status);
-    return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=failure`)
+    return res.redirect(
+      `${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=failure`
+    );
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -167,11 +172,15 @@ const bkashCallback = async (req, res) => {
 
 const addMethod = async (req, res) => {
   try {
-    const { provider, category, bonus, special_bonus, fee, number, status } =
-      req.body;
-    if (!parseFloat(bonus) || !parseFloat(fee) || !parseFloat(special_bonus)) {
-      return res.status(400).send({ message: "Invalid Request" });
-    }
+    const {
+      provider,
+      category,
+      bonus,
+      specialBonus: special_bonus,
+      fee,
+      number,
+      status,
+    } = req.body;
     const newMethod = {
       type: "manual",
       provider,

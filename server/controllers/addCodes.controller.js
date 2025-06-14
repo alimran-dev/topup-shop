@@ -9,14 +9,27 @@ const addCodes = async (req, res) => {
     const codesArray = req.body;
     // console.log(codesArray, id);
     if (category === "unipin") {
-      const filter = { uc: item.uc };
-      const result = await unipinCollection.updateOne(filter, {
-        $addToSet: { codes: { $each: item.codes } },
+      const arrayLength = codesArray?.length;
+      let lengthCount = 0;
+      codesArray.forEach(async (item) => {
+        const filter = { uc: item.uc };
+        const result = await unipinCollection.updateOne(filter, {
+          $addToSet: { codes: { $each: item.codes } },
+        });
+        // console.log(result);
+        if (result.modifiedCount) {
+          lengthCount++;
+        }
       });
-      if (result.modifiedCount) {
+      if (arrayLength === lengthCount) {
         return res.send({
           success: true,
           message: "Unipins added successfully",
+        });
+      } else if (lengthCount) {
+        return res.send({
+          success: true,
+          message: "Added successfully but there was some duplicate",
         });
       }
     } else if (category === "shell") {

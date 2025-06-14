@@ -43,7 +43,7 @@ const userRoute = () => {
   router.patch("/verify", verifyToken, verifyUser);
   router.patch("/change/password", verifyToken, changePassword);
   router.patch("/update", verifyToken, updateUser);
-  router.patch("/temp/refer", tempReferIDGen);
+  // router.patch("/temp/refer", tempReferIDGen);
   // admin
   router.get("/admin/all", verifyAdmin, getAllUser);
   router.patch("/admin/status", verifyAdmin, updateUserStatus);

@@ -13,6 +13,7 @@ const getService = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
 const getAllServices = async (req, res) => {
   try {
     const result = await serviceCollection

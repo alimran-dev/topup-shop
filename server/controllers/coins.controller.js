@@ -17,10 +17,13 @@ const getDailyCoinNumber = async (req, res) => {
     if (!user) {
       return res.send({ success: false, message: "User not found" });
     }
-    const duration =
-      (new Date().getTime() - new Date(user.coinLastClaim).getTime()) /
-      (1000 * 60 * 60);
-    if (user.coinLastClaim && duration <= 24) {
+    const now = new Date();
+    const coinLastClaimDate = new Date(user.coinLastClaim);
+    if (
+      now.getDate() === coinLastClaimDate.getDate() &&
+      now.getMonth() === coinLastClaimDate.getMonth() &&
+      now.getFullYear() === coinLastClaimDate.getFullYear()
+    ) {
       return res.send({
         success: false,
         message: "You already claimed today.",
@@ -65,13 +68,16 @@ const claimDailyCoin = async (req, res) => {
     if (!user) {
       return res.send({ success: false, message: "User not found" });
     }
-    if(!user.isVerified){
-      return res.send({success: false, message: "Email is not verified"});
+    if (!user.isVerified) {
+      return res.send({ success: false, message: "Email is not verified" });
     }
-    const duration =
-      (new Date().getTime() - new Date(user.coinLastClaim).getTime()) /
-      (1000 * 60 * 60);
-    if (user.coinLastClaim && duration <= 24) {
+    const now = new Date();
+    const coinLastClaimDate = new Date(user.coinLastClaim);
+    if (
+      now.getDate() === coinLastClaimDate.getDate() &&
+      now.getMonth() === coinLastClaimDate.getMonth() &&
+      now.getFullYear() === coinLastClaimDate.getFullYear()
+    ) {
       return res.send({
         success: false,
         message: "You already claimed today.",
@@ -191,6 +197,9 @@ const claimReviewAmount = async (req, res) => {
     if (!user) {
       return res.send({ success: false, message: "User not found" });
     }
+    if (!user?.isVerified) {
+      return res.send({ success: false, message: "User is not verified" });
+    }
     const coinHistory = {
       email: email,
       name: "Review Offer Claim",
@@ -280,9 +289,27 @@ const getCoinHistory = async (req, res) => {
     }
     const totalHistory = await coinHistoryCollection.countDocuments(filter);
     const result = await coinHistoryCollection
-      .find(filter, { sort: { createdAt: -1 } })
-      .skip((pageInt - 1) * limitInt)
-      .limit(limitInt)
+      .aggregate([
+        { $match: filter },
+        {
+          $addFields: {
+            statusOrder: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ["$status", "pending"] }, then: 1 },
+                  { case: { $eq: ["$status", "success"] }, then: 2 },
+                  { case: { $eq: ["$status", "cancel"] }, then: 3 },
+                ],
+                default: 4,
+              },
+            },
+          },
+        },
+        { $sort: { statusOrder: 1, createdAt: -1 } },
+        { $skip: (pageInt - 1) * limitInt },
+        { $limit: limitInt },
+        { $project: { statusOrder: 0 } },
+      ])
       .toArray();
     res.send({ history: result, totalHistory });
   } catch (err) {
@@ -396,7 +423,7 @@ const updateCoinProducts = async (req, res) => {
       priceInt <= 0 ||
       stockInt < 0 ||
       inputs.length === 0 ||
-      isActive===undefined
+      isActive === undefined
     ) {
       return res.status(400).send({ message: "Invalid Request" });
     }
@@ -406,7 +433,7 @@ const updateCoinProducts = async (req, res) => {
       shortDescription,
       stock: stockInt,
       isActive,
-      inputs
+      inputs,
     };
     const result = await coinProductsCollection.updateOne(
       { _id: new ObjectId(id) },

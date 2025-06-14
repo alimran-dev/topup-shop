@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
+const { CONSTANTS } = require("../utils/constants");
 const unipinCollection = dbCollections.unipinCollection;
 const idcodeCollection = dbCollections.idcodeCollection;
 const weeklyMonthlyCollection = dbCollections.weeklyMonthlyCollection;
@@ -105,6 +106,7 @@ const getAllOption = async (req, res) => {
         coin: 1,
         uc: 1,
         category: 1,
+        subCategory: 1,
         stock: {
           $cond: {
             if: {
@@ -134,6 +136,7 @@ const getAllOption = async (req, res) => {
         price: 1,
         coin: 1,
         category: 1,
+        subCategory: 1,
         description: 1,
         stock: {
           $cond: {
@@ -207,9 +210,10 @@ const addOption = async (req, res) => {
     if (isNaN(priceInt) || isNaN(coinInt)) {
       return res.status(400).send({ message: "Invalid Price or coin" });
     }
-    const option = { category, name, price, uc, coin: coinInt, codes: [] };
+    const option = { category: CONSTANTS.categories.ff, subCategory: category, name, price, uc, coin: coinInt, codes: [] };
     const optionManual = {
-      category,
+      category: CONSTANTS.categories.ff,
+      subCategory: category,
       name,
       price,
       uc,
@@ -289,7 +293,8 @@ const addOption = async (req, res) => {
         coin: coinInt,
         description,
         docId: companyDb._id.toString(),
-        category,
+        category: CONSTANTS.categories.recharge,
+        subCategory: category,
         operator,
       };
       if (category === "card") rechargeOption.codes = [];
@@ -307,18 +312,25 @@ const addOption = async (req, res) => {
 
 const addDynamicOption = async (req, res) => {
   try {
-    const { name, price, id, coin } = req.body;
+    const { name, price, id, coin, stock } = req.body;
     const priceInt = parseInt(price);
     const coinInt = parseInt(coin);
-    if (isNaN(priceInt) || isNaN(coinInt)) {
-      return res.send({ success: false, message: "Invalid Price or coin" });
+    const stockInt=parseInt(stock);
+    if (isNaN(priceInt) || isNaN(coinInt) || isNaN(stockInt)) {
+      return res.send({ success: false, message: "Invalid Price or coin or stock" });
     }
-    if (name && parseInt(price) && id) {
+    if (name && id) {
       const filter = { _id: new ObjectId(id) };
+      const service=await serviceCollection.findOne(filter);
+      if(!service){
+        return res.send({success: false, message: "Service not found"});
+      }
+      const newOption={ name, price: parseInt(price), coin: coinInt, stock: stockInt }
+      const updatedOption=[...(service.options || []),newOption];
+      updatedOption?.sort((a,b)=>a.price-b.price);
+      console.log(updatedOption, updatedOption.length);
       const result = await serviceCollection.updateOne(filter, {
-        $push: {
-          options: { name, price: parseInt(price), coin: coinInt, stock: 0 },
-        },
+        $set: {options: updatedOption},
       });
       res.send(result);
     } else {

@@ -128,7 +128,7 @@ const checkRedeemCode = async (req, res) => {
       { $set: updatedCodeDoc, $addToSet: { claimedBy: email } }
     );
     if (userUpdateResult.modifiedCount && codeDocUpdateResult.modifiedCount) {
-      return res.send({ success: true, message: "Redeemed successfully" });
+      return res.send({ success: true, message: "Redeemed successfully", type: codeDoc?.type, amount: codeDoc?.value });
     }
     res.status(400).send({ message: "Something went wrong" });
   } catch (err) {

@@ -6,7 +6,9 @@ const cors = require("cors");
 const passport = require("passport");
 const webpush = require("web-push");
 const port = process.env.PORT || 5000;
+const path = require("path");
 const { connectToDB } = require("./config/db");
+const { CONSTANTS } = require("./utils/constants");
 require("./middlewares/passport");
 
 // middlewares
@@ -14,16 +16,12 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [
-      "https://mezbashop.com",
-      "https://www.mezbashop.com",
-      "https://demo.mezbashop.com",
-      "http://localhost:5173",
-    ],
+    origin: CONSTANTS.origin,
     credentials: true,
   })
 );
 app.use(passport.initialize());
+app.use(express.static(path.join(__dirname,"public")));
 
 webpush.setVapidDetails(
   "mailto:abir932islam@gmail.com",
@@ -58,6 +56,7 @@ const run = () => {
   const redeemRotues = require("./routes/redeem.route");
   const specialOfferRoutes = require("./routes/specialOffer.route");
   const notificationRoutes = require("./routes/notification.route");
+  const autoServerRoutes = require("./routes/autoServer.route");
 
   // routes
   app.use("/auth", authRoute());
@@ -81,6 +80,7 @@ const run = () => {
   app.use("/redeem", redeemRotues());
   app.use("/special", specialOfferRoutes());
   app.use("/notification", notificationRoutes());
+  app.use("/auto",autoServerRoutes());
 };
 
 connectToDB((err) => {

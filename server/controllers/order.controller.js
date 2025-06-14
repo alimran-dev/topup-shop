@@ -2,6 +2,7 @@ const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { cookieOption } = require("../utils/cookieOption");
 const notificationSender = require("../utils/notificationSender");
+const { CONSTANTS } = require("../utils/constants");
 const {
   orderCollection,
   unipinCollection,
@@ -66,10 +67,10 @@ const referPurchaseCoin = (user, price, status) => {
       if (status === "success") {
         await userCollection.updateOne(
           { email: referredBy },
-          { $set: { $inc: { coins: totalCoin } } }
+          { $inc: { coins: totalCoin } }
         );
       }
-      resolve(coinHistoryInsert.insertedId);
+      resolve(coinHistoryInsert.insertedId.toString());
     } catch (err) {
       console.error("referPurchaseCoin: ", err.message);
       reject(err);
@@ -156,6 +157,7 @@ const orderAuto = async (req, res) => {
     // const email = req.query?.email;
     // const id = req.query?.id;
     // const quantity = req.query?.quantity;
+    // console.log("orderAuto---",id,email,quantity,category);
     if (
       !id ||
       !email ||
@@ -206,7 +208,7 @@ const orderAuto = async (req, res) => {
     );
 
     if (userUpdate.modifiedCount > 0) {
-      const takenCodes = option.codes.slice(0, quantity);
+      let takenCodes = option.codes.slice(0, quantity);
       if (category === "unipin") {
         await unipinCollection.updateOne(filter, {
           $pull: { codes: { $in: takenCodes } },
@@ -219,13 +221,24 @@ const orderAuto = async (req, res) => {
         await rechargeCollection.updateOne(filter, {
           $pull: { codes: { $in: takenCodes } },
         });
+        if(option?.operator==="GrameenPhone"){
+          takenCodes=takenCodes.map(item=>"*555*"+item+"#");
+        } else if(option?.operator==="Banglalink"){
+          takenCodes=takenCodes.map(item=>"*123*"+item+"#");
+        }else if(option?.operator==="Robi"){
+          takenCodes=takenCodes.map(item=>"*111*"+item+"#");
+        }else if(option?.operator==="Airtel"){
+          takenCodes=takenCodes.map(item=>"*787*"+item+"#");
+        }
+        // console.log(takenCodes);
       }
       const ordersCount = await orderCollection.countDocuments();
       const order = {
         optionID: new ObjectId(id),
         orderID: ordersCount + 1000,
         email: email,
-        category: category==="card"?"Recharge & Offers":"FF Topup & Unipin",
+        category:
+          category === "card" ? "Recharge & Offers" : "FF Topup & Unipin",
         subCategory: category,
         name: `${option.name} (${quantity} codes)`,
         price: orderPrice,
@@ -236,7 +249,7 @@ const orderAuto = async (req, res) => {
         type: "balance",
         feedback: "",
       };
-      if (user.referredBy) {
+      if (user.referredBy && user?.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
           option.price,
@@ -245,7 +258,7 @@ const orderAuto = async (req, res) => {
         // console.log('referHistoryId--', referHistoryId?.toString());
         order.referHistoryId = referHistoryId;
       }
-      if(option.coin){
+      if (option.coin && user?.isVerified) {
         const coinHistory = {
           email: email,
           name: "Product Purchase Bonus",
@@ -256,9 +269,14 @@ const orderAuto = async (req, res) => {
             "Product Price": option.price,
           },
         };
-        const coinHistoryInsert=await coinHistoryCollection.insertOne(coinHistory);
-        order.coinBonusID=coinHistoryInsert.insertedId;
-        await userCollection.updateOne({email: email},{$set: {$inc: {coins: coinHistory.amount}}});
+        const coinHistoryInsert = await coinHistoryCollection.insertOne(
+          coinHistory
+        );
+        order.coinBonusID = coinHistoryInsert.insertedId.toString();
+        await userCollection.updateOne(
+          { email: email },
+          { $inc: { coins: coinHistory.amount } }
+        );
       }
       console.log("orderAuto: ", order);
       const result = await orderCollection.insertOne(order);
@@ -327,7 +345,7 @@ const orderDynamic = async (req, res) => {
         type: "balance",
         info: info,
       };
-      if (user.referredBy) {
+      if (user.referredBy && user?.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
           option.price,
@@ -336,7 +354,7 @@ const orderDynamic = async (req, res) => {
         // console.log('referHistoryId--', referHistoryId?.toString());
         order.referHistoryId = referHistoryId;
       }
-      if(option.coin){
+      if (option.coin && user?.isVerified) {
         const coinHistory = {
           email: email,
           name: "Product Purchase Bonus",
@@ -347,8 +365,10 @@ const orderDynamic = async (req, res) => {
             "Product Price": option.price,
           },
         };
-        const coinHistoryInsert=await coinHistoryCollection.insertOne(coinHistory);
-        order.coinBonusID=coinHistoryInsert.insertedId;
+        const coinHistoryInsert = await coinHistoryCollection.insertOne(
+          coinHistory
+        );
+        order.coinBonusID = coinHistoryInsert.insertedId.toString();
       }
       console.log("dynamic order--", order);
       service.options[parseInt(index)].stock--;
@@ -363,7 +383,7 @@ const orderDynamic = async (req, res) => {
             admin.subscription,
             "New Pending Order",
             option.name,
-            "https://mezbashop.com/dashboard/orders"
+            `https://${CONSTANTS.domain}/dashboard/orders`
           );
         }
       });
@@ -449,7 +469,7 @@ const orderRechargeOffer = async (req, res) => {
         { $set: { stock: option.stock - 1 } }
       );
 
-      if (user.referredBy) {
+      if (user.referredBy && user?.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
           option.price,
@@ -459,7 +479,7 @@ const orderRechargeOffer = async (req, res) => {
         order.referHistoryId = referHistoryId;
       }
 
-      if(option.coin){
+      if (option.coin && user?.isVerified) {
         const coinHistory = {
           email: email,
           name: "Product Purchase Bonus",
@@ -470,8 +490,10 @@ const orderRechargeOffer = async (req, res) => {
             "Product Price": option.price,
           },
         };
-        const coinHistoryInsert=await coinHistoryCollection.insertOne(coinHistory);
-        order.coinBonusID=coinHistoryInsert.insertedId;
+        const coinHistoryInsert = await coinHistoryCollection.insertOne(
+          coinHistory
+        );
+        order.coinBonusID = coinHistoryInsert.insertedId.toString();
       }
 
       // notification to the admins
@@ -482,7 +504,7 @@ const orderRechargeOffer = async (req, res) => {
             admin.subscription,
             "New Pending Order",
             option.name,
-            "https://mezbashop.com/dashboard/orders"
+            `https://${CONSTANTS.domain}/dashboard/orders`
           );
         }
       });
@@ -553,7 +575,7 @@ const orderBalanceRecharge = async (req, res) => {
           Number: phone,
         },
       };
-      if (user.referredBy) {
+      if (user.referredBy && user.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
           priceInt,
@@ -569,7 +591,7 @@ const orderBalanceRecharge = async (req, res) => {
             admin.subscription,
             "New Pending Order",
             `${price} taka recharge`,
-            "https://mezbashop.com/dashboard/orders"
+            `https://${CONSTANTS.domain}/dashboard/orders`
           );
         }
       });
@@ -656,7 +678,7 @@ const orderSpecialOffer = async (req, res) => {
         type: option.type,
         info: { ...info },
       };
-      if (user.referredBy && option.type === "balance") {
+      if (user.referredBy && option.type === "balance" && user.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
           option.price,
@@ -679,7 +701,7 @@ const orderSpecialOffer = async (req, res) => {
             admin.subscription,
             "New Pending Order",
             option.title,
-            "https://mezbashop.com/dashboard/orders"
+            `https://${CONSTANTS.domain}/dashboard/orders`
           );
         }
       });
@@ -805,7 +827,7 @@ const getAllOrderAdmin = async (req, res) => {
     if (subCategory) {
       filter.subCategory = subCategory;
     }
-    // console.log(filter);
+    console.log(filter);
     const totalOrders = await orderCollection.countDocuments(filter);
     const result = await orderCollection
       .find(filter, { sort: { updateTime: -1 } })
@@ -946,6 +968,27 @@ const orderProcess = async (req, res) => {
     };
     const order = await orderCollection.findOne(filter);
     const result = await orderCollection.updateOne(filter, updateOrder);
+    if (order.coinBonusID) {
+      const coinHistory = await coinHistoryCollection.findOne({
+        _id: new ObjectId(order.coinBonusID),
+      });
+      if (newStatus === "complete") {
+        await userCollection.updateOne(
+          { email: coinHistory.email },
+          { $inc: { coins: coinHistory.amount } }
+        );
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "success" } }
+        );
+      }
+      if (newStatus === "cancelled") {
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "cancel" } }
+        );
+      }
+    }
     if (order.referHistoryId) {
       const coinHistory = await coinHistoryCollection.findOne({
         _id: new ObjectId(order.referHistoryId),
@@ -953,7 +996,7 @@ const orderProcess = async (req, res) => {
       if (newStatus === "complete") {
         await userCollection.updateOne(
           { email: coinHistory.email },
-          { $set: { $inc: { coins: coinHistory.amount } } }
+          { $inc: { coins: coinHistory.amount } }
         );
         await coinHistoryCollection.updateOne(
           { _id: coinHistory._id },
