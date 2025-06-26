@@ -22,6 +22,7 @@ const AllOrders = () => {
     subCategory: "",
   });
 
+  console.log(orders);
 
   const getOrders = () => {
     // console.log(formData, "---------from fn");

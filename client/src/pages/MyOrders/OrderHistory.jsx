@@ -22,6 +22,8 @@ const OrderHistory = ({ order }) => {
     subCategory,
     info,
     type,
+    processedExternally,
+    order: externalOrder,
   } = order || {};
   const handleCopy = async () => {
     if (codesRef.current) {
@@ -89,7 +91,7 @@ const OrderHistory = ({ order }) => {
                     : ""
                 } rounded-full`}
               >
-                • {status}
+                • {processedExternally ? externalOrder?.status:status}
               </span>
               <button
                 className="button"
@@ -173,7 +175,7 @@ const OrderHistory = ({ order }) => {
                         : ""
                     } rounded-full`}
                   >
-                    • {status}
+                    • {processedExternally? externalOrder?.status:status}
                   </span>
                 </div>
               </div>

@@ -89,3 +89,12 @@ input[type="number"] {
     @apply list-decimal list-outside pl-5;
 }
 
+.username-bg{
+    @apply text-base text-white text-center mx-5 py-1.5 rounded-md cursor-pointer;
+    background-image: url('./assets/images/utils/username-bg.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: black;
+    text-shadow: 2px 2px 1px #ffffff77;
+}

@@ -10,8 +10,9 @@ const ConfirmPurchase = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const { user, setUser } = useAuth();
-  const { name, category, selected, inputValues, orderData } = location.state;
+  const { name, category, selected, inputValues, orderData, quantity } = location.state;
 
+  // console.log(orderData);
 
   const handlePurchase = () => {
     setLoading(true);
@@ -24,6 +25,9 @@ const ConfirmPurchase = () => {
         name: selected.name,
         price: selected.price,
         info: inputValues,
+        isAuto: orderData?.isAuto,
+        willHaveQuantity: selected?.willHaveQuantity,
+        quantity: quantity
       };
 
       axiosPrivate
@@ -35,7 +39,7 @@ const ConfirmPurchase = () => {
               ...user,
               balance: user?.balance - res.data.price,
               orders: user?.orders + 1,
-              spent: user?.spent + selected.price,
+              spent: user?.spent + selected.price * quantity,
             });
             setLoading(false);
             navigate("/myOrders");
@@ -268,18 +272,18 @@ const ConfirmPurchase = () => {
               <span>:</span>
               <span>{selected?.name}</span>
             </p>
-            {(name === "unipin" || name === "shell") && (
+            {(name === "unipin" || name === "shell" || orderData?.isAuto) && (
               <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                 <span className="w-24 font-semibold normal-case">Quantity</span>
                 <span>:</span>
-                <span>{orderData?.quantity}</span>
+                <span>{orderData?.isAuto ? quantity:orderData?.quantity}</span>
               </p>
             )}
 
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Price</span>
               <span>:</span>
-              <span>৳{selected?.price}</span>
+              <span>৳{orderData?.isAuto? selected?.price * quantity: selected?.price}</span>
             </p>
             {name == "dynamic" && (
               <>

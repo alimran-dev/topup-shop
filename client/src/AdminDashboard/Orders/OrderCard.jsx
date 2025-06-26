@@ -30,6 +30,9 @@ const OrderCard = ({ order }) => {
     codes,
     info,
     feedback,
+    processedExternally,
+    order: externalOrder,
+    screenshots
   } = order || {};
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
@@ -170,7 +173,7 @@ const OrderCard = ({ order }) => {
             onChange={(e) => setNewStatus(e.target.value)}
             name=""
             id=""
-            defaultValue={status}
+            defaultValue={processedExternally? externalOrder?.status:status}
             className="capitalize border border-slate-400 px-4 py-1 rounded-md"
           >
             {/* <option value={status} disabled selected hidden>
@@ -251,11 +254,11 @@ const OrderCard = ({ order }) => {
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
           {subCategory === "unipin" ||
           subCategory === "shell" ||
-          subCategory === "card" ? (
+          subCategory === "card" || processedExternally ? (
             <div>
               <textarea
                 disabled
-                value={codes.join("\n")}
+                value={processedExternally? externalOrder?.unipins?.join("\n")?.concat("\n",screenshots?.join("\n")):codes.join("\n")}
                 name=""
                 ref={codesRef}
                 className="border-2 h-24 w-full rounded px-2 py-0.5"

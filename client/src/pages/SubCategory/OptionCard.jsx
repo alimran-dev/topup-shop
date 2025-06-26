@@ -4,11 +4,11 @@ import { TbCurrencyTaka } from 'react-icons/tb';
 
 const OptionCard = ({ idx, option, selected, setSelected, purchaseRef }) => {
 
-    const { name, price, stock, coin } = option || {};
+    const { name, price, stock, coin, willHaveQuantity } = option || {};
 
     const handleSelect = () => {
         if (!stock === null || !stock == 0) {
-            setSelected({ idx, name, price, coin });
+            setSelected({ idx, name, price, coin, willHaveQuantity });
 
             setTimeout(() => {
                 purchaseRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });

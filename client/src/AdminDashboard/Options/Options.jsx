@@ -197,6 +197,7 @@ const Options = () => {
                                                                 <th className="px-3 py-1 border border-slate-400">Price</th>
                                                                 <th className="px-3 py-1 border border-slate-400">Stock</th>
                                                                 <th className="px-3 py-1 border border-slate-400">Coin</th>
+                                                                <th className="px-3 py-1 border border-slate-400">Serial</th>
                                                                 <th className="px-3 py-1 border border-slate-400">Action</th>
                                                             </tr>
                                                         </thead>
@@ -209,6 +210,7 @@ const Options = () => {
                                                                         <td className="px-3 py-1 border border-slate-400">৳{option?.price}</td>
                                                                         <td className="px-3 py-1 border border-slate-400">{option?.stock}</td>
                                                                         <td className="px-3 py-1 border border-slate-400">{option?.coin}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400">{option?.serial}</td>
                                                                         <td className="px-3 py-1 border border-slate-400 flex justify-center items-center gap-4">
                                                                             <button onClick={() => document.getElementById(`update_option_desktop_${idx}`).showModal()} className="text-3xl text-blue-700"><AiFillEdit /></button>
                                                                             <UpdateOption idx={idx} option={option} selectedSubCategoryId={selectedSubCategoryId} setOptions={setOptions} screen={'desktop'} />
@@ -237,6 +239,16 @@ const Options = () => {
                                                                     <p>
                                                                         <span className="font-semibold">Stock: </span>
                                                                         {option?.stock}
+
+                                                                    </p>
+                                                                    <p>
+                                                                        <span className="font-semibold">Coin: </span>
+                                                                        {option?.coin}
+
+                                                                    </p>
+                                                                    <p>
+                                                                        <span className="font-semibold">Serial: </span>
+                                                                        {option?.serial}
 
                                                                     </p>
                                                                 </div>

@@ -21,8 +21,10 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }
         const id = selectedSubCategoryId;
         const stock = parseInt(form.stock.value);
         const coin = parseInt(form.coin.value);
+        const serial = parseInt(form.serial.value);
+        const willHaveQuantity = form.willHaveQuantity.checked;
 
-        const updatedOption = { index, name, price, id, stock, coin };
+        const updatedOption = { index, name, price, id, stock, coin, serial, willHaveQuantity };
 
         // console.log(updatedOption);
 
@@ -50,7 +52,7 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }
         });
     };
 
-    console.log(idx);
+    // console.log(idx);
 
 
     return (
@@ -129,6 +131,26 @@ const UpdateOption = ({ idx, option, selectedSubCategoryId, setOptions, screen }
                                 placeholder="Example: 40"
                             />
                         </div>
+                        <div className="space-y-2">
+                            <label
+                                htmlFor="serial"
+                                className="block text-xl font-medium text-gray-700"
+                            >
+                                Serial
+                            </label>
+                            <input
+                                type="number"
+                                name="serial"
+                                defaultValue={option?.serial}
+                                required
+                                className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+                                placeholder="Example: 40"
+                            />
+                        </div>
+                        <div className="space-y-2 flex items-center gap-2">
+                            <label htmlFor="willHaveQuantity" className="input-label !my-0">Will Have Quantity: </label>
+                            <input type="checkbox" name="willHaveQuantity" className="toggle !my-0" defaultChecked={option?.willHaveQuantity} />
+                        </div>
                         <div>
                             <button
                                 type="submit"
@@ -153,6 +175,8 @@ UpdateOption.propTypes = {
         price: PropTypes.number,
         stock: PropTypes.number,
         coin: PropTypes.number,
+        serial: PropTypes.number,
+        willHaveQuantity: PropTypes.bool,
     }),
     selectedSubCategoryId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     setOptions: PropTypes.func,

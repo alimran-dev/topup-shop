@@ -5,15 +5,15 @@ import Tick from '../../Tick';
 
 const UserName = ({ name, isVerified = false, nameClass="", iconClass="" }) => {
     return (
-        <div className='flex items-center gap-1'>
-            <h3 className={`${!nameClass} capitalize`}>{name}</h3>
+        <span className='flex items-center gap-1'>
+            <span className={`${!nameClass} capitalize`}>{name}</span>
             {/* {isVerified &&
                 <img src={verifiedIcon} className={`${iconClass} w-5 h-5 object-contain mt-1`} alt="verified badge" />
             } */}
             {
                 isVerified && <Tick />
             }
-        </div>
+        </span>
     );
 };
 
