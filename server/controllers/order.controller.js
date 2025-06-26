@@ -3,6 +3,8 @@ const { dbCollections } = require("../config/db");
 const { cookieOption } = require("../utils/cookieOption");
 const notificationSender = require("../utils/notificationSender");
 const { CONSTANTS } = require("../utils/constants");
+const { default: axios } = require("axios");
+const { axiosAuto } = require("../utils/axiosAuto");
 const {
   orderCollection,
   unipinCollection,
@@ -88,15 +90,46 @@ const getAllOrder = async (req, res) => {
     if (email !== emailDecoded) {
       return res.status(401).send({ error: "unauthorized" });
     }
-    const totalOrders = await orderCollection.countDocuments({
-      email: email,
+
+        const [orders, totalOrders] = await Promise.all([
+      orderCollection
+        .find({email: email}, { sort: { updateTime: -1 } })
+        .skip((pageInt-1)*limitInt)
+        .limit(limitInt)
+        .toArray(),
+      orderCollection.countDocuments({email: email}),
+    ]);
+
+    const externalMap = new Map();
+    const externalIds = [];
+
+    for (const order of orders) {
+      if (order.processedExternally && order.externalOrderId) {
+        externalIds.push(order.externalOrderId);
+        externalMap.set(order.externalOrderId, order._id.toString());
+      }
+    }
+
+    let externalResultMap = new Map();
+    if (externalIds.length > 0) {
+      try {
+        const { data } = await axiosAuto.post("/order-info/all",{ ids: externalIds });
+        // console.log(data?.orders);
+        externalResultMap = new Map(data?.orders?.map((d) => [d.id, d]));
+      } catch (err) {
+        console.error("External batch fetch failed: ", err.message);
+      }
+    }
+
+    const finalOrders = orders.map((order) => {
+      if (order.processedExternally && order.externalOrderId) {
+        const externalOrder = externalResultMap.get(order?.externalOrderId);
+        const { _id: _, ...newExternalOrder } = externalOrder || {};
+        return { ...order, ...newExternalOrder };
+      }
+      return { ...order };
     });
-    const result = await orderCollection
-      .find({ email: email }, { sort: { updateTime: -1 } })
-      .skip((pageInt - 1) * limitInt)
-      .limit(limitInt)
-      .toArray();
-    res.send({ orders: result, total: totalOrders });
+    res.send({ orders: finalOrders, totalOrders });
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -221,14 +254,14 @@ const orderAuto = async (req, res) => {
         await rechargeCollection.updateOne(filter, {
           $pull: { codes: { $in: takenCodes } },
         });
-        if(option?.operator==="GrameenPhone"){
-          takenCodes=takenCodes.map(item=>"*555*"+item+"#");
-        } else if(option?.operator==="Banglalink"){
-          takenCodes=takenCodes.map(item=>"*123*"+item+"#");
-        }else if(option?.operator==="Robi"){
-          takenCodes=takenCodes.map(item=>"*111*"+item+"#");
-        }else if(option?.operator==="Airtel"){
-          takenCodes=takenCodes.map(item=>"*787*"+item+"#");
+        if (option?.operator === "GrameenPhone") {
+          takenCodes = takenCodes.map((item) => "*555*" + item + "#");
+        } else if (option?.operator === "Banglalink") {
+          takenCodes = takenCodes.map((item) => "*123*" + item + "#");
+        } else if (option?.operator === "Robi") {
+          takenCodes = takenCodes.map((item) => "*111*" + item + "#");
+        } else if (option?.operator === "Airtel") {
+          takenCodes = takenCodes.map((item) => "*787*" + item + "#");
         }
         // console.log(takenCodes);
       }
@@ -290,7 +323,17 @@ const orderAuto = async (req, res) => {
 
 const orderDynamic = async (req, res) => {
   try {
-    const { id, email, index, name, price, info } = req.body;
+    const {
+      id,
+      email,
+      index,
+      name,
+      price,
+      info,
+      isAuto,
+      willHaveQuantity,
+      quantity,
+    } = req.body;
     const orderTime = new Date();
     const emailInToken = req.user?.email;
     if (email !== emailInToken) {
@@ -303,7 +346,7 @@ const orderDynamic = async (req, res) => {
     if (!service) {
       return res.send({ success: false, message: "Service not found" });
     }
-    if (Object.keys(info).length !== service.inputs.length) {
+    if (!isAuto && Object.keys(info).length !== service.inputs.length) {
       return res.send({ success: false, message: "Invalid order" });
     }
     const option = service.options[parseInt(index)];
@@ -314,17 +357,23 @@ const orderDynamic = async (req, res) => {
       return res.send({ success: false, message: "Stock unavailable" });
     }
     const user = await userCollection.findOne({ email: email });
+    const totalPrice = willHaveQuantity
+      ? option.price * quantity
+      : option.price;
+    if (willHaveQuantity && quantity <= 0) {
+      return res.status(400).send({ error: "Invalid quantity" });
+    }
     if (!user) {
       return res.status(401).send({ error: "User Not Found" });
-    } else if (user.balance < option.price) {
+    } else if (user.balance < totalPrice) {
       return res.status(400).send({ error: "You don't have enough balance" });
     }
     const userUpdate = await userCollection.updateOne(
       { email: email },
       {
         $set: {
-          balance: user.balance - option.price,
-          spent: user.spent + option.price,
+          balance: user.balance - totalPrice,
+          spent: user.spent + totalPrice,
           orders: user.orders + 1,
         },
       }
@@ -337,7 +386,7 @@ const orderDynamic = async (req, res) => {
         category: service?.category,
         subCategory: service?.title,
         name: option.name,
-        price: option.price,
+        price: totalPrice,
         orderTime: orderTime,
         updateTime: new Date(),
         status: "pending",
@@ -345,6 +394,13 @@ const orderDynamic = async (req, res) => {
         type: "balance",
         info: info,
       };
+      if (isAuto) {
+        order.processedExternally = true;
+      }
+      if (willHaveQuantity) {
+        order.quantity = quantity;
+        order.info.quantity = quantity;
+      }
       if (user.referredBy && user?.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
@@ -370,12 +426,34 @@ const orderDynamic = async (req, res) => {
         );
         order.coinBonusID = coinHistoryInsert.insertedId.toString();
       }
-      console.log("dynamic order--", order);
+      // console.log("dynamic order--", order);
       service.options[parseInt(index)].stock--;
       await serviceCollection.updateOne(
         { _id: new ObjectId(id) },
         { $set: { options: service.options } }
       );
+
+      if (isAuto) {
+        const autoCombo = option?.combo?.reduce((acc, item) => {
+          if (item?.quantity > 0){
+            acc.push({ name: item?.name, quantity: item?.quantity * quantity });
+          }
+          return acc;
+        },[]);
+        console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
+        try {
+          const { data } = await axiosAuto.post("/new-order",
+            {
+              uid: info?.uid,
+              option: autoCombo,
+              email: "mezbakhan65@gmail.com",
+            }
+          );
+          order.externalOrderId = data?.orderId;
+        } catch (err) {
+          console.error("orderDynamic: ", err.message);
+        }
+      }
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {
         if (admin.subscription) {
@@ -388,7 +466,7 @@ const orderDynamic = async (req, res) => {
         }
       });
       const result = await orderCollection.insertOne(order);
-      res.send({ ...result, success: true, price: option.price });
+      res.send({ ...result, success: true, price: totalPrice });
     } else {
       return res.send({
         success: false,
@@ -795,7 +873,7 @@ const orderCoinProduct = async (req, res) => {
   }
 };
 
-const getAllOrderAdmin = async (req, res) => {
+const getAllOrderAdminBK = async (req, res) => {
   try {
     const { page, limit, search, fromDate, toDate, category, subCategory } =
       req.query;
@@ -837,6 +915,86 @@ const getAllOrderAdmin = async (req, res) => {
     res.send({ orders: result, totalOrders });
   } catch (err) {
     console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+const getAllOrderAdmin = async (req, res) => {
+  try {
+    const { search, fromDate, toDate, category, subCategory } = req.query || {};
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 10);
+    const skip = (page - 1) * limit;
+
+    let filter = {};
+    if (search) {
+      filter = { email: { $regex: new RegExp(search, "i") } };
+    }
+    const fromDateObj = new Date(fromDate);
+    const toDateObj = new Date(toDate);
+    if (
+      fromDate &&
+      toDate &&
+      (isNaN(fromDateObj.getTime()) || isNaN(toDateObj.getTime()))
+    ) {
+      return res.status(400).send({ message: "Invalid Request" });
+    }
+    if (fromDate) {
+      filter = {
+        ...filter,
+        orderTime: { $gte: fromDateObj, $lte: toDateObj },
+      };
+    }
+    if (category) {
+      filter.category = category;
+    }
+    if (subCategory) {
+      filter.subCategory = subCategory;
+    }
+
+    const [orders, totalOrders] = await Promise.all([
+      orderCollection
+        .find(filter, { sort: { updateTime: -1 } })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      orderCollection.countDocuments(filter),
+    ]);
+
+    const externalMap = new Map();
+    const externalIds = [];
+
+    for (const order of orders) {
+      if (order.processedExternally && order.externalOrderId) {
+        externalIds.push(order.externalOrderId);
+        externalMap.set(order.externalOrderId, order._id.toString());
+      }
+    }
+
+    let externalResultMap = new Map();
+    if (externalIds.length > 0) {
+      try {
+        const { data } = await axiosAuto.post("/order-info/all",{ ids: externalIds });
+
+        console.log(data?.orders);
+
+        externalResultMap = new Map(data?.orders?.map((d) => [d.id, d]));
+      } catch (err) {
+        console.error("External batch fetch failed: ", err.message);
+      }
+    }
+
+    const finalOrders = orders.map((order) => {
+      if (order.processedExternally && order.externalOrderId) {
+        const externalOrder = externalResultMap.get(order?.externalOrderId);
+        const { _id: _, ...newExternalOrder } = externalOrder || {};
+        return { ...order, ...newExternalOrder };
+      }
+      return { ...order };
+    });
+    res.send({ orders: finalOrders, totalOrders });
+  } catch (err) {
+    console.error("getAllOrderAdminNew: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };

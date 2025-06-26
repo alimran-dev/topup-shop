@@ -312,7 +312,7 @@ const addOption = async (req, res) => {
 
 const addDynamicOption = async (req, res) => {
   try {
-    const { name, price, id, coin, stock } = req.body;
+    const { name, price, id, coin, stock, isAuto, willHaveQuantity, combo } = req.body;
     const priceInt = parseInt(price);
     const coinInt = parseInt(coin);
     const stockInt=parseInt(stock);
@@ -325,9 +325,20 @@ const addDynamicOption = async (req, res) => {
       if(!service){
         return res.send({success: false, message: "Service not found"});
       }
-      const newOption={ name, price: parseInt(price), coin: coinInt, stock: stockInt }
+      const serial =  service.options?.length ? service?.options?.length + 1 : 1;
+      if (isNaN(serial)) {
+        return res.send({ success: false, message: "Invalid serial number" });
+      }
+      const newOption={ name, price: parseInt(price), coin: coinInt, stock: stockInt, isAuto, willHaveQuantity, serial }
+      if(isAuto){
+        newOption.combo=combo;
+      }
+      if(isAuto!==service?.isAuto){
+        return res.send({ success: false, message: "Auto status mismatch" });
+      }
       const updatedOption=[...(service.options || []),newOption];
-      updatedOption?.sort((a,b)=>a.price-b.price);
+      // updatedOption?.sort((a,b)=>a.price-b.price);
+      updatedOption?.sort((a,b)=>a.serial-b.serial);
       console.log(updatedOption, updatedOption.length);
       const result = await serviceCollection.updateOne(filter, {
         $set: {options: updatedOption},
@@ -393,9 +404,10 @@ const updateOption = async (req, res) => {
 
 const updateDynamicOption = async (req, res) => {
   try {
-    const { id, index, name, price, coin, stock } = req.body;
+    const { id, index, name, price, coin, stock, serial, willHaveQuantity } = req.body;
     const priceInt = parseInt(price);
     const coinInt = parseInt(coin);
+    console.log(willHaveQuantity);
     if (isNaN(coinInt) || isNaN(priceInt)) {
       return res.send({ success: false, message: "Invalid Price or coin" });
     }
@@ -414,6 +426,8 @@ const updateDynamicOption = async (req, res) => {
     service.options[parseInt(index)].price = parseInt(price);
     service.options[parseInt(index)].stock = parseInt(stock);
     service.options[parseInt(index)].coin = coinInt;
+    service.options[parseInt(index)].serial= parseInt(serial);
+    service.options[parseInt(index)].willHaveQuantity = willHaveQuantity;
     const result = await serviceCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { options: service.options } }

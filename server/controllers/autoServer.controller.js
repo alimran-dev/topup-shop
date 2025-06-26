@@ -1,14 +1,12 @@
 const axios = require("axios");
 require("dotenv").config();
+const {axiosAuto} = require("../utils/axiosAuto")
 
 const getUsername = async (req, res) => {
   try {
     const { uid } = req.query || {};
     // console.log(uid);
-    const { data } = await axios.get(
-      `${process.env.AUTO_SERVER_DOMAIN}/username`,
-      { params: { uid } }
-    );
+    const { data } = await axiosAuto.get("/username",{ params: { uid } });
     res.send(data);
   } catch (err) {
     console.error("getUsername: ", err.message);
@@ -21,9 +19,7 @@ const getUsername = async (req, res) => {
 
 const getUnipinsData = async (req, res) => {
   try {
-    const { data } = await axios.get(
-      `${process.env.AUTO_SERVER_DOMAIN}/unipins-data`
-    );
+    const { data } = await axiosAuto.get("/unipins-data");
     res.send(data);
   } catch (err) {
     console.error("getUnipinsData: ", err.message);
@@ -41,7 +37,7 @@ const getUnipinsData = async (req, res) => {
 const getOrderInfo = async (req, res) => {
   try {
     const {id}=req.query || {};
-    const { data } = await axios.get(`${process.env.AUTO_SERVER_DOMAIN}/order-info`,{params: {id}});
+    const { data } = await axiosAuto.get("/order-info",{params: {id}});
     res.send(data);
   } catch (err) {
     console.error("getOrderInfo: ", err.message);
@@ -66,8 +62,9 @@ const newOrder = async (req, res) => {
 
 const addUnipinsToAuto = async (req, res) => {
   try {
-    const {codesArray} = req.body || {};
-    const {data}=await axios.post(`${process.env.AUTO_SERVER_DOMAIN}/add-unipins`,{codesArray});
+    const codesArray = req.body || {};
+    console.log(codesArray);
+    const {data}=await axiosAuto.post("/add-unipins",{codesArray});
     res.send(data);
   } catch (err) {
     console.error("addUnipinsToAuto: ", err.message);
