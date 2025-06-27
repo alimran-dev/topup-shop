@@ -11,12 +11,14 @@ const ViewSummary = () => {
     const axiosPrivate = useAxiosPrivate();
     const { state } = useLocation();
 
+    console.log(state);
+
 
     useEffect(() => {
         setLoading(false);
         const fetchData = async () => {
             try {
-                const res = await axiosPrivate.get(`/order/summary?search&fromDate=${state?.filterData?.fromDate}&toDate=${state?.filterData?.toDate}&category=${state?.filterData?.category}&subCategory=${state?.filterData?.subCategory}`);
+                const res = await axiosPrivate.get(`/order/summary?search=${state?.filterData?.searchEmail}&fromDate=${state?.filterData?.fromDate}&toDate=${state?.filterData?.toDate}&category=${encodeURIComponent(state?.filterData?.category)}&subCategory=${encodeURIComponent(state?.filterData?.subCategory)}`);
                 console.log(res.data);
                 setSummaryData(res?.data || []);
             }
@@ -46,8 +48,8 @@ const ViewSummary = () => {
                     {new Date(state?.filterData?.fromDate).toLocaleDateString("en-GB")} -{" "}
                     {new Date(state?.filterData?.toDate).toLocaleDateString("en-GB")}
                 </p>
-                <p className='px-3 py-1 bg-slate-100 rounded-sm'><strong>Category:</strong> {state?.filterData?.selectedCategory}</p>
-                <p className='px-3 py-1 bg-slate-100 rounded-sm'><strong>Category:</strong> {state?.filterData?.selectedSubCategory}</p>
+                <p className='px-3 py-1 bg-slate-100 rounded-sm'><strong>Category:</strong> {state?.filterData?.category}</p>
+                <p className='px-3 py-1 bg-slate-100 rounded-sm'><strong>SubCategory:</strong> {state?.filterData?.subCategory}</p>
             </div>
 
             {/* summary data */}
