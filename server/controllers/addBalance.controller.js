@@ -14,6 +14,7 @@ const addBalanceOfferCollections = dbCollections.addBalanceOfferCollections;
 const addBalance = async (req, res) => {
   try {
     const { amount, email, id, previousBalance } = req.body;
+    // console.log("amount: ", amount);
     if (amount >= 5000) {
       return res.send({
         message: `একসাথে সর্বোচ্চ ৪৯৯৯ টাকা অ্যাড করতে পারবেন।`,
@@ -23,13 +24,13 @@ const addBalance = async (req, res) => {
       email,
       status: "pending",
     });
-    console.log(pendingCount);
+    // console.log(pendingCount);
     if (pendingCount > 0) {
       const transaction = await transactionCollection.findOne({
         email,
         status: "pending",
       });
-      console.log(transaction);
+      // console.log(transaction);
       const timeNow = new Date();
       const timeDiff = timeNow.getTime() - transaction.time.getTime();
       let timeDiffSec = timeDiff / 1000;
@@ -50,6 +51,7 @@ const addBalance = async (req, res) => {
       method || {};
     let willAdd = parseFloat((amount + (amount * bonus) / 100).toFixed(2));
     if (amount % 5 === 0) {
+      // console.log("valo number");
       willAdd = parseFloat(
         (amount + (amount * special_bonus) / 100).toFixed(2)
       );

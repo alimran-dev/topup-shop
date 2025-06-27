@@ -49,6 +49,7 @@ const getOption = async (req, res) => {
         coin: 1,
         category: 1,
         description: 1,
+        subCategory: 1,
         stock: {
           $cond: {
             if: {

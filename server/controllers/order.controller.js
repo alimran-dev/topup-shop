@@ -3,7 +3,6 @@ const { dbCollections } = require("../config/db");
 const { cookieOption } = require("../utils/cookieOption");
 const notificationSender = require("../utils/notificationSender");
 const { CONSTANTS } = require("../utils/constants");
-const { default: axios } = require("axios");
 const { axiosAuto } = require("../utils/axiosAuto");
 const {
   orderCollection,
@@ -91,13 +90,13 @@ const getAllOrder = async (req, res) => {
       return res.status(401).send({ error: "unauthorized" });
     }
 
-        const [orders, totalOrders] = await Promise.all([
+    const [orders, totalOrders] = await Promise.all([
       orderCollection
-        .find({email: email}, { sort: { updateTime: -1 } })
-        .skip((pageInt-1)*limitInt)
+        .find({ email: email }, { sort: { updateTime: -1 } })
+        .skip((pageInt - 1) * limitInt)
         .limit(limitInt)
         .toArray(),
-      orderCollection.countDocuments({email: email}),
+      orderCollection.countDocuments({ email: email }),
     ]);
 
     const externalMap = new Map();
@@ -113,7 +112,9 @@ const getAllOrder = async (req, res) => {
     let externalResultMap = new Map();
     if (externalIds.length > 0) {
       try {
-        const { data } = await axiosAuto.post("/order-info/all",{ ids: externalIds });
+        const { data } = await axiosAuto.post("/order-info/all", {
+          ids: externalIds,
+        });
         // console.log(data?.orders);
         externalResultMap = new Map(data?.orders?.map((d) => [d.id, d]));
       } catch (err) {
@@ -158,6 +159,7 @@ const getLastOrder = async (req, res) => {
             package: "$name",
             price: 1,
             status: 1,
+            type: 1,
             "userDetails.name": 1,
             "userDetails.photo": 1,
             "userDetails.isVerified": 1,
@@ -168,6 +170,7 @@ const getLastOrder = async (req, res) => {
             package: 1,
             price: 1,
             status: 1,
+            type: 1,
             name: "$userDetails.name",
             photo: "$userDetails.photo",
             isVerified: "$userDetails.isVerified",
@@ -349,6 +352,9 @@ const orderDynamic = async (req, res) => {
     if (!isAuto && Object.keys(info).length !== service.inputs.length) {
       return res.send({ success: false, message: "Invalid order" });
     }
+    if (isAuto && (info?.uid?.length < 7 || info?.uid?.length > 13)) {
+      return res.send({ success: false, message: "Invalid UID" });
+    }
     const option = service.options[parseInt(index)];
     if (!option || option.name !== name || option.price !== parseInt(price)) {
       return res.send({ success: false, message: "Invalid option" });
@@ -435,20 +441,18 @@ const orderDynamic = async (req, res) => {
 
       if (isAuto) {
         const autoCombo = option?.combo?.reduce((acc, item) => {
-          if (item?.quantity > 0){
+          if (item?.quantity > 0) {
             acc.push({ name: item?.name, quantity: item?.quantity * quantity });
           }
           return acc;
-        },[]);
+        }, []);
         console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
         try {
-          const { data } = await axiosAuto.post("/new-order",
-            {
-              uid: info?.uid,
-              option: autoCombo,
-              email: "mezbakhan65@gmail.com",
-            }
-          );
+          const { data } = await axiosAuto.post("/new-order", {
+            uid: info?.uid,
+            option: autoCombo,
+            email: "mezbakhan65@gmail.com",
+          });
           order.externalOrderId = data?.orderId;
         } catch (err) {
           console.error("orderDynamic: ", err.message);
@@ -940,6 +944,10 @@ const getAllOrderAdmin = async (req, res) => {
       return res.status(400).send({ message: "Invalid Request" });
     }
     if (fromDate) {
+      // Set time to start of day for fromDate
+      fromDateObj.setHours(0, 0, 0, 0);
+      // Set time to end of day for toDate
+      toDateObj.setHours(23, 59, 59, 999);
       filter = {
         ...filter,
         orderTime: { $gte: fromDateObj, $lte: toDateObj },
@@ -974,9 +982,11 @@ const getAllOrderAdmin = async (req, res) => {
     let externalResultMap = new Map();
     if (externalIds.length > 0) {
       try {
-        const { data } = await axiosAuto.post("/order-info/all",{ ids: externalIds });
+        const { data } = await axiosAuto.post("/order-info/all", {
+          ids: externalIds,
+        });
 
-        console.log(data?.orders);
+        // console.log(data?.orders);
 
         externalResultMap = new Map(data?.orders?.map((d) => [d.id, d]));
       } catch (err) {
@@ -1016,6 +1026,10 @@ const getAllOrderSummary = async (req, res) => {
       return res.status(400).send({ message: "Invalid Request" });
     }
     if (fromDate) {
+      // Set time to start of day for fromDate
+      fromDateObj.setHours(0, 0, 0, 0);
+      // Set time to end of day for toDate
+      toDateObj.setHours(23, 59, 59, 999);
       filter = {
         ...filter,
         orderTime: { $gte: fromDateObj, $lte: toDateObj },
@@ -1168,7 +1182,7 @@ const orderProcess = async (req, res) => {
         );
       }
     }
-    if (newStatus === "cancelled") {
+    if (newStatus === "cancelled" && order?.type === "balance") {
       await userCollection.updateOne(
         { email: order.email },
         { $inc: { balance: order.price, spent: -order.price } }

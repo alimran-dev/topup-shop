@@ -203,6 +203,7 @@ const updateMethod = async (req, res) => {
   try {
     const { id } = req.query;
     const { bonus, special_bonus, fee, number, status } = req.body;
+    // console.log(req.body);
     const updatedMethod = {
       $set: {
         bonus: parseFloat(bonus),
