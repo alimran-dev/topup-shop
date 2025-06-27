@@ -13,7 +13,7 @@ const MethodCard = ({ method, amount, setErr }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const axiosPrivate = useAxiosPrivate();
-  const { _id, provider, category, bonus, fee, number } = method || {};
+  const { _id, provider, category, bonus, special_bonus, fee, number } = method || {};
 
   const handleAddReq = () => {
     if (method?.type == 'auto') {
@@ -58,9 +58,9 @@ const MethodCard = ({ method, amount, setErr }) => {
     }
   };
   useEffect(() => {
-    setBonus(((amount * bonus) / 100).toFixed(2));
     setAmount(Math.ceil(amount + (amount * fee) / 100));
-  }, [amount, bonus, fee]);
+    setBonus(amount%5===0?((amount*special_bonus)/100).toFixed(2):((amount * bonus) / 100).toFixed(2));
+  }, [amount, bonus, fee, special_bonus]);
   return (
     <div
       onClick={handleAddReq}

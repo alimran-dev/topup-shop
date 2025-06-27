@@ -141,7 +141,7 @@ const AddOption = () => {
               Option Price
             </label>
             <input
-              type="text"
+              type="number"
               name="price"
               required
               className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
@@ -267,7 +267,7 @@ const AddOption = () => {
               Option Price
             </label>
             <input
-              type="text"
+              type="number"
               name="price"
               required
               className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"

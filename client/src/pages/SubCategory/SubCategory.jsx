@@ -34,7 +34,7 @@ const SubCategory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState("");
   const [usernameChecked, setUsernameChecked] = useState(false);
-  const [isLoadingUsername, setIsLoadingUsername]=useState(false);
+  const [isLoadingUsername, setIsLoadingUsername] = useState(false);
   const [price, setPrice] = useState(0);
   const [inputValues, setInputValues] = useState({});
   const axiosPublic = useAxiosPublic();
@@ -48,7 +48,7 @@ const SubCategory = () => {
     window.scrollTo(0, 0);
   }, []);
 
-//   console.log(selected);
+  //   console.log(selected);
 
   useEffect(() => {
     axiosPublic.get(`/services/get?id=${id}`).then((res) => {
@@ -66,11 +66,11 @@ const SubCategory = () => {
     setPrice(selected.price);
   }, [axiosPublic, id, selected?.price]);
 
-//   console.log(allData);
+  //   console.log(allData);
 
-  useEffect(()=>{
+  useEffect(() => {
     setPrice(selected?.price * quantity);
-  },[quantity, selected?.price])
+  }, [quantity, selected?.price]);
 
   // Handle input change
   const handleInputChange = (e, label) => {
@@ -94,6 +94,13 @@ const SubCategory = () => {
       toast.error("Please fill all input fields");
       return;
     }
+    if (
+      allData?.isAuto &&
+      (inputValues?.uid?.length < 7 || inputValues?.uid?.length > 13)
+    ) {
+      toast.error("Please enter valid Player UID");
+      return;
+    }
 
     if (!user) {
       toast.error("Please Login First!");
@@ -106,34 +113,49 @@ const SubCategory = () => {
       navigate("/addBalance/method", { state: restAmount });
     } else {
       navigate("/confirmPurchase", {
-        state: { name: "dynamic", selected, inputValues, orderData: allData, quantity },
+        state: {
+          name: "dynamic",
+          selected,
+          inputValues,
+          orderData: allData,
+          quantity,
+        },
       });
     }
   };
 
   //   check username
-  const handleCheckUsername =async () => {
-    if( isLoadingUsername) return;
-    if(!user){
+  const handleCheckUsername = async () => {
+    if (isLoadingUsername) return;
+    if (!user) {
       setUsername("Please login first!");
+      return;
+    }
+    if (
+      allData?.isAuto &&
+      (inputValues?.uid?.length < 7 || inputValues?.uid?.length > 13)
+    ) {
+      toast.error("Please enter valid Player UID");
       return;
     }
     setUsername("");
     setIsLoadingUsername(true);
-    try{
-        const {data}=await axiosPrivate.get("/auto/username", {params: {uid: inputValues?.uid}});
-        console.log(data);
-        setUsername(data?.username);
-        setUsernameChecked(true);
-        setIsLoadingUsername(false);
-    }catch(err){
-        console.log(err?.message);
-        if(typeof err?.response.data === "string"){
-            setUsername(err?.response.data);
-        }else{
-          setUsername(err?.response.data?.message || "Something went wrong!");
-        }
-        setIsLoadingUsername(false);
+    try {
+      const { data } = await axiosPrivate.get("/auto/username", {
+        params: { uid: inputValues?.uid },
+      });
+      console.log(data);
+      setUsername(data?.username);
+      setUsernameChecked(true);
+      setIsLoadingUsername(false);
+    } catch (err) {
+      console.log(err?.message);
+      if (typeof err?.response.data === "string") {
+        setUsername(err?.response.data);
+      } else {
+        setUsername(err?.response.data?.message || "Something went wrong!");
+      }
+      setIsLoadingUsername(false);
     }
   };
 
@@ -219,7 +241,7 @@ const SubCategory = () => {
                         type="text"
                         name={label}
                         placeholder={label}
-                        className="text-base px-3 py-1 border border-gray-400 rounded w-full capitalize"
+                        className="text-base px-3 py-1 border border-gray-400 rounded w-full"
                         value={inputValues[label] || ""}
                         onChange={(e) => handleInputChange(e, label)}
                       />
@@ -231,11 +253,11 @@ const SubCategory = () => {
                       Player UID
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       name="uid"
                       placeholder="Player UID"
                       className="text-base px-3 py-1 border border-gray-400 rounded w-full"
-                      onChange={(e)=>handleInputChange(e, "uid")}
+                      onChange={(e) => setInputValues({uid: e.target.value })}
                     />
                   </div>
                 )}
@@ -245,8 +267,12 @@ const SubCategory = () => {
                   }`}
                   onClick={handleCheckUsername}
                 >
-                  {username || isLoadingUsername ? username : "Click to check player name"}
-                  {isLoadingUsername && <span className="loading loading-dots loading-md"></span>}
+                  {username || isLoadingUsername
+                    ? username
+                    : "Click to check player name"}
+                  {isLoadingUsername && (
+                    <span className="loading loading-dots loading-md"></span>
+                  )}
                 </p>
                 {selected?.willHaveQuantity && (
                   <div className="flex items-center gap-5 px-5">

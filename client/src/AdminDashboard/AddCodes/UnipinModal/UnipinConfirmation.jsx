@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { IoCloseSharp } from "react-icons/io5";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 const UnipinConfirmation = ({
   isOpenUnipinConfirmation,
@@ -12,7 +13,10 @@ const UnipinConfirmation = ({
   setInputs,
 }) => {
   const axiosPrivate = useAxiosPrivate();
+  const [loading, setLoading] = useState(false);
   const handleAddCodes = () => {
+    if (loading) return;
+    setLoading(true);
     if (isUploadToAuto) {
       axiosPrivate
         .post("/auto/add-unipins", codesArray)
@@ -21,10 +25,12 @@ const UnipinConfirmation = ({
           setIsOpenUnipinConfirmation(false);
           resetTextarea();
           setInputs("");
+          setLoading(false);
         })
         .catch(() => {
           toast.error("Failed to upload");
           setIsOpenUnipinConfirmation(false);
+          setLoading(false);
         });
     } else {
       axiosPrivate
@@ -34,10 +40,12 @@ const UnipinConfirmation = ({
           setIsOpenUnipinConfirmation(false);
           resetTextarea();
           setInputs("");
+          setLoading(false);
         })
         .catch(() => {
           toast.error("Failed to add unipins to main server.");
           setIsOpenUnipinConfirmation(false);
+          setLoading(false);
         });
     }
   };
@@ -63,7 +71,7 @@ const UnipinConfirmation = ({
           unipins to {isUploadToAuto ? "Auto" : "Main"} Server?
         </p>
         <button onClick={handleAddCodes} className="button block mx-auto mt-3">
-          Confirm
+          {loading? "Please wait": "Confirm"}
         </button>
       </div>
     </div>

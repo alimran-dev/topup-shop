@@ -29,7 +29,7 @@ const UpdateDelete = () => {
       const coin = coinRef.current?.value;
 
 
-      const updatedOption = { id, category: `${category === "cards" ? "recharge" : category}`, name, price, description, coin, ...(option?.category === "offer" && { type: "offer", stock }) };
+      const updatedOption = { id, category: `${category === "cards" ? "recharge" : category}`, name, price, description, coin, ...(option?.subCategory === "offer" && { type: "offer", stock }) };
 
       console.log(updatedOption);
       axiosPrivate.patch("/option/admin/update", updatedOption).then((res) => {
@@ -125,7 +125,7 @@ const UpdateDelete = () => {
   }, [axiosPrivate, category, id, location.state?.docName]);
 
 
-  // console.log(option, "api");
+  console.log(option, "api");
 
 
   return (
@@ -188,7 +188,7 @@ const UpdateDelete = () => {
           <></>
         )}
         {
-          option?.category == "offer" &&
+          option?.subCategory == "offer" &&
           <>
             <div className="space-y-2">
               <label

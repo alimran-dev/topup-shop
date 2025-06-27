@@ -5,7 +5,7 @@ import bkashLogo from "../../assets/images/bkash.png";
 
 const PaymentsCard = ({ method, methods, setMethods }) => {
   const axiosPrivate = useAxiosPrivate();
-  const { _id, provider, category, bonus, fee, number, status, type } =
+  const { _id, provider, category, bonus, special_bonus, fee, number, status, type } =
     method || {};
 
   const handleUpdateMethod = (e) => {
@@ -138,10 +138,10 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                 Special Bonus:{" "}
               </label>
               <input
-                defaultValue={bonus}
+                defaultValue={special_bonus}
                 name="specialBonus"
                 type="number"
-                step={0.5}
+                step={0.01}
                 className="border px-3 py-1 rounded w-full md:w-fit"
                 placeholder="percent"
                 required
