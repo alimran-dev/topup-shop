@@ -16,6 +16,7 @@ const {
   archivedUnipins,
   orderCoinProduct,
   getAllOrderSummary,
+  autoServerOrderProcess,
 } = require("../controllers/order.controller");
 
 const orderRoute = () => {
@@ -35,6 +36,7 @@ const orderRoute = () => {
   router.get("/admin/all", verifyAdmin, getAllOrderAdmin);
   router.get("/admin/pending", verifyAdmin, getPending);
   router.patch("/admin/processing", verifyAdmin, orderProcess);
+  router.patch("/auto-server/processing", autoServerOrderProcess);
   return router;
 };
 

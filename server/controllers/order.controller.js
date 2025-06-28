@@ -877,7 +877,7 @@ const orderCoinProduct = async (req, res) => {
   }
 };
 
-const getAllOrderAdminBK = async (req, res) => {
+const getAllOrderAdmin = async (req, res) => {
   try {
     const { page, limit, search, fromDate, toDate, category, subCategory } =
       req.query;
@@ -898,6 +898,10 @@ const getAllOrderAdminBK = async (req, res) => {
       return res.status(400).send({ message: "Invalid Request" });
     }
     if (fromDate) {
+      // Set time to start of day for fromDate
+      fromDateObj.setHours(0, 0, 0, 0);
+      // Set time to end of day for toDate
+      toDateObj.setHours(23, 59, 59, 999);
       filter = {
         ...filter,
         orderTime: { $gte: fromDateObj, $lte: toDateObj },
@@ -909,7 +913,7 @@ const getAllOrderAdminBK = async (req, res) => {
     if (subCategory) {
       filter.subCategory = subCategory;
     }
-    console.log(filter);
+    // console.log(filter);
     const totalOrders = await orderCollection.countDocuments(filter);
     const result = await orderCollection
       .find(filter, { sort: { updateTime: -1 } })
@@ -923,7 +927,7 @@ const getAllOrderAdminBK = async (req, res) => {
   }
 };
 
-const getAllOrderAdmin = async (req, res) => {
+const getAllOrderAdminBK = async (req, res) => {
   try {
     const { search, fromDate, toDate, category, subCategory } = req.query || {};
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -1195,6 +1199,24 @@ const orderProcess = async (req, res) => {
   }
 };
 
+const autoServerOrderProcess = async (req,res)=>{
+  try{
+    const { id, status: newStatus, feedback: newFeedback, order, screenshots } = req.body;
+    const updatedDoc={
+      status: newStatus,
+      feedback: newFeedback || "",
+      updateTime: new Date(),
+      order,
+      screenshots: screenshots || [],
+    }
+    const result = await orderCollection.updateOne({externalOrderId: id}, {$set: updatedDoc});
+    res.send(result);
+  }catch(err){
+    console.error("autoServerOrderProcess: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+}
+
 const archivedUnipins = async (req, res) => {
   try {
     const { page, limit, search } = req.query || {};
@@ -1233,5 +1255,6 @@ module.exports = {
   getAllOrderSummary,
   getPending,
   orderProcess,
+  autoServerOrderProcess,
   archivedUnipins,
 };
