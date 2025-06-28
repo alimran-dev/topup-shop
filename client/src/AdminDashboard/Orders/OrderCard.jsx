@@ -8,6 +8,7 @@ import { FaHashtag } from "react-icons/fa";
 import toast from "react-hot-toast";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { TiTick } from "react-icons/ti";
+import Coin from "../../components/reusuable/Coin/Coin";
 
 const OrderCard = ({ order }) => {
   const [newStatus, setNewStatus] = useState(order?.status);
@@ -25,6 +26,7 @@ const OrderCard = ({ order }) => {
     email,
     price,
     status,
+    type,
     orderTime,
     updateTime,
     codes,
@@ -214,7 +216,7 @@ const OrderCard = ({ order }) => {
           </p>
           <p className="flex items-center">
             <span className="font-bold pr-1">Price:</span>
-            <TbCurrencyTaka /> {price}
+            {type === "balance"?<TbCurrencyTaka />: <Coin />} {price}
           </p>
           {info &&
             Object.entries(info).map(([key, value], idx) => (
