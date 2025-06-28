@@ -253,11 +253,15 @@ const SubCategory = () => {
                       Player UID
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="uid"
                       placeholder="Player UID"
                       className="text-base px-3 py-1 border border-gray-400 rounded w-full"
-                      onChange={(e) => setInputValues({uid: e.target.value })}
+                      value={inputValues.uid || ""}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+                        setInputValues({ ...inputValues, uid: value });
+                      }}
                     />
                   </div>
                 )}
