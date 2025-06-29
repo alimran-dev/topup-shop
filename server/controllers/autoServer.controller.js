@@ -63,7 +63,7 @@ const newOrder = async (req, res) => {
 const addUnipinsToAuto = async (req, res) => {
   try {
     const codesArray = req.body || {};
-    console.log(codesArray);
+    // console.log(codesArray);
     const {data}=await axiosAuto.post("/add-unipins",{codesArray});
     res.send(data);
   } catch (err) {

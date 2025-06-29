@@ -1,6 +1,6 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
-const { redeemCodesCollection, userCollection } = dbCollections || {};
+const { redeemCodesCollection, userCollection, transactionCollection, coinHistoryCollection } = dbCollections || {};
 
 const getClaimedUsers = async (req, res) => {
   try {
@@ -115,8 +115,32 @@ const checkRedeemCode = async (req, res) => {
     const updatedCodeDoc = {};
     if (codeDoc.type === "balance") {
       updatedUser.balance = user.balance + codeDoc.value;
+      const transaction = {
+        method: "Redeem Code",
+        amount: codeDoc.value,
+        bonus: 0,
+        fee: 0,
+        toPay: 0,
+        willAdd: codeDoc.value,
+        number: "",
+        email: user?.email,
+        previousBalance: user?.balance,
+        attempt: 0,
+        trxID: codeDoc?.code,
+        time: new Date(),
+        status: "completed",
+      }
+      await transactionCollection.insertOne(transaction);
     } else if (codeDoc.type === "coin") {
       updatedUser.coins = user.coins + codeDoc.value;
+      const coinHistory = {
+        email: user?.email,
+        name: "Redeem Code",
+        status: "success",
+        amount: codeDoc?.value,
+        createdAt: new Date()
+      }
+      await coinHistoryCollection.insertOne(coinHistory);
     }
     updatedCodeDoc.remaining = codeDoc.remaining - 1;
     const userUpdateResult = await userCollection.updateOne(

@@ -89,7 +89,6 @@ const getAllOrder = async (req, res) => {
     if (email !== emailDecoded) {
       return res.status(401).send({ error: "unauthorized" });
     }
-
     const [orders, totalOrders] = await Promise.all([
       orderCollection
         .find({ email: email }, { sort: { updateTime: -1 } })
@@ -98,39 +97,7 @@ const getAllOrder = async (req, res) => {
         .toArray(),
       orderCollection.countDocuments({ email: email }),
     ]);
-
-    const externalMap = new Map();
-    const externalIds = [];
-
-    for (const order of orders) {
-      if (order.processedExternally && order.externalOrderId) {
-        externalIds.push(order.externalOrderId);
-        externalMap.set(order.externalOrderId, order._id.toString());
-      }
-    }
-
-    let externalResultMap = new Map();
-    if (externalIds.length > 0) {
-      try {
-        const { data } = await axiosAuto.post("/order-info/all", {
-          ids: externalIds,
-        });
-        // console.log(data?.orders);
-        externalResultMap = new Map(data?.orders?.map((d) => [d.id, d]));
-      } catch (err) {
-        console.error("External batch fetch failed: ", err.message);
-      }
-    }
-
-    const finalOrders = orders.map((order) => {
-      if (order.processedExternally && order.externalOrderId) {
-        const externalOrder = externalResultMap.get(order?.externalOrderId);
-        const { _id: _, ...newExternalOrder } = externalOrder || {};
-        return { ...order, ...newExternalOrder };
-      }
-      return { ...order };
-    });
-    res.send({ orders: finalOrders, totalOrders });
+    res.send({ orders, totalOrders });
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
