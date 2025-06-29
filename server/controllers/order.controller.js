@@ -1166,23 +1166,84 @@ const orderProcess = async (req, res) => {
   }
 };
 
-const autoServerOrderProcess = async (req,res)=>{
-  try{
-    const { id, status: newStatus, feedback: newFeedback, order, screenshots } = req.body;
-    const updatedDoc={
+const autoServerOrderProcess = async (req, res) => {
+  try {
+    const {
+      id,
+      status: newStatus,
+      feedback: newFeedback,
+      order: orderInAuto,
+      screenshots,
+    } = req.body;
+    const updatedDoc = {
       status: newStatus,
       feedback: newFeedback || "",
       updateTime: new Date(),
-      order,
+      order: orderInAuto,
       screenshots: screenshots || [],
+    };
+    const order = await orderCollection.findOne({externalOrderId: id});
+    if(!order){
+      return res.send({success: false, message: "Order not found"});
     }
-    const result = await orderCollection.updateOne({externalOrderId: id}, {$set: updatedDoc});
+    const result = await orderCollection.updateOne(
+      { externalOrderId: id },
+      { $set: updatedDoc }
+    );
+    if (order.coinBonusID) {
+      const coinHistory = await coinHistoryCollection.findOne({
+        _id: new ObjectId(order.coinBonusID),
+      });
+      if (newStatus === "complete") {
+        await userCollection.updateOne(
+          { email: coinHistory.email },
+          { $inc: { coins: coinHistory.amount } }
+        );
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "success" } }
+        );
+      }
+      if (newStatus === "cancelled") {
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "cancel" } }
+        );
+      }
+    }
+    if (order.referHistoryId) {
+      const coinHistory = await coinHistoryCollection.findOne({
+        _id: new ObjectId(order.referHistoryId),
+      });
+      if (newStatus === "complete") {
+        await userCollection.updateOne(
+          { email: coinHistory.email },
+          { $inc: { coins: coinHistory.amount } }
+        );
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "success" } }
+        );
+      }
+      if (newStatus === "cancelled") {
+        await coinHistoryCollection.updateOne(
+          { _id: coinHistory._id },
+          { $set: { status: "cancel" } }
+        );
+      }
+    }
+    if (newStatus === "cancelled" && order?.type === "balance") {
+      await userCollection.updateOne(
+        { email: order.email },
+        { $inc: { balance: order.price, spent: -order.price } }
+      );
+    }
     res.send(result);
-  }catch(err){
+  } catch (err) {
     console.error("autoServerOrderProcess: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
 const archivedUnipins = async (req, res) => {
   try {
