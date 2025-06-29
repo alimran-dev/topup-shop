@@ -96,7 +96,7 @@ const SubCategory = () => {
     }
     if (
       allData?.isAuto &&
-      (inputValues?.uid?.length < 7 || inputValues?.uid?.length > 13)
+      (!inputValues?.uid || inputValues?.uid?.length < 7 || inputValues?.uid?.length > 13)
     ) {
       toast.error("Please enter valid Player UID");
       return;
@@ -262,7 +262,7 @@ const SubCategory = () => {
                       value={inputValues.uid || ""}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, "");
-                        setInputValues({ ...inputValues, uid: value });
+                        setInputValues({ uid: value });
                       }}
                     />
                   </div>
