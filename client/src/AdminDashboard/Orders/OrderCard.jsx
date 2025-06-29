@@ -256,7 +256,7 @@ const OrderCard = ({ order }) => {
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
           {subCategory === "unipin" ||
           subCategory === "shell" ||
-          subCategory === "card" || processedExternally ? (
+          subCategory === "card" || (processedExternally && status==="complete") ? (
             <div>
               <textarea
                 disabled
@@ -282,7 +282,7 @@ const OrderCard = ({ order }) => {
               ></textarea>
               <button
                 onClick={handleUpdate}
-                disabled={loading || isDisable}
+                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
                 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed mt-5"
               >
                 {loading ? "Please Wait" : "Update"}

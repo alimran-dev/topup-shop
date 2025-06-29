@@ -254,6 +254,8 @@ const SubCategory = () => {
                     </label>
                     <input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       name="uid"
                       placeholder="Player UID"
                       className="text-base px-3 py-1 border border-gray-400 rounded w-full"
@@ -265,19 +267,21 @@ const SubCategory = () => {
                     />
                   </div>
                 )}
-                <p
-                  className={`username-bg ${
-                    usernameChecked ? "opacity-100" : "opacity-65"
-                  }`}
-                  onClick={handleCheckUsername}
-                >
-                  {username || isLoadingUsername
-                    ? username
-                    : "Click to check player name"}
-                  {isLoadingUsername && (
-                    <span className="loading loading-dots loading-md"></span>
-                  )}
-                </p>
+                {allData?.isAuto && (
+                  <p
+                    className={`username-bg ${
+                      usernameChecked ? "opacity-100" : "opacity-65"
+                    }`}
+                    onClick={handleCheckUsername}
+                  >
+                    {username || isLoadingUsername
+                      ? username
+                      : "Click to check player name"}
+                    {isLoadingUsername && (
+                      <span className="loading loading-dots loading-md"></span>
+                    )}
+                  </p>
+                )}
                 {selected?.willHaveQuantity && (
                   <div className="flex items-center gap-5 px-5">
                     <label htmlFor="">Quantity: </label>

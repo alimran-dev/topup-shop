@@ -24,6 +24,7 @@ const OrderHistory = ({ order }) => {
     type,
     processedExternally,
     order: externalOrder,
+    screenshots,
   } = order || {};
   const handleCopy = async () => {
     if (codesRef.current) {
@@ -105,14 +106,15 @@ const OrderHistory = ({ order }) => {
           </div>
           {subCategory === "unipin" ||
           subCategory === "shell" ||
-          subCategory === "card" ? (
+          subCategory === "card" ||
+          (processedExternally && status==="complete") ? (
             <>
               {codes && (
                 <div className="pt-3">
                   <textarea
                     ref={codesRef}
                     disabled
-                    value={codes.join("\n")}
+                    value={processedExternally? externalOrder?.unipins?.join("\n")?.concat("\n",screenshots?.join("\n")):codes.join("\n")}
                     name=""
                     className="border-2 h-24 w-full rounded px-2 py-0.5"
                   ></textarea>
@@ -230,12 +232,14 @@ const OrderHistory = ({ order }) => {
             <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
               {subCategory === "unipin" ||
               subCategory === "shell" ||
-              subCategory === "card" ? (
+              subCategory === "card" ||
+              (processedExternally && status==="complete")
+               ? (
                 <div>
                   <textarea
                     ref={codesRef}
                     disabled
-                    value={codes.join("\n")}
+                    value={processedExternally? externalOrder?.unipins?.join("\n")?.concat("\n",screenshots?.join("\n")):codes.join("\n")}
                     name=""
                     className="border-2 h-24 w-full rounded px-2 py-0.5"
                   ></textarea>
@@ -247,30 +251,8 @@ const OrderHistory = ({ order }) => {
                   </button>
                 </div>
               ) : (
-                <></>
-              )}
-              {category === "idcode" ||
-              category === "weekly & monthly" ||
-              category === "airdrop" ||
-              category === "lessIsMore" ? (
-                status === "pending" ? (
-                  <div className="flex items-center justify-center h-full w-full">
-                    <p className="text-xl font-semibold text-center">
-                      অনুগ্রহপূর্বক অপেক্ষা করুন
-                    </p>
-                  </div>
-                ) : status === "cancelled" ? (
-                  <div className="h-full w-full">
-                    <p className="text-center font-semibold">
-                      অর্ডার বাতিল হওয়ার কারনঃ
-                    </p>
-                    <p className="text-center">{feedback}</p>
-                  </div>
-                ) : (
-                  ""
-                )
-              ) : (
-                ""
+                <>
+                </>
               )}
             </div>
           </div>

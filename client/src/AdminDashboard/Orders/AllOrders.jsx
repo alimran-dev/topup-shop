@@ -20,7 +20,7 @@ const AllOrders = () => {
     subCategory: "",
   });
 
-  console.log(orders);
+  // console.log(orders);
 
   const [searchTrigger, setSearchTrigger] = useState(0);
 
@@ -75,7 +75,7 @@ const AllOrders = () => {
     }
   }, [searchTrigger, formData]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  console.log(searchEmail);
+  // console.log(searchEmail);
   // console.log(formData);
   // console.log(orders, "--------orders");
 

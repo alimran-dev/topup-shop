@@ -32,6 +32,7 @@ const FilterOrders = ({
           const filterSubCategories = data?.filter(
             (item) => item?.category == selectedCategory
           );
+          console.log(filterSubCategories);
           setSubCategories(
             filterSubCategories.map((item) => ({
               id: item._id,
@@ -46,7 +47,7 @@ const FilterOrders = ({
         });
     }
   }, [axiosPrivate, selectedCategory]);
-
+  
   const handleEmail = (email) => {
     setFromDate("");
     setToDate("");
@@ -175,7 +176,9 @@ const FilterOrders = ({
               Choose One
             </option>
             {categories?.map((category, idx) => (
-              <option key={idx}>{category?.title}</option>
+              <option key={idx} value={category?.title}>
+                {category?.title}
+              </option>
             ))}
           </select>
         </div>
@@ -192,7 +195,9 @@ const FilterOrders = ({
               Choose One
             </option>
             {subCategories?.map((category, idx) => (
-              <option key={idx}>{category?.title}</option>
+              <option key={idx} value={category?.title}>
+                {category?.title}
+              </option>
             ))}
           </select>
         </div>
