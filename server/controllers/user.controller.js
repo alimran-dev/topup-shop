@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const { transporter } = require("../config/nodemailer");
 const { ObjectId } = require("mongodb");
 const { CONSTANTS } = require("../utils/constants");
+const { axiosCloudflare } = require("../utils/axiosTurnstile");
 const {
   userCollection,
   orderCollection,
@@ -216,11 +217,16 @@ const googleCallback = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body || {};
-    if (!email || !password) {
+    const { email, password, turnstileToken } = req.body || {};
+    if (!email || !password || !turnstileToken) {
       return res
         .status(400)
         .send({ success: false, message: "Invalid request" });
+    }
+    const {data} = await axiosCloudflare.post("/turnstile/v0/siteverify",{secret: process.env.TURNSTILE_SECRET, response: turnstileToken, remoteip: req?.ip});
+    // console.log(data);
+    if(data?.success !== true){
+      return res.status(400).send({ success: false, message: "Captcha verification failed" });
     }
     const user = await userCollection.findOne({ email: email });
     if (!user) {
@@ -251,6 +257,14 @@ const newUser = async (req, res) => {
   try {
     const user = req.body;
     const query = { email: user.email };
+    if(!user.email || !user.password || !user?.turnstileToken) {
+      return res.send({ success: false, message: "Invalid Request" });
+    }
+    const {data} = await axiosCloudflare.post("/turnstile/v0/siteverify",{secret: process.env.TURNSTILE_SECRET, response: user?.turnstileToken, remoteip: req?.ip});
+    // console.log(data);
+    if(data?.success !== true){
+      return res.send({ success: false, message: "Captcha verification failed" });
+    }
     const userInDb = await userCollection.findOne(query);
     if (userInDb) {
       return res.send({ userExist: true, newUser: false });
