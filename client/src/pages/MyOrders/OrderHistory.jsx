@@ -92,7 +92,7 @@ const OrderHistory = ({ order }) => {
                     : ""
                 } rounded-full`}
               >
-                • {processedExternally ? externalOrder?.status:status}
+                • {status}
               </span>
               <button
                 className="button"
@@ -177,7 +177,7 @@ const OrderHistory = ({ order }) => {
                         : ""
                     } rounded-full`}
                   >
-                    • {processedExternally? externalOrder?.status:status}
+                    • {status}
                   </span>
                 </div>
               </div>

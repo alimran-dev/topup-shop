@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import Turnstile from "react-turnstile";
+import toast from "react-hot-toast";
 
 
 const Login = () => {
@@ -12,6 +14,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const { user, setUser, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
@@ -34,10 +37,15 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    if(turnstileToken.length<=0){
+      setIsLoading(false);
+      return toast.error("Please complete the captcha!");
+    }
 
     const userCredentials = {
       email: e.target.email.value,
-      password: e.target.password.value
+      password: e.target.password.value,
+      turnstileToken,
     };
 
     try {
@@ -143,6 +151,7 @@ const Login = () => {
               {error}
             </p>
           )}
+          <Turnstile sitekey={import.meta.env.VITE_TURNSTILE_KEY} theme="light" className="w-fit mx-auto mt-2" onVerify={(token)=>setTurnstileToken(token)} />
           <button
             type="submit"
             className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-[#FA6023] to-[#E61C55] my-3 rounded-md"

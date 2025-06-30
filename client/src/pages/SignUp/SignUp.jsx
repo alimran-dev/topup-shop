@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import Turnstile from "react-turnstile";
+import toast from "react-hot-toast";
 
 
 const SignUp = () => {
@@ -14,6 +16,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showReferInput, setShowReferInput] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const { user, setUser, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
@@ -35,6 +38,11 @@ const SignUp = () => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+
+    if(turnstileToken.length <= 0) {
+      setIsLoading(false);
+      return toast.error("Please complete the captcha!");
+    }
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
@@ -42,7 +50,7 @@ const SignUp = () => {
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
     const referID = form.referID?.value;
-    const userData = { name, email, phone, password, referID };
+    const userData = { name, email, phone, password, referID, turnstileToken };
 
     const passRegex = /^.{6,}$/;
 
@@ -224,6 +232,7 @@ const SignUp = () => {
             {error}
           </p>
         )}
+        <Turnstile sitekey={import.meta.env.VITE_TURNSTILE_KEY} theme="light" className="w-fit mx-auto mt-2" onVerify={(token)=>setTurnstileToken(token)} />
         <button
           type="submit"
           className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-[#FA6023] to-[#E61C55] my-3 rounded-md"
