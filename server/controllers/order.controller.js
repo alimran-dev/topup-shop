@@ -94,6 +94,7 @@ const getAllOrder = async (req, res) => {
         .find({ email: email }, { sort: { updateTime: -1 } })
         .skip((pageInt - 1) * limitInt)
         .limit(limitInt)
+        .project({referHistoryId: 0, coinBonusID: 0, order: 0, screenshots: 0})
         .toArray(),
       orderCollection.countDocuments({ email: email }),
     ]);
@@ -103,6 +104,31 @@ const getAllOrder = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
+const getOrderImages = async (req,res)=>{
+  try{
+    const { id} = req.query || {};
+    if(!id){
+      return res.status(400).send({ error: "Invalid request" });
+    }
+    const order = await orderCollection.findOne({ _id: new ObjectId(id) });
+    if(!order){
+      return res.status(404).send({ error: "Order not found" });
+    }
+    const protocol = req.secure ? "https" : "http";
+    const host = req.get("host");
+    const screenshots = order?.screenshots || [];
+    const images = screenshots.map((image)=>{
+      const splitted = image?.split("/");
+      const imgName = splitted[splitted.length - 1];
+      return `${protocol}://${host}/auto/image?orderID=${order?.externalOrderId}&image=${imgName}`;
+    })
+    res.send({ success: true, images });
+  }catch(err){
+    console.error("getOrderImages: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+}
 
 const getLastOrder = async (req, res) => {
   try {
@@ -1272,6 +1298,7 @@ const archivedUnipins = async (req, res) => {
 
 module.exports = {
   getAllOrder,
+  getOrderImages,
   getLastOrder,
   orderAuto,
   orderDynamic,

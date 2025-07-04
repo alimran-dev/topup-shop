@@ -17,11 +17,13 @@ const {
   orderCoinProduct,
   getAllOrderSummary,
   autoServerOrderProcess,
+  getOrderImages,
 } = require("../controllers/order.controller");
 
 const orderRoute = () => {
   // /order/
   router.get("/all", verifyToken, getAllOrder);
+  router.get("/images", getOrderImages);
   router.get("/last", getLastOrder);
   router.get("/archived", archivedUnipins);
   router.get("/summary",verifyAdmin,getAllOrderSummary);

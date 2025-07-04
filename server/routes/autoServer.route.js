@@ -1,4 +1,4 @@
-const { getUsername, getUnipinsData, getOrderInfo, addUnipinsToAuto, newOrder } = require("../controllers/autoServer.controller");
+const { getUsername, getUnipinsData, getOrderInfo, addUnipinsToAuto, newOrder, getAutoServerImage } = require("../controllers/autoServer.controller");
 const {verifyToken} = require("../middlewares/verifyToken");
 const {verifyAdmin} = require("../middlewares/verifyAdmin");
 
@@ -11,6 +11,7 @@ const autoServerRoutes = () =>{
   router.get("/username",verifyToken,getUsername);
   router.get("/unipins-data",verifyAdmin,getUnipinsData);
   router.get("/order-info",getOrderInfo);
+  router.get("/image",getAutoServerImage);
   router.post("/new-order", newOrder);
   router.post("/add-unipins",verifyAdmin,addUnipinsToAuto);
   return router;
