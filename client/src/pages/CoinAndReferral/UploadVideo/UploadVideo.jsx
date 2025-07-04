@@ -1,49 +1,85 @@
-import { RiCoinFill } from "react-icons/ri";
 import { FaRegDotCircle } from "react-icons/fa";
-import { useState } from "react";
-// import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import { useEffect, useState } from "react";
+import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
+import Coin from "../../../components/reusuable/Coin/Coin";
+import useAuth from "../../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+
 
 const UploadVideo = () => {
+
+    const [coinAmount, setCoinAmount] = useState(0);
     const [loading, setLoading] = useState(false);
-    // const axiosPrivate = useAxiosPrivate();
+    const { user } = useAuth();
+    const axiosPrivate = useAxiosPrivate();
+    const navigate = useNavigate();
+
+
+    // get coin amount for review
+    useEffect(() => {
+        setLoading(true);
+        const fetchData = async () => {
+            try {
+                const res = await axiosPrivate.get("/coins/review");
+                setCoinAmount(res.data?.perReview || 0);
+            }
+            catch (err) {
+                toast.error("Something Went Wrong!")
+            }
+            finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, [axiosPrivate]);
 
     // upload video fn
     const handleUploadVideo = async (e) => {
         e.preventDefault();
+        if(!user?.isVerified){
+            navigate("/myAccount");
+            return;
+        }
         setLoading(true);
 
-        const videoLink = e.target.link.value;
-        const videoData = { link: videoLink };
+        const videoUrl = e.target.link.value;
 
         // URL validation regex
         const urlPattern = /^(https?:\/\/)\S+$/;
 
-        if (!urlPattern.test(videoLink)) {
+        if (!urlPattern.test(videoUrl)) {
             toast.error("Please enter a valid URL!");
             setLoading(false);
             return;
         }
 
-        console.log(videoData);
+        const reviewData = {
+            email: user?.email,
+            url: videoUrl,
+        }
 
+        console.log(reviewData);
+        
 
-        // try {
-        //     const res = await axiosPrivate.post('/', videoData);
-        //     console.log(res.data);
-        //     if (res.data.acknowledge) {
-        //         setLoading(false);
-        //         toast.success("Upload Successfully!");
-        //         e.target.reset();
-        //     }
-        //     else {
-        //         toast.error("Faild To Upload!")
-        //     }
-        // }
-        // catch (err) {
-        //     setLoading(false);
-        //     toast.error("Something Went Wrong!")
-        // }
+        try {
+            const res = await axiosPrivate.post("/coins/review", reviewData);
+            // console.log(res.data);
+            if (res.data.success) {
+                toast.success("Upload Successfully!");
+                e.target.reset();
+            }
+            else {
+                toast.error("Faild To Upload!")
+            }
+        }
+        catch (err) {
+            toast.error("Something Went Wrong!")
+        }
+        finally {
+            setLoading(false);
+        }
     };
 
     // steps data
@@ -74,10 +110,15 @@ const UploadVideo = () => {
         }
     ];
 
+    if (!user) {
+        toast.error("Please Login First!");
+        navigate("/login")
+    }
+
     return (
         <div className="px-4 py-3 md:py-6 border border-slate-300 rounded-md">
             <h3 className="font-bold">Upload Video Link</h3>
-            <p className="flex gap-1">Get <span className="font-semibold flex items-center gap-1">+2000 Coins<RiCoinFill className="translate-y-[3px] text-yellow-500" /></span></p>
+            <p className="flex gap-1">Get <span className="font-semibold flex items-center gap-1">+{coinAmount} Coins <Coin /></span></p>
             <form onSubmit={handleUploadVideo} className="mt-3 mb-5 flex gap-2">
                 <input type="text" name="link" className="input flex-1" placeholder="Enter video link" />
                 <button type="submit" className="button" disabled={loading}>

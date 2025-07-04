@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { VscAccount } from "react-icons/vsc";
 import { TfiMenuAlt } from "react-icons/tfi";
-import { MdAccountBalance,MdOutlineLeaderboard } from "react-icons/md";
+import { MdAccountBalance,MdOutlineLeaderboard ,MdOutlineStorefront } from "react-icons/md";
 import { IoGridOutline } from "react-icons/io5";
 import { NavLink, useLocation } from "react-router-dom";
 import { BsCoin } from "react-icons/bs";
@@ -12,10 +12,11 @@ const navItems = [
   { to: "/myOrders", icon: IoGridOutline, label: "My Orders" },
   { to: "/myTransactions", icon: TfiMenuAlt, label: "My Transactions" },
   { to: "/coinsAndReferral", icon: BsCoin, label: "Coins & Referral" },
-  { to: "/leaderboards", icon: MdOutlineLeaderboard, label: "Leaderboards" },
+  { to: "/store", icon: MdOutlineStorefront, label: "Store" },
+  { to: "/leaderboard", icon: MdOutlineLeaderboard, label: "Leaderboard" },
 ];
 
-const UserNav = ({ setIsOpen }) => {
+const   UserNav = ({ setIsOpen }) => {
   const location = useLocation();
 
   const renderNavLink = ({ to, icon: Icon, label }) => (

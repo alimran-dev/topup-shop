@@ -1,3 +1,5 @@
+const { CONSTANTS } = require('./constants');
+
 require('dotenv').config();
 
 const cookieOption = (age) => {
@@ -8,7 +10,7 @@ const cookieOption = (age) => {
     sameSite: process.env.PROJECT_ENV !== "development" ? "none" : "strict",
     domain:
       process.env.PROJECT_ENV !== "development"
-        ? ".mezbashop.com"
+        ? `.${CONSTANTS.domain}`
         : "localhost",
   };
   return obj;

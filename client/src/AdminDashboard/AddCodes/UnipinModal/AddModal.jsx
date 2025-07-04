@@ -1,34 +1,20 @@
 import PropTypes from "prop-types";
 import { IoCloseSharp } from "react-icons/io5";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import ModalRow from "./ModalRow";
-import Swal from "sweetalert2";
+import ModalRow from "../ModalRow";
 
 const AddModal = ({
   isOpen,
   setIsOpen,
   codesArray,
   selected,
-  resetTextarea,
-  setInputs,
+  isUploadToAuto,
+  setIsUploadToAuto,
+  setIsOpenUnipinConfirmation
 }) => {
-  const axiosPrivate = useAxiosPrivate();
-  const handleAddCodes = () => {
-    axiosPrivate.post(`/code/admin/add/${selected}`, codesArray).then((res) => {
-      // console.log(res.data);
-      Swal.fire({
-        position: "top",
-        icon: "success",
-        title: `${selected} codes added.`,
-        showConfirmButton: false,
-        timer: 5000,
-        toast: true,
-      });
-      setIsOpen(false);
-      resetTextarea();
-      setInputs("");
-    });
-  };
+  const handleAdd=()=>{
+    setIsOpen(false);
+    setIsOpenUnipinConfirmation(true);
+  }
   return (
     <div
       className={`fixed inset-0 z-30 w-screen h-screen items-center justify-center bg-black bg-opacity-40 py-5 ${
@@ -72,10 +58,38 @@ const AddModal = ({
             </tr>
           </tbody>
         </table>
+        <div className="flex items-center justify-center mx-auto flex-wrap">
+          <button
+            onClick={() => setIsUploadToAuto(true)}
+            className={`flex items-center gap-1 px-3 py-1.5 font-semibold rounded-l-md border-[3px] ${
+              isUploadToAuto ? "border-[#FA6023]" : "border-gray-400"
+            }`}
+          >
+            <span
+              className={`border-[5px] rounded-full ${
+                isUploadToAuto ? "border-[#FA6023]" : ""
+              }`}
+            ></span>
+            Auto Server
+          </button>
+          <button
+            onClick={() => setIsUploadToAuto(false)}
+            className={`flex items-center gap-1 px-3 py-1.5 font-semibold rounded-r-md border-[3px] ${
+              !isUploadToAuto ? "border-[#FA6023] z-10" : "border-gray-400"
+            }`}
+          >
+            <span
+              className={`border-[5px] rounded-full ${
+                !isUploadToAuto ? "border-[#FA6023]" : ""
+              }`}
+            ></span>
+            Main Server
+          </button>
+        </div>
         <div>
           <button
-            onClick={handleAddCodes}
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white py-1.5 rounded px-5 block mx-auto"
+            onClick={handleAdd}
+            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white py-1.5 rounded px-5 block mx-auto mt-2.5"
           >
             Add All
           </button>
@@ -91,6 +105,7 @@ AddModal.propTypes = {
   setIsOpen: PropTypes.func.isRequired,
   codesArray: PropTypes.array.isRequired,
   selected: PropTypes.string.isRequired,
-  resetTextarea: PropTypes.func.isRequired,
-  setInputs: PropTypes.func.isRequired,
+  isUploadToAuto: PropTypes.bool.isRequired,
+  setIsUploadToAuto: PropTypes.func.isRequired,
+  setIsOpenUnipinConfirmation: PropTypes.func.isRequired,
 };

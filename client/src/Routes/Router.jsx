@@ -44,7 +44,23 @@ import UpdateSubCategory from "../AdminDashboard/Services/UpdateSubCategory/Upda
 import CoinAndReferaal from "../pages/CoinAndReferral/CoinAndReferral";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
-import LeaderBoards from "../pages/LeaderBoards/LeaderBoards";
+import LeaderBoard from "../pages/LeaderBoard/LeaderBoard";
+import Referral from "../AdminDashboard/Referral/Referral";
+import History from "../AdminDashboard/Referral/History/History";
+import Store from "../pages/Store/Store";
+import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetails";
+import OffersAndProducts from "../AdminDashboard/OfferAndProducts/OfferAndProducts";
+import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProducts/SpecialProductForm/SpecialProductForm";
+import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
+import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
+import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
+import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
+import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
+import ReferralHistory from "../pages/CoinAndReferral/ReferralHistory/ReferralHistory";
+import ViewSummary from "../AdminDashboard/Orders/ViewSummary/ViewSummary";
+import AdminCoinHistory from "../AdminDashboard/OfferAndProducts/SpecialProducts/CoinHistory/CoinHistory";
+import ClaimRedeemCode from "../pages/Home/ClaimRedeemCode/ClaimRedeemCode";
+import OrderImages from "../pages/OrderImages/OrderImages";
 
 
 const router = createBrowserRouter([
@@ -78,6 +94,14 @@ const router = createBrowserRouter([
         element: <RechargeCard />,
       },
       {
+        path: "/special-offer-details/:id",
+        element: <SpecialOfferDetails />,
+      },
+      {
+        path: "/mobile-recharge",
+        element: <MobileRecharge />,
+      },
+      {
         path: "/contact",
         element: <ContactUs />,
       },
@@ -92,6 +116,10 @@ const router = createBrowserRouter([
       {
         path: "/forgotPassword",
         element: <ForgotPassword />,
+      },
+      {
+        path: "/images/:orderId",
+        element: <OrderImages />
       },
       {
         path: "/myAccount",
@@ -166,12 +194,48 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/leaderboards",
+        path: "/coinsAndReferral/coinHistory",
         element: (
           <PrivateRoute>
-            <LeaderBoards />
+            <CoinHistory />
           </PrivateRoute>
         ),
+      },
+      {
+        path: "/coinsAndReferral/referralHistory",
+        element: (
+          <PrivateRoute>
+            <ReferralHistory />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/store",
+        element: (
+          <PrivateRoute>
+            <Store />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/store/:id",
+        element: (
+          <PrivateRoute>
+            <CoinProductDetail />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/leaderboard",
+        element: (
+          <PrivateRoute>
+            <LeaderBoard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/redeem-code",
+        element: <ClaimRedeemCode />
       },
     ],
   },
@@ -193,6 +257,22 @@ const router = createBrowserRouter([
         element: <Services />,
       },
       {
+        path: "/dashboard/offersAndProducts",
+        element: <OffersAndProducts />,
+      },
+      {
+        path: "/dashboard/offersAndProducts/manageSpecialProduct/:id?",
+        element: <SpecialProductForm />,
+      },
+      {
+        path: "/dashboard/offersAndProducts/manageOffer/:id?",
+        element: <OfferForm />,
+      },
+      {
+        path: "/dashboard/offersAndProducts/coin/history",
+        element: <AdminCoinHistory />,
+      },
+      {
         path: "/dashboard/banner",
         element: <Banner />,
       },
@@ -211,6 +291,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/redeemCode",
         element: <RedeemCode />,
+      },
+      {
+        path: "/dashboard/redeemClaimedList/:id",
+        element: <RedeemClaimedList />,
       },
       {
         path: "/dashboard/archivedUnipins",
@@ -239,6 +323,18 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/orders",
         element: <Orders />,
+      },
+      {
+        path: "/dashboard/orders/viewSummary",
+        element: <ViewSummary />,
+      },
+      {
+        path: "/dashboard/referral",
+        element: <Referral />,
+      },
+      {
+        path: "/dashboard/referral/history",
+        element: <History />,
       },
       {
         path: "/dashboard/users",

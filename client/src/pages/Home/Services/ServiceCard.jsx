@@ -3,9 +3,19 @@ import { useNavigate } from "react-router-dom";
 
 const ServiceCard = ({ image, title, path }) => {
   const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    if (title == "Minutes & MB offer") {
+      navigate(path, { state: { simCompany: true, cardType: "offerCard" } })
+    }
+    else {
+      navigate(path, { state: { simCompany: true } })
+    }
+  }
+
   return (
     <div
-      onClick={() => navigate(path)}
+      onClick={handleNavigate}
       className="border-2 border-slate-200 border-b-4 border-b-[#FA6023] rounded-xl h-full cursor-pointer md:w-64 mx-auto flex flex-col"
     >
       <img

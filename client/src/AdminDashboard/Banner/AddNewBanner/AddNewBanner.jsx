@@ -35,7 +35,7 @@ const AddNewBanner = ({ setBanners }) => {
             };
 
             axiosPrivate.post('/banners/new', bannerData).then((res) => {
-                console.log(res.data.insertedId);
+                // console.log(res.data.insertedId);
 
                 if (res.data.insertedId) {
                     setLoading(false);

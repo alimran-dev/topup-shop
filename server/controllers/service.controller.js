@@ -6,6 +6,19 @@ const serviceCollection = dbCollections.serviceCollection;
 const getService = async (req, res) => {
   try {
     const { id } = req.query;
+    await serviceCollection.updateOne({_id: new ObjectId(id)},
+    [
+      {
+        $addFields: {
+          options: {
+            $sortArray: {
+              input: "$options",
+              sortBy: {serial: 1}
+            }
+          }
+        }
+      }
+    ]);
     const result = await serviceCollection.findOne({ _id: new ObjectId(id) });
     res.send(result);
   } catch (err) {
@@ -13,6 +26,7 @@ const getService = async (req, res) => {
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
 const getAllServices = async (req, res) => {
   try {
     const result = await serviceCollection
@@ -28,7 +42,7 @@ const getAllServices = async (req, res) => {
 
 const addSubCategory = async (req, res) => {
   try {
-    const { title, category, image, tutorialText, tutorialURL, inputs, rules } =
+    const { title, category, image, tutorialText, tutorialURL, isAuto, inputs, rules } =
       req.body;
     if (
       title &&
@@ -45,6 +59,7 @@ const addSubCategory = async (req, res) => {
         image,
         tutorialText,
         tutorialURL,
+        isAuto,
         inputs,
         rules,
         options: [],

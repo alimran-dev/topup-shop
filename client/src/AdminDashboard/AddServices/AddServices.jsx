@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TopupAndUnipinForm from "./forms/TopupAndUnipinForm";
 import RechargeAndOffersForm from "./forms/RechargeAndOffersForm";
 import TelegramPackagesForm from "./forms/TelegramPackagesForm";
@@ -14,6 +14,11 @@ const AddServices = () => {
   const handleCategoryClick = (id) => {
     setSelectedCategory(id);
   };
+
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">

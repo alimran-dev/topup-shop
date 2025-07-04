@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import Turnstile from "react-turnstile";
+import toast from "react-hot-toast";
 
 
 const Login = () => {
@@ -12,13 +14,14 @@ const Login = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const { user, setUser, setLoading } = useAuth();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  
+
   useEffect(() => {
     const success = searchParams.get("success");
     if (success === "true") {
@@ -34,31 +37,23 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    if(turnstileToken.length<=0){
+      setIsLoading(false);
+      return toast.error("Please complete the captcha!");
+    }
 
     const userCredentials = {
       email: e.target.email.value,
-      password: e.target.password.value
+      password: e.target.password.value,
+      turnstileToken,
     };
 
     try {
       axiosPrivate.post("/user/login", userCredentials).then((res) => {
+
         if (res?.data?._id) {
 
-          const LoggedUserData = {
-            _id: res?.data?.insertedId,
-            email: res?.data?.email,
-            name: res?.data?.name,
-            photo: res?.data?.photo,
-            phone: res.data?.phone || "",
-            role: res?.data?.role,
-            balance: res?.data?.balance,
-            isBanned: res?.data?.isBanned,
-            spent: res?.data?.spent,
-            orders: res?.data?.orders,
-            coins: res?.data?.coins,
-          };
-
-          setUser(LoggedUserData);
+          setUser(res?.data || {});
           setError("");
           setLoading(false);
           setIsLoading(false);
@@ -91,10 +86,15 @@ const Login = () => {
   }, [location.state, navigate, user]);
 
 
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div>
       <Loader isLoading={isLoading || redirecting} />
-      <div  className="w-full md:w-96 border block mx-auto px-5 pb-5 shadow-md">
+      <div className="w-full md:w-96 border block mx-auto px-5 pb-5 shadow-md">
         <div>
           <h2 className="text-3xl text-center font-bold py-5 bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent w-fit mx-auto">
             Login
@@ -113,7 +113,7 @@ const Login = () => {
         </div>
         <form
           onSubmit={handleLogin}
-          >
+        >
           <div className="space-y-1">
             <label htmlFor="email" className="input-label">
               Email
@@ -151,6 +151,7 @@ const Login = () => {
               {error}
             </p>
           )}
+          <Turnstile sitekey={import.meta.env.VITE_TURNSTILE_KEY} theme="light" className="w-fit mx-auto mt-2" onVerify={(token)=>setTurnstileToken(token)} />
           <button
             type="submit"
             className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-[#FA6023] to-[#E61C55] my-3 rounded-md"

@@ -1,12 +1,13 @@
 import axios from "axios";
+import { allLinks } from "../utils/constants";
 
 const axiosPrivate = axios.create({
   // baseURL: "http://localhost:5000/",
   baseURL:
     import.meta.env.VITE_PROJECTENV === "production"
-      ? "https://api.mezbashop.com/"
+      ? `${allLinks.productionAPI}`
       : import.meta.env.VITE_PROJECTENV === "demo"
-      ? "https://demo.api.mezbashop.com/"
+      ? `${allLinks.demoAPI}`
       : "http://localhost:5000/",
   withCredentials: true,
 });

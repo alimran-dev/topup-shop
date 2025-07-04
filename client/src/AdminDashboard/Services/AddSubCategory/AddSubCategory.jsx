@@ -67,6 +67,7 @@ const AddSubCategory = () => {
                 tutorialText: e.target.tutorialText.value,
                 tutorialURL: e.target.tutorialURL.value,
                 inputs,
+                isAuto: e.target.isAuto.checked,
                 image: uploadedImage,
                 rules: value,
             };
@@ -136,6 +137,12 @@ const AddSubCategory = () => {
                         <label htmlFor="" className="input-label">Tutorial URL</label>
                         <input type="text" name="tutorialURL" className="input" placeholder="Type tutorial URL" required />
                     </div>
+                </div>
+
+                {/* enable or disable auto topup */}
+                <div className="flex items-center gap-2.5">
+                    <label htmlFor="" className="input-label">Enable Auto Topup: </label>
+                    <input type="checkbox" name="isAuto" className="toggle" />
                 </div>
 
                 {/* inputs */}

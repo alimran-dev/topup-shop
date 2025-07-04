@@ -4,8 +4,11 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const passport = require("passport");
+const webpush = require("web-push");
 const port = process.env.PORT || 5000;
+const path = require("path");
 const { connectToDB } = require("./config/db");
+const { CONSTANTS } = require("./utils/constants");
 require("./middlewares/passport");
 
 // middlewares
@@ -13,16 +16,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [
-      "https://mezbashop.com",
-      "https://www.mezbashop.com",
-      "https://demo.mezbashop.com",
-      "http://localhost:5173",
-    ],
+    origin: CONSTANTS.origin,
     credentials: true,
   })
 );
 app.use(passport.initialize());
+app.use(express.static(path.join(__dirname,"public")));
+
+webpush.setVapidDetails(
+  "mailto:abir932islam@gmail.com",
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
 
 const run = () => {
   app.get("/", (req, res) => {
@@ -34,7 +39,6 @@ const run = () => {
   const userRoute = require("./routes/user.route");
   const optionRoute = require("./routes/option.route");
   const addCodesRoute = require("./routes/addCodes.route");
-  const specialOfferRoute = require("./routes/specialOffer.route");
   const orderRoute = require("./routes/order.route");
   const paymentMethodRoute = require("./routes/paymentMethod.route");
   const noticeRoute = require("./routes/notice.route");
@@ -48,13 +52,17 @@ const run = () => {
   const serviceRoute = require("./routes/service.route");
   const bannerRoutes = require("./routes/banner.route");
   const followUsRoutes = require("./routes/followUs.route");
+  const coinRoutes = require("./routes/coins.route");
+  const redeemRotues = require("./routes/redeem.route");
+  const specialOfferRoutes = require("./routes/specialOffer.route");
+  const notificationRoutes = require("./routes/notification.route");
+  const autoServerRoutes = require("./routes/autoServer.route");
 
   // routes
   app.use("/auth", authRoute());
   app.use("/user", userRoute());
   app.use("/option", optionRoute());
   app.use("/code", addCodesRoute());
-  app.use("/special", specialOfferRoute());
   app.use("/order", orderRoute());
   app.use("/payment", paymentMethodRoute());
   app.use("/notice", noticeRoute());
@@ -68,6 +76,11 @@ const run = () => {
   app.use("/services", serviceRoute());
   app.use("/banners", bannerRoutes());
   app.use("/follows", followUsRoutes());
+  app.use("/coins", coinRoutes());
+  app.use("/redeem", redeemRotues());
+  app.use("/special", specialOfferRoutes());
+  app.use("/notification", notificationRoutes());
+  app.use("/auto",autoServerRoutes());
 };
 
 connectToDB((err) => {

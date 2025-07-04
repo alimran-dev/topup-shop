@@ -66,6 +66,10 @@ const Services = () => {
         });
     };
 
+    // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
     return (
         <div>
@@ -75,7 +79,7 @@ const Services = () => {
             </div>
 
             {/* select category form */}
-            <div className="md:max-w-4xl md:mx-auto flex items-center gap-4">
+            <div className="md:max-w-4xl md:mx-auto flex flex-col md:flex-row items-center gap-0 md:gap-4">
                 <h2 className="title !text-xl !w-60 !mb-0">Select Category</h2>
                 <select onChange={(e) => setSelectedCategory(e.target.value)} className="input cursor-pointer" defaultValue={""}>
                     <option value="" disabled>Choose One</option>
@@ -97,12 +101,12 @@ const Services = () => {
                         services?.length === 0 ?
                             <div className="font-bold text-center text-red-600 py-10">No Data Found!</div>
                             :
-                            <div className="flex flex-wrap items-center gap-8 py-10">
+                            <div className="grid grid-cols-2 md:grid-cols-5 items-center gap-8 py-10">
                                 {
                                     services?.map((service, idx) =>
                                         <div key={idx} className="border border-slate-400 rounded-md shadow-xl">
                                             <div className="w-full h-fit">
-                                                <img src={service?.image} className="w-full hfull" alt="service image" />
+                                                <img src={service?.image} className="w-full h-28 md:h-36 object-fill" alt="service image" />
                                             </div>
                                             <h3 className="font-bold px-4 pt-4">{service?.title}</h3>
                                             <div className="p-3 text-2xl flex items-center gap-5">

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { FaPlus, FaUsersCog, FaRegImage,FaRegFlag } from "react-icons/fa";
-import { FiEdit } from "react-icons/fi";
+import { FaPlus, FaUsersCog, FaRegImage,FaRegFlag ,FaStaylinked } from "react-icons/fa";
+import { FiUsers } from "react-icons/fi";
 import { GrAnnounce, GrTransaction } from "react-icons/gr";
 import { ImBlocked } from "react-icons/im";
 import { IoGridOutline, IoBagHandleOutline } from "react-icons/io5";
@@ -17,13 +17,14 @@ const navItems = [
   { to: "/dashboard/orders", icon: LuListTodo, label: "Orders" },
   { to: "/dashboard/services", icon: IoBagHandleOutline, label: "Services" },
   { to: "/dashboard/options", icon: TbTableOptions, label: "Options" },
+  { to: "/dashboard/offersAndProducts", icon: FaStaylinked, label: "Offers & Products" },
   { to: "/dashboard/payments", icon: MdPayment, label: "Payments" },
+  { to: "/dashboard/referral", icon: FiUsers, label: "Referral" },
   { to: "/dashboard/transactions", icon: GrTransaction, label: "Transactions" },
   { to: "/dashboard/banner", icon: FaRegImage, label: "Banner" },
   { to: "/dashboard/addCodes", icon: MdOutlinePostAdd, label: "Add Codes" },
   { to: "/dashboard/redeemCode", icon: GoCodeSquare, label: "Redeem Code" },
   { to: "/dashboard/archivedUnipins", icon: MdOutlineNumbers, label: "Archived Unipins" },
-  { to: "/dashboard/updateOptions", icon: FiEdit, label: "Update Options" },
   { to: "/dashboard/users", icon: FaUsersCog, label: "Manage Users" },
   { to: "/dashboard/addAdvertisement", icon: FaPlus, label: "Add Advertisement" },
   { to: "/dashboard/notice", icon: GrAnnounce, label: "Notice" },

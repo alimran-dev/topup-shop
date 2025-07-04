@@ -1,10 +1,11 @@
 const { MongoClient } = require("mongodb");
+const { CONSTANTS } = require("../utils/constants");
 require("dotenv").config();
 
 let uri = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@127.0.0.1:27017`;
-let dbName = "mezbaGamingDB";
+let dbName = `${CONSTANTS.productionDBName}`;
 if (process.env.PROJECT_ENV !== "production") {
-  dbName = "topupDB";
+  dbName = `${CONSTANTS.demoDBName}`;
   if (process.env.PROJECT_ENV === "development") {
     uri = `mongodb://127.0.0.1:27017`;
   }
@@ -47,6 +48,12 @@ const connectToDB = (cb) => {
       dbCollections.rechargeCollection = database.collection("recharges");
       dbCollections.bannerCollection = database.collection("banners");
       dbCollections.followUsCollection = database.collection("followUs");
+      dbCollections.coinSettingCollection = database.collection("coinSettings");
+      dbCollections.coinHistoryCollection = database.collection("coinHistory");
+      dbCollections.redeemCodesCollection = database.collection("redeemCodes");
+      dbCollections.reviewsCollection = database.collection("reviews");
+      dbCollections.referHistoryCollection=database.collection("referHistory");
+      dbCollections.coinProductsCollection=database.collection("coinProducts");
       module.exports = { dbCollections };
       return cb();
     })

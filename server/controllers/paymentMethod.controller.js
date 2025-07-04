@@ -14,7 +14,10 @@ const getMethods = async (req, res) => {
     if (role === "user") {
       filter = { status: "active" };
     }
-    const result = await paymentMethodCollection.find(filter).project({lastTime: 0, expires_in: 0, id_token: 0, refresh_token: 0}).toArray();
+    const result = await paymentMethodCollection
+      .find(filter)
+      .project({ lastTime: 0, expires_in: 0, id_token: 0, refresh_token: 0 })
+      .toArray();
     res.send(result);
   } catch (err) {
     console.error("Error: ", err.message);
@@ -40,15 +43,21 @@ const bkashCreatePayment = async (req, res) => {
       type: "auto",
     });
     if (!paymentMethod) {
-      return res.send({success: false, message: "Payment method not found" });
+      return res.send({ success: false, message: "Payment method not found" });
     }
     const user = await userCollection.findOne({ email: email });
     if (!user) {
-      return res.send({success: false, message: "User not found" });
+      return res.send({ success: false, message: "User not found" });
     }
-    const { bonus, fee } = paymentMethod || {};
+    const { bonus, special_bonus, fee } = paymentMethod || {};
     const toPay = Math.ceil(amount + (amount * fee) / 100);
-    const invNumber=require("crypto").randomUUID().split('-')[4];
+    let willAdd = parseFloat((amount + (amount * bonus) / 100).toFixed(2));
+    if (amount % 5 === 0) {
+      willAdd = parseFloat(
+        (amount + (amount * special_bonus) / 100).toFixed(2)
+      );
+    }
+    const invNumber = require("crypto").randomUUID().split("-")[4];
     const { data } = await axiosBkash.post(
       "/tokenized/checkout/create",
       {
@@ -73,10 +82,10 @@ const bkashCreatePayment = async (req, res) => {
     const transaction = {
       method: "Bkash Payment",
       amount: parseInt(amount),
-      bonus,
+      bonus: amount % 5 === 0 ? special_bonus : bonus,
       fee,
       toPay,
-      willAdd: parseFloat((amount + (amount * bonus) / 100).toFixed(2)),
+      willAdd,
       number: "",
       email,
       previousBalance: parseFloat(user.balance.toFixed(2)),
@@ -87,10 +96,10 @@ const bkashCreatePayment = async (req, res) => {
       status: "pending",
     };
     const trxInsertResult = await transactionCollection.insertOne(transaction);
-    if(trxInsertResult.insertedId){
-      res.send({success: true, url: data.bkashURL});
+    if (trxInsertResult.insertedId) {
+      res.send({ success: true, url: data.bkashURL });
     } else {
-      res.send({success: false, message: "Failed to create transaction"});
+      res.send({ success: false, message: "Failed to create transaction" });
     }
   } catch (err) {
     console.error("Error: ", err.message);
@@ -103,7 +112,9 @@ const bkashCallback = async (req, res) => {
     const { paymentID, status } = req.query || {};
     const token = req.token || "";
     if (status === "cancel" || status === "failure") {
-      return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`);
+      return res.redirect(
+        `${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`
+      );
     }
     if (status === "success") {
       const { data } = await axiosBkash.post(
@@ -118,25 +129,41 @@ const bkashCallback = async (req, res) => {
           timeout: 5000,
         }
       );
-      console.log("status--",status, "execute payment--", data);
-      if (
-        data?.transactionStatus === "Completed" &&
-        data?.statusMessage === "Successful"
-      ) {
-        const transaction=await transactionCollection.findOne({paymentID: paymentID, status: "pending"});
-        const updateTrx={trxID: data?.trxID,status: "completed"};
-        const updateUser={balance: parseFloat(transaction?.previousBalance + transaction?.willAdd)}
-        const trxUpdateResult=await transactionCollection.updateOne({paymentID: paymentID},{$set: updateTrx});
-        const userUpdateResult=await userCollection.updateOne({email: transaction.email},{$set: updateUser});
-        if(trxUpdateResult.modifiedCount && userUpdateResult.modifiedCount){
-          return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`)
+      console.log("status--", status, "execute payment--", data);
+      if (data?.transactionStatus === "Completed") {
+        const transaction = await transactionCollection.findOne({
+          paymentID: paymentID,
+          status: "pending",
+        });
+        const updateTrx = { trxID: data?.trxID, status: "completed" };
+        const updateUser = {
+          balance: parseFloat(
+            transaction?.previousBalance + transaction?.willAdd
+          ),
+        };
+        const trxUpdateResult = await transactionCollection.updateOne(
+          { paymentID: paymentID },
+          { $set: updateTrx }
+        );
+        const userUpdateResult = await userCollection.updateOne(
+          { email: transaction.email },
+          { $set: updateUser }
+        );
+        if (trxUpdateResult.modifiedCount && userUpdateResult.modifiedCount) {
+          return res.redirect(
+            `${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`
+          );
         } else {
-          return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`);
+          return res.redirect(
+            `${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=${status}`
+          );
         }
       }
     }
     console.log("status--", status);
-    return res.redirect(`${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=failure`)
+    return res.redirect(
+      `${process.env.FRONTEND_DOMAIN}/payment/confirmation?status=failure`
+    );
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -145,12 +172,21 @@ const bkashCallback = async (req, res) => {
 
 const addMethod = async (req, res) => {
   try {
-    const { provider, category, bonus, fee, number, status } = req.body;
+    const {
+      provider,
+      category,
+      bonus,
+      specialBonus: special_bonus,
+      fee,
+      number,
+      status,
+    } = req.body;
     const newMethod = {
       type: "manual",
       provider,
       category,
       bonus: parseFloat(bonus),
+      special_bonus: parseFloat(special_bonus),
       fee: parseFloat(fee),
       number,
       status,
@@ -166,15 +202,19 @@ const addMethod = async (req, res) => {
 const updateMethod = async (req, res) => {
   try {
     const { id } = req.query;
-    const { bonus, fee, number, status } = req.body;
+    const { bonus, special_bonus, fee, number, status } = req.body;
+    // console.log(req.body);
     const updatedMethod = {
       $set: {
         bonus: parseFloat(bonus),
+        special_bonus: parseFloat(special_bonus),
         fee: parseFloat(fee),
-        number,
         status,
       },
     };
+    if (number) {
+      updatedMethod.$set.number = number;
+    }
     const filter = { _id: new ObjectId(id) };
     const result = await paymentMethodCollection.updateOne(
       filter,
@@ -191,7 +231,7 @@ const updateMethod = async (req, res) => {
 const deleteMethod = async (req, res) => {
   try {
     const { id } = req.query;
-    const filter = { _id: new ObjectId(id) };
+    const filter = { _id: new ObjectId(id), type: "manual" };
     const result = await paymentMethodCollection.deleteOne(filter);
     res.send(result);
   } catch (err) {

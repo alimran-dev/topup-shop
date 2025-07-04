@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const TransactionCard = ({ transaction }) => {
@@ -17,6 +18,11 @@ const TransactionCard = ({ transaction }) => {
     };
     navigate("/addBalance/pay", { state: doc });
   };
+
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <>
       <div className="hidden md:flex justify-center items-center">
@@ -34,10 +40,10 @@ const TransactionCard = ({ transaction }) => {
           {trxID}
         </p>
         <p className="h-14 flex items-center justify-center w-full border text-sm text-center">
-        ৳{transaction?.previousBalance}
+          ৳{transaction?.previousBalance}
         </p>
         <p className="h-14 flex items-center justify-center w-full border text-sm text-center">
-        ৳{willAdd}
+          ৳{willAdd}
         </p>
         <p
           className={`h-14 flex items-center justify-center w-full border text-sm text-center font-semibold capitalize ${status === "pending"

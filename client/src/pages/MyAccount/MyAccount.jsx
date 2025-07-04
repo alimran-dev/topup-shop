@@ -10,8 +10,13 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import axios from "axios";
 import Loader from "../../components/Loader";
 import Swal from "sweetalert2";
-import verifiedIcon from '../../assets/images/verified-icon.png';
+// import verifiedIcon from '../../assets/images/verified-icon.png';
 import VerifyUser from "./VerifyUser/VerifyUser";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+import { AiFillYoutube } from "react-icons/ai";
+import UserName from "../../components/reusuable/UserName/UserName";
+import { allLinks } from "../../utils/constants";
 
 const imgApi = import.meta.env.VITE_IMGAPI;
 const MyAccount = () => {
@@ -21,7 +26,7 @@ const MyAccount = () => {
   const [updateUserError, setUpdateUserError] = useState("");
   const [changePassError, setChangePassError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { user, setUser, loginUser, updatePass } = useAuth();
+  const { user, setUser } = useAuth();
   const axiosPrivate = useAxiosPrivate();
 
   const handleUpdateUser = (e) => {
@@ -95,7 +100,7 @@ const MyAccount = () => {
     }
   };
 
-  const handleChangePass = (e) => {
+  const handleChangePass = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setChangePassError("");
@@ -107,34 +112,38 @@ const MyAccount = () => {
     if (password !== confirmPass) {
       setChangePassError("Password and confirm password must be the same");
       setIsLoading(false);
-    } else {
-      loginUser(user?.email, oldPass)
-        .then((result) => {
-          if (result.user) {
-            updatePass(password)
-              .then(() => {
-                Swal.fire({
-                  title: "Password change successful",
-                  timer: 1500,
-                  icon: "success",
-                  showConfirmButton: false,
-                });
-                setIsLoading(false);
-                form.reset();
-              })
-              .catch(() => {
-                setIsLoading(false);
-                setChangePassError("Something Wrong try again later");
-              });
-          }
-        })
-        .catch(() => {
-          setIsLoading(false);
-          setChangePassError("Wrong Password");
-        });
+      return;
     }
+
+    const payload = {
+      email: user?.email,
+      oldPassword: oldPass,
+      newPassword: password,
+    };
+
+    try {
+      const res = await axiosPrivate.patch('/user/change/password', payload);
+
+      if (res.data.success) {
+        toast.success(res.data.message || "Changed Successfully!");
+        setIsLoading(false);
+        setChangePassError("");
+        e.target.reset();
+        window.scrollTo(0, 0);
+      }
+      else {
+        setIsLoading(false);
+        setChangePassError(res.data.message || "Something Went Wrong!");
+      }
+    }
+    catch (err) {
+      setIsLoading(false);
+      setChangePassError("Something Went Wrong!");
+    }
+
   };
 
+  // page apear from top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -149,14 +158,15 @@ const MyAccount = () => {
             alt=""
             className="w-28 h-28 gradient-border rounded-full bg-slate-400"
           />
-          <img src={verifiedIcon} className={`${user?.isVerified ? '' : 'hidden'} w-8 absolute top-2 -right-1`} alt="" />
+          {/* <img src={verifiedIcon} className={`${user?.isVerified ? '' : 'hidden'} w-8 absolute top-2 -right-1`} alt="" /> */}
         </div>
         <div className="flex justify-center items-center gap-1">
           <p className={`px-3 py-1 text-xs text-white rounded-full ${user?.isVerified ? 'bg-green-600 ' : 'bg-slate-500 '} `}>{user?.isVerified ? 'Verified' : 'Unverified'}</p>
           <VerifyUser user={user} />
         </div>
+        <Link to={allLinks.accountVerifyTutorial || "#"} target="_blank" className={`${user?.isVerified?"hidden":"flex"} items-center justify-center gap-1 text-xs text-blue-500 font-semibold`}><AiFillYoutube className="text-red-500 text-xl" /> কিভাবে ভেরিফাই করবেন?</Link>
         <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 capitalize">
-          {user?.name}
+          <UserName name={user?.name} isVerified={user?.isVerified} />
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 my-8">
@@ -297,6 +307,7 @@ const MyAccount = () => {
                     name="oldPass"
                     className="block border border-gray-500 px-3 py-2 rounded-l-md w-full h-full font-medium"
                     placeholder="Your Old Password"
+                    required
                   />
                   <div
                     onClick={() => setEye(!eye)}
@@ -323,6 +334,7 @@ const MyAccount = () => {
                     name="password"
                     className="block border border-gray-500 px-3 py-2 rounded-l-md w-full h-full font-medium"
                     placeholder="Your New Password"
+                    required
                   />
                   <div
                     onClick={() => setEye2(!eye2)}
@@ -349,6 +361,7 @@ const MyAccount = () => {
                     name="confirmPass"
                     className="block border border-gray-500 px-3 py-2 rounded-l-md w-full h-full font-medium"
                     placeholder="Confirm New Password"
+                    required
                   />
                   <div
                     onClick={() => setEye3(!eye3)}

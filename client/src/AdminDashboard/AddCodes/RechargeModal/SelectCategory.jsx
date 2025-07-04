@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
-import airdrop from "../../../assets/images/airdrop.jpeg";
+import mbCard from "../../../assets/images/recharge/mb-card2.jpeg"
+import minCard from "../../../assets/images/recharge/minutes-card2.jpeg"
+import balanceCard from "../../../assets/images/recharge/balance-card2.jpeg"
 
 const SelectCategory = ({ company, setSelectedCategory, setNext }) => {
   const handleSelectCategory = (category) => {
@@ -17,7 +19,7 @@ const SelectCategory = ({ company, setSelectedCategory, setNext }) => {
           className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
         >
           <img
-            src={airdrop}
+            src={mbCard}
             alt=""
             className="w-full h-16 md:h-20 rounded-t transition ease-in-out duration-300 hover:scale-90"
           />
@@ -32,7 +34,7 @@ const SelectCategory = ({ company, setSelectedCategory, setNext }) => {
           className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
         >
           <img
-            src={airdrop}
+            src={minCard}
             alt=""
             className="w-full h-16 md:h-20 rounded-t transition ease-in-out duration-300 hover:scale-90"
           />
@@ -47,7 +49,7 @@ const SelectCategory = ({ company, setSelectedCategory, setNext }) => {
           className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
         >
           <img
-            src={airdrop}
+            src={balanceCard}
             alt=""
             className="w-full h-16 md:h-20 rounded-t transition ease-in-out duration-300 hover:scale-90"
           />

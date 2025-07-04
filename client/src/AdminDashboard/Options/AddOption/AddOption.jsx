@@ -8,6 +8,8 @@ const AddOption = () => {
   const [error2, setError2] = useState("");
   const [rechargeCategory, setRechargeCategory] = useState("card");
   const axiosPrivate = useAxiosPrivate();
+
+
   const handleAdd = (e) => {
     e.preventDefault();
     setError("");
@@ -16,7 +18,8 @@ const AddOption = () => {
     const price = parseInt(form.price.value) || 0;
     const uc = parseInt(form.uc.value) || 0;
     const category = form.category.value;
-    const option = { name, price, category, uc };
+    const coin = form.coin.value;
+    const option = { name, price, category, uc, coin };
     // console.log(option);
     axiosPrivate.post(`/option/admin/add/${category}`, option).then((res) => {
       if (res.data.insertedId) {
@@ -34,32 +37,36 @@ const AddOption = () => {
       }
     });
   };
-  const handleAddOffer = (e) => {
-    e.preventDefault();
-    setError2("");
-    const form = e.target;
-    const name = form.name.value;
-    const price = parseInt(form.price.value);
-    const description = form.description.value;
-    const server = form.server.value;
-    const option = { name, price, description, server };
-    axiosPrivate.post("/special/offer/new", option).then((res) => {
-      if (res.data.insertedId) {
-        Swal.fire({
-          position: "top",
-          icon: "success",
-          title: `${server} option added.`,
-          showConfirmButton: false,
-          timer: 2000,
-          toast: true,
-        });
-        form.reset();
-      } else {
-        setError2(res.data.message);
-      }
-    });
-  };
+
+  // const handleAddOffer = (e) => {
+  //   e.preventDefault();
+  //   setError2("");
+  //   const form = e.target;
+  //   const name = form.name.value;
+  //   const price = parseInt(form.price.value);
+  //   const description = form.description.value;
+  //   const server = form.server.value;
+  //   const option = { name, price, description, server };
+  //   axiosPrivate.post("/special/offer/new", option).then((res) => {
+  //     if (res.data.insertedId) {
+  //       Swal.fire({
+  //         position: "top",
+  //         icon: "success",
+  //         title: `${server} option added.`,
+  //         showConfirmButton: false,
+  //         timer: 2000,
+  //         toast: true,
+  //       });
+  //       form.reset();
+  //     } else {
+  //       setError2(res.data.message);
+  //     }
+  //   });
+  // };
+
   const handleAddRecharge = (e) => {
+    // console.log("hitted");
+
     e.preventDefault();
     setError2("");
     const form = e.target;
@@ -69,8 +76,18 @@ const AddOption = () => {
     const operator = form.operator.value;
     const category = form.category.value;
     const type = form.types.value;
-    const option = { name, price, description, operator, category, docName: type };
-    console.log(option);
+    const stock = form?.stock?.value;
+    const coin = form.coin.value;
+    const option = {
+      name, price, description, operator, category, docName: type, coin
+    };
+
+    if(category == "offer"){
+      option.stock = stock;
+    }
+
+    // console.log(option);
+
     axiosPrivate.post(`/option/admin/add/recharge`, option).then((res) => {
       if (res.data.insertedId) {
         Swal.fire({
@@ -89,9 +106,10 @@ const AddOption = () => {
     });
   }
   const handleRechargeOptionType = (e) => {
-    console.log(e.target.value);
     setRechargeCategory(e.target.value);
   };
+
+
   return (
     <div className="-mt-5 space-y-5">
       <AddDynamicOption />
@@ -123,7 +141,7 @@ const AddOption = () => {
               Option Price
             </label>
             <input
-              type="text"
+              type="number"
               name="price"
               required
               className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
@@ -195,6 +213,21 @@ const AddOption = () => {
               </option>
             </select>
           </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="uc"
+              className="block text-xl font-medium text-gray-700"
+            >
+              Bonus Coin Amount
+            </label>
+            <input
+              type="number"
+              name="coin"
+              required
+              className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+              placeholder="Example: 100"
+            />
+          </div>
         </div>
         <div>
           <p className="text-center font-medium text-red-500 pb-2">{error}</p>
@@ -234,7 +267,7 @@ const AddOption = () => {
               Option Price
             </label>
             <input
-              type="text"
+              type="number"
               name="price"
               required
               className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
@@ -367,30 +400,63 @@ const AddOption = () => {
                   </option>
                 </>
               ) : rechargeCategory === "offer" ? (
-                  <>
-                    <option
+                <>
+                  <option
                     value="mbOffer"
                     className="bg-white hover:bg-red-500 focus:bg-red-500"
                   >
                     MB Offer
                   </option>
-                    <option
+                  <option
                     value="minOffer"
                     className="bg-white hover:bg-red-500 focus:bg-red-500"
                   >
                     Minute Offer
                   </option>
-                    <option
+                  <option
                     value="mbAndMinOffer"
                     className="bg-white hover:bg-red-500 focus:bg-red-500"
                   >
                     MB+Min Offer
                   </option>
-                  </>
+                </>
               ) : (
                 <></>
               )}
             </select>
+          </div>
+          {
+            rechargeCategory == "offer" &&
+            <div className="space-y-2">
+              <label
+                htmlFor="stock"
+                className="block text-xl font-medium text-gray-700"
+              >
+                Stock
+              </label>
+              <input
+                type="number"
+                name="stock"
+                required
+                className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+                placeholder="Example: 10"
+              />
+            </div>
+          }
+          <div className="space-y-2">
+            <label
+              htmlFor="price"
+              className="block text-xl font-medium text-gray-700"
+            >
+              Bonus Coin Amount
+            </label>
+            <input
+              type="number"
+              name="coin"
+              required
+              className="block w-full py-1.5 px-3 font-medium text-lg border-2 border-gray-600 rounded-md"
+              placeholder="Example: 100"
+            />
           </div>
         </div>
         <div>
@@ -403,7 +469,7 @@ const AddOption = () => {
           </button>
         </div>
       </form>
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
+      {/* <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
         Special Offer Option
       </h1>
       <form onSubmit={handleAddOffer} className="space-y-5">
@@ -489,7 +555,7 @@ const AddOption = () => {
             Add Offer
           </button>
         </div>
-      </form>
+      </form> */}
     </div>
   );
 };

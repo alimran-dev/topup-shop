@@ -2,20 +2,44 @@ const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../middlewares/verifyToken");
 const { verifyAdmin } = require("../middlewares/verifyAdmin");
-const { getAllOrder, orderAuto, orderManual, getAllOrderAdmin, getPending, orderProcess, orderDynamic } = require("../controllers/order.controller");
+const {
+  getAllOrder,
+  orderAuto,
+  getAllOrderAdmin,
+  getPending,
+  orderProcess,
+  orderDynamic,
+  getLastOrder,
+  orderBalanceRecharge,
+  orderSpecialOffer,
+  orderRechargeOffer,
+  archivedUnipins,
+  orderCoinProduct,
+  getAllOrderSummary,
+  autoServerOrderProcess,
+  getOrderImages,
+} = require("../controllers/order.controller");
 
 const orderRoute = () => {
-    // /order/
-    router.get("/all", verifyToken, getAllOrder);
-    router.post("/new/auto/:category", verifyToken, orderAuto);
-    router.post("/new/manual/:category", verifyToken, orderManual);
-    router.post("/new/dynamic",verifyToken,orderDynamic);
+  // /order/
+  router.get("/all", verifyToken, getAllOrder);
+  router.get("/images", getOrderImages);
+  router.get("/last", getLastOrder);
+  router.get("/archived", archivedUnipins);
+  router.get("/summary",verifyAdmin,getAllOrderSummary);
+  router.post("/new/auto/:category", verifyToken, orderAuto);
+  router.post("/recharge/offer", verifyToken, orderRechargeOffer);
+  router.post("/new/dynamic", verifyToken, orderDynamic);
+  router.post("/new/special", verifyToken, orderSpecialOffer);
+  router.post("/recharge/balance", verifyToken, orderBalanceRecharge);
+  router.post("/coin/product", verifyToken, orderCoinProduct);
 
-    // admin
-    router.get("/admin/all", verifyAdmin, getAllOrderAdmin);
-    router.get("/admin/pending", verifyAdmin, getPending);
-    router.patch("/admin/processing", verifyAdmin, orderProcess);
-    return router;
-}
+  // admin
+  router.get("/admin/all", verifyAdmin, getAllOrderAdmin);
+  router.get("/admin/pending", verifyAdmin, getPending);
+  router.patch("/admin/processing", verifyAdmin, orderProcess);
+  router.patch("/auto-server/processing", autoServerOrderProcess);
+  return router;
+};
 
 module.exports = orderRoute;

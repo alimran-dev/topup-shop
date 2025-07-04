@@ -1,13 +1,22 @@
 import DailyCoinClaim from "../Home/DailyCoinClaim/DailyCoinClaim";
-import { RiCoinFill } from "react-icons/ri";
 import ReferralLinks from "./ReferralLinks/ReferralLinks";
 import UploadVideo from "./UploadVideo/UploadVideo";
-import ReferralEarnings from "./ReferralEarnings/ReferralEarnings";
+import { useEffect } from "react";
+import Coin from "../../components/reusuable/Coin/Coin";
+import useAuth from "../../hooks/useAuth";
+import { FaHistory } from "react-icons/fa";
+import { Link } from "react-router-dom";
+
 
 const CoinAndReferral = () => {
 
+    const { user } = useAuth();
 
-    
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div className="max-w-2xl mx-auto space-y-4">
 
@@ -15,15 +24,25 @@ const CoinAndReferral = () => {
             <div className="bg-primary text-center py-5 md:py-10 rounded-md text-white font-semibold">
                 <h2 className="text-xl md:text-2xl">Your Coin Balance</h2>
                 <p className="flex justify-center items-center gap-1">
-                    <RiCoinFill className="mt-1 text-yellow-500" />
-                    <span>500</span>
+                    <Coin />
+                    <span>{user?.coins}</span>
                 </p>
             </div>
 
             <DailyCoinClaim />
             <ReferralLinks />
             <UploadVideo />
-            <ReferralEarnings />
+
+            <div className="flex justify-between items-center px-4">
+                <Link to={"/coinsAndReferral/coinHistory"} className="flex  items-center gap-1 text-blue-600 font-semibold">
+                    <FaHistory />
+                    Coin History
+                </Link>
+                <Link to={"/coinsAndReferral/referralHistory"} className="flex  items-center gap-1 text-blue-600 font-semibold">
+                    <FaHistory />
+                    Referral History
+                </Link>
+            </div>
 
         </div>
     );

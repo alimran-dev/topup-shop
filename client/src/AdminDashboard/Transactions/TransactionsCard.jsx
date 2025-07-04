@@ -12,13 +12,16 @@ const TransactionsCard = ({
   setTotalTrx,
 }) => {
   const [status, setStatus] = useState(transaction.status);
+  const [loading, setLoading] = useState(false);
   const axiosPrivate = useAxiosPrivate();
   const { _id, method, amount, toPay, willAdd, number, trxID, time, email } =
     transaction || {};
   const date = new Date(time);
 
   const handleUpdate = (e) => {
+    if(loading) return;
     e.preventDefault();
+    setLoading(true);
     const status = e.target.status.value;
     axiosPrivate
       .patch(`/transaction/admin/status?id=${_id}&status=${status}`)
@@ -46,6 +49,19 @@ const TransactionsCard = ({
             timer: 3000,
           });
         }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        Swal.fire({
+          toast: true,
+          title: "Failed to update status",
+          showConfirmButton: false,
+          position: "top",
+          icon: "error",
+          timer: 3000,
+        });
+        setLoading(false);
       });
   };
 
@@ -139,7 +155,7 @@ const TransactionsCard = ({
           className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white font-semibold px-3 py-1 rounded block mx-auto md:mx-0 disabled:opacity-70"
           disabled={status === "completed"}
         >
-          Update
+          {loading?"Please wait": "Update"}
         </button>
       </div>
     </form>

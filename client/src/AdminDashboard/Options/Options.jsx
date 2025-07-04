@@ -5,6 +5,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { allCategories } from "../../utils/categories";
 import toast from "react-hot-toast";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
+import { FiEdit } from "react-icons/fi";
 import Swal from "sweetalert2";
 import UpdateOption from "./UpdateOption/UpdateOption";
 
@@ -83,13 +84,21 @@ const Options = () => {
             }
         });
     };
-    
+
+
+    // page apear from top
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-center md:gap-4 pb-5">
                 <h2 className="title !mx-0">All Options</h2>
-                <Link to={"/dashboard/addOption"} className="button flex items-center gap-1 md:text-xl bg-gradient"><FaPlus />Add New Option</Link>
+                <div className="flex items-center gap-3">
+                    <Link to={"/dashboard/addOption"} className="button flex items-center gap-1 md:text-xl bg-gradient"><FaPlus />Add Option</Link>
+                    <Link to={"/dashboard/updateOptions"} className="button flex items-center gap-1 md:text-xl bg-gradient"><FiEdit />Update Option</Link>
+                </div>
             </div>
 
             {/* filter form */}
@@ -110,7 +119,7 @@ const Options = () => {
                     >
                         <option
                             value=""
-                            className="bg-white hover:bg-red-500 focus:bg-red-500" 
+                            className="bg-white hover:bg-red-500 focus:bg-red-500"
                         >
                             Choose One
                         </option>
@@ -177,34 +186,82 @@ const Options = () => {
                                         options?.length == 0 ?
                                             <div className="py-10 text-center font-bold text-red-600">No Options Found!</div>
                                             :
-                                            <table className="w-full border-collapse my-10 text-center">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="px-3 py-1 border border-slate-400"></th>
-                                                        <th className="px-3 py-1 border border-slate-400">Name</th>
-                                                        <th className="px-3 py-1 border border-slate-400">Price</th>
-                                                        <th className="px-3 py-1 border border-slate-400">Stock</th>
-                                                        <th className="px-3 py-1 border border-slate-400">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
+                                            <div>
+                                                {/* table for desktop */}
+                                                <div className="hidden md:block">
+                                                    <table className="w-full border-collapse my-10 text-center">
+                                                        <thead>
+                                                            <tr>
+                                                                <th className="px-3 py-1 border border-slate-400"></th>
+                                                                <th className="px-3 py-1 border border-slate-400">Name</th>
+                                                                <th className="px-3 py-1 border border-slate-400">Price</th>
+                                                                <th className="px-3 py-1 border border-slate-400">Stock</th>
+                                                                <th className="px-3 py-1 border border-slate-400">Coin</th>
+                                                                <th className="px-3 py-1 border border-slate-400">Serial</th>
+                                                                <th className="px-3 py-1 border border-slate-400">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {
+                                                                options?.map((option, idx) =>
+                                                                    <tr key={idx}>
+                                                                        <td className="px-3 py-1 border border-slate-400">{idx + 1}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400">{option?.name}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400">৳{option?.price}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400">{option?.stock}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400">{option?.coin}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400">{option?.serial}</td>
+                                                                        <td className="px-3 py-1 border border-slate-400 flex justify-center items-center gap-4">
+                                                                            <button onClick={() => document.getElementById(`update_option_desktop_${idx}`).showModal()} className="text-3xl text-blue-700"><AiFillEdit /></button>
+                                                                            <UpdateOption idx={idx} option={option} selectedSubCategoryId={selectedSubCategoryId} setOptions={setOptions} screen={'desktop'} />
+                                                                            <button onClick={() => handleDeleteOption(idx, option)} className="text-3xl text-red-600"><AiFillDelete /></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                {/* card for mobile */}
+                                                <div className="md:hidden my-4 space-y-3">
                                                     {
                                                         options?.map((option, idx) =>
-                                                            <tr key={idx}>
-                                                                <td className="px-3 py-1 border border-slate-400">{idx + 1}</td>
-                                                                <td className="px-3 py-1 border border-slate-400">{option?.name}</td>
-                                                                <td className="px-3 py-1 border border-slate-400">৳{option?.price}</td>
-                                                                <td className="px-3 py-1 border border-slate-400">{option?.stock}</td>
-                                                                <td className="px-3 py-1 border border-slate-400 flex justify-center items-center gap-4">
-                                                                    <button onClick={() => document.getElementById(`my_modal_${idx}`).showModal()} className="text-3xl text-blue-700"><AiFillEdit /></button>
-                                                                    <UpdateOption idx={idx} option={option} selectedSubCategoryId={selectedSubCategoryId} setOptions={setOptions} />
+                                                            <div key={idx} className="p-3 border border-slate-200 shadow-md flex justify-between">
+                                                                <div>
+                                                                    <h3 className="font-bold">
+                                                                        <span className="font-semibold">Name: </span>
+                                                                        {option?.name}
+                                                                    </h3>
+                                                                    <p>
+                                                                        <span className="font-semibold">Price: </span>
+                                                                        ৳{option?.price}
+                                                                    </p>
+                                                                    <p>
+                                                                        <span className="font-semibold">Stock: </span>
+                                                                        {option?.stock}
+
+                                                                    </p>
+                                                                    <p>
+                                                                        <span className="font-semibold">Coin: </span>
+                                                                        {option?.coin}
+
+                                                                    </p>
+                                                                    <p>
+                                                                        <span className="font-semibold">Serial: </span>
+                                                                        {option?.serial}
+
+                                                                    </p>
+                                                                </div>
+                                                                <div>
+                                                                    <button onClick={() => document.getElementById(`update_option_mobile_${idx}`).showModal()} className="text-3xl text-blue-700 mb-3"><AiFillEdit /></button>
+                                                                    <UpdateOption idx={idx} option={option} selectedSubCategoryId={selectedSubCategoryId} setOptions={setOptions} screen={'mobile'} />
                                                                     <button onClick={() => handleDeleteOption(idx, option)} className="text-3xl text-red-600"><AiFillDelete /></button>
-                                                                </td>
-                                                            </tr>
+                                                                </div>
+                                                            </div>
                                                         )
                                                     }
-                                                </tbody>
-                                            </table>
+                                                </div>
+                                            </div>
                                     }
                                 </>
                         }

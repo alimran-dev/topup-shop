@@ -82,6 +82,9 @@ const getDashboardData = async (req, res) => {
             _id: 0,
           },
         },
+        {
+          $sort: { uc: 1},
+        }
       ])
       .toArray();
     const result = {

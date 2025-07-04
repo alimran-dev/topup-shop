@@ -15,15 +15,19 @@ const {
   googleCallback,
   verifyUser,
   changePassword,
+  tempReferIDGen,
+  allReferHistory,
 } = require("../controllers/user.controller");
 
 const userRoute = () => {
   // /user/
   router.get("/profile", verifyToken, userProfile);
-  router.get(
-    "/google/login",
-    passport.authenticate("google", { scope: ["profile", "email"] })
-  );
+  router.get("/google/login", (req, res, next) => {
+    passport.authenticate("google", {
+      scope: ["profile", "email"],
+      state: JSON.stringify(req.query),
+    })(req, res, next);
+  });
   router.get(
     "/google/callback",
     passport.authenticate("google", {
@@ -32,12 +36,14 @@ const userRoute = () => {
     }),
     googleCallback
   );
+  router.get("/refer/history", verifyToken, allReferHistory);
   router.post("/login", loginUser);
   router.post("/new", newUser);
   router.patch("/forget", forgetPassword);
   router.patch("/verify", verifyToken, verifyUser);
   router.patch("/change/password", verifyToken, changePassword);
   router.patch("/update", verifyToken, updateUser);
+  // router.patch("/temp/refer", tempReferIDGen);
   // admin
   router.get("/admin/all", verifyAdmin, getAllUser);
   router.patch("/admin/status", verifyAdmin, updateUserStatus);

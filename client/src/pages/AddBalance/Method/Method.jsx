@@ -5,19 +5,23 @@ import MethodCard from "./MethodCard";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
 const Method = () => {
+  
   const [methods, setMethods] = useState([]);
   const [err, setErr] = useState("");
   const axiosPrivate = useAxiosPrivate();
   const location = useLocation();
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!location.state) navigate("/addBalance");
   }, [location.state, navigate]);
+  
   useEffect(() => {
     axiosPrivate.get("/payment/methods").then((data) => {
       setMethods(data.data);
     });
   }, [axiosPrivate]);
+  
   
   return (
     <div>

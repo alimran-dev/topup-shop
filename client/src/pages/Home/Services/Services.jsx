@@ -3,22 +3,22 @@ import unipin from "../../../assets/images/unipin.jpg";
 import shell from "../../../assets/images/shell.jpg";
 import rechargeCard from "../../../assets/images/recharge-card.jpeg";
 import rechargeOffer from "../../../assets/images/recharge-offer.jpeg";
+import rechargeBalance from "../../../assets/images/recharge-balance.jpeg";
 import { useEffect, useState } from "react";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import { useNavigate } from "react-router-dom";
 
 const Services = () => {
-
-  const [allData, setAllData] = useState([]);
   const [ffData, setFfData] = useState([]);
   const [telegramData, setTelegramData] = useState([]);
   const [likeFollowData, setLikeFollowData] = useState([]);
   const [subscriptionData, setSubsscriptionData] = useState([]);
   const [othersData, setOthersData] = useState([]);
   const axiosPublic = useAxiosPublic();
+  const navigate  = useNavigate();
 
   useEffect(() => {
     axiosPublic.get("/services").then((res) => {
-      setAllData(res?.data);
       const ffallData = res?.data?.filter(data => data?.category == 'FF Topup & Unipin');
       const telegramAllData = res?.data?.filter(data => data?.category == 'Telegram Packages');
       const likeFollowAllData = res?.data?.filter(data => data?.category == 'Like - Follow - Subscribe');
@@ -30,7 +30,7 @@ const Services = () => {
       setSubsscriptionData(subscriptionallData);
       setOthersData(othersAllData);
     });
-  }, [axiosPublic, allData]);
+  }, [axiosPublic]);
 
 
   return (
@@ -53,11 +53,20 @@ const Services = () => {
               title="Recharge Card [All sim]"
             />
           </div>
-          <div className="flex-1">
+          {/* new mb min combo card */}
+          <div onClick={() => navigate("/cards/companies", {state: "mbMinOffer"})} className="flex-1">
             <ServiceCard
               image={rechargeOffer}
-              path="#"
-              title="Minutes & MB offer [All sim]"
+              path="/cards/companies"
+              title="Minutes & MB offer"
+            />
+          </div>
+          {/* new manual recharge card */}
+          <div className="flex-1">
+            <ServiceCard
+              image={rechargeBalance}
+              path="/mobile-recharge"
+              title="Balance Recharge"
             />
           </div>
         </div>

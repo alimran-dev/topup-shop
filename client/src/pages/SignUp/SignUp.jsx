@@ -1,36 +1,56 @@
 import { FcGoogle } from "react-icons/fc";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import Turnstile from "react-turnstile";
+import toast from "react-hot-toast";
 
 
 const SignUp = () => {
+
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { user, setUser, googleLogin, setLoading } = useAuth();
+  const [showReferInput, setShowReferInput] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const { user, setUser, setLoading } = useAuth();
   const navigate = useNavigate();
-  const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref');
+
+  useEffect(() => {
+    if (referralCode) {
+      setShowReferInput(true);
+    }
+    if (user) {
+      navigate("/");
+    }
+  }, [navigate, user, referralCode]);
+
 
   // sign up fn
   const handleSignUp = (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+
+    if(turnstileToken.length <= 0) {
+      setIsLoading(false);
+      return toast.error("Please complete the captcha!");
+    }
     const form = e.target;
     const name = form.name.value;
     const email = form.email.value;
     const phone = form.phone.value;
     const password = form.password.value;
     const confirmPass = form.confirmPass.value;
-    const userData = { name, email, phone, password };
-
+    const referID = form.referID?.value;
+    const userData = { name, email, phone, password, referID, turnstileToken };
 
     const passRegex = /^.{6,}$/;
 
@@ -43,26 +63,16 @@ const SignUp = () => {
         axiosPrivate.post("/user/new", userData).then((res) => {
           // console.log(res.data);
           if (res?.data?.insertedId) {
-
-            const signedUserData = {
-              _id: res?.data?.insertedId,
-              email: res?.data?.email,
-              name: res?.data?.name,
-              photo: res?.data?.photo,
-              phone: res.data?.phone || "",
-              role: res?.data?.role,
-              balance: res?.data?.balance,
-              isBanned: res?.data?.isBanned,
-              spent: res?.data?.spent,
-              orders: res?.data?.orders,
-              coins: res?.data?.coins,
-            };
-
-            setUser(signedUserData);
+            setUser(res?.data || {});
             setError("");
             setLoading(false);
             setIsLoading(false);
             navigate("/");
+          }
+          else if (res.data.userExist) {
+            setError("User Exist!")
+            setLoading(false);
+            setIsLoading(false);
           }
           else {
             setError("Sign Up Failed!")
@@ -86,59 +96,14 @@ const SignUp = () => {
 
   // google login
   const handleGoogle = () => {
-    setIsLoading(true);
     setError("");
-    googleLogin()
-      .then((result) => {
-        const { email, displayName, phoneNumber, photoURL } = result.user;
-        const user = {
-          email: email,
-          name: displayName,
-          phone: phoneNumber,
-          photo: photoURL,
-        };
-
-        axiosPublic.post("/user/new", user).then((res) => {
-          console.log(res.data);
-          axiosPrivate
-            .post("/auth/jwt", { email })
-            .then((res) => {
-              console.log(res.data);
-              axiosPrivate
-                .get("/user/profile")
-                .then((res) => {
-                  const currentUser = res.data;
-                  currentUser.balance = parseFloat(
-                    currentUser.balance.toFixed(2)
-                  );
-                  setUser(currentUser);
-                  // console.log(res.data);
-                  setIsLoading(false);
-                  setLoading(false);
-                })
-                .catch((err) => {
-                  setIsLoading(false);
-                  console.error(err);
-                  setError("Authentication Failed");
-                });
-            })
-            .catch((err) => {
-              setIsLoading(false);
-              console.log(err);
-            });
-        });
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        console.error(err);
-      });
+    window.open(`${import.meta.env.VITE_SERVER_DOMAIN}/user/google/login?referID=${referralCode}`, '_self');
   };
 
+  // page apear from top
   useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [navigate, user]);
+    window.scrollTo(0, 0);
+  }, []);
 
 
   return (
@@ -239,11 +204,35 @@ const SignUp = () => {
             </span>
           </div>
         </div>
+        <div>
+          <div>
+            <button type="button" onClick={() => setShowReferInput(!showReferInput)} className="mt-3 text-blue-700">
+              {showReferInput ? "Hide Refer Code" : "Refer Code"}
+            </button>
+          </div>
+          {
+            showReferInput &&
+            <div className="space-y-1 mt-1">
+              <label htmlFor="phone" className="input-label">
+                Refer Code
+              </label>
+              <input
+                type="text"
+                name="referID"
+                className="input"
+                placeholder="Refer code"
+                defaultValue={referralCode ? referralCode : ""}
+                disabled={referralCode}
+              />
+            </div>
+          }
+        </div>
         {error && (
           <p className="text-lg font-medium text-red-500 text-center mt-2">
             {error}
           </p>
         )}
+        <Turnstile sitekey={import.meta.env.VITE_TURNSTILE_KEY} theme="light" className="w-fit mx-auto mt-2" onVerify={(token)=>setTurnstileToken(token)} />
         <button
           type="submit"
           className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-[#FA6023] to-[#E61C55] my-3 rounded-md"

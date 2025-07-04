@@ -8,7 +8,8 @@ import { FaHashtag } from "react-icons/fa";
 import toast from "react-hot-toast";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { TiTick } from "react-icons/ti";
-
+import Coin from "../../components/reusuable/Coin/Coin";
+import { Link } from "react-router-dom";
 
 const OrderCard = ({ order }) => {
   const [newStatus, setNewStatus] = useState(order?.status);
@@ -20,21 +21,25 @@ const OrderCard = ({ order }) => {
   const {
     _id,
     orderID,
+    subCategory,
     category,
     name,
     email,
     price,
     status,
+    type,
     orderTime,
     updateTime,
     codes,
     info,
     feedback,
+    processedExternally,
+    order: externalOrder,
+    screenshots
   } = order || {};
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
   const [copied, setCopied] = useState({});
-
 
   const handleCopyUid = async () => {
     const uidRegex = /\(UID: (.+?)\)/;
@@ -81,8 +86,7 @@ const OrderCard = ({ order }) => {
           toast.success("Order Updated Successfully!");
           setLoading(false);
           window.location.reload();
-        }
-        else {
+        } else {
           toast.error("Something Went Wrong!");
           setLoading(false);
         }
@@ -98,10 +102,10 @@ const OrderCard = ({ order }) => {
     if (codesRef.current) {
       try {
         const allCodes = codesRef.current.value.split("\n");
-        const firstCode = allCodes[0].substring(5);
-        if (category !== "card") {
-          allCodes[0] = firstCode;
-        }
+        // const firstCode = allCodes[0].substring(5);
+        // if (category !== "card") {
+        //   allCodes[0] = firstCode;
+        // }
         const allCodesMod = allCodes.join("\n");
         await navigator.clipboard.writeText(allCodesMod);
         Swal.fire({
@@ -137,26 +141,28 @@ const OrderCard = ({ order }) => {
   return (
     <div>
       <div className="px-4 py-5 border-2 rounded shadow-xl">
-
         {/* order id - category - package - status */}
         <div className="flex justify-between border-b border-b-slate-300 pb-4 mb-3">
           <div>
             <h3 className="flex gap-1 text-xl">
-              <p className="font-bold flex items-center"><FaHashtag /> Order ID: </p>
+              <p className="font-bold flex items-center">
+                <FaHashtag /> Order ID:{" "}
+              </p>
               {orderID}
             </h3>
             <p className="opacity-90 normal-case">E-mail: {email}</p>
           </div>
           <div>
             <span
-              className={`font-bold border px-3 py-1 capitalize text-xs ${status === "complete"
-                ? "text-green-800 border-green-800"
-                : status === "pending"
+              className={`font-bold border px-3 py-1 capitalize text-xs ${
+                status === "complete"
+                  ? "text-green-800 border-green-800"
+                  : status === "pending"
                   ? "text-yellow-500 border-yellow-500"
                   : status === "cancelled"
-                    ? "text-red-500 border-red-500"
-                    : ""
-                } rounded-full`}
+                  ? "text-red-500 border-red-500"
+                  : ""
+              } rounded-full`}
             >
               • {status}
             </span>
@@ -170,7 +176,7 @@ const OrderCard = ({ order }) => {
             onChange={(e) => setNewStatus(e.target.value)}
             name=""
             id=""
-            defaultValue={status}
+            defaultValue={processedExternally? externalOrder?.status:status}
             className="capitalize border border-slate-400 px-4 py-1 rounded-md"
           >
             {/* <option value={status} disabled selected hidden>
@@ -192,15 +198,15 @@ const OrderCard = ({ order }) => {
         <div className="w-full capitalize">
           <p className="capitalize">
             <span className="font-bold">Category: </span>
-            {category}
+            {subCategory || category}
           </p>
           <p className="">
             <span className="font-bold">Package: </span>
             {name}
             {category === "idcode" ||
-              category === "weekly & monthly" ||
-              category === "airdrop" ||
-              category === "lessIsMore" ? (
+            category === "weekly & monthly" ||
+            category === "airdrop" ||
+            category === "lessIsMore" ? (
               <MdContentCopy
                 onClick={handleCopyUid}
                 className="inline-block text-green-500 text-lg cursor-pointer ml-2"
@@ -210,21 +216,27 @@ const OrderCard = ({ order }) => {
             )}
           </p>
           <p className="flex items-center">
-            <span className="font-bold pr-1">Price:</span><TbCurrencyTaka /> {price}
+            <span className="font-bold pr-1">Price:</span>
+            {type === "balance"?<TbCurrencyTaka />: <Coin />} {price}
           </p>
-          {info && Object.entries(info).map(([key, value], idx) => (
-            <p key={idx} className="flex items-center gap-3">
-              <span className="font-bold">{key}: </span>
-              <p className="flex items-center gap-1">
-                <span>{value}</span>
-                <CopyToClipboard text={value}>
-                  <button onClick={() => handleCopyInfo(key)} className={`${copied[key] ? "text-green-700" : ""}`} disabled={copied[key]} >
-                  {copied[key] ? <TiTick /> : <MdContentCopy />}
-                  </button>
-                </CopyToClipboard>
-              </p>
-            </p>
-          ))}
+          {info &&
+            Object.entries(info).map(([key, value], idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <span className="font-bold">{key}: </span>
+                <p className="flex items-center gap-1">
+                  <span>{value}</span>
+                  <CopyToClipboard text={value}>
+                    <button
+                      onClick={() => handleCopyInfo(key)}
+                      className={`${copied[key] ? "text-green-700" : ""}`}
+                      disabled={copied[key]}
+                    >
+                      {copied[key] ? <TiTick /> : <MdContentCopy />}
+                    </button>
+                  </CopyToClipboard>
+                </p>
+              </div>
+            ))}
         </div>
 
         {/* times */}
@@ -243,25 +255,29 @@ const OrderCard = ({ order }) => {
 
         {/* feedback */}
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
-          {category === "unipin" || category === "shell" || category === "card" ? (
+          {subCategory === "unipin" ||
+          subCategory === "shell" ||
+          subCategory === "card" || (processedExternally && status==="complete") ? (
             <div>
               <textarea
                 disabled
-                value={codes.join("\n")}
+                value={processedExternally? externalOrder?.unipins?.join("\n"):codes.join("\n")}
                 name=""
                 ref={codesRef}
                 className="border-2 h-24 w-full rounded px-2 py-0.5"
               ></textarea>
+              <div className="w-full flex justify-center items-center">
               <button
                 onClick={handleCopy}
                 className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
               >
                 <MdContentCopy className="inline-block" /> Copy All
               </button>
+              {processedExternally && <Link to={`/images/${order?._id}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit">Images</Link>}
+              </div>
             </div>
           ) : (
             <div>
-
               <textarea
                 onChange={(e) => setNewFeedback(e.target.value)}
                 defaultValue={feedback}
@@ -270,14 +286,13 @@ const OrderCard = ({ order }) => {
               ></textarea>
               <button
                 onClick={handleUpdate}
-                disabled={loading || isDisable}
+                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
                 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed mt-5"
               >
-                {loading ? 'Please Wait' : 'Update'}
+                {loading ? "Please Wait" : "Update"}
               </button>
             </div>
           )}
-
         </div>
       </div>
     </div>

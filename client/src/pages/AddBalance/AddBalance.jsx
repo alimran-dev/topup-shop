@@ -4,13 +4,17 @@ import "./AddBalance.css";
 import { MdArrowOutward } from "react-icons/md";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Loader from "../../components/Loader";
+import { allLinks } from "../../utils/constants";
+import NoticeView from "../Home/Notice/NoticeView";
 
 const AddBalance = () => {
+  const [isOpen,setIsOpen]=useState(true);
   const [err, setErr] = useState("");
   const [offer, setOffer] = useState({ offer: "" });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
+
   const handleAdd = (e) => {
     e.preventDefault();
     setErr("");
@@ -20,26 +24,24 @@ const AddBalance = () => {
       navigate("./method", { state: amount });
     }
   };
+
   useEffect(() => {
     axiosPrivate.get("/balance/offer").then((res) => {
       setOffer(res.data[0]);
       setIsLoading(false);
     });
   }, [axiosPrivate]);
+
+
+  // page apear from top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="space-y-5">
       <Loader isLoading={isLoading} />
-      <div
-        className={`relative ${offer?.offer?.length > 0 ? "" : "hidden"
-          }`}
-      >
-        <h2 className="text-center border-b-2 border-[#FA6023] py-1.5 text-lg font-bold">
-          Offer
-        </h2>
-        <div className="px-3 py-3 text-sm">
-          <p>{offer?.offer || ""}</p>
-        </div>
-      </div>
+      <NoticeView isOpen={isOpen} notice={offer?.offer} setIsOpen={setIsOpen} title="Offer" />
       <div className="w-fit mx-auto">
         <div className="bg-white rounded">
           <h2 className="title !mb-0">
@@ -70,7 +72,7 @@ const AddBalance = () => {
               Click To Add
             </button>
             <Link
-              to={"https://youtu.be/n2vD7oK0pfo?si=KjNmVbyrh-XmNqMd"}
+              to={allLinks.balanceAddTutorial || "#"}
               target="_blank"
               className="text-blue-700 font-semibold flex items-center gap-1 mt-5"
             >
