@@ -9,7 +9,6 @@ const Image = ({img}) => {
       {!loaded && <div data-theme="light" className="skeleton absolute top-0 left-0 w-full h-full"></div>}
       <img
       src={img}
-      srcSet={`${img} 1x, ${img.replace('.png', '@2x.png')} 2x`}
       alt="Order Image"
       loading="lazy"
       onLoad={() => setLoaded(true)}
