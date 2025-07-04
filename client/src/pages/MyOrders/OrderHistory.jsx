@@ -5,6 +5,7 @@ import { MdContentCopy } from "react-icons/md";
 import PropTypes from "prop-types";
 import { FaHashtag } from "react-icons/fa";
 import Coin from "../../components/reusuable/Coin/Coin";
+import { Link } from "react-router-dom";
 
 const OrderHistory = ({ order }) => {
   const codesRef = useRef(null);
@@ -75,12 +76,12 @@ const OrderHistory = ({ order }) => {
               </h3>
               <p className="opacity-90 normal-case">Package: {name}</p>
               <p className="opacity-90 normal-case flex items-center">
-                Price: 
+                Price:
                 {type == "coin" ? <Coin /> : <TbCurrencyTaka />}
                 {price}
               </p>
             </div>
-            <div className="flex flex-col justify-between">
+            <div className="flex flex-col justify-between gap-2">
               <span
                 className={`font-bold border px-3 py-1 capitalize text-xs ${
                   status === "complete"
@@ -102,19 +103,36 @@ const OrderHistory = ({ order }) => {
               >
                 Detail
               </button>
+              {processedExternally && status === "complete" && (
+                <>
+                  <Link
+                    to={`/images/${order?._id}`}
+                    target="_blank"
+                    className="button"
+                  >
+                    Images
+                  </Link>
+                </>
+              )}
             </div>
           </div>
           {subCategory === "unipin" ||
           subCategory === "shell" ||
           subCategory === "card" ||
-          (processedExternally && status==="complete") ? (
+          (processedExternally && status === "complete") ? (
             <>
               {codes && (
                 <div className="pt-3">
                   <textarea
                     ref={codesRef}
                     disabled
-                    value={processedExternally? externalOrder?.unipins?.join("\n")?.concat("\n",screenshots?.join("\n")):codes.join("\n")}
+                    value={
+                      processedExternally
+                        ? externalOrder?.unipins
+                            ?.join("\n")
+                            ?.concat("\n", screenshots?.join("\n"))
+                        : codes.join("\n")
+                    }
                     name=""
                     className="border-2 h-24 w-full rounded px-2 py-0.5"
                   ></textarea>
@@ -216,7 +234,8 @@ const OrderHistory = ({ order }) => {
                   <span>:</span>
                   <span className="flex items-center">
                     {type == "coin" ? <Coin /> : <TbCurrencyTaka />}
-                    {price}</span>
+                    {price}
+                  </span>
                 </p>
                 {info &&
                   Object.entries(info).map(([key, value], idx) => (
@@ -232,14 +251,12 @@ const OrderHistory = ({ order }) => {
             <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
               {subCategory === "unipin" ||
               subCategory === "shell" ||
-              subCategory === "card" ||
-              (processedExternally && status==="complete")
-               ? (
+              subCategory === "card" ? (
                 <div>
                   <textarea
                     ref={codesRef}
                     disabled
-                    value={processedExternally? externalOrder?.unipins?.join("\n")?.concat("\n",screenshots?.join("\n")):codes.join("\n")}
+                    value={codes.join("\n")}
                     name=""
                     className="border-2 h-24 w-full rounded px-2 py-0.5"
                   ></textarea>
@@ -251,8 +268,7 @@ const OrderHistory = ({ order }) => {
                   </button>
                 </div>
               ) : (
-                <>
-                </>
+                <></>
               )}
             </div>
           </div>

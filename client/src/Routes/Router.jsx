@@ -60,6 +60,7 @@ import ReferralHistory from "../pages/CoinAndReferral/ReferralHistory/ReferralHi
 import ViewSummary from "../AdminDashboard/Orders/ViewSummary/ViewSummary";
 import AdminCoinHistory from "../AdminDashboard/OfferAndProducts/SpecialProducts/CoinHistory/CoinHistory";
 import ClaimRedeemCode from "../pages/Home/ClaimRedeemCode/ClaimRedeemCode";
+import OrderImages from "../pages/OrderImages/OrderImages";
 
 
 const router = createBrowserRouter([
@@ -115,6 +116,10 @@ const router = createBrowserRouter([
       {
         path: "/forgotPassword",
         element: <ForgotPassword />,
+      },
+      {
+        path: "/images/:orderId",
+        element: <OrderImages />
       },
       {
         path: "/myAccount",
