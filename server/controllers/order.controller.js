@@ -94,7 +94,12 @@ const getAllOrder = async (req, res) => {
         .find({ email: email }, { sort: { updateTime: -1 } })
         .skip((pageInt - 1) * limitInt)
         .limit(limitInt)
-        .project({referHistoryId: 0, coinBonusID: 0, order: 0, screenshots: 0})
+        .project({
+          referHistoryId: 0,
+          coinBonusID: 0,
+          order: 0,
+          screenshots: 0,
+        })
         .toArray(),
       orderCollection.countDocuments({ email: email }),
     ]);
@@ -105,30 +110,36 @@ const getAllOrder = async (req, res) => {
   }
 };
 
-const getOrderImages = async (req,res)=>{
-  try{
-    const { id} = req.query || {};
-    if(!id){
+const getOrderImages = async (req, res) => {
+  try {
+    const { id } = req.query || {};
+    if (!id) {
       return res.status(400).send({ error: "Invalid request" });
     }
     const order = await orderCollection.findOne({ _id: new ObjectId(id) });
-    if(!order){
+    if (!order) {
       return res.status(404).send({ error: "Order not found" });
     }
-    const protocol = req.secure ? "https" : "http";
+    // Force HTTPS protocol for production/demo environments
+    const protocol =
+      req.secure ||
+      req.get("x-forwarded-proto") === "https" ||
+      process.env.PROJECT_ENV !== "development"
+        ? "https"
+        : "http";
     const host = req.get("host");
     const screenshots = order?.screenshots || [];
-    const images = screenshots.map((image)=>{
+    const images = screenshots.map((image) => {
       const splitted = image?.split("/");
       const imgName = splitted[splitted.length - 1];
       return `${protocol}://${host}/auto/image?orderID=${order?.externalOrderId}&image=${imgName}`;
-    })
+    });
     res.send({ success: true, images });
-  }catch(err){
+  } catch (err) {
     console.error("getOrderImages: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
 const getLastOrder = async (req, res) => {
   try {
@@ -1208,9 +1219,9 @@ const autoServerOrderProcess = async (req, res) => {
       order: orderInAuto,
       screenshots: screenshots || [],
     };
-    const order = await orderCollection.findOne({externalOrderId: id});
-    if(!order){
-      return res.send({success: false, message: "Order not found"});
+    const order = await orderCollection.findOne({ externalOrderId: id });
+    if (!order) {
+      return res.send({ success: false, message: "Order not found" });
     }
     const result = await orderCollection.updateOne(
       { externalOrderId: id },
