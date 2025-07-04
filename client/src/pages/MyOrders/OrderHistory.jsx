@@ -251,12 +251,13 @@ const OrderHistory = ({ order }) => {
             <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
               {subCategory === "unipin" ||
               subCategory === "shell" ||
-              subCategory === "card" ? (
+              subCategory === "card" ||
+              (processedExternally && status==="complete") ? (
                 <div>
                   <textarea
                     ref={codesRef}
                     disabled
-                    value={codes.join("\n")}
+                    value={processedExternally? `${window.location.origin}/images/${order?._id}`:codes.join("\n")}
                     name=""
                     className="border-2 h-24 w-full rounded px-2 py-0.5"
                   ></textarea>
