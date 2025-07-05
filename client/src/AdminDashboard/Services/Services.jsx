@@ -112,6 +112,7 @@ const Services = () => {
                                             <div className="p-3 text-2xl flex items-center gap-5">
                                                 <Link to={`/dashboard/updateSubCategory/${service?._id}`} className="text-blue-700"><FaRegEdit /></Link>
                                                 <button onClick={() => handleDeleteService(service?._id)} className="text-red-600 text-3xl"><AiFillDelete /></button>
+                                                <span>#{service?.serial}</span>
                                             </div>
                                         </div>
                                     )

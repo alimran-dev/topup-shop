@@ -17,6 +17,7 @@ const UpdateSubCategory = () => {
     const [subCategoryName, setSubCategoryName] = useState('');
     const [tutorialText, setTutorialText] = useState('');
     const [tutorialUrl, setTutorialUrl] = useState('');
+    const [serial, setSerial] = useState(0);
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
@@ -31,7 +32,8 @@ const UpdateSubCategory = () => {
             setImage(res?.data?.image || null);
             setPreview(res?.data?.image || null);
             setInputs(res?.data?.inputs || []);
-            setValue(res?.data?.rules || '')
+            setValue(res?.data?.rules || '');
+            setSerial(res?.data?.serial || 0);
         })
     }, [axiosPrivate, id]);
 
@@ -82,6 +84,7 @@ const UpdateSubCategory = () => {
                 tutorialText,
                 tutorialURL: tutorialUrl,
                 inputs,
+                serial,
                 image: uploadedImage,
                 rules: value,
             };
@@ -127,6 +130,11 @@ const UpdateSubCategory = () => {
                         <label htmlFor="" className="input-label">Tutorial URL</label>
                         <input type="text" onChange={(e) => setTutorialUrl(e.target.value)} className="input" value={tutorialUrl} placeholder="Type tutorial URL" required />
                     </div>
+                </div>
+                {/* serial */}
+                <div>
+                    <label htmlFor="serial">Serial</label>
+                    <input type="text" onChange={(e)=>setSerial(parseInt(e.target.value))} className="input" value={serial} />
                 </div>
 
                 {/* inputs */}

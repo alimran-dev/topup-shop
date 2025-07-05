@@ -34,7 +34,7 @@ const UnipinConfirmation = ({
         });
     } else {
       axiosPrivate
-        .post(`/code/admin/add/unipin`)
+        .post(`/code/admin/add/unipin`, codesArray)
         .then(() => {
           toast.success("Unipins added successfully to main server");
           setIsOpenUnipinConfirmation(false);

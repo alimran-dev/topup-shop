@@ -31,7 +31,8 @@ const getAllServices = async (req, res) => {
   try {
     const result = await serviceCollection
       .find()
-      .project({ category: 1, title: 1, image: 1 })
+      .project({ category: 1, title: 1, image: 1, serial: 1 })
+      .sort({serial: 1})
       .toArray();
     res.send(result);
   } catch (err) {
@@ -53,6 +54,7 @@ const addSubCategory = async (req, res) => {
       inputs &&
       rules
     ) {
+      const total = await serviceCollection.countDocuments();
       const subCategory = {
         title,
         category,
@@ -60,9 +62,11 @@ const addSubCategory = async (req, res) => {
         tutorialText,
         tutorialURL,
         isAuto,
+        serial: total + 1,
         inputs,
         rules,
         options: [],
+        createdAt: new Date(),
       };
       const result = await serviceCollection.insertOne(subCategory);
       res.send(result);
@@ -94,6 +98,7 @@ const updateSubCategory = async (req, res) => {
       tutorialText,
       tutorialURL,
       inputs,
+      serial,
       rules,
     } = req.body;
     const newSubCategory = { $set: {} };
@@ -118,6 +123,7 @@ const updateSubCategory = async (req, res) => {
     if (rules) {
       newSubCategory.$set.rules = rules;
     }
+    newSubCategory.$set.serial = serial || 0;
     const result = await serviceCollection.updateOne(
       { _id: new ObjectId(id) },
       newSubCategory
