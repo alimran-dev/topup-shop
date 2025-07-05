@@ -24,8 +24,9 @@ const MyOrders = () => {
       axiosPrivate
         .get(`/order/all?email=${user?.email}&page=${page}&limit=${limit}`)
         .then((res) => {
+          // console.log(res.data);
           setOrders([...orders, ...res.data.orders]);
-          setTotalOrder(res.data.total);
+          setTotalOrder(res.data.totalOrders);
           setIsLoading(false);
         });
     }

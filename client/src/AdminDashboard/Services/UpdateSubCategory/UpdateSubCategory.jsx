@@ -134,7 +134,7 @@ const UpdateSubCategory = () => {
                 {/* serial */}
                 <div>
                     <label htmlFor="serial">Serial</label>
-                    <input type="text" onChange={(e)=>setSerial(parseInt(e.target.value))} className="input" value={serial} />
+                    <input type="number" onChange={(e)=>setSerial(parseInt(e.target.value))} className="input" value={serial} />
                 </div>
 
                 {/* inputs */}
