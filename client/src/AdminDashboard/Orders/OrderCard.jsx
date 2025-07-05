@@ -286,7 +286,7 @@ const OrderCard = ({ order }) => {
               ></textarea>
               <button
                 onClick={handleUpdate}
-                disabled={loading || isDisable || status === "cancelled"}
+                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
                 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed mt-5"
               >
                 {loading ? "Please Wait" : "Update"}
