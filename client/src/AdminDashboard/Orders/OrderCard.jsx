@@ -223,7 +223,7 @@ const OrderCard = ({ order }) => {
             Object.entries(info).map(([key, value], idx) => (
               <div key={idx} className="flex items-center gap-3">
                 <span className="font-bold">{key}: </span>
-                <p className="flex items-center gap-1">
+                <p className="flex items-center gap-1 !normal-case">
                   <span>{value}</span>
                   <CopyToClipboard text={value}>
                     <button
