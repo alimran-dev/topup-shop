@@ -329,10 +329,10 @@ const orderAuto = async (req, res) => {
 };
 
 /**
- * 
- * @param {import("express").Request} req 
- * @param {import("express").Response} res 
- * @returns 
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @returns
  */
 
 const orderDynamic = async (req, res) => {
@@ -453,27 +453,46 @@ const orderDynamic = async (req, res) => {
       if (isAuto) {
         const autoCombo = option?.combo?.reduce((acc, item) => {
           if (item?.quantity > 0) {
-            if(service?.server==="indo"){
-              acc.push({ name: item?.name,label: item?.label, quantity: item?.quantity * quantity });
-            }else if(service?.server==="sg"){
-              acc.push({ name: item?.name, dollar: item?.dollar, quantity: item?.quantity * quantity });
-            }else{
-              acc.push({ name: item?.name, quantity: item?.quantity * quantity });
+            if (service?.server === "indo") {
+              acc.push({
+                name: item?.name,
+                label: item?.label,
+                quantity: item?.quantity * quantity,
+              });
+            } else if (service?.server === "sg") {
+              acc.push({
+                name: item?.name,
+                dollar: item?.dollar,
+                quantity: item?.quantity * quantity,
+              });
+            } else {
+              acc.push({
+                name: item?.name,
+                quantity: item?.quantity * quantity,
+              });
             }
           }
           return acc;
         }, []);
+        const protocol =
+          req.secure ||
+          req.get("x-forwarded-proto") === "https" ||
+          process.env.PROJECT_ENV !== "development"
+            ? "https"
+            : "http";
         // console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
         const autoDoc = {
-            uid: info?.uid,
-            option: autoCombo,
-            callback: `${req.protocol}://${req.get("host")}/order/auto-server/processing`,
-            server: service?.server,
-            email: "mezbakhan65@gmail.com",
-          }
-          if(service?.server==="sg"){
-            autoDoc.dollar = autoCombo[0]?.dollar || 0;
-          }
+          uid: info?.uid,
+          option: autoCombo,
+          callback: `${protocol}://${req.get(
+            "host"
+          )}/order/auto-server/processing`,
+          server: service?.server,
+          email: "mezbakhan65@gmail.com",
+        };
+        if (service?.server === "sg") {
+          autoDoc.dollar = autoCombo[0]?.dollar || 0;
+        }
         try {
           const { data } = await axiosAuto.post("/new-order", autoDoc);
           order.externalOrderId = data?.orderId;
