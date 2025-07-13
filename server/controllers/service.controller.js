@@ -31,7 +31,7 @@ const getAllServices = async (req, res) => {
   try {
     const result = await serviceCollection
       .find()
-      .project({ category: 1, title: 1, image: 1, serial: 1 })
+      .project({ category: 1, title: 1, image: 1, serial: 1, isAuto: 1, server: 1 })
       .sort({serial: 1})
       .toArray();
     res.send(result);
@@ -43,7 +43,7 @@ const getAllServices = async (req, res) => {
 
 const addSubCategory = async (req, res) => {
   try {
-    const { title, category, image, tutorialText, tutorialURL, isAuto, inputs, rules } =
+    const { title, category, image, tutorialText, tutorialURL, isAuto, server, inputs, rules } =
       req.body;
     if (
       title &&
@@ -68,6 +68,9 @@ const addSubCategory = async (req, res) => {
         options: [],
         createdAt: new Date(),
       };
+      if(isAuto){
+        subCategory.server = server || "default";
+      }
       const result = await serviceCollection.insertOne(subCategory);
       res.send(result);
     } else {
