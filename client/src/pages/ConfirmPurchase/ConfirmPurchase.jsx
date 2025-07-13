@@ -10,7 +10,8 @@ const ConfirmPurchase = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const { user, setUser } = useAuth();
-  const { name, category, selected, inputValues, orderData, quantity } = location.state;
+  const { name, category, selected, inputValues, orderData, quantity } =
+    location.state;
 
   // console.log(orderData);
 
@@ -27,7 +28,7 @@ const ConfirmPurchase = () => {
         info: inputValues,
         isAuto: orderData?.isAuto,
         willHaveQuantity: selected?.willHaveQuantity,
-        quantity: quantity
+        quantity: quantity,
       };
 
       axiosPrivate
@@ -189,8 +190,7 @@ const ConfirmPurchase = () => {
         </h2>
 
         {/* for recharge */}
-        {
-          name == "recharge" &&
+        {name == "recharge" && (
           <div className="px-4 py-2">
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Package</span>
@@ -202,23 +202,25 @@ const ConfirmPurchase = () => {
               <span>:</span>
               <span>৳{location.state?.option?.price}</span>
             </p>
-            {
-              category == "rechargeCard" &&
+            {category == "rechargeCard" && (
               <>
                 <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                   <span className="w-24 font-semibold">Quantity</span>
                   <span>:</span>
-                  <span className="capitalize">{location.state?.orderData?.quantity}</span>
+                  <span className="capitalize">
+                    {location.state?.orderData?.quantity}
+                  </span>
                 </p>
               </>
-            }
-            {
-              category == "offerCard" &&
+            )}
+            {category == "offerCard" && (
               <>
                 <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                   <span className="w-24 font-semibold">Type</span>
                   <span>:</span>
-                  <span className="capitalize">{location.state?.orderData?.type}</span>
+                  <span className="capitalize">
+                    {location.state?.orderData?.type}
+                  </span>
                 </p>
                 <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                   <span className="w-24 font-semibold">Mobile</span>
@@ -226,19 +228,17 @@ const ConfirmPurchase = () => {
                   <span>{location.state?.orderData?.phone}</span>
                 </p>
               </>
-            }
+            )}
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Company</span>
               <span>:</span>
               <span>{location.state?.company}</span>
             </p>
-
           </div>
-        }
+        )}
 
         {/* for balance recharge */}
-        {
-          name == "balanceRecharge" &&
+        {name == "balanceRecharge" && (
           <div className="px-4 py-2">
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Number</span>
@@ -261,11 +261,10 @@ const ConfirmPurchase = () => {
               <span>{orderData?.type}</span>
             </p>
           </div>
-        }
+        )}
 
         {/* for unipin, dynamic or shell */}
-        {
-          (name == "unipin" || name == "shell" || name == "dynamic") &&
+        {(name == "unipin" || name == "shell" || name == "dynamic") && (
           <div className="px-4 py-2">
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Option</span>
@@ -276,14 +275,21 @@ const ConfirmPurchase = () => {
               <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                 <span className="w-24 font-semibold normal-case">Quantity</span>
                 <span>:</span>
-                <span>{orderData?.isAuto ? quantity:orderData?.quantity}</span>
+                <span>
+                  {orderData?.isAuto ? quantity : orderData?.quantity}
+                </span>
               </p>
             )}
 
             <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
               <span className="w-24 font-semibold">Price</span>
               <span>:</span>
-              <span>৳{orderData?.isAuto? selected?.price * quantity: selected?.price}</span>
+              <span>
+                ৳
+                {orderData?.isAuto
+                  ? selected?.price * quantity
+                  : selected?.price}
+              </span>
             </p>
             {name == "dynamic" && (
               <>
@@ -300,7 +306,7 @@ const ConfirmPurchase = () => {
               </>
             )}
           </div>
-        }
+        )}
         <div className="flex justify-center mt-4">
           <button
             onClick={handlePurchase}
