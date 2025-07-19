@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
 import toast from "react-hot-toast";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -12,36 +12,46 @@ const AdminCoinHistory = () => {
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchEmail, setSearchEmail] = useState("");
+  const [showReview, setShowReview] = useState(true);
   const limit = 5;
-  const page = Math.ceil(historyData.length / limit + 1);
   const axiosPrivate = useAxiosPrivate();
 
-  const fetchData = async () => {
-    try {
-      const res = await axiosPrivate.get(
-        `/coins/history?page=${page}&limit=${limit}&email=${searchEmail}`
-      );
-      // console.log(res.data, "---------data");
-      setHistoryData([...historyData, ...res.data.history]);
-      setTotalData(res.data?.totalHistory || 0);
-    } catch (err) {
-      // console.log(err);
-      toast.error(err?.response?.data?.message || "Error Fetching Data!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchData = useCallback(
+    async (reset = false, currentDataLength = 0) => {
+      try {
+        const currentPage = reset
+          ? 1
+          : Math.ceil(currentDataLength / limit + 1);
+        const res = await axiosPrivate.get(
+          `/coins/history?page=${currentPage}&limit=${limit}&email=${searchEmail}&showReview=${showReview}`
+        );
+        // console.log(res.data, "---------data");
+        if (reset) {
+          setHistoryData(res.data.history);
+        } else {
+          setHistoryData((prev) => [...prev, ...res.data.history]);
+        }
+        setTotalData(res.data?.totalHistory || 0);
+      } catch (err) {
+        // console.log(err);
+        toast.error(err?.response?.data?.message || "Error Fetching Data!");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [axiosPrivate, limit, searchEmail, showReview]
+  );
 
   const fetchMoreData = () => {
     if (totalData > historyData?.length) {
-      fetchData();
+      fetchData(false, historyData.length);
     }
   };
 
   useEffect(() => {
     setHistoryData([]);
-    fetchData();
-  }, [searchEmail]);
+    fetchData(true);
+  }, [searchEmail, showReview, fetchData]);
 
   const handleUpdateStatus = (e, id) => {
     const status = e.target.value;
@@ -84,6 +94,17 @@ const AdminCoinHistory = () => {
   return (
     <div className="max-w-2xl mx-auto">
       <h2 className="title">Coin History</h2>
+      <div className="flex items-center justify-center gap-2">
+        <label htmlFor="review" className="input-label">
+          Show only Pending Review
+        </label>
+        <input
+          type="checkbox"
+          className="toggle"
+          defaultChecked={showReview}
+          onChange={(e) => setShowReview(e.target.checked)}
+        />
+      </div>
 
       {/* user email for filter */}
       <div className="">
@@ -128,7 +149,8 @@ const AdminCoinHistory = () => {
                         Object.entries(item?.info)?.map(([key, value]) => (
                           <div key={key}>
                             <strong>{key}:</strong>{" "}
-                            {typeof value ==="string" && value?.includes("http") ? (
+                            {typeof value === "string" &&
+                            value?.includes("http") ? (
                               <Link
                                 to={value}
                                 className="text-blue-700"

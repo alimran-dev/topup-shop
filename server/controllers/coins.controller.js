@@ -271,9 +271,11 @@ const changeReviewStatus = async (req, res) => {
 
 const getCoinHistory = async (req, res) => {
   try {
-    const { page, limit, email } = req.query || {};
+    const { page, limit, email, showReview } = req.query || {};
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
+
+    console.log(showReview);
     if (!pageInt || !limitInt) {
       return res.status(400).send({ message: "Invalid page or limit value" });
     }
@@ -287,30 +289,12 @@ const getCoinHistory = async (req, res) => {
     } else if (role === "admin") {
       filter = { email: { $regex: new RegExp(email, "i") } };
     }
+    if (showReview === "true"){
+      filter.name = "Review Offer Claim";
+      filter.status = "pending";
+    }
     const totalHistory = await coinHistoryCollection.countDocuments(filter);
-    const result = await coinHistoryCollection
-      .aggregate([
-        { $match: filter },
-        {
-          $addFields: {
-            statusOrder: {
-              $switch: {
-                branches: [
-                  { case: { $eq: ["$status", "pending"] }, then: 1 },
-                  { case: { $eq: ["$status", "success"] }, then: 2 },
-                  { case: { $eq: ["$status", "cancel"] }, then: 3 },
-                ],
-                default: 4,
-              },
-            },
-          },
-        },
-        { $sort: { statusOrder: 1, createdAt: -1 } },
-        { $skip: (pageInt - 1) * limitInt },
-        { $limit: limitInt },
-        { $project: { statusOrder: 0 } },
-      ])
-      .toArray();
+      const result = await coinHistoryCollection.find(filter, {sort: {createdAt: -1}}).skip((pageInt-1)*limitInt).limit(limitInt).toArray();
     res.send({ history: result, totalHistory });
   } catch (err) {
     console.error("getCoinHistory: ", err.message);
