@@ -541,7 +541,7 @@ const updateUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const { page, limit, search } = req.query;
+    const { page, limit, search, sortBy } = req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
     // console.log(pageInt, limitInt);
@@ -549,10 +549,24 @@ const getAllUser = async (req, res) => {
     if (search) {
       filter = { email: { $regex: new RegExp(search, "i") } };
     }
+    const sort = {};
+    if(sortBy==="newest") {
+      sort._id = -1;
+    } else if(sortBy==="oldest") {
+      sort._id = 1;
+    } else if(sortBy==="coinLowToHigh") {
+      sort.coins = 1;
+    } else if(sortBy==="coinHighToLow") {
+      sort.coins = -1;
+    } else if(sortBy==="balanceLowToHigh") {
+      sort.balance = 1;
+    } else if(sortBy==="balanceHighToLow") {
+      sort.balance = -1;
+    }
     const totalUsers = await userCollection.countDocuments(filter);
     const result = await userCollection
-      .find(filter, { sort: { _id: -1 } })
-      .project({ password: 0 })
+      .find(filter, { sort })
+      .project({ password: 0, referID: 0,referredBy: 0, reset: 0, verify: 0 })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt)
       .toArray();

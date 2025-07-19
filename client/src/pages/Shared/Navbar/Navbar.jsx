@@ -114,6 +114,10 @@ const Navbar = () => {
                 src={user?.photo || avatar}
                 alt=""
                 className="w-12 h-12 bg-slate-400 rounded-full cursor-pointer user-avatar"
+                onError={(e) => {
+                  e.target.onerror = null; // prevents looping
+                  e.target.src = avatar; // fallback image
+                }}
               />
               {/* Menu Container */}
               <div
@@ -128,6 +132,10 @@ const Navbar = () => {
                     src={user?.photo || avatar}
                     alt=""
                     className="w-14 h-14 rounded-md bg-slate-400"
+                    onError={(e) => {
+                      e.target.onerror = null; // prevents looping
+                      e.target.src = avatar; // fallback image
+                    }}
                   />
                   <div className="flex-1">
                     <p className="text-lg font-bold text-gray-800">

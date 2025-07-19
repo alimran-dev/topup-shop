@@ -3,12 +3,14 @@ import PropTypes from "prop-types";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useState } from "react";
 import Swal from "sweetalert2";
+import UserName from "../../components/reusuable/UserName/UserName";
 
 const UserCard = ({ user, setIsLoading }) => {
   const [isBanned, setIsBanned] = useState(user?.isBanned) || {};
   const [balance, setBalance] = useState(user?.balance) || {};
   const axiosPrivate = useAxiosPrivate();
-  const { name, email, phone, photo, spent, orders } = user || {};
+  const { name, email, phone, photo, spent, orders, coins, isVerified } = user || {};
+  // console.log(user);
   const handleBlockUnblock = () => {
     setIsLoading(true);
     axiosPrivate
@@ -63,8 +65,15 @@ const UserCard = ({ user, setIsLoading }) => {
         src={photo || avatar}
         alt={photo}
         className="w-14 h-14 block mx-auto rounded-full"
+        onError={(e) => {
+          e.target.onerror = null; // prevents looping
+          e.target.src = avatar; // fallback image
+        }}
       />
-      <h3 className="text-center font-bold text-lg">{name}</h3>
+      {/* <h3 className="text-center font-bold text-lg">{name}</h3> */}
+      <div className="block w-fit mx-auto">
+      <UserName name={name} isVerified={isVerified} />
+      </div>
       <p className="overflow-auto">
         <span className="font-bold">Email: </span>
         {email}
@@ -76,6 +85,10 @@ const UserCard = ({ user, setIsLoading }) => {
       <p className="">
         <span className="font-bold">Balance: </span>
         {balance}
+      </p>
+      <p className="">
+        <span className="font-bold">Coins: </span>
+        {coins}
       </p>
       <p className="">
         <span className="font-bold">Total Orders: </span>
