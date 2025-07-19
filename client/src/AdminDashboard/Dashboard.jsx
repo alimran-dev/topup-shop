@@ -3,6 +3,7 @@ import { TbCurrencyTaka } from "react-icons/tb";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import Loader from "../components/Loader";
 import DataTable from "./DashboardComponents/DataTable";
+import Coin from "../components/reusuable/Coin/Coin";
 
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -16,6 +17,8 @@ const Dashboard = () => {
       setData(res.data);
     });
   }, [axiosPrivate]);
+
+  console.log(data);
 
   useEffect(()=>{
     axiosPrivate.get("/auto/unipins-data")
@@ -60,6 +63,14 @@ const Dashboard = () => {
               <h3 className="text-3xl font-semibold text-white">Available</h3>
               <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
                 <TbCurrencyTaka /> {data?.balance?.available?.toFixed(2) || 0}
+              </p>
+            </div>
+          </div>
+          <div className="w-full h-full bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-center py-5 px-4 rounded-md flex items-center justify-center">
+            <div className="space-y-2">
+              <h3 className="text-3xl font-semibold text-white">Available Coins</h3>
+              <p className="flex items-center justify-center text-center text-2xl font-semibold text-white">
+                <Coin /> {data?.balance?.availableCoin?.toFixed(2) || 0}
               </p>
             </div>
           </div>

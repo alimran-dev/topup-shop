@@ -1,9 +1,44 @@
 const { dbCollections } = require("../config/db");
-const { userCollection, orderCollection, unipinCollection, shellCollection } =
-  dbCollections;
+const {
+  userCollection,
+  orderCollection,
+  unipinCollection,
+  shellCollection,
+  transactionCollection,
+} = dbCollections;
 
 const getDashboardData = async (req, res) => {
   try {
+    const transactionMetrics = await transactionCollection
+      .aggregate([
+        {
+          $group: {
+            _id: null,
+            added: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ["$status", "completed"] },
+                      { $eq: [{ $month: "$time" }, { $month: new Date() }] },
+                      { $eq: [{ $year: "$time" }, { $year: new Date() }] },
+                    ],
+                  },
+                  "$willAdd",
+                  0,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            added: 1,
+          },
+        },
+      ])
+      .toArray();
     const balanceMetrics = await userCollection
       .aggregate([
         {
@@ -11,6 +46,7 @@ const getDashboardData = async (req, res) => {
             _id: null,
             available: { $sum: "$balance" },
             totalSpent: { $sum: "$spent" },
+            availableCoin: { $sum: "$coins" },
           },
         },
         {
@@ -19,6 +55,7 @@ const getDashboardData = async (req, res) => {
             totalBalance: { $sum: ["$available", "$totalSpent"] },
             totalSpent: 1,
             available: 1,
+            availableCoin: 1,
           },
         },
       ])
@@ -28,12 +65,76 @@ const getDashboardData = async (req, res) => {
         {
           $group: {
             _id: null,
-            totalOrders: { $sum: 1 },
+            totalOrders: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $eq: [{ $month: "$orderTime" }, { $month: new Date() }],
+                      },
+                      { $eq: [{ $year: "$orderTime" }, { $year: new Date() }] },
+                      { $eq: ["$type", "balance"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
             pendingOrders: {
-              $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $eq: [{ $month: "$orderTime" }, { $month: new Date() }],
+                      },
+                      { $eq: [{ $year: "$orderTime" }, { $year: new Date() }] },
+                      { $eq: ["$status", "pending"] },
+                      { $eq: ["$type", "balance"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
             },
             completedOrders: {
-              $sum: { $cond: [{ $eq: ["$status", "complete"] }, 1, 0] },
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      {
+                        $eq: [{ $month: "$orderTime" }, { $month: new Date() }],
+                      },
+                      { $eq: [{ $year: "$orderTime" }, { $year: new Date() }] },
+                      { $eq: ["$type", "balance"] },
+                      { $eq: ["$status", "complete"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            totalSpent: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ["$status", "complete"] },
+                      {
+                        $eq: [{ $month: "$orderTime" }, { $month: new Date() }],
+                      },
+                      { $eq: [{ $year: "$orderTime" }, { $year: new Date() }] },
+                      { $eq: ["$type", "balance"] },
+                    ],
+                  },
+                  "$price",
+                  0,
+                ],
+              },
             },
           },
         },
@@ -43,6 +144,7 @@ const getDashboardData = async (req, res) => {
             totalOrders: 1,
             pendingOrders: 1,
             completedOrders: 1,
+            totalSpent: 1,
           },
         },
       ])
@@ -83,10 +185,12 @@ const getDashboardData = async (req, res) => {
           },
         },
         {
-          $sort: { uc: 1},
-        }
+          $sort: { uc: 1 },
+        },
       ])
       .toArray();
+    balanceMetrics[0].totalSpent = orderMetrics[0].totalSpent || 0;
+    balanceMetrics[0].totalBalance = transactionMetrics[0].added || 0;
     const result = {
       balance: balanceMetrics[0],
       orders: orderMetrics[0],
