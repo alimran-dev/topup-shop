@@ -340,7 +340,7 @@ const addDynamicOption = async (req, res) => {
       const updatedOption=[...(service.options || []),newOption];
       // updatedOption?.sort((a,b)=>a.price-b.price);
       updatedOption?.sort((a,b)=>a.serial-b.serial);
-      console.log(updatedOption, updatedOption.length);
+      // console.log(updatedOption, updatedOption.length);
       const result = await serviceCollection.updateOne(filter, {
         $set: {options: updatedOption},
       });

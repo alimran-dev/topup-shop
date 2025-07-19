@@ -1257,6 +1257,7 @@ const autoServerOrderProcess = async (req, res) => {
       order: orderInAuto,
       screenshots: screenshots || [],
     };
+    console.log(req.body);
     const order = await orderCollection.findOne({ externalOrderId: id });
     if (!order) {
       return res.send({ success: false, message: "Order not found" });
