@@ -923,11 +923,16 @@ const orderCoinProduct = async (req, res) => {
 
 const getAllOrderAdmin = async (req, res) => {
   try {
-    const { page, limit, search, fromDate, toDate, category, subCategory } =
+    const { page, limit, search, fromDate, toDate, category, subCategory, orderID } =
       req.query;
     const pageInt = parseInt(page);
     const limitInt = parseInt(limit);
+    const orderIDInt = parseInt(orderID);
     // console.log(pageInt, limitInt);
+    if(orderIDInt){
+      const order = await orderCollection.findOne({ orderID: orderIDInt });
+      return res.send({orders: order?[order]:[], totalOrders: order ? 1: 0});
+    }
     let filter = {};
     if (search) {
       filter = { email: { $regex: new RegExp(search, "i") } };
@@ -1164,7 +1169,7 @@ const getPending = async (req, res) => {
       status: "pending",
     });
     const result = await orderCollection
-      .find({ status: "pending" }, { sort: { updateTime: -1 } })
+      .find({ status: {$in: ["pending","failed"]} }, { sort: { updateTime: -1 } })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt)
       .toArray();

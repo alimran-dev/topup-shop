@@ -11,6 +11,8 @@ const FilterOrders = ({
   setFormData,
   setOrders,
   triggerSearch,
+  orderID,
+  setOrderID,
 }) => {
   const categories = allCategories();
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -63,6 +65,28 @@ const FilterOrders = ({
     setOrders([]);
     setSearchEmail(email);
   };
+
+  const handleOrderId = (orderId) => {
+    console.log(orderId);
+    const orderIdInt = parseInt(orderId);
+    if(isNaN(orderIdInt) && orderId!=="") {
+      return;
+    }
+    setFromDate("");
+    setToDate("");
+    setSelectedCategory("");
+    setSelectedSubCategory("");
+
+    setFormData({
+      fromDate: "",
+      toDate: "",
+      category: "",
+      subCategory: "",
+    });
+    setOrders([]);
+    setSearchEmail("");
+    setOrderID(orderIdInt || "");
+  }
 
   const handleFromDateChange = (e) => {
     const value = e.target.value;
@@ -127,6 +151,14 @@ const FilterOrders = ({
           placeholder="User's Email"
           value={searchEmail}
           onChange={(e) => handleEmail(e.target.value)}
+        />
+        <label className="input-label">Order ID</label>
+        <input
+          type="number"
+          className="input"
+          placeholder="1001"
+          value={orderID}
+          onChange={(e) => handleOrderId(e.target.value)}
         />
       </div>
 
@@ -227,6 +259,8 @@ FilterOrders.propTypes = {
   setFormData: PropTypes.func.isRequired,
   setOrders: PropTypes.func.isRequired,
   triggerSearch: PropTypes.func.isRequired,
+  orderID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  setOrderID: PropTypes.func.isRequired,
 };
 
 export default FilterOrders;

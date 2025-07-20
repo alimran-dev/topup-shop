@@ -11,6 +11,7 @@ const AllOrders = () => {
   const [totalOrders, setTotalOrders] = useState(0);
   const [searchEmail, setSearchEmail] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [orderID, setOrderID] = useState("");
   const axiosPrivate = useAxiosPrivate();
   const limit = 5;
   const [formData, setFormData] = useState({
@@ -38,6 +39,7 @@ const AllOrders = () => {
           toDate: formData?.toDate,
           category: formData?.category,
           subCategory: formData?.subCategory,
+          orderID: orderID,
         },
       })
       .then((res) => {
@@ -68,6 +70,13 @@ const AllOrders = () => {
     setTimeout(() => loadOrders(true), 0); // Reset to page 1 when searching by email
   }, [searchEmail]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Effect for orderID changes
+  useEffect(()=>{
+    setOrders([]);
+    setTimeout(()=>loadOrders(true),0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[orderID])
+
   // Effect for search trigger from FilterOrders
   useEffect(() => {
     if (searchTrigger > 0) {
@@ -93,6 +102,8 @@ const AllOrders = () => {
         setFormData={setFormData}
         triggerSearch={triggerSearch}
         setOrders={setOrders}
+        orderID={orderID}
+        setOrderID={setOrderID}
       />
       {orders.length <= 0 ? (
         <div className="h-[40vh] w-full flex items-center justify-center">
@@ -116,7 +127,7 @@ const AllOrders = () => {
               fromPending={false}
               totalOrders={totalOrders}
               setTotalOrders={setTotalOrders}
-              key={order._id}
+              key={order?._id}
             />
           ))}
         </div>
