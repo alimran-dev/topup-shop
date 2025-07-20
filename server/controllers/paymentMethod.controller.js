@@ -18,12 +18,78 @@ const getMethods = async (req, res) => {
       .find(filter)
       .project({ lastTime: 0, expires_in: 0, id_token: 0, refresh_token: 0 })
       .toArray();
-    res.send(result);
+
+    // Calculate today's completed transaction amounts for each payment method
+    const methodIds = result.map((method) => method._id.toString());
+    const today = new Date();
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+
+    const transactionSummary = await transactionCollection
+      .aggregate([
+        {
+          $match: {
+            methodID: { $in: methodIds },
+            status: "completed",
+            time: { $gte: startOfDay },
+          },
+        },
+        {
+          $group: {
+            _id: "$methodID",
+            totalAmount: { $sum: "$amount" },
+          },
+        },
+      ])
+      .toArray();
+
+    // Create a map for quick lookup
+    const summaryMap = {};
+    transactionSummary.forEach((item) => {
+      summaryMap[item._id] = item.totalAmount;
+    });
+
+    // Add totalAmount to each payment method
+    const resultWithTotals = result.map((method) => ({
+      ...method,
+      totalAmount: summaryMap[method._id.toString()] || 0,
+    }));
+
+    res.send(resultWithTotals);
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
+
+const getTodaysAdminAdd=async(req,res)=>{
+  try{
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const result = await transactionCollection.aggregate([
+      {
+        $match: {
+          method: "Manual Admin",
+          status: "completed",
+          time: {$gte: startOfDay},
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: {$sum: "$amount"},
+        }
+      }
+    ]).toArray();
+    res.send(result[0]);
+  }catch(err){
+    console.error("getTodaysAdminAdd: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+}
 
 const bkashCreatePayment = async (req, res) => {
   try {
@@ -94,6 +160,7 @@ const bkashCreatePayment = async (req, res) => {
       time: new Date(),
       paymentID: data?.paymentID,
       status: "pending",
+      methodID: paymentMethod._id?.toString(),
     };
     const trxInsertResult = await transactionCollection.insertOne(transaction);
     if (trxInsertResult.insertedId) {
@@ -304,6 +371,7 @@ const adjustBalance = async (req, res) => {
 
 module.exports = {
   getMethods,
+  getTodaysAdminAdd,
   addMethod,
   bkashCreatePayment,
   bkashCallback,

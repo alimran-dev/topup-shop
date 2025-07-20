@@ -70,6 +70,7 @@ const addBalance = async (req, res) => {
       trxID: "",
       time: new Date(),
       status: "pending",
+      methodID: method._id?.toString(),
     };
     const result = await transactionCollection.insertOne(transaction);
     res.send(result);

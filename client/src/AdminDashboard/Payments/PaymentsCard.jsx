@@ -194,6 +194,9 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                 <option value="inactive">Inactive</option>
               </select>
             </div>
+            <div className="">
+              <p className="font-semibold">Total Amount: <span className="text-gray-600">{method?.totalAmount || 0} BDT</span></p>
+            </div>
           </div>
         </div>
         <div className="flex justify-center gap-4 mt-2">

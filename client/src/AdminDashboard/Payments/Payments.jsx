@@ -13,6 +13,8 @@ const Payments = () => {
     });
   }, [axiosPrivate]);
 
+  console.log(methods);
+
 
   // add manual payment method
   const handleAddManualMethod = (e) => {

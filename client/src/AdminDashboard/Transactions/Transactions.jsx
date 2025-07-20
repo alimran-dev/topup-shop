@@ -17,6 +17,7 @@ const Transactions = () => {
   const [page, setPage] = useState(1);
   const [bkash, setBkash] = useState(0);
   const [nagad, setNagad] = useState(0);
+  const [adminAdd,setAdminAdd] = useState(0);
   const [id, setId] = useState("");
   const axiosPrivate = useAxiosPrivate();
   const { loading } = useAuth();
@@ -47,6 +48,16 @@ const Transactions = () => {
       setId(res.data[0]?._id);
     });
   }, [axiosPrivate]);
+  useEffect(()=>{
+    axiosPrivate.get("/payment/admin/added")
+    .then(res=>{
+      setAdminAdd(res.data?.totalAmount || 0);
+      console.log(res.data);
+    })
+    .catch(()=>{
+      setAdminAdd(0);
+    })
+  },[axiosPrivate])
   useEffect(() => {
     if (page === 1) {
       window.scrollTo(0, 0);
@@ -133,6 +144,15 @@ const Transactions = () => {
           >
             Reset
           </button>
+        </div>
+        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+            Today&apos;s Admin Add
+          </p>
+          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
+            {adminAdd || 0}
+            <TbCurrencyTaka className="text-[#FA6023]" />
+          </p>
         </div>
       </div>
       <h2 className="text-center text-2xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
