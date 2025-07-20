@@ -46,7 +46,7 @@ const LastOrders = () => {
                                             <div>
                                             <UserName name={order?.name} isVerified={order?.isVerified} iconClass="w-4 h-4" />
                                                 <p className="text-center text-[10px] text-xs">
-                                                    {order?.package} - {order?.type==="balance" ? `৳${order?.price}`:<span className="text-green-500 font-semibold">Free</span>}
+                                                    {order?.package} {order?.quantity ? `[x${order?.quantity}]`: ""} - {order?.type==="balance" ? `৳${order?.price}`:<span className="text-green-500 font-semibold">Free</span>}
                                                 </p>
                                             </div>
                                         </div>
