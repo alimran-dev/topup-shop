@@ -61,6 +61,7 @@ import ViewSummary from "../AdminDashboard/Orders/ViewSummary/ViewSummary";
 import AdminCoinHistory from "../AdminDashboard/OfferAndProducts/SpecialProducts/CoinHistory/CoinHistory";
 import ClaimRedeemCode from "../pages/Home/ClaimRedeemCode/ClaimRedeemCode";
 import OrderImages from "../pages/OrderImages/OrderImages";
+import AutoCheck from "../AdminDashboard/Orders/AutoCheck/AutoCheck";
 
 
 const router = createBrowserRouter([
@@ -323,6 +324,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/orders",
         element: <Orders />,
+      },
+      {
+        path: "/dashboard/orders/auto/check/:id",
+        element: <AutoCheck />,
       },
       {
         path: "/dashboard/orders/viewSummary",

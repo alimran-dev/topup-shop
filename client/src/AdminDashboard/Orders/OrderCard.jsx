@@ -266,7 +266,7 @@ const OrderCard = ({ order }) => {
                 ref={codesRef}
                 className="border-2 h-24 w-full rounded px-2 py-0.5"
               ></textarea>
-              <div className="w-full flex justify-center items-center">
+              <div className="w-full flex flex-wrap justify-center items-center gap-2">
               <button
                 onClick={handleCopy}
                 className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
@@ -274,6 +274,9 @@ const OrderCard = ({ order }) => {
                 <MdContentCopy className="inline-block" /> Copy All
               </button>
               {processedExternally && <Link to={`/images/${order?._id}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit">Images</Link>}
+              {
+                processedExternally && <Link to={`/dashboard/orders/auto/check/${order?.externalOrderId}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
+              }
               </div>
             </div>
           ) : (

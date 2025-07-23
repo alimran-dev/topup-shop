@@ -1,5 +1,7 @@
 require("dotenv").config();
 const { axiosAuto } = require("../utils/axiosAuto");
+const {dbCollections} = require("../config/db.js");
+const {orderCollection}=dbCollections || {};
 
 const getUsername = async (req, res) => {
   try {
@@ -116,6 +118,23 @@ const getAutoServerImage = async (req, res) => {
   }
 };
 
+const updateAutoStatus = async(req,res)=>{
+  try{
+    const { id, status } = req.body || {};
+    if (!id || !status) {
+      return res.status(400).send("Missing id or status parameter");
+    }
+
+    await orderCollection.updateOne({externalOrderId: id}, {$set: {status}});
+
+    const { data } = await axiosAuto.post("/update-status", { id, status });
+    res.send(data);
+  }catch(err){
+    console.error("updateAutoStatus: ", err?.message);
+    res.status(err?.response?.status || 500).send(err?.response?.data || "Internal Server Error");
+  }
+}
+
 module.exports = {
   getUsername,
   getUnipinsData,
@@ -123,4 +142,5 @@ module.exports = {
   newOrder,
   addUnipinsToAuto,
   getAutoServerImage,
+  updateAutoStatus,
 };
