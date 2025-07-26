@@ -733,7 +733,8 @@ const orderBalanceRecharge = async (req, res) => {
 
 const orderSpecialOffer = async (req, res) => {
   try {
-    const { id, email, info } = req.body || {};
+    const { id, email, info, quantity=1 } = req.body || {};
+    console.log(req.body);
     if (!email || !id) {
       return res.status(400).send({ message: "Invalid request" });
     }
@@ -754,10 +755,13 @@ const orderSpecialOffer = async (req, res) => {
     if (!option.isActive) {
       return res.status(400).send({ message: "Offer is not active now" });
     }
-    if (Object.keys(info).length !== option.inputs.length) {
+    if (!option?.isAuto && Object.keys(info).length !== option.inputs.length) {
       return res.status(400).send({ message: "Invalid order" });
     }
-    if (option.claimedBy.includes(email)) {
+    const emailClaimCount = option.claimedBy.filter(
+      (claimedEmail) => claimedEmail === email
+    ).length;
+    if (emailClaimCount + quantity > option.maxClaim) {
       return res
         .status(400)
         .send({ message: "You already claimed this offer" });
@@ -766,21 +770,22 @@ const orderSpecialOffer = async (req, res) => {
       return res.status(400).send({ message: "Stock out" });
     }
     const user = await userCollection.findOne({ email: email });
+    const totalPrice = option.price * quantity;
     if (!user) {
       return res.status(401).send({ message: "User Not Found" });
     } else if (
-      (option.type === "balance" && user.balance < option.price) ||
-      (option.type === "coin" && user.coins < option.price)
+      (option.type === "balance" && user.balance < totalPrice) ||
+      (option.type === "coin" && user.coins < totalPrice)
     ) {
       return res.status(400).send({ message: "You don't have enough balance" });
     }
     const userUpdateDoc = {};
     if (option.type === "balance") {
-      userUpdateDoc.balance = user.balance - option.price;
-      userUpdateDoc.spent = user.spent + option.price;
+      userUpdateDoc.balance = user.balance - totalPrice;
+      userUpdateDoc.spent = user.spent + totalPrice;
       userUpdateDoc.orders = user.orders + 1;
     } else if (option.type === "coin") {
-      userUpdateDoc.coins = user.coins - option.price;
+      userUpdateDoc.coins = user.coins - totalPrice;
     }
     const userUpdate = await userCollection.updateOne(
       { email: email },
@@ -796,7 +801,7 @@ const orderSpecialOffer = async (req, res) => {
         category: "Special Offer",
         subCategory: "Special Offer",
         name: option.title,
-        price: option.price,
+        price: totalPrice,
         orderTime: orderTime,
         updateTime: new Date(),
         status: "pending",
@@ -804,6 +809,63 @@ const orderSpecialOffer = async (req, res) => {
         type: option.type,
         info: { ...info },
       };
+      if (option?.isAuto) {
+        order.processedExternally = true;
+      }
+      if (option?.willHaveQuantity) {
+        order.quantity = quantity;
+        order.info.quantity = quantity;
+      }
+      if(option?.isAuto){
+        const autoCombo = option?.combo?.reduce((acc, item) => {
+          if (item?.quantity > 0) {
+            if (option?.autoServer === "indo") {
+              acc.push({
+                name: item?.name,
+                label: item?.label,
+                quantity: item?.quantity * quantity,
+              });
+            } else if (option?.autoServer === "sg") {
+              acc.push({
+                name: item?.name,
+                dollar: item?.dollar,
+                quantity: item?.quantity * quantity,
+              });
+            } else {
+              acc.push({
+                name: item?.name,
+                quantity: item?.quantity * quantity,
+              });
+            }
+          }
+          return acc;
+        }, []);
+        const protocol =
+          req.secure ||
+          req.get("x-forwarded-proto") === "https" ||
+          process.env.PROJECT_ENV !== "development"
+            ? "https"
+            : "http";
+        // console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
+        const autoDoc = {
+          uid: info?.uid,
+          option: autoCombo,
+          callback: `${protocol}://${req.get(
+            "host"
+          )}/order/auto-server/processing`,
+          server: option?.autoServer,
+          email: "mezbakhan65@gmail.com",
+        };
+        if (option?.autoServer === "sg") {
+          autoDoc.dollar = autoCombo[0]?.dollar || 0;
+        }
+        try {
+          const { data } = await axiosAuto.post("/new-order", autoDoc);
+          order.externalOrderId = data?.orderId;
+        } catch (err) {
+          console.error("orderDynamic: ", err.message);
+        }
+      }
       if (user.referredBy && option.type === "balance" && user.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
@@ -814,11 +876,12 @@ const orderSpecialOffer = async (req, res) => {
         order.referHistoryId = referHistoryId;
       }
       const updatedDoc = {
-        stock: option.stock - 1,
+        stock: option.stock - quantity,
       };
+      const emailsToAdd = Array(quantity || 1).fill(email);
       await specialOfferCollection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: updatedDoc, $push: { claimedBy: email } }
+        { $set: updatedDoc, $push: { claimedBy: { $each: emailsToAdd } } }
       );
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {

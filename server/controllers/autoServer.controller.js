@@ -127,7 +127,7 @@ const updateAutoStatus = async(req,res)=>{
 
     await orderCollection.updateOne({externalOrderId: id}, {$set: {status}});
 
-    const { data } = await axiosAuto.post("/update-status", { id, status });
+    const { data } = await axiosAuto.patch("/update-status", { id, status });
     res.send(data);
   }catch(err){
     console.error("updateAutoStatus: ", err?.message);

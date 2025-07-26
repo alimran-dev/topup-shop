@@ -257,15 +257,24 @@ const OrderCard = ({ order }) => {
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
           {subCategory === "unipin" ||
           subCategory === "shell" ||
-          subCategory === "card" || (processedExternally && status==="complete") ? (
+          subCategory === "card" || processedExternally ? (
             <div>
+              {!processedExternally || (processedExternally && status==="complete")?(
+                <textarea
+                  disabled
+                  value={processedExternally? externalOrder?.unipins?.join("\n"):codes.join("\n")}
+                  name=""
+                  ref={codesRef}
+                  className="border-2 h-24 w-full rounded px-2 py-0.5"
+                ></textarea>
+              ):(
               <textarea
-                disabled
-                value={processedExternally? externalOrder?.unipins?.join("\n"):codes.join("\n")}
-                name=""
-                ref={codesRef}
-                className="border-2 h-24 w-full rounded px-2 py-0.5"
+                onChange={(e) => setNewFeedback(e.target.value)}
+                defaultValue={feedback}
+                placeholder="Write your feedback here...."
+                className="border w-full h-24 px-3 py-1"
               ></textarea>
+              )}
               <div className="w-full flex flex-wrap justify-center items-center gap-2">
               <button
                 onClick={handleCopy}
@@ -273,7 +282,15 @@ const OrderCard = ({ order }) => {
               >
                 <MdContentCopy className="inline-block" /> Copy All
               </button>
-              {processedExternally && <Link to={`/images/${order?._id}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit">Images</Link>}
+              {processedExternally && status==="complete" && <Link to={`/images/${order?._id}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit">Images</Link>}
+              {processedExternally && status!=="complete" && (
+                <button
+                onClick={handleUpdate}
+                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
+                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? "Please Wait" : "Update"}
+              </button>)}
               {
                 processedExternally && <Link to={`/dashboard/orders/auto/check/${order?.externalOrderId}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
               }

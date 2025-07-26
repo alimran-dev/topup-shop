@@ -54,6 +54,11 @@ const addSpecialOffer = async (req, res) => {
       tutorialTitle,
       tutorialUrl,
       inputs,
+      maxClaim,
+      willHaveQuantity,
+      isAuto,
+      autoServer,
+      combo
     } = req.body || {};
     const priceInt = parseInt(price);
     const stockInt = parseInt(stock);
@@ -64,6 +69,7 @@ const addSpecialOffer = async (req, res) => {
       !type ||
       !tutorialTitle ||
       !tutorialUrl ||
+      isNaN(parseInt(maxClaim)) ||
       inputs.length == 0
     ) {
       return res.status(400).send({ message: "Invalid Request" });
@@ -85,9 +91,16 @@ const addSpecialOffer = async (req, res) => {
       tutorialTitle,
       tutorialUrl,
       inputs,
+      maxClaim: parseInt(maxClaim),
+      isAuto: isAuto || false,
+      willHaveQuantity: willHaveQuantity || false,
       createdAt: new Date(),
       claimedBy: [],
     };
+    if(isAuto){
+      newOffer.autoServer = autoServer || "";
+      newOffer.combo = combo || [];
+    }
     const result = await specialOfferCollection.insertOne(newOffer);
     res.send({ ...result, ...newOffer });
   } catch (err) {
@@ -110,6 +123,11 @@ const updateSpecialOffer = async (req, res) => {
       tutorialTitle,
       tutorialUrl,
       inputs,
+      maxClaim,
+      willHaveQuantity,
+      isAuto,
+      autoServer,
+      combo
     } = req.body || {};
     const { id } = req.query || {};
     const priceInt = parseInt(price);
@@ -123,6 +141,7 @@ const updateSpecialOffer = async (req, res) => {
       !tutorialTitle ||
       !tutorialUrl ||
       isNaN(sequenceInt) ||
+      isNaN(parseInt(maxClaim)) ||
       inputs.length == 0
     ) {
       return res.status(400).send({ message: "Invalid Request" });
@@ -142,7 +161,14 @@ const updateSpecialOffer = async (req, res) => {
       tutorialTitle,
       tutorialUrl,
       inputs,
+      maxClaim: parseInt(maxClaim),
+      isAuto: isAuto || false,
+      willHaveQuantity: willHaveQuantity || false,
     };
+    if(isAuto){
+      updatedOffer.autoServer = autoServer || "";
+      updatedOffer.combo = combo || [];
+    }
     if(image){
       updatedOffer.image=image;
     }
