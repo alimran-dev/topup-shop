@@ -345,12 +345,12 @@ const methodReset = async (req, res) => {
 const adjustBalance = async (req, res) => {
   try {
     const { bkash, nagad } = req.body;
-    if (!bkash && !nagad) {
-      return res.send({
-        success: false,
-        message: "Invalid request. Provide a value",
-      });
-    }
+    // if (!bkash && !nagad) {
+    //   return res.send({
+    //     success: false,
+    //     message: "Invalid request. Provide a value",
+    //   });
+    // }
     const updatedDoc = {
       $set: {
         bkashBalance: bkash,

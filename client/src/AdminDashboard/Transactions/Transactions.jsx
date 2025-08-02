@@ -7,6 +7,7 @@ import Loader from "../../components/Loader";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
 import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -17,8 +18,9 @@ const Transactions = () => {
   const [page, setPage] = useState(1);
   const [bkash, setBkash] = useState(0);
   const [nagad, setNagad] = useState(0);
-  const [adminAdd,setAdminAdd] = useState(0);
+  const [adminAdd, setAdminAdd] = useState(0);
   const [id, setId] = useState("");
+  const [balanceData, setBalanceData] = useState({ bkash: 0, nagad: 0 });
   const axiosPrivate = useAxiosPrivate();
   const { loading } = useAuth();
   const limit = 5;
@@ -43,21 +45,27 @@ const Transactions = () => {
   };
   useEffect(() => {
     axiosPrivate.get("/payment/method/admin/balance/summary").then((res) => {
+      // console.log(res.data[0]?.bkashBalance,"bkash balance");
       setBkash(res.data[0]?.bkash);
       setNagad(res.data[0]?.nagad);
+      setBalanceData({
+        bkash: res.data[0]?.bkashBalance || 0,
+        nagad: res.data[0]?.nagadBalance || 0,
+      });
       setId(res.data[0]?._id);
     });
   }, [axiosPrivate]);
-  useEffect(()=>{
-    axiosPrivate.get("/payment/admin/added")
-    .then(res=>{
-      setAdminAdd(res.data?.totalAmount || 0);
-      console.log(res.data);
-    })
-    .catch(()=>{
-      setAdminAdd(0);
-    })
-  },[axiosPrivate])
+  useEffect(() => {
+    axiosPrivate
+      .get("/payment/admin/added")
+      .then((res) => {
+        setAdminAdd(res.data?.totalAmount || 0);
+        // console.log(res.data);
+      })
+      .catch(() => {
+        setAdminAdd(0);
+      });
+  }, [axiosPrivate]);
   useEffect(() => {
     if (page === 1) {
       window.scrollTo(0, 0);
@@ -106,6 +114,21 @@ const Transactions = () => {
     });
   };
 
+  const handleUpdateBalance = async (e) => {
+    e.preventDefault();
+    const bkashBalance = parseFloat(e.target.bkash.value);
+    const nagadBalance = parseFloat(e.target.nagad.value);
+    // console.log(bkashBalance, nagadBalance);
+    if (isNaN(bkashBalance) || isNaN(nagadBalance)) {
+      toast.error("Please enter valid numbers for balances.");
+      return;
+    }
+    const {data} = await axiosPrivate.patch(`/payment/method/admin/balance/adjust`, {bkash: bkashBalance, nagad: nagadBalance});
+    if(data?.modifiedCount){
+      toast.success("Balances updated successfully.");
+    }
+  };
+
   // page apear from top
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -144,6 +167,43 @@ const Transactions = () => {
           >
             Reset
           </button>
+        </div>
+        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
+          <form className="space-y-2" onSubmit={handleUpdateBalance}>
+            <div>
+              <label htmlFor="input-label">Bkash Balance: </label>
+              <input
+                value={balanceData?.bkash || 0}
+                onChange={(e) =>
+                  setBalanceData({ ...balanceData, bkash: e.target.value })
+                }
+                type="number"
+                name="bkash"
+                step={0.01}
+                placeholder="100.01"
+                className="border-2 px-3 py-1 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="input-label">Nagad Balance: </label>
+              <input
+                value={balanceData?.nagad || 0}
+                onChange={(e) =>
+                  setBalanceData({ ...balanceData, nagad: e.target.value })
+                }
+                type="number"
+                name="nagad"
+                step={0.01}
+                placeholder="100.01"
+                className="border-2 px-3 py-1 rounded-md"
+                required
+              />
+            </div>
+            <button type="submit" className="button block mx-auto">
+              Update
+            </button>
+          </form>
         </div>
         <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
           <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
@@ -189,6 +249,8 @@ const Transactions = () => {
                 transaction={transaction}
                 transactions={transactions}
                 setTransactions={setTransactions}
+                totalTrx={totalTrx}
+                setTotalTrx={setTotalTrx}
               />
             ))}
           </div>

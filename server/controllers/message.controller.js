@@ -16,21 +16,24 @@ const balanceCalculate = async (provider, amount, balance) => {
     const update = { $inc: {} };
     if (provider === "bkash") {
       update.$inc = { bkashBalance: amount };
-      // if (bkashBalance + amount !== balance) {
-      //   throw new Error("Fake sms sent");
-      // }
+      const diff = Math.abs(bkashBalance + amount - balance);
+      if (diff > 1) {
+        return false; // Fake sms sent
+      }
     } else if (provider === "nagad") {
       update.$inc = { nagadBalance: amount };
-      // if (nagadBalance + amount !== balance) {
-      //   throw new Error("Fake sms sent");
-      // }
+      const diff = Math.abs(nagadBalance + amount - balance);
+      if (diff > 1) {
+        return false; // Fake sms sent
+      }
     } else {
       throw new Error("Invalid provider");
     }
     await paymentMethodSummaryCollection.updateOne({ doc: "summary" }, update);
+    return true; // Valid sms sent
   } catch (err) {
     console.error("Error: ", err.message);
-    res.status(500).send({ success: false, error: "Internal Server Error" });
+    return false; // Error occurred, treat as invalid sms
   }
 };
 
@@ -51,6 +54,7 @@ const smsSender = async (req, res) => {
       time: new Date(),
     };
     let result = {};
+    let adjustOk = true;
     if (from === "bKash") {
       newTrx.provider = "bkash";
       // positive cases
@@ -67,7 +71,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance") + 2].replace(/,/, "")
         );
-        balanceCalculate(newTrx.provider, newTrx.amount, balance);
+        // balanceCalculate(newTrx.provider, newTrx.amount, balance);
         // agent b2b receive and receive send money personal
       } else if (
         message.includes("received") &&
@@ -82,7 +86,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance") + 2].replace(/,/, "")
         );
-        balanceCalculate("bkash", newTrx.amount, balance);
+        // balanceCalculate("bkash", newTrx.amount, balance);
         // personal cash in
       } else if (
         message.includes("Cash In") &&
@@ -96,7 +100,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance") + 2].replace(/,/, "")
         );
-        balanceCalculate("bkash", newTrx.amount, balance);
+        adjustOk = balanceCalculate("bkash", newTrx.amount, balance);
         // agent cashback
       } else if (message.includes("received Cashback")) {
         const msgSplit = message.split(" ");
@@ -106,7 +110,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance") + 2].replace(/,/, "")
         );
-        balanceCalculate("bkash", amount, balance);
+        // balanceCalculate("bkash", amount, balance);
         // agent commission
       } else if (
         message.includes("received") &&
@@ -117,7 +121,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance") + 2].replace(/,/, "")
         );
-        balanceCalculate("bkash", amount, balance);
+        // balanceCalculate("bkash", amount, balance);
       }
 
       // negative balance cases
@@ -136,7 +140,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance") + 2].replace(/,/, "")
         );
-        balanceCalculate("bkash", total, balance);
+        // balanceCalculate("bkash", total, balance);
         // agent b2b send
       } else if (
         message.includes("B2B Transfer") &&
@@ -152,7 +156,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance") + 2].replace(/,/, "")
         );
-        balanceCalculate("bkash", total, balance);
+        // balanceCalculate("bkash", total, balance);
         // personal cash out
       } else if (
         message.includes("Cash Out") &&
@@ -220,7 +224,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance:") + 2].replace(/,/, "")
         );
-        balanceCalculate("nagad", total, balance);
+        adjustOk = balanceCalculate("nagad", total, balance);
         // personal receive money
       } else if (message.includes("Money Received.")) {
         const msgSplit = message.split(/ |\n/);
@@ -232,7 +236,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance:") + 2].replace(/,/, "")
         );
-        balanceCalculate("nagad", newTrx.amount, balance);
+        adjustOk = balanceCalculate("nagad", newTrx.amount, balance);
         // personal cash in receive
       } else if (message.includes("Cash In Received.")) {
         const msgSplit = message.split(/ |\n/);
@@ -244,7 +248,7 @@ const smsSender = async (req, res) => {
         const balance = parseFloat(
           msgSplit[msgSplit.indexOf("Balance:") + 1].replace(/,/, "")
         );
-        balanceCalculate("nagad", newTrx.amount, balance);
+        adjustOk = balanceCalculate("nagad", newTrx.amount, balance);
         // agent b2b receive
       } else if (message.includes("B2B Received")) {
         const msgSplit = message.split(/ |\n/);
@@ -294,10 +298,10 @@ const smsSender = async (req, res) => {
         balanceCalculate("nagad", amount, balance);
       }
     }
-    console.log(newTrx);
-    if (newTrx.provider === "bkash" && newTrx.category.length > 0) {
+    // console.log(newTrx);
+    if (adjustOk && newTrx.provider === "bkash" && newTrx.category.length > 0) {
       result = await bkashTrxCollection.insertOne(newTrx);
-    } else if (newTrx.provider === "nagad" && newTrx.category.length > 0) {
+    } else if (adjustOk && newTrx.provider === "nagad" && newTrx.category.length > 0) {
       result = await nagadTrxCollection.insertOne(newTrx);
     }
     res.send(result);
