@@ -59,7 +59,7 @@ const comboConfigs = {
     { name: "50 💎", original: "50", quantity: 0 },
     { name: "70 💎", original: "70", quantity: 0 },
     { name: "140 💎", original: "140", quantity: 0 },
-    { name: "350 💎", original: "350", quantity: 0 },
+    { name: "355 💎", original: "355", quantity: 0 },
     { name: "720 💎", original: "720", quantity: 0 },
     { name: "7290 💎", original: "7.290", quantity: 0 },
     { name: "36500 💎", original: "36.500", quantity: 0 },
