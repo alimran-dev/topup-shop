@@ -1,8 +1,6 @@
 const CONSTANTS = {
   origin: [
-    "https://mezbashop.com",
-    "https://www.mezbashop.com",
-    "https://demo.mezbashop.com",
+    "https://old.mezbashop.com",
     "http://localhost:5173",
   ],
   productionDBName: "mezbaGamingDB",
