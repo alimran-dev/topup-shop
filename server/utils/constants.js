@@ -1,11 +1,13 @@
 const CONSTANTS = {
   origin: [
     "https://old.mezbashop.com",
+    "https://www.mezbadeals.com",
+    "https://mezbadeals.com",
     "http://localhost:5173",
   ],
   productionDBName: "mezbaGamingDB",
   demoDBName: "topupDB",
-  domain: "mezbashop.com",
+  domain: "mezbadeals.com",
   whatsappSupport: "https://wa.me/+8801643204362",
   categories: {
     ff: "FF Topup & Unipin",

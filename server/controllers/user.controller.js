@@ -404,9 +404,9 @@ const forgetPassword = async (req, res) => {
         );
         if (result.modifiedCount) {
           const mailInfo = await transporter.sendMail({
-            from: `"Mezba Shop" <no-reply@${CONSTANTS.domain}>`,
+            from: `"Mezba Deals" <no-reply@${CONSTANTS.domain}>`,
             to: email,
-            subject: "Reset Mezba Shop Password",
+            subject: "Reset Mezba Deals Password",
             text: `Your OTP to reset the password is: ${randomNumber}. This is valid for 5 minutes.`,
           });
           // console.log(mailInfo);
@@ -607,9 +607,9 @@ const verifyUser = async (req, res) => {
       );
       if (result.modifiedCount) {
         const mailInfo = await transporter.sendMail({
-          from: `"Mezba Shop" <no-reply@${CONSTANTS.domain}>`,
+          from: `"Mezba Deals" <no-reply@${CONSTANTS.domain}>`,
           to: email,
-          subject: "Verify Mezba Shop Account",
+          subject: "Verify Mezba Deals Account",
           text: `Your OTP for account verification is: ${randomNumber}. OTP is valid for 5 minutes.`,
         });
         // console.log(mailInfo);

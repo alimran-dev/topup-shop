@@ -3,7 +3,7 @@ const notificationSender = async (subscription, title, body, url) => {
   try {
     const payload = {
       title,
-      icon: "https://mezbashop.com/assets/topup-logo-crop-Ct0QDjtj.png",
+      icon: "https://mezbadeals.com/topup-logo-crop.png",
       body,
       data: {
         url,
