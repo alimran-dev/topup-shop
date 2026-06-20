@@ -462,7 +462,20 @@ const orderDynamic = async (req, res) => {
       if (isAuto) {
         const ucs = [];
         let totalUnipinToOrder = 0;
-        const autoCombo = option?.combo?.reduce(async(acc, item) => {
+
+        if(service?.server === "unipin"){
+          for(const item of option?.combo || []){
+            if(item?.quantity>0){
+              totalUnipinToOrder += (item?.quantity * quantity);
+              for(let i=0;i<item?.quantity * quantity; i++){
+                const uc = await unipinCollection.findOneAndDelete({uc: item?.uc});
+                if(!uc) break;
+                ucs.push(uc);
+              }
+            }
+          }
+        }
+        const autoCombo = option?.combo?.reduce((acc, item) => {
           if (item?.quantity > 0) {
             if (service?.server === "indo") {
               acc.push({
@@ -482,12 +495,6 @@ const orderDynamic = async (req, res) => {
                 quantity: item?.quantity * quantity,
                 uc: item?.uc
               });
-              totalUnipinToOrder+=(item?.quantity*quantity);
-              for(let i=0;i<item?.quantity*quantity;i++){
-                const uc = await unipinCollection.findOneAndDelete({uc: item?.uc});
-                if(!uc) break;
-                ucs.push(uc);
-              }
             } else {
               acc.push({
                 name: item?.name,
@@ -551,7 +558,7 @@ const orderDynamic = async (req, res) => {
         }
       });
       // const result = await orderCollection.insertOne(order);
-      res.send({ ...result, success: true, price: totalPrice });
+      // res.send({ ...result, success: true, price: totalPrice });
     } else {
       return res.send({
         success: false,
