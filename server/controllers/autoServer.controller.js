@@ -7,7 +7,8 @@ const getUsername = async (req, res) => {
   try {
     const { uid } = req.query || {};
     // console.log(uid);
-    const { data } = await axiosAuto.get("/username", { params: { uid } });
+    const { data } = await axiosAuto.get("/nickname", { params: { uid } });
+    // console.log(data);
     res.send(data);
   } catch (err) {
     console.error("getUsername: ", err.message);

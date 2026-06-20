@@ -27,7 +27,7 @@ const AddCodes = () => {
     { uc: 405, codes: [] },
     { uc: 800, codes: [] },
     { uc: 810, codes: [] },
-    { uc: 1626, codes: [] },
+    { uc: 1625, codes: [] },
     { uc: 2000, codes: [] },
   ]);
   const [shellCodes, setShellCodes] = useState([]);

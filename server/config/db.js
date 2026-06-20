@@ -11,9 +11,10 @@ if (process.env.PROJECT_ENV !== "production") {
   }
 }
 
+
 const connectToDB = (cb) => {
   MongoClient.connect(process.env.DB_URI || `${uri}/${dbName}`)
-    .then((client) => {
+    .then(async (client) => {
       const database = client.db(dbName);
 
       console.log("connected to DB");
@@ -54,6 +55,14 @@ const connectToDB = (cb) => {
       dbCollections.reviewsCollection = database.collection("reviews");
       dbCollections.referHistoryCollection=database.collection("referHistory");
       dbCollections.coinProductsCollection=database.collection("coinProducts");
+
+      try {
+        await dbCollections.unipinCollection.createIndex({code: 1}, {unique: true});
+        console.log("Indexes created successfully");
+      } catch (error) {
+        console.log("Failed to create indexes", error?.message);
+      }
+
       module.exports = { dbCollections };
       return cb();
     })

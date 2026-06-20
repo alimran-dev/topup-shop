@@ -9,28 +9,29 @@ const addCodes = async (req, res) => {
     const codesArray = req.body;
     // console.log(codesArray, id);
     if (category === "unipin") {
-      const arrayLength = codesArray?.length;
-      let lengthCount = 0;
-      codesArray.forEach(async (item) => {
-        const filter = { uc: item.uc };
-        const result = await unipinCollection.updateOne(filter, {
-          $addToSet: { codes: { $each: item.codes } },
+      const documentsToInsert = [];
+      codesArray.forEach((item)=>{
+        item?.codes?.forEach((code)=>{
+          documentsToInsert.push({
+            uc: item?.uc,
+            code: code,
+            createdAt: new Date()
+          });
         });
-        // console.log(result);
-        if (result.modifiedCount) {
-          lengthCount++;
-        }
       });
-      if (arrayLength === lengthCount) {
+      try {
+        const result = await unipinCollection.insertMany(documentsToInsert, {ordered: false});
         return res.send({
           success: true,
-          message: "Unipins added successfully",
-        });
-      } else if (lengthCount) {
+          message: `${result.insertedCount} unipins added successfully`,
+          insertedCount: result.insertedCount,
+          totalAttempted: documentsToInsert.length
+        })
+      } catch (error) {
         return res.send({
           success: true,
-          message: "Added successfully but there was some duplicate",
-        });
+          message: `${error?.result?.insertedCount} unipins added. some duplicate skipped`,
+        })
       }
     } else if (category === "shell") {
       const filter = { _id: new ObjectId(id) };

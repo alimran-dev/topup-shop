@@ -145,7 +145,7 @@ const SubCategory = () => {
         params: { uid: inputValues?.uid },
       });
       console.log(data);
-      setUsername(data?.username);
+      setUsername(data?.player_info?.nickname);
       setUsernameChecked(true);
       setIsLoadingUsername(false);
     } catch (err) {

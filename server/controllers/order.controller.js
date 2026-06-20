@@ -451,9 +451,18 @@ const orderDynamic = async (req, res) => {
         { _id: new ObjectId(id) },
         { $set: { options: service.options } }
       );
+      
+      const protocol =
+        req.secure ||
+        req.get("x-forwarded-proto") === "https" ||
+        process.env.PROJECT_ENV !== "development"
+          ? "https"
+          : "http";
 
       if (isAuto) {
-        const autoCombo = option?.combo?.reduce((acc, item) => {
+        const ucs = [];
+        let totalUnipinToOrder = 0;
+        const autoCombo = option?.combo?.reduce(async(acc, item) => {
           if (item?.quantity > 0) {
             if (service?.server === "indo") {
               acc.push({
@@ -467,21 +476,49 @@ const orderDynamic = async (req, res) => {
                 dollar: item?.dollar,
                 quantity: item?.quantity * quantity,
               });
-            } else {
+            } else if(service?.server === "unipin") {
               acc.push({
                 name: item?.name,
                 quantity: item?.quantity * quantity,
+                uc: item?.uc
               });
+              totalUnipinToOrder+=(item?.quantity*quantity);
+              for(let i=0;i<item?.quantity*quantity;i++){
+                const uc = await unipinCollection.findOneAndDelete({uc: item?.uc});
+                if(!uc) break;
+                ucs.push(uc);
+              }
+            } else {
+              acc.push({
+                name: item?.name,
+                quantity: item?.quantity * quantity
+              })
             }
           }
           return acc;
         }, []);
-        const protocol =
-          req.secure ||
-          req.get("x-forwarded-proto") === "https" ||
-          process.env.PROJECT_ENV !== "development"
-            ? "https"
-            : "http";
+        if(service?.server==="unipin"){
+          if(ucs.length !== totalUnipinToOrder){
+            await unipinCollection.insertMany(ucs);
+          }else{
+            const ucsArr = ucs.map((uc)=>uc?.code);
+            order.codes = ucsArr;
+
+            const result = await orderCollection.insertOne(order);
+
+            while(ucsArr.length){
+              const ucsToClaim = ucsArr.splice(0,5);
+              await axiosAuto.post("/topup",{
+                orderid: result?.insertedId,
+                playerid: info?.uid,
+                code: ucsToClaim.join(','),
+                url: `${protocol}://${req.get("host")}/order/auto-server/processing`
+              })
+            }
+
+            return res.send({...result, success: true, price: totalPrice});
+          }
+        }
         // console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
         const autoDoc = {
           uid: info?.uid,
@@ -495,12 +532,12 @@ const orderDynamic = async (req, res) => {
         if (service?.server === "sg") {
           autoDoc.dollar = autoCombo[0]?.dollar || 0;
         }
-        try {
-          const { data } = await axiosAuto.post("/new-order", autoDoc);
-          order.externalOrderId = data?.orderId;
-        } catch (err) {
-          console.error("orderDynamic: ", err.message);
-        }
+        // try {
+        //   const { data } = await axiosAuto.post("/new-order", autoDoc);
+        //   order.externalOrderId = data?.orderId;
+        // } catch (err) {
+        //   console.error("orderDynamic: ", err.message);
+        // }
       }
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {
@@ -513,7 +550,7 @@ const orderDynamic = async (req, res) => {
           );
         }
       });
-      const result = await orderCollection.insertOne(order);
+      // const result = await orderCollection.insertOne(order);
       res.send({ ...result, success: true, price: totalPrice });
     } else {
       return res.send({
@@ -1313,34 +1350,50 @@ const orderProcess = async (req, res) => {
 
 const autoServerOrderProcess = async (req, res) => {
   try {
-    const {
-      id,
-      status: newStatus,
-      feedback: newFeedback,
-      order: orderInAuto,
-      screenshots,
-    } = req.body;
-    const updatedDoc = {
-      status: newStatus,
-      feedback: newFeedback || "",
-      updateTime: new Date(),
-      order: orderInAuto,
-      screenshots: screenshots || [],
-    };
-    console.log(req.body);
-    const order = await orderCollection.findOne({ externalOrderId: id });
+    const {status, orderid, nickname, content} = req.body;
+    const order = await orderCollection.findOne({ _id: new ObjectId(orderid) });
     if (!order) {
       return res.send({ success: false, message: "Order not found" });
     }
+
+    let newStatus = status;
+
+    if(order?.status==="pending"){
+      if(status==="success")  newStatus = "complete";
+      else newStatus = status;
+    } else if(order?.status === "complete"){
+      if(status==="success")  newStatus = "complete";
+      else newStatus = "partial";
+    } else {
+      if(order?.status === "failed" && status === "failed") newStatus = "failed";
+      else newStatus = "partial";
+    }
+
+    const contentDoc = [...order?.order];
+
+    if(content?.batch){
+      contentDoc.push(...content?.batch);
+    } else {
+      contentDoc.push(content);
+    }
+    
+    const updatedDoc = {
+      status: newStatus,
+      feedback:  newStatus !== "complete" ? "অনুগ্রহপূর্বক অ্যাডমিনের সাথে যোগাযোগ করুন। ": "",
+      updateTime: new Date(),
+      order: contentDoc,
+      info: {...order?.info, nickname}
+    };
+    // console.log(req.body);
     const result = await orderCollection.updateOne(
-      { externalOrderId: id },
+      { _id: new ObjectId(orderid) },
       { $set: updatedDoc }
     );
     if (order.coinBonusID) {
       const coinHistory = await coinHistoryCollection.findOne({
         _id: new ObjectId(order.coinBonusID),
       });
-      if (newStatus === "complete") {
+      if (newStatus === "complete" && coinHistory?.status !== "success") {
         await userCollection.updateOne(
           { email: coinHistory.email },
           { $inc: { coins: coinHistory.amount } }
@@ -1361,7 +1414,7 @@ const autoServerOrderProcess = async (req, res) => {
       const coinHistory = await coinHistoryCollection.findOne({
         _id: new ObjectId(order.referHistoryId),
       });
-      if (newStatus === "complete") {
+      if (newStatus === "complete" && coinHistory?.status !== "success") {
         await userCollection.updateOne(
           { email: coinHistory.email },
           { $inc: { coins: coinHistory.amount } }

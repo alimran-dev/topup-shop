@@ -16,18 +16,18 @@ const AddDynamicOption = () => {
   // Define combo configurations for different servers
   const comboConfigs = {
     unipin: [
-      { name: "25 💎", original: "25 Diamond", value: 25, quantity: 0 },
-      { name: "50 💎", original: "50 Diamond", value: 50, quantity: 0 },
-      { name: "115 💎", original: "115 Diamond", value: 115, quantity: 0 },
-      { name: "240 💎", original: "240 Diamond", value: 240, quantity: 0 },
-      { name: "610 💎", original: "610 Diamond", value: 610, quantity: 0 },
-      { name: "1240 💎", original: "1240 Diamond", value: 1240, quantity: 0 },
-      { name: "2530 💎", original: "2530 Diamond", value: 2530, quantity: 0 },
-      { name: "Weekly", original: "Weekly Membership", value: 0, quantity: 0 },
+      { name: "25 💎", original: "25 Diamond", value: 25, uc: 20, quantity: 0 },
+      { name: "50 💎", original: "50 Diamond", value: 50, uc: 36, quantity: 0 },
+      { name: "115 💎", original: "115 Diamond", value: 115, uc: 80, quantity: 0 },
+      { name: "240 💎", original: "240 Diamond", value: 240, uc: 160, quantity: 0 },
+      { name: "610 💎", original: "610 Diamond", value: 610, uc: 405, quantity: 0 },
+      { name: "1240 💎", original: "1240 Diamond", value: 1240, uc: 810, quantity: 0 },
+      { name: "2530 💎", original: "2530 Diamond", value: 2530, uc: 1625, quantity: 0 },
+      { name: "Weekly", original: "Weekly Membership", value: 0, uc: 161, quantity: 0 },
       {
         name: "Monthly",
         original: "Monthly Membership",
-        value: 0,
+        value: 0, uc: 800,
         quantity: 0,
       },
     ],
@@ -258,6 +258,7 @@ const AddDynamicOption = () => {
         } else {
           return {
             name: pack?.original || pack?.name,
+            uc: pack?.uc,
             quantity: pack?.quantity,
           };
         }
