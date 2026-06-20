@@ -3,6 +3,7 @@ const CONSTANTS = {
     "https://old.mezbashop.com",
     "https://www.mezbadeals.com",
     "https://mezbadeals.com",
+    "https://demo.mezbadeals.com",
     "http://localhost:5173",
   ],
   productionDBName: "mezbaGamingDB",
