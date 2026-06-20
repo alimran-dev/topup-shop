@@ -6,16 +6,15 @@ const {orderCollection}=dbCollections || {};
 const getUsername = async (req, res) => {
   try {
     const { uid } = req.query || {};
-    // console.log(uid);
+    console.log("uid",uid);
     const { data } = await axiosAuto.get("/nickname", { params: { uid } });
-    // console.log(data);
+    console.log("data",data);
     res.send(data);
   } catch (err) {
-    console.error("getUsername: ", err.message);
-    console.log("status: ", err?.response?.status, "data", err?.response?.data);
+    console.error("getUsername: ", err);
     res
-      .status(err?.response?.status || 500)
-      .send(err?.response?.data || "Internal Server Error");
+      .status(500)
+      .send("Internal Server Error");
   }
 };
 
