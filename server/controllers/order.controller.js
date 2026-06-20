@@ -1358,6 +1358,9 @@ const orderProcess = async (req, res) => {
 const autoServerOrderProcess = async (req, res) => {
   try {
     const {status, orderid, nickname, content} = req.body;
+
+    console.log(req.body);
+    
     const order = await orderCollection.findOne({ _id: new ObjectId(orderid) });
     if (!order) {
       return res.send({ success: false, message: "Order not found" });
@@ -1376,9 +1379,9 @@ const autoServerOrderProcess = async (req, res) => {
       else newStatus = "partial";
     }
 
-    const contentDoc = [...order?.order];
+    const contentDoc = [...(order?.order || [])];
 
-    if(content?.batch){
+    if(content?.batch && Array.isArray(content?.batch)){
       contentDoc.push(...content?.batch);
     } else {
       contentDoc.push(content);
