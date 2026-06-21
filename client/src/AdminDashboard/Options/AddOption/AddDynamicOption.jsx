@@ -35,37 +35,43 @@ const AddDynamicOption = () => {
       {
         name: "LU Pass - 6",
         original: "Level Up Package - Level 6",
+        package: "108588",
         quantity: 0,
       },
       {
         name: "LU Pass - 10",
         original: "Level Up Package - Level 10",
+        package: "108589",
         quantity: 0,
       },
       {
         name: "LU Pass - 15",
         original: "Level Up Package - Level 15",
+        package: "108590",
         quantity: 0,
       },
       {
         name: "LU Pass - 20",
         original: "Level Up Package - Level 20",
+        package: "108591",
         quantity: 0,
       },
       {
         name: "LU Pass - 25",
         original: "Level Up Package - Level 25",
+        package: "108592",
         quantity: 0,
       },
       {
         name: "LU Pass - 30",
         original: "Level Up Package - Level 30",
+        package: "108593",
         quantity: 0,
       },
-      { name: "Evo 3D", original: "Evo Access 3D", quantity: 0 },
-      { name: "Evo 7D", original: "Evo Access 7D", quantity: 0 },
-      { name: "Evo 30D", original: "Evo Access 30D", quantity: 0 },
-      { name: "Weekly", original: "Weekly Lite", quantity: 0 },
+      { name: "Evo 3D", original: "Evo Access 3D", package: "3D", quantity: 0 },
+      { name: "Evo 7D", original: "Evo Access 7D", package: "7D", quantity: 0 },
+      { name: "Evo 30D", original: "Evo Access 30D", package: "30D", quantity: 0 },
+      { name: "Weekly", original: "Weekly Lite", package: "LITE", quantity: 0 },
     ],
     indo: [
       { name: "5 💎", original: "5", quantity: 0 },
@@ -255,12 +261,18 @@ const AddDynamicOption = () => {
             dollar: pack?.dollar,
             quantity: pack?.quantity,
           };
-        } else {
+        } else if(selectedServer === "unipin") {
           return {
             name: pack?.original || pack?.name,
             uc: pack?.uc,
             quantity: pack?.quantity,
           };
+        } else if(selectedServer === "my"){
+          return {
+            name: pack?.original || pack?.name,
+            package: pack?.package,
+            quantity: pack?.quantity,
+          }
         }
       });
       newOption.combo = newCombo;

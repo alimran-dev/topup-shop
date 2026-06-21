@@ -16,6 +16,7 @@ const {
   coinSettingCollection,
   coinHistoryCollection,
 } = dbCollections || {};
+require("dotenv").config();
 
 // to handle coin for every purchase of any referred user
 const referPurchaseCoin = (user, price, status) => {
@@ -461,6 +462,7 @@ const orderDynamic = async (req, res) => {
 
       if (isAuto) {
         const ucs = [];
+        const shellPackages = [];
         let totalUnipinToOrder = 0;
 
         if(service?.server === "unipin"){
@@ -498,20 +500,28 @@ const orderDynamic = async (req, res) => {
             } else {
               acc.push({
                 name: item?.name,
+                package: item?.package,
                 quantity: item?.quantity * quantity
               })
+              for(let i = 0;i<item?.quantity * quantity || 0;i++){
+                shellPackages.push(item?.package);
+              }
             }
           }
           return acc;
         }, []);
+        const callbackUrl = `${protocol}://${req.get("host")}/order/auto-server/processing`;
+        const result = await orderCollection.insertOne(order);
+
         if(service?.server==="unipin"){
           if(ucs.length !== totalUnipinToOrder){
             await unipinCollection.insertMany(ucs);
+
+            return res.send({...result, success: true, price: totalPrice})
           }else{
             const ucsArr = ucs.map((uc)=>uc?.code);
             order.codes = ucsArr;
 
-            const result = await orderCollection.insertOne(order);
 
             while(ucsArr.length){
               const ucsToClaim = ucsArr.splice(0,5);
@@ -519,12 +529,25 @@ const orderDynamic = async (req, res) => {
                 orderid: result?.insertedId,
                 playerid: info?.uid,
                 code: ucsToClaim.join(','),
-                url: `${protocol}://${req.get("host")}/order/auto-server/processing`
+                url: callbackUrl,
               })
             }
 
             return res.send({...result, success: true, price: totalPrice});
           }
+        } else if(service?.server === "my"){
+
+          await axiosAuto.post("/topup",{
+            orderid: result?.insertedId,
+            playerid: info?.uid,
+            code: "shell",
+            url: callbackUrl,
+            pacakge: shellPackages.join(','),
+            username: process.env.SHELL_USERNAME,
+            password: process.env.SHELL_PASSWORD,
+            autocode: process.env.SHELL_AUTH_KEY
+          })
+          return res.send({...result, success: true, price: totalPrice});
         }
         // console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
         const autoDoc = {
@@ -1392,7 +1415,8 @@ const autoServerOrderProcess = async (req, res) => {
       feedback:  newStatus !== "complete" ? "অনুগ্রহপূর্বক অ্যাডমিনের সাথে যোগাযোগ করুন। ": "",
       updateTime: new Date(),
       order: contentDoc,
-      info: {...order?.info, nickname}
+      info: {...order?.info, nickname},
+      autoResponse: req?.body
     };
     // console.log(req.body);
     const result = await orderCollection.updateOne(
