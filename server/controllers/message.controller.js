@@ -51,6 +51,7 @@ const smsSender = async (req, res) => {
       category: "",
       amount: 0,
       trxID: "",
+      isVerified: true,
       time: new Date(),
     };
     let result = {};

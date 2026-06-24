@@ -9,12 +9,7 @@ const router = require("express").Router();
 const autoServerRoutes = () =>{
   // /auto
   router.get("/username",verifyToken,getUsername);
-  router.get("/unipins-data",verifyAdmin,getUnipinsData);
-  router.get("/order-info",verifyAdmin,getOrderInfo);
-  router.get("/image",getAutoServerImage);
-  router.post("/new-order", newOrder);
-  router.post("/add-unipins",verifyAdmin,addUnipinsToAuto);
-  router.patch("/update-status",verifyAdmin, updateAutoStatus);
+  
   return router;
 }
 

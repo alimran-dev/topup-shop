@@ -8,7 +8,6 @@ import Coin from "../components/reusuable/Coin/Coin";
 const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
-  const [autoState,setAutoState] = useState({});
   const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
@@ -19,14 +18,6 @@ const Dashboard = () => {
   }, [axiosPrivate]);
 
   console.log(data);
-
-  useEffect(()=>{
-    axiosPrivate.get("/auto/unipins-data")
-    .then(res=>{
-      setIsLoading(false);
-      setAutoState(res?.data);
-    })
-  },[axiosPrivate])
 
   // page apear from top
   useEffect(() => {
@@ -113,8 +104,6 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="grid md:grid-cols-2 gap-5">
-        {/* auto stats */}
-        <DataTable title={"Auto Statistics"} thead={{first: "Name", second: "Quantity"}} data={autoState?.result || []} category={"auto"} total={autoState?.total || 0} />
         {/* unipins stats */}
         <DataTable title={"Unipins Statistics"} thead={{first: "UC", second: "Quantity"}} data={data?.unipins || []} category={"unipins"}  />
         {/* shells stats */}

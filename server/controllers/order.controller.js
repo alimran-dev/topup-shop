@@ -514,7 +514,7 @@ const orderDynamic = async (req, res) => {
             return res.send({...result, success: true, price: totalPrice})
           }else{
             const ucsArr = ucs.map((uc)=>uc?.code);
-            order.codes = ucsArr;
+            await orderCollection.updateOne({_id: new ObjectId(result.insertedId)}, {$set: {codes: ucsArr}})
 
 
             while(ucsArr.length){
