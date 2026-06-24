@@ -479,13 +479,7 @@ const orderDynamic = async (req, res) => {
         }
         const autoCombo = option?.combo?.reduce((acc, item) => {
           if (item?.quantity > 0) {
-            if (service?.server === "indo") {
-              acc.push({
-                name: item?.name,
-                label: item?.label,
-                quantity: item?.quantity * quantity,
-              });
-            } else if (service?.server === "sg") {
+            if (service?.server === "sg") {
               acc.push({
                 name: item?.name,
                 dollar: item?.dollar,
@@ -535,12 +529,12 @@ const orderDynamic = async (req, res) => {
 
             return res.send({...result, success: true, price: totalPrice});
           }
-        } else if(service?.server === "my"){
+        } else if(service?.server === "my" || service?.server === "indo"){
 
           await axiosAuto.post("/topup",{
             orderid: result?.insertedId,
             playerid: info?.uid,
-            code: "shell",
+            code: service?.server==="my"? "shell": "indo",
             url: callbackUrl,
             pacakge: shellPackages.join(','),
             username: process.env.SHELL_USERNAME,
