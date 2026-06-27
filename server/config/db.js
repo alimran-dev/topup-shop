@@ -55,6 +55,7 @@ const connectToDB = (cb) => {
       dbCollections.reviewsCollection = database.collection("reviews");
       dbCollections.referHistoryCollection=database.collection("referHistory");
       dbCollections.coinProductsCollection=database.collection("coinProducts");
+      dbCollections.likeSubscriptionCollection = database.collection("likeSubscriptions");
 
       try {
         await dbCollections.unipinCollection.createIndex({code: 1}, {unique: true});

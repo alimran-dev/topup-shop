@@ -16,6 +16,7 @@ const {
   coinProductsCollection,
   coinSettingCollection,
   coinHistoryCollection,
+  likeSubscriptionCollection,
 } = dbCollections || {};
 require("dotenv").config();
 
@@ -548,7 +549,11 @@ const orderDynamic = async (req, res) => {
 
           const {data: subscriptions} = await axiosLike.get("/subscriptions",{params: {active_only: true}});
           const hasSubscription = subscriptions?.data?.find(item=>item?.target_uid == info?.uid);
-          if(hasSubscription){
+          const prevSubscription = await likeSubscriptionCollection.findOne({uid: info?.uid});
+          const lastTime = new Date(prevSubscription?.lastTaken);
+          const now = new Date();
+          const isValid = !prevSubscription ? true:lastTime.toLocaleDateString()!==now.toLocaleDateString();
+          if(hasSubscription || !isValid){
             await userCollection.updateOne(
               { email: email },
               {
@@ -567,19 +572,30 @@ const orderDynamic = async (req, res) => {
             });
             return res.send({...result, success: true, price: 0});
           }
-          const {data: res} = await axiosLike.get("/subscribe",{
-            params: {
-              uid: info?.uid,
-              days: autoComboLike?.day,
-              likes: autoComboLike?.package,
-            }
-          })
+          let subscribeData;
+          try {
+            const {data} = await axiosLike.get("/subscribe",{
+              params: {
+                uid: info?.uid,
+                days: autoComboLike?.day,
+                likes: autoComboLike?.package,
+              }
+            })
+            subscribeData = data;
+          } catch (error) {
+            subscribeData = error;
+            console.error("Like subscription: ",error);
+          }
+          await likeSubscriptionCollection.updateOne({uid: info?.uid},{
+            uid: info?.uid,
+            lastTaken: new Date(),
+          }, {upsert: true});
           await orderCollection.updateOne({_id: new ObjectId(result?.insertedId)},{$set:{
             updateTime: new Date(),
             status: "complete",
             feedback: "",
             info: {...order.info, day: autoComboLike?.day},
-            autoResponse: res,
+            autoResponse: subscribeData,
           }})
           return res.send({...result, success: true, price: totalPrice});
         }
