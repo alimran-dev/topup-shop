@@ -61,6 +61,8 @@ const OrderHistory = ({ order }) => {
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
 
+  // console.log(orderID,codes);
+
   return (
     <div>
       {/* order card */}
@@ -103,22 +105,12 @@ const OrderHistory = ({ order }) => {
               >
                 Detail
               </button>
-              {processedExternally && status === "complete" && (
-                <>
-                  <Link
-                    to={`/images/${order?._id}`}
-                    target="_blank"
-                    className="button"
-                  >
-                    Images
-                  </Link>
-                </>
-              )}
             </div>
           </div>
           {subCategory === "unipin" ||
           subCategory === "shell" ||
           subCategory === "card" ||
+          subCategory === "unipinNormal" ||
           (processedExternally && status === "complete") ? (
             <>
               {codes && (
@@ -126,13 +118,7 @@ const OrderHistory = ({ order }) => {
                   <textarea
                     ref={codesRef}
                     disabled
-                    value={
-                      processedExternally
-                        ? externalOrder?.unipins
-                            ?.join("\n")
-                            ?.concat("\n", screenshots?.join("\n"))
-                        : codes.join("\n")
-                    }
+                    value={codes?.join("\n")}
                     name=""
                     className="border-2 h-24 w-full rounded px-2 py-0.5"
                   ></textarea>
@@ -252,12 +238,13 @@ const OrderHistory = ({ order }) => {
               {subCategory === "unipin" ||
               subCategory === "shell" ||
               subCategory === "card" ||
+              subCategory === "unipinNormal" ||
               (processedExternally && status==="complete") ? (
                 <div>
                   <textarea
                     ref={codesRef}
                     disabled
-                    value={processedExternally? `${window.location.origin}/images/${order?._id}`:codes.join("\n")}
+                    value={codes?.join("\n")}
                     name=""
                     className="border-2 h-24 w-full rounded px-2 py-0.5"
                   ></textarea>

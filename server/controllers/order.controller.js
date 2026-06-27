@@ -467,7 +467,7 @@ const orderDynamic = async (req, res) => {
         const shellPackages = [];
         let totalUnipinToOrder = 0;
 
-        if(service?.server === "unipin"){
+        if(service?.server === "unipin" || service?.server === "unipinNormal"){
           for(const item of option?.combo || []){
             if(item?.quantity>0){
               totalUnipinToOrder += (item?.quantity * quantity);
@@ -478,6 +478,26 @@ const orderDynamic = async (req, res) => {
               }
             }
           }
+        }
+
+        if(service?.server === "unipinNormal"){
+          if(ucs.length !== totalUnipinToOrder){
+            if(ucs.length){
+              await unipinCollection.insertMany(ucs);
+            }
+            order.status = "cancelled";
+            order.updateTime = new Date();
+            order.feedback = "এই Unipin কোডের স্টক শেষ। একটু অপেক্ষা করুন অথবা এডমিনের সাথে যোগাযোগ করুন।"
+            const result = await orderCollection.insertOne(order);
+            await userCollection.updateOne({email: email},{$set: {balance: user.balance}});
+            return res.send({...result, success: true, price: 0});
+          }
+          const ucsArr = ucs.map(uc=>uc?.code);
+          order.status = "complete";
+          order.codes = ucsArr;
+          order.updateTime = new Date();
+          const result = await orderCollection.insertOne(order);
+          return res.send({...result, success: true, price: totalPrice});
         }
         const autoCombo = option?.combo?.reduce((acc, item) => {
           if (item?.quantity > 0) {
@@ -511,7 +531,9 @@ const orderDynamic = async (req, res) => {
 
         if(service?.server==="unipin"){
           if(ucs.length !== totalUnipinToOrder){
-            await unipinCollection.insertMany(ucs);
+            if(ucs.length){
+              await unipinCollection.insertMany(ucs);
+            }
 
             return res.send({...result, success: true, price: totalPrice})
           }else{

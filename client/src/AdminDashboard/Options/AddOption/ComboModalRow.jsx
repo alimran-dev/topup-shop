@@ -6,7 +6,7 @@ const ComboModalRow = ({ item, idx, combo, setCombo, selectedServer }) => {
     const prevCombo = [...combo];
     // console.log(prevCombo, increament);
 
-    if (selectedServer === "sg") {
+    if (selectedServer === "sg" || selectedServer === "unipinNormal") {
       // For SG server: only one item can be selected with max quantity 1
       if (increament > 0) {
         // Reset all other items to 0 and set this item to 1
@@ -58,13 +58,22 @@ const ComboModalRow = ({ item, idx, combo, setCombo, selectedServer }) => {
 
     setCombo(prevCombo);
   };
+
+  const handleMinus = () =>{
+    selectedServer !== "like"?item?.quantity:item?.day > 0 && handleQuantity(-1, null);
+    if(selectedServer === "like" && item?.day>0){
+      handleQuantity(-1,null);
+    }else if(selectedServer!=="like" && item?.quantity>0){
+      handleQuantity(-1,null);
+    }
+  }
   return (
     <tr>
       <td className="border-2 border-primary text-center">{item?.name}</td>
       <td className="border-2 border-primary text-center">
         <div className="flex items-center">
           <span
-            onClick={() => selectedServer !== "like"?item?.quantity:item?.day > 0 && handleQuantity(-1, null)}
+            onClick={handleMinus}
             className="cursor-pointer h-full px-4 py-2"
           >
             <FaMinus className="text-base" />

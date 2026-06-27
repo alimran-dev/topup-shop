@@ -18,7 +18,8 @@ const ComboModal = ({
         dollar: pack?.dollar,
         quantity: 0,
         day: 0,
-        package: pack?.package
+        package: pack?.package,
+        uc: pack?.uc || 0,
       };
     });
     setCombo(newCombo);

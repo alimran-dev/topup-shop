@@ -48,7 +48,7 @@ const SubCategory = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  //   console.log(selected);
+    // console.log(inputValues);
 
   useEffect(() => {
     axiosPublic.get(`/services/get?id=${id}`).then((res) => {
@@ -95,7 +95,7 @@ const SubCategory = () => {
       return;
     }
     if (
-      allData?.isAuto &&
+      allData?.isAuto && allData?.server!=="unipinNormal" &&
       (!inputValues?.uid || inputValues?.uid?.length < 7 || inputValues?.uid?.length > 13)
     ) {
       toast.error("Please enter valid Player UID");
@@ -116,7 +116,7 @@ const SubCategory = () => {
         state: {
           name: "dynamic",
           selected,
-          inputValues,
+          inputValues: allData?.server === "unipinNormal"?{}:inputValues,
           orderData: allData,
           quantity,
         },
@@ -247,7 +247,7 @@ const SubCategory = () => {
                       />
                     </div>
                   ))}
-                {allData?.isAuto && (
+                {allData?.isAuto && allData?.server!=="unipinNormal" && (
                   <div className="px-5">
                     <label htmlFor="" className="block text-base mb-1">
                       Player UID
@@ -267,7 +267,7 @@ const SubCategory = () => {
                     />
                   </div>
                 )}
-                {allData?.isAuto && (
+                {allData?.isAuto && allData?.server!=="unipinNormal" && (
                   <p
                     className={`username-bg ${
                       usernameChecked ? "opacity-100" : "opacity-65"
@@ -282,7 +282,7 @@ const SubCategory = () => {
                     )}
                   </p>
                 )}
-                {selected?.willHaveQuantity && (
+                {(selected?.willHaveQuantity || allData?.server==="unipinNormal") && (
                   <div className="flex items-center gap-5 px-5">
                     <label htmlFor="">Quantity: </label>
                     <div className="flex items-center gap-2 border-[3px] rounded-full">

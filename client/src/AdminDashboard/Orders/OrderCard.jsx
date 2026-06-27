@@ -34,8 +34,7 @@ const OrderCard = ({ order }) => {
     info,
     feedback,
     processedExternally,
-    order: externalOrder,
-    screenshots
+    order: externalOrder
   } = order || {};
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
@@ -282,7 +281,6 @@ const OrderCard = ({ order }) => {
               >
                 <MdContentCopy className="inline-block" /> Copy All
               </button>
-              {processedExternally && status==="complete" && <Link to={`/images/${order?._id}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit">Images</Link>}
               {processedExternally && status!=="complete" && (
                 <button
                 onClick={handleUpdate}

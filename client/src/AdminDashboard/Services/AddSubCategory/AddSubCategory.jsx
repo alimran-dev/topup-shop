@@ -194,6 +194,7 @@ const AddSubCategory = () => {
                 Select Server
               </option>
               <option value="unipin">Unipin</option>
+              <option value="unipinNormal">Unipin Without Auto</option>
               <option value="my">MY</option>
               <option value="sg">SG</option>
               <option value="indo">Indo</option>

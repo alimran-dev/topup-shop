@@ -165,7 +165,7 @@ const AddDynamicOption = () => {
 
   // make new combo summary
   useEffect(() => {
-    if (selectedServer === "unipin") {
+    if (selectedServer === "unipin" || selectedServer ==="unipinNormal") {
       const totalDiamond = combo.reduce(
         (sum, curr) => sum + (curr.value || 0) * curr.quantity,
         0
@@ -278,7 +278,7 @@ const AddDynamicOption = () => {
             dollar: pack?.dollar,
             quantity: pack?.quantity,
           };
-        } else if(selectedServer === "unipin") {
+        } else if(selectedServer === "unipin" || selectedServer === "unipinNormal") {
           return {
             name: pack?.original || pack?.name,
             uc: pack?.uc,
@@ -472,9 +472,12 @@ const AddDynamicOption = () => {
               Will have Quantity:{" "}
             </label>
             <input
+              key={selectedServer}
               type="checkbox"
               name="willHaveQuantity"
               className="toggle !m-0"
+              defaultChecked={selectedServer==="unipinNormal"}
+              disabled={selectedServer==="unipinNormal"}
             />
           </div>
           {isAutoEnable && (
@@ -504,7 +507,7 @@ const AddDynamicOption = () => {
                       : "Selected items"
                   }
                   value={
-                    selectedServer === "unipin"
+                    (selectedServer === "unipin" || selectedServer === "unipinNormal")
                       ? `D-[${comboSummary?.diamond}] W-[${comboSummary?.weekly}] M-[${comboSummary?.monthly}]`
                       : selectedServer === "sg"
                       ? `$${comboSummary?.diamond}`
