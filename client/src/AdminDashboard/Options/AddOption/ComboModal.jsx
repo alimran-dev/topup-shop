@@ -17,6 +17,8 @@ const ComboModal = ({
         original: pack?.original,
         dollar: pack?.dollar,
         quantity: 0,
+        day: 0,
+        package: pack?.package
       };
     });
     setCombo(newCombo);
@@ -43,7 +45,8 @@ const ComboModal = ({
                 Package
               </th>
               <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
-                Quantity
+              {selectedServer === "like" ? "Days": "Quantity"} 
+                
               </th>
             </tr>
           </thead>

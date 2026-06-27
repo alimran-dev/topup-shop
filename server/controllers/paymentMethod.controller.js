@@ -10,9 +10,15 @@ require("dotenv").config();
 const getMethods = async (req, res) => {
   try {
     const { role } = req.user;
+    const {amount} = req.query || {};
+    const amountValue = parseFloat(amount);
     let filter = {};
     if (role === "user") {
-      filter = { status: "active" };
+      filter = { status: "active"};
+      if(amountValue){
+        filter.minLimit = {$lte: amountValue};
+        filter.maxLimit = {$gte: amountValue};
+      }
     }
     const result = await paymentMethodCollection
       .find(filter)
@@ -247,6 +253,9 @@ const addMethod = async (req, res) => {
       fee,
       number,
       status,
+      balanceVerify,
+      minLimit,
+      maxLimit
     } = req.body;
     const newMethod = {
       type: "manual",
@@ -255,7 +264,10 @@ const addMethod = async (req, res) => {
       bonus: parseFloat(bonus),
       special_bonus: parseFloat(special_bonus),
       fee: parseFloat(fee),
+      minLimit: parseInt(minLimit),
+      maxLimit: parseInt(maxLimit),
       number,
+      balanceVerify,
       status,
     };
     const result = await paymentMethodCollection.insertOne(newMethod);
@@ -269,13 +281,16 @@ const addMethod = async (req, res) => {
 const updateMethod = async (req, res) => {
   try {
     const { id } = req.query;
-    const { bonus, special_bonus, fee, number, status } = req.body;
+    const { bonus, special_bonus, fee, number, status, balanceVerify, minLimit, maxLimit } = req.body;
     // console.log(req.body);
     const updatedMethod = {
       $set: {
         bonus: parseFloat(bonus),
         special_bonus: parseFloat(special_bonus),
         fee: parseFloat(fee),
+        minLimit: parseInt(minLimit),
+        maxLimit: parseInt(maxLimit),
+        balanceVerify,
         status,
       },
     };
@@ -344,7 +359,7 @@ const methodReset = async (req, res) => {
 
 const adjustBalance = async (req, res) => {
   try {
-    const { bkash, nagad } = req.body;
+    const { bkashPersonal, bkashAgent, bkashMerchant, nagadPersonal, nagadAgent } = req.body;
     // if (!bkash && !nagad) {
     //   return res.send({
     //     success: false,
@@ -353,8 +368,11 @@ const adjustBalance = async (req, res) => {
     // }
     const updatedDoc = {
       $set: {
-        bkashBalance: bkash,
-        nagadBalance: nagad,
+        bkashPersonalBalance: bkashPersonal,
+        bkashAgentBalance: bkashAgent,
+        bkashMerchantBalance: bkashMerchant,
+        nagadPersonalBalance: nagadPersonal,
+        nagadAgentBalance: nagadAgent,
       },
     };
     const result = await paymentMethodSummaryCollection.updateOne(

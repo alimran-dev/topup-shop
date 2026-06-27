@@ -197,6 +197,7 @@ const AddSubCategory = () => {
               <option value="my">MY</option>
               <option value="sg">SG</option>
               <option value="indo">Indo</option>
+              <option value="like">Like</option>
             </select>
           </div>
         )}

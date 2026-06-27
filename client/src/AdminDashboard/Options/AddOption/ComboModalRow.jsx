@@ -4,6 +4,7 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 const ComboModalRow = ({ item, idx, combo, setCombo, selectedServer }) => {
   const handleQuantity = (increament, input) => {
     const prevCombo = [...combo];
+    // console.log(prevCombo, increament);
 
     if (selectedServer === "sg") {
       // For SG server: only one item can be selected with max quantity 1
@@ -33,6 +34,18 @@ const ComboModalRow = ({ item, idx, combo, setCombo, selectedServer }) => {
           prevCombo[idx].quantity = 0;
         }
       }
+    } else if(selectedServer === "like"){
+      if(idx === 0){
+        prevCombo[1].day = 0;
+      }else if(idx===1){
+        prevCombo[0].day = 0;
+      }
+      if( increament){
+        prevCombo[idx].day += increament;
+      }
+      if( input !== null){
+        prevCombo[idx].day = input;
+      }
     } else {
       // For other servers: normal behavior
       if (increament) {
@@ -51,14 +64,14 @@ const ComboModalRow = ({ item, idx, combo, setCombo, selectedServer }) => {
       <td className="border-2 border-primary text-center">
         <div className="flex items-center">
           <span
-            onClick={() => item?.quantity > 0 && handleQuantity(-1, null)}
+            onClick={() => selectedServer !== "like"?item?.quantity:item?.day > 0 && handleQuantity(-1, null)}
             className="cursor-pointer h-full px-4 py-2"
           >
             <FaMinus className="text-base" />
           </span>
           <input
             className="w-10 text-center flex-1"
-            value={item?.quantity}
+            value={selectedServer === "like" ? item?.day:item?.quantity}
             onChange={(e) =>
               handleQuantity(null, parseInt(e.target.value) || 0)
             }

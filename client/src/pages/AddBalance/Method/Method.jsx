@@ -17,10 +17,10 @@ const Method = () => {
   }, [location.state, navigate]);
   
   useEffect(() => {
-    axiosPrivate.get("/payment/methods").then((data) => {
+    axiosPrivate.get("/payment/methods",{params: {amount: location.state}}).then((data) => {
       setMethods(data.data);
     });
-  }, [axiosPrivate]);
+  }, [axiosPrivate, location.state]);
   
   
   return (

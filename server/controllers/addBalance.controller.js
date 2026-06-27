@@ -47,7 +47,7 @@ const addBalance = async (req, res) => {
     const method = await paymentMethodCollection.findOne({
       _id: new ObjectId(id),
     });
-    const { provider, category, bonus, fee, number, special_bonus } =
+    const { provider, category, bonus, fee, number, special_bonus, balanceVerify } =
       method || {};
     let willAdd = parseFloat((amount + (amount * bonus) / 100).toFixed(2));
     if (amount % 5 === 0) {
@@ -70,6 +70,7 @@ const addBalance = async (req, res) => {
       trxID: "",
       time: new Date(),
       status: "pending",
+      balanceVerify: balanceVerify === "active"? true:false,
       methodID: method._id?.toString(),
     };
     const result = await transactionCollection.insertOne(transaction);
@@ -174,6 +175,15 @@ const checkAddBalance = async (req, res) => {
         });
       }
 
+      if(invoice?.balanceVerify && !trxSms?.isVerified){
+        return res.send({
+          success: false,
+          isBanned: false,
+          attempt: invoice.attempt + 1,
+          message: "অনুগ্রহপূর্বক অ্যাডমিনের সাথে যোগাযোগ করুন।"
+        })
+      }
+
       if (
         provider === providerInSms &&
         category === categoryInSms &&
@@ -202,7 +212,7 @@ const checkAddBalance = async (req, res) => {
             const [summary] = await paymentMethodSummaryCollection
               .find()
               .toArray();
-            console.log(summary);
+            // console.log(summary);
             if (provider === "bkash") {
               await paymentMethodSummaryCollection.updateOne(
                 { _id: new ObjectId(summary._id) },

@@ -124,6 +124,10 @@ const AddDynamicOption = () => {
       { name: "Airdrop 3$", original: "Airdrop 3$", dollar: 3, quantity: 0 },
       { name: "Airdrop 4$", original: "Airdrop 4$", dollar: 4, quantity: 0 },
     ],
+    like: [
+      {name: "100 Like", package: "100", day: 0},
+      {name: "200 Like", package: "200", day: 0}
+    ]
   };
 
   const [combo, setCombo] = useState(comboConfigs.unipin);
@@ -142,7 +146,7 @@ const AddDynamicOption = () => {
       .get("/services")
       .then((res) => {
         const data = res?.data || [];
-        console.log(data);
+        // console.log(data);
         setSubCategories(
           data.map((item) => ({
             id: item._id,
@@ -184,6 +188,13 @@ const AddDynamicOption = () => {
         weekly: 0,
         monthly: 0,
       });
+    } else if(selectedServer === "like"){
+      const selectedItem = combo.find((item)=>item?.day>0);
+      setComboSummary({
+        package: selectedItem?.package || "",
+        day: selectedItem?.day || 0,
+        total: parseInt(selectedItem?.package) * selectedItem?.day || 0,
+      })
     } else {
       // For other servers, just count total items
       const totalItems = combo.reduce((sum, curr) => sum + curr.quantity, 0);
@@ -279,7 +290,13 @@ const AddDynamicOption = () => {
             package: pack?.package,
             quantity: pack?.quantity,
           }
-        }
+        }else if(selectedServer === "like"){
+            return {
+              name: pack?.name || "",
+              package: pack?.package,
+              day: pack?.day || 0,
+            }
+          }
       });
       newOption.combo = newCombo;
     }
@@ -450,7 +467,7 @@ const AddDynamicOption = () => {
               disabled
             />
           </div>
-          <div className="space-y-2 flex items-center gap-2">
+          <div className={`space-y-2 flex items-center gap-2 ${selectedServer === "like" ? "invisible": ""}`}>
             <label htmlFor="willHaveQuantity" className="input-label !m-0">
               Will have Quantity:{" "}
             </label>
@@ -468,8 +485,8 @@ const AddDynamicOption = () => {
               >
                 {selectedServer === "unipin"
                   ? "Total Diamond:"
-                  : selectedServer === "sg"
-                  ? "Selected Airdrop:"
+                  : selectedServer === "like"
+                  ? "Like Package:"
                   : "Combo Items:"}
               </label>
               <div className="flex">
@@ -491,7 +508,7 @@ const AddDynamicOption = () => {
                       ? `D-[${comboSummary?.diamond}] W-[${comboSummary?.weekly}] M-[${comboSummary?.monthly}]`
                       : selectedServer === "sg"
                       ? `$${comboSummary?.diamond}`
-                      : `Items-[${comboSummary?.diamond}]`
+                      : selectedServer === "like"? `P-[${comboSummary?.package || ""}] D-[${comboSummary?.day || 0}] Total-[${comboSummary?.total || 0}]`: `Items-[${comboSummary?.diamond}]`
                   }
                 />
                 <button

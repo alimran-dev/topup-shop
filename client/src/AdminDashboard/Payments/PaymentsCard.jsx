@@ -5,7 +5,7 @@ import bkashLogo from "../../assets/images/bkash.png";
 
 const PaymentsCard = ({ method, methods, setMethods }) => {
   const axiosPrivate = useAxiosPrivate();
-  const { _id, provider, category, bonus, special_bonus, fee, number, status, type } =
+  const { _id, provider, category, bonus, special_bonus, fee, number, status, type, minLimit, maxLimit, balanceVerify } =
     method || {};
 
   const handleUpdateMethod = (e) => {
@@ -15,10 +15,13 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
     const specialBonus = parseFloat(form.specialBonus.value);
     const fee = parseFloat(form.fee.value);
     const status = form.status.value;
+    const minLimit = parseInt(form.minLimit.value);
+    const maxLimit = parseInt(form.maxLimit.value);
 
-    const method = { bonus, fee, special_bonus: specialBonus, status };
+    const method = { bonus, fee, special_bonus: specialBonus, status, minLimit, maxLimit };
     if (type !== "auto") {
       method.number = form.number.value;
+      method.balanceVerify = form.balanceVerify.value;
     }
 
     axiosPrivate
@@ -147,6 +150,20 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                 required
               />
             </div>
+            <div>
+                <label htmlFor="minLimit" className="font-semibold mr-2">
+                  Min Limit:{" "}
+                </label>
+                <input
+                  name="minLimit"
+                  type="number"
+                  step={1}
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="100"
+                  defaultValue={minLimit}
+                  required
+                />
+              </div>
           </div>
           <div className="flex-1 space-y-2">
             <div>
@@ -194,9 +211,41 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                 <option value="inactive">Inactive</option>
               </select>
             </div>
+            {type !== "auto" && <div>
+              <label htmlFor="balanceVerify" className="font-semibold mr-2">
+                Balance Verify:{" "}
+              </label>
+              <select
+                name="balanceVerify"
+                id=""
+                className={`px-3 py-1 rounded font-semibold ${
+                  balanceVerify === "active" ? "text-green-700" : "text-red-500"
+                }`}
+                defaultValue={balanceVerify}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>}
+            
+            <div>
+                <label htmlFor="maxLimit" className="font-semibold mr-2">
+                  Max Limit:{" "}
+                </label>
+                <input
+                  name="maxLimit"
+                  type="number"
+                  step={1}
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="1000"
+                  defaultValue={maxLimit}
+                  required
+                />
+              </div>
             <div className="">
               <p className="font-semibold">Total Amount: <span className="text-gray-600">{method?.totalAmount || 0} BDT</span></p>
             </div>
+            
           </div>
         </div>
         <div className="flex justify-center gap-4 mt-2">

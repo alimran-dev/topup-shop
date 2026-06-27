@@ -2,9 +2,11 @@ import Swal from "sweetalert2";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useEffect, useState } from "react";
 import PaymentsCard from "./PaymentsCard";
+import toast from "react-hot-toast";
 
 const Payments = () => {
   const [methods, setMethods] = useState([]);
+  const [balanceData, setBalanceData] = useState({ bkashPersonal: 0, bkashAgent: 0, bkashMerchant: 0, nagadPersonal: 0, nagadAgent: 0 });
   const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
@@ -27,7 +29,10 @@ const Payments = () => {
     const fee = parseFloat(form.fee.value);
     const number = form.number.value;
     const status = form.status.value;
-    const method = { provider, category, bonus, specialBonus, fee, number, status };
+    const balanceVerify = form.balanceVerify.value;
+    const minLimit = parseInt(form.minLimit.value);
+    const maxLimit = parseInt(form.maxLimit.value);
+    const method = { provider, category, bonus, specialBonus, fee, number, status, balanceVerify, minLimit, maxLimit };
     axiosPrivate.post("/payment/method/admin/add", method).then((res) => {
       if (res.data.insertedId) {
         Swal.fire({
@@ -48,11 +53,124 @@ const Payments = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  const handleUpdateBalance = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const bkashPersonal= parseFloat(form.bkashPersonal.value);
+    const bkashAgent = parseFloat(form.bkashAgent.value);
+    const bkashMerchant = parseFloat(form.bkashMerchant.value);
+    const nagadPersonal = parseFloat(form.nagadPersonal.value);
+    const nagadAgent = parseFloat(form.nagadAgent.value);
+
+    if (isNaN(bkashPersonal) || isNaN(bkashAgent) || isNaN(bkashMerchant) || isNaN(nagadPersonal) || isNaN(nagadAgent)) {
+      toast.error("Please enter valid numbers for balances.");
+      return;
+    }
+    const {data} = await axiosPrivate.patch(`/payment/method/admin/balance/adjust`, {bkashPersonal, bkashAgent, bkashMerchant, nagadPersonal, nagadAgent});
+    if(data?.modifiedCount){
+      toast.success("Balances updated successfully.");
+    }
+  };
+
+   useEffect(() => {
+    axiosPrivate.get("/payment/method/admin/balance/summary").then((res) => {
+      setBalanceData({
+        bkashPersonal: res.data[0]?.bkashPersonalBalance || 0,
+        bkashAgent: res.data[0]?.bkashAgentBalance || 0,
+        bkashMerchant: res.data[0]?.bkashMerchantBalance || 0,
+        nagadPersonal: res.data[0]?.nagadPersonalBalance || 0,
+        nagadAgent: res.data[0]?.nagadAgentBalance || 0,
+      });
+    });
+  }, [axiosPrivate]);
+
   return (
     <div>
       <h2 className="title">
         Payment Management
       </h2>
+      <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
+          <form className="space-y-2 grid md:grid-cols-2 gap-5 items-center justify-center md:justify-between" onSubmit={handleUpdateBalance}>
+            <div>
+              <label htmlFor="input-label">Bkash Personal Balance: </label>
+              <input
+                value={balanceData?.bkashPersonal || 0}
+                onChange={(e) =>
+                  setBalanceData({ ...balanceData, bkashPersonal: e.target.value })
+                }
+                type="number"
+                name="bkashPersonal"
+                step={0.01}
+                placeholder="100.01"
+                className="border-2 px-3 py-1 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="input-label">Bkash Agent Balance: </label>
+              <input
+                value={balanceData?.bkashAgent || 0}
+                onChange={(e) =>
+                  setBalanceData({ ...balanceData, bkashAgent: e.target.value })
+                }
+                type="number"
+                name="bkashAgent"
+                step={0.01}
+                placeholder="100.01"
+                className="border-2 px-3 py-1 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="input-label">Bkash Merchant Balance: </label>
+              <input
+                value={balanceData?.bkashMerchant || 0}
+                onChange={(e) =>
+                  setBalanceData({ ...balanceData, bkashMerchant: e.target.value })
+                }
+                type="number"
+                name="bkashMerchant"
+                step={0.01}
+                placeholder="100.01"
+                className="border-2 px-3 py-1 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="input-label">Nagad Personal Balance: </label>
+              <input
+                value={balanceData?.nagadPersonal || 0}
+                onChange={(e) =>
+                  setBalanceData({ ...balanceData, nagadPersonal: e.target.value })
+                }
+                type="number"
+                name="nagadPersonal"
+                step={0.01}
+                placeholder="100.01"
+                className="border-2 px-3 py-1 rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="input-label">Nagad Agent Balance: </label>
+              <input
+                value={balanceData?.nagadAgent || 0}
+                onChange={(e) =>
+                  setBalanceData({ ...balanceData, nagadAgent: e.target.value })
+                }
+                type="number"
+                name="nagadAgent"
+                step={0.01}
+                placeholder="100.01"
+                className="border-2 px-3 py-1 rounded-md"
+                required
+              />
+            </div>
+            <button type="submit" className="button block mx-auto">
+              Update
+            </button>
+          </form>
+        </div>
       <div className="border rounded-md">
         <h2 className="title !text-sm md:!text-3xl">
           Add Payment method (Manual)
@@ -104,6 +222,19 @@ const Payments = () => {
                   required
                 />
               </div>
+              <div>
+                <label htmlFor="minLimit" className="font-semibold mr-2">
+                  Min Limit:{" "}
+                </label>
+                <input
+                  name="minLimit"
+                  type="number"
+                  step={1}
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="100"
+                  required
+                />
+              </div>
             </div>
             <div className="flex-1 space-y-2">
               <div>
@@ -140,6 +271,28 @@ const Payments = () => {
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
+              <div>
+                <label htmlFor="balanceVerify" className="font-semibold mr-2">
+                  Balance Verify:{" "}
+                </label>
+                <select name="balanceVerify" id="" className="px-3 py-1 rounded">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+               <div>
+                <label htmlFor="maxLimit" className="font-semibold mr-2">
+                  Max Limit:{" "}
+                </label>
+                <input
+                  name="maxLimit"
+                  type="number"
+                  step={1}
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="1000"
+                  required
+                />
+              </div>
             </div>
           </div>
           <button
@@ -153,7 +306,7 @@ const Payments = () => {
       <h2 className="title !text-sm md:!text-3xl">
         Update Payment Method
       </h2>
-      <div>
+      <div className="space-y-2">
         {methods.map((method) => (
           <PaymentsCard
             method={method}

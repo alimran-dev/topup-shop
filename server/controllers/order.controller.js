@@ -4,6 +4,7 @@ const { cookieOption } = require("../utils/cookieOption");
 const notificationSender = require("../utils/notificationSender");
 const { CONSTANTS } = require("../utils/constants");
 const { axiosAuto } = require("../utils/axiosAuto");
+const {axiosLike} = require("../utils/AxiosLike")
 const {
   orderCollection,
   unipinCollection,
@@ -491,7 +492,7 @@ const orderDynamic = async (req, res) => {
                 quantity: item?.quantity * quantity,
                 uc: item?.uc
               });
-            } else {
+            }else {
               acc.push({
                 name: item?.name,
                 package: item?.package,
@@ -542,26 +543,46 @@ const orderDynamic = async (req, res) => {
             autocode: process.env.SHELL_AUTH_KEY
           })
           return res.send({...result, success: true, price: totalPrice});
+        } else if(service?.server === "like"){
+          const autoComboLike = option?.combo?.find(item=>item?.day>0);
+
+          const {data: subscriptions} = await axiosLike.get("/subscriptions",{params: {active_only: true}});
+          const hasSubscription = subscriptions?.data?.find(item=>item?.target_uid == info?.uid);
+          if(hasSubscription){
+            await userCollection.updateOne(
+              { email: email },
+              {
+                $set: {
+                  balance: user.balance,
+                },
+              }
+            );
+            await orderCollection.updateOne({_id: new ObjectId(result?.insertedId)},{
+              $set: {
+                updateTime: new Date(),
+                status: "cancelled",
+                feedback: "আপনার আজকের লিমিট শেষ। আগামীকাল আবার অর্ডার করতে পারবেন এই UID তে।",
+                info: {...order.info, day: autoComboLike?.day},
+              }
+            });
+            return res.send({...result, success: true, price: 0});
+          }
+          const {data: res} = await axiosLike.get("/subscribe",{
+            params: {
+              uid: info?.uid,
+              days: autoComboLike?.day,
+              likes: autoComboLike?.package,
+            }
+          })
+          await orderCollection.updateOne({_id: new ObjectId(result?.insertedId)},{$set:{
+            updateTime: new Date(),
+            status: "complete",
+            feedback: "",
+            info: {...order.info, day: autoComboLike?.day},
+            autoResponse: res,
+          }})
+          return res.send({...result, success: true, price: totalPrice});
         }
-        // console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
-        const autoDoc = {
-          uid: info?.uid,
-          option: autoCombo,
-          callback: `${protocol}://${req.get(
-            "host"
-          )}/order/auto-server/processing`,
-          server: service?.server,
-          email: "mezbakhan65@gmail.com",
-        };
-        if (service?.server === "sg") {
-          autoDoc.dollar = autoCombo[0]?.dollar || 0;
-        }
-        // try {
-        //   const { data } = await axiosAuto.post("/new-order", autoDoc);
-        //   order.externalOrderId = data?.orderId;
-        // } catch (err) {
-        //   console.error("orderDynamic: ", err.message);
-        // }
       }
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {
@@ -574,8 +595,8 @@ const orderDynamic = async (req, res) => {
           );
         }
       });
-      // const result = await orderCollection.insertOne(order);
-      // res.send({ ...result, success: true, price: totalPrice });
+      const result = await orderCollection.insertOne(order);
+      res.send({ ...result, success: true, price: totalPrice });
     } else {
       return res.send({
         success: false,
