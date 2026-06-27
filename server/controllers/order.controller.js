@@ -586,10 +586,6 @@ const orderDynamic = async (req, res) => {
             subscribeData = error;
             console.error("Like subscription: ",error);
           }
-          await likeSubscriptionCollection.updateOne({uid: info?.uid},{
-            uid: info?.uid,
-            lastTaken: new Date(),
-          }, {upsert: true});
           await orderCollection.updateOne({_id: new ObjectId(result?.insertedId)},{$set:{
             updateTime: new Date(),
             status: "complete",
@@ -597,6 +593,7 @@ const orderDynamic = async (req, res) => {
             info: {...order.info, day: autoComboLike?.day},
             autoResponse: subscribeData,
           }})
+          await likeSubscriptionCollection.updateOne({uid: info?.uid},{$set: {lastTaken: new Date()}}, {upsert: true});
           return res.send({...result, success: true, price: totalPrice});
         }
       }
