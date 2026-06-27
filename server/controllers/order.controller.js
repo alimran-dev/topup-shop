@@ -550,9 +550,12 @@ const orderDynamic = async (req, res) => {
           const {data: subscriptions} = await axiosLike.get("/subscriptions",{params: {active_only: true}});
           const hasSubscription = subscriptions?.data?.find(item=>item?.target_uid == info?.uid);
           const prevSubscription = await likeSubscriptionCollection.findOne({uid: info?.uid});
-          const lastTime = new Date(prevSubscription?.lastTaken);
-          const now = new Date();
-          const isValid = !prevSubscription ? true:lastTime.toLocaleDateString()!==now.toLocaleDateString();
+          const isValid = !prevSubscription ? true:(()=>{
+            const prev = new Date(prevSubscription?.lastTaken);
+            if(Number.isNaN(prev.getTime()))  return true;
+            const today = new Date();
+            return (prev.getUTCFullYear() !== today.getUTCFullYear() || prev.getUTCMonth()!== today.getUTCMonth() || prev.getUTCDate() !== today.getUTCDate())
+          })();
           if(hasSubscription || !isValid){
             await userCollection.updateOne(
               { email: email },
