@@ -13,7 +13,7 @@ const balanceCalculate = async (provider, category, amount, balance) => {
     });
     const { bkashAgentBalance,bkashMerchantBalance, bkashPersonalBalance, nagadPersonalBalance, nagadAgentBalance } = summary || {};
 
-    const updatedDoc = {};
+    let updatedDoc = {};
     let isVerified = true;
 
     if(provider === "bkash" && category === "personal"){
@@ -140,7 +140,7 @@ const smsSender = async (req, res) => {
         newTrx.amount = amount;
         newTrx.trxID = trxID;
         newTrx.category = "personal";
-        newTrx.isVerified = balanceCalculate("bkash", "personal", amount, balance);
+        newTrx.isVerified = await balanceCalculate("bkash", "personal", amount, balance);
         console.log("isVerified",newTrx.isVerified);
       }else if(message.includes("Cash Out") && message.includes("to") && message.includes("successful")){
         // personal cash out to agent
