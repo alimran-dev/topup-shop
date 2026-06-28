@@ -139,8 +139,9 @@ const smsSender = async (req, res) => {
         willInsert = true;
         newTrx.amount = amount;
         newTrx.trxID = trxID;
-        newTrx.category = "agent";
+        newTrx.category = "personal";
         newTrx.isVerified = balanceCalculate("bkash", "personal", amount, balance);
+        console.log("isVerified",newTrx.isVerified);
       }else if(message.includes("Cash Out") && message.includes("to") && message.includes("successful")){
         // personal cash out to agent
         const msgSplit = message.split(" ");
