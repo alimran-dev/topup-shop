@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 const Payments = () => {
   const [methods, setMethods] = useState([]);
+  const [provider, setProvider] = useState("bkash");
   const [balanceData, setBalanceData] = useState({ bkashPersonal: 0, bkashAgent: 0, bkashMerchant: 0, nagadPersonal: 0, nagadAgent: 0 });
   const axiosPrivate = useAxiosPrivate();
 
@@ -174,7 +175,7 @@ const Payments = () => {
                 <label htmlFor="provider" className="font-semibold mr-2">
                   Provider:{" "}
                 </label>
-                <select name="provider" id="" className="px-3 py-1 rounded">
+                <select onChange={(e)=>setProvider(e.target.value)} name="provider" id="" className="px-3 py-1 rounded">
                   <option value="bkash">Bkash</option>
                   <option value="nagad">Nagad</option>
                 </select>
@@ -186,6 +187,7 @@ const Payments = () => {
                 <select name="category" id="" className="px-3 py-1 rounded">
                   <option value="personal">Personal</option>
                   <option value="agent">Agent</option>
+                  {provider==="bkash" && <option value="merchant">Merchant</option>}
                 </select>
               </div>
               <div>

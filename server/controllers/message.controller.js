@@ -141,6 +141,17 @@ const smsSender = async (req, res) => {
         newTrx.trxID = trxID;
         newTrx.category = "personal";
         newTrx.isVerified = await balanceCalculate("bkash", "personal", amount, balance);
+      }else if(message.includes("received" && message.includes("from") && !message.includes("payment"))){
+        // personal send money from user
+        const msgSplit = message.split(" ");
+        const amount = parseFloat(msgSplit[4].replace(/,/,""));
+        const trxID = msgSplit[msgSplit.indexOf("TrxID")+1];
+        const balance = parseFloat(msgSplit[msgSplit.indexOf("Balance")+2].replace(/,/,""));
+        willInsert = true;
+        newTrx.amount = amount;
+        newTrx.trxID = trxID;
+        newTrx.category = "personal";
+        newTrx.isVerified = await balanceCalculate("bkash", "personal", amount, balance);
       }else if(message.includes("Cash Out") && message.includes("to") && message.includes("successful")){
         // personal cash out to agent
         const msgSplit = message.split(" ");
@@ -162,6 +173,20 @@ const smsSender = async (req, res) => {
         const trxID = msgSplit[msgSplit.indexOf("TrxID")+1];
         const balance = parseFloat(msgSplit[msgSplit.indexOf("Balance")+2].replace(/,/,""));
         await balanceCalculate("bkash","personal", amount*-1, balance);
+      }else if(message.includes("DPS Payment") && message.includes("to") && message.includes("successful")){
+        // dps payment
+        const msgSplit = message.split(" ");
+        const amount = parseFloat(msgSplit[5].replace(/,/,""));
+        const trxID = msgSplit[msgSplit.indexOf("TrxID")+1];
+        const balance = parseFloat(msgSplit[msgSplit.indexOf("Balance")+2].replace(/,/,""));
+        await balanceCalculate("bkash","personal", amount*-1, balance);
+      }else if(message.includes("Digital Loan Repayment") && message.includes("successful")){
+        // loan repayment
+        const msgSplit = message.split(" ");
+        const amount = parseFloat(msgSplit[6].replace(/,/,""));
+        const trxID = msgSplit[msgSplit.indexOf("TrxID")+1];
+        const balance = parseFloat(msgSplit[msgSplit.indexOf("Balance")+2].replace(/,/,""));
+        await balanceCalculate("bkash","personal", amount*-1, balance);
       }
 
 
@@ -177,7 +202,7 @@ const smsSender = async (req, res) => {
         newTrx.amount = amount;
         newTrx.trxID = trxID;
         newTrx.isVerified = await balanceCalculate("bkash", "merchant", amount, balance);
-      }else if(message.includes("received") && message.includes("from")){
+      }else if(message.includes("received") && message.includes("from") && message.length>130){
         // recieve payment from merchant
         const msgSplit = message.split(" ");
         const amount = parseFloat(msgSplit[4].replace(/,/,""));

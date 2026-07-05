@@ -121,6 +121,7 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
               >
                 <option value="personal">Personal</option>
                 <option value="agent">Agent</option>
+                <option value="merchant">Merchant</option>
               </select>
             </div>
             <div>

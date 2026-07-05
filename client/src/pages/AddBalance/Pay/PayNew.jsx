@@ -165,7 +165,7 @@ const PayNew = ({ id, amount, number, fee, provider, category, from, orderData }
             <span className="w-1.5 h-1.5 p-0.5 bg-white rounded-full block"></span>
             <p>
               <span className="text-[#fddd2b] font-semibold">
-                &quot;{category === "personal" ? "Send Money" : "Cash Out"}
+                &quot;{category === "personal" ? "Send Money" : category==="agent"?"Cash Out":"Payment"}
                 &quot;
               </span>{" "}
               -এ ক্লিক করুন।
