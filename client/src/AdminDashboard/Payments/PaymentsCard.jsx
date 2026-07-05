@@ -5,7 +5,7 @@ import bkashLogo from "../../assets/images/bkash.png";
 
 const PaymentsCard = ({ method, methods, setMethods }) => {
   const axiosPrivate = useAxiosPrivate();
-  const { _id, provider, category, bonus, special_bonus, fee, number, status, type, minLimit, maxLimit, balanceVerify } =
+  const { _id, provider, category, bonus, special_bonus, fee, number, status, type, minLimit, maxLimit, balanceVerify, isDirect } =
     method || {};
 
   const handleUpdateMethod = (e) => {
@@ -17,8 +17,9 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
     const status = form.status.value;
     const minLimit = parseInt(form.minLimit.value);
     const maxLimit = parseInt(form.maxLimit.value);
+    const isDirect = form.isDirect.checked;
 
-    const method = { bonus, fee, special_bonus: specialBonus, status, minLimit, maxLimit };
+    const method = { bonus, fee, special_bonus: specialBonus, status, minLimit, maxLimit, isDirect };
     if (type !== "auto") {
       method.number = form.number.value;
       method.balanceVerify = form.balanceVerify.value;
@@ -162,6 +163,17 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
                   placeholder="100"
                   defaultValue={minLimit}
                   required
+                />
+              </div>
+            <div className="flex items-center">
+                <label htmlFor="isDirect" className="font-semibold mr-2">
+                  Direct Pay:{" "}
+                </label>
+                <input
+                  name="isDirect"
+                  type="checkbox"
+                  className="toggle"
+                  defaultChecked={isDirect}
                 />
               </div>
           </div>

@@ -187,7 +187,7 @@ const checkAddBalance = async (req, res) => {
       if (
         provider === providerInSms &&
         category === categoryInSms &&
-        invoice?.toPay === amount
+        invoice?.toPay <= amount
       ) {
         let delRes;
         if (provider === "bkash") {
@@ -207,7 +207,7 @@ const checkAddBalance = async (req, res) => {
             const { modifiedCount: modStatus } =
               await transactionCollection.updateOne(
                 { _id: new ObjectId(id) },
-                { $set: { status: "completed" } }
+                { $set: { status: "completed", paid: amount } }
               );
             const [summary] = await paymentMethodSummaryCollection
               .find()

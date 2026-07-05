@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 
-const MethodCard = ({ method, amount, setErr }) => {
+const MethodCard = ({ method, amount, setErr, from, orderData }) => {
   const [Bonus, setBonus] = useState(0);
   const [Amount, setAmount] = useState(0);
   const navigate = useNavigate();
@@ -48,6 +48,8 @@ const MethodCard = ({ method, amount, setErr }) => {
               amount: Amount,
               number,
               fee,
+              from,
+              orderData
             },
           });
         } else {
@@ -93,4 +95,6 @@ MethodCard.propTypes = {
   method: PropTypes.object.isRequired,
   amount: PropTypes.number.isRequired,
   setErr: PropTypes.func.isRequired,
+  from: PropTypes.string.isRequired,
+  orderData: PropTypes.object
 };

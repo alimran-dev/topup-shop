@@ -49,7 +49,7 @@ const Unipin = () => {
 
     if (user?.balance < selected?.price) {
       const restAmount = Math.ceil(selected?.price - user?.balance);
-      navigate('/addBalance/method', { state: restAmount });
+      navigate('/addBalance/method', { state: {amount: restAmount, from: "unipin"} });
     }
 
     else {

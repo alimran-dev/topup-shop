@@ -15,8 +15,6 @@ const Payments = () => {
     });
   }, [axiosPrivate]);
 
-  console.log(methods);
-
 
   // add manual payment method
   const handleAddManualMethod = (e) => {
@@ -32,17 +30,11 @@ const Payments = () => {
     const balanceVerify = form.balanceVerify.value;
     const minLimit = parseInt(form.minLimit.value);
     const maxLimit = parseInt(form.maxLimit.value);
-    const method = { provider, category, bonus, specialBonus, fee, number, status, balanceVerify, minLimit, maxLimit };
+    const isDirect = form.isDirect.checked;
+    const method = { provider, category, bonus, specialBonus, fee, number, status, balanceVerify, minLimit, maxLimit, isDirect };
     axiosPrivate.post("/payment/method/admin/add", method).then((res) => {
       if (res.data.insertedId) {
-        Swal.fire({
-          toast: true,
-          title: "Payment method added",
-          icon: "success",
-          showConfirmButton: false,
-          position: "top",
-          timer: 3000,
-        });
+        toast.success("Payment method added");
         form.reset();
       }
     });
@@ -233,6 +225,16 @@ const Payments = () => {
                   className="border px-3 py-1 rounded w-full md:w-fit"
                   placeholder="100"
                   required
+                />
+              </div>
+              <div className="flex items-center">
+                <label htmlFor="isDirect" className="font-semibold mr-2">
+                  Direct Pay:{" "}
+                </label>
+                <input
+                  name="isDirect"
+                  type="checkbox"
+                  className="toggle"
                 />
               </div>
             </div>

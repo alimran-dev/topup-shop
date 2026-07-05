@@ -37,6 +37,7 @@ const SubCategory = () => {
   const [isLoadingUsername, setIsLoadingUsername] = useState(false);
   const [price, setPrice] = useState(0);
   const [inputValues, setInputValues] = useState({});
+  const [payMethod, setPayMethod] = useState("wallet");
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
   const { user } = useAuth();
@@ -72,6 +73,13 @@ const SubCategory = () => {
     setPrice(selected?.price * quantity);
   }, [quantity, selected?.price]);
 
+  useEffect(()=>{
+    if(price>user?.balance){
+      setPayMethod("direct");
+    }else {
+      setPayMethod("wallet");
+    }
+  },[price, user?.balance])
   // Handle input change
   const handleInputChange = (e, label) => {
     setInputValues((prevValues) => ({
@@ -108,9 +116,9 @@ const SubCategory = () => {
       return;
     }
 
-    if (user?.balance < selected?.price) {
-      const restAmount = Math.ceil(selected?.price - user?.balance);
-      navigate("/addBalance/method", { state: restAmount });
+    if (user?.balance < price && payMethod === "wallet") {
+      const restAmount = Math.ceil(price - user?.balance);
+      navigate("/addBalance/method", { state: {amount: restAmount, from: "subCategory"} });
     } else {
       navigate("/confirmPurchase", {
         state: {
@@ -119,10 +127,19 @@ const SubCategory = () => {
           inputValues: allData?.server === "unipinNormal"?{}:inputValues,
           orderData: allData,
           quantity,
+          payMethod,
         },
       });
     }
   };
+
+  const handlePayMethod = (method) =>{
+    if(method==="wallet" && user?.balance<price){
+      setPayMethod("direct");
+    }else{
+      setPayMethod(method);
+    }
+  }
 
   //   check username
   const handleCheckUsername = async () => {
@@ -158,11 +175,6 @@ const SubCategory = () => {
       setIsLoadingUsername(false);
     }
   };
-
-  // page apear from top
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     <div className="flex flex-col gap-5">
@@ -361,6 +373,16 @@ const SubCategory = () => {
               )}
               {user ? (
                 <div className="space-y-3">
+                  <div className="flex justify-center gap-4 md:gap-10">
+                    <div onClick={()=>handlePayMethod("wallet")} className={`border-[3px] px-4 py-2 w-1/2 md:w-1/3 flex flex-col items-center justify-center rounded-md hover:cursor-pointer ${payMethod==="wallet"?"border-primary": ""}`}>
+                      <p className="text-center font-semibold">Wallet</p>
+                      <p className="flex items-center text-sm"><TbCurrencyTaka /> {user?.balance || 0}</p>
+                    </div>
+                    <div onClick={()=>handlePayMethod("direct")} className={`border-[3px] px-4 py-2 w-1/2 md:w-1/3 flex flex-col items-center justify-center rounded-md hover:cursor-pointer ${payMethod==="direct"?"border-primary": ""}`}>
+                      <p className="text-center font-semibold">Direct</p>
+                      <p className="text-xs">Bkash, Nagad..</p>
+                    </div>
+                  </div>
                   <button
                     onClick={handleProceedToConfirmation}
                     className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"

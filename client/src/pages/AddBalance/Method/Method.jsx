@@ -11,16 +11,17 @@ const Method = () => {
   const axiosPrivate = useAxiosPrivate();
   const location = useLocation();
   const navigate = useNavigate();
+  const {amount, from , orderData} = location?.state || {};
 
   useEffect(() => {
     if (!location.state) navigate("/addBalance");
   }, [location.state, navigate]);
   
   useEffect(() => {
-    axiosPrivate.get("/payment/methods",{params: {amount: location.state}}).then((data) => {
+    axiosPrivate.get("/payment/methods",{params: {amount: amount, from}}).then((data) => {
       setMethods(data.data);
     });
-  }, [axiosPrivate, location.state]);
+  }, [amount, axiosPrivate, from]);
   
   
   return (
@@ -44,8 +45,10 @@ const Method = () => {
           <MethodCard
             method={method}
             key={method._id}
-            amount={location.state}
+            amount={amount}
             setErr={setErr}
+            from={from}
+            orderData={orderData}
           />
         ))}
       </div>

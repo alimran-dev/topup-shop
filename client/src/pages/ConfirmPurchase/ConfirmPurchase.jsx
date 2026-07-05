@@ -10,7 +10,7 @@ const ConfirmPurchase = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const { user, setUser } = useAuth();
-  const { name, category, selected, inputValues, orderData, quantity } =
+  const { name, category, selected, inputValues, orderData, quantity, payMethod } =
     location.state;
 
   // console.log(orderData);
@@ -30,6 +30,11 @@ const ConfirmPurchase = () => {
         willHaveQuantity: selected?.willHaveQuantity,
         quantity: quantity,
       };
+
+      if(payMethod==="direct"){
+        navigate("/addBalance/method", {state: {amount: selected?.price *quantity, from: "direct", orderData: data}})
+        return;
+      }
 
       axiosPrivate
         .post("/order/new/dynamic", data)
@@ -100,7 +105,7 @@ const ConfirmPurchase = () => {
     if (name == "balanceRecharge") {
       if (user?.balance < inputValues?.amount) {
         const restAmount = Math.ceil(inputValues?.amount - user?.balance);
-        navigate("/addBalance/method", { state: restAmount });
+        navigate("/addBalance/method", { state: {amount: restAmount, from: "confirmPurchase"} });
         return;
       }
 
@@ -271,12 +276,12 @@ const ConfirmPurchase = () => {
               <span>:</span>
               <span>{selected?.name}</span>
             </p>
-            {(name === "unipin" || name === "shell" || orderData?.isAuto) && (
+            {(selected?.willHaveQuantity) && (
               <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
                 <span className="w-24 font-semibold normal-case">Quantity</span>
                 <span>:</span>
                 <span>
-                  {orderData?.isAuto ? quantity : orderData?.quantity}
+                  {selected?.willHaveQuantity ? quantity : orderData?.quantity}
                 </span>
               </p>
             )}
@@ -286,7 +291,7 @@ const ConfirmPurchase = () => {
               <span>:</span>
               <span>
                 ৳
-                {orderData?.isAuto
+                {selected?.willHaveQuantity
                   ? selected?.price * quantity
                   : selected?.price}
               </span>
@@ -305,6 +310,11 @@ const ConfirmPurchase = () => {
                 ))}
               </>
             )}
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">Payment Method</span>
+              <span>:</span>
+              <span className="capitalize"> {payMethod} </span>
+            </p>
           </div>
         )}
         <div className="flex justify-center mt-4">

@@ -10,14 +10,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../components/Loader";
 import useAuth from "../../../hooks/useAuth";
+import toast from "react-hot-toast";
 
-const PayNew = ({ id, amount, number, fee, provider, category }) => {
+const PayNew = ({ id, amount, number, fee, provider, category, from, orderData }) => {
   const [err, setErr] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const handleVerify = (e) => {
     e.preventDefault();
     setErr("");
@@ -26,14 +27,31 @@ const PayNew = ({ id, amount, number, fee, provider, category }) => {
     axiosPrivate.patch("/balance/add/check", trx).then((res) => {
       setAttempt(res.data.attempt);
       if (res.data.success) {
-        Swal.fire({
-          toast: true,
-          title: "Payment Verified",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 3500,
-          position: "top",
+        if(from==="direct"){
+          axiosPrivate
+        .post("/order/new/dynamic", orderData)
+        .then((res) => {
+          if (res.data.success) {
+            toast.success("Order Placed Successfully!");
+            setUser({
+              ...user,
+              balance: user?.balance,
+              orders: user?.orders + 1,
+              spent: user?.spent + orderData?.willHaveQuantity? (orderData?.price*orderData?.quantity) || 0:orderData?.price || 0,
+            });
+            setIsLoading(false);
+            navigate("/myOrders");
+          } else {
+            setIsLoading(false);
+            toast.error(res.data.message || "Order Place Failed!");
+          }
+        })
+        .catch((err) => {
+          setIsLoading(false);
+          toast.error(err.response.data.error || "Failed to purchase!");
         });
+        }
+        toast.success("Payment Verified")
         navigate("/myTransactions");
       } else {
         if (res.data.isBanned) {
@@ -229,4 +247,6 @@ PayNew.propTypes = {
   fee: PropTypes.number.isRequired,
   provider: PropTypes.string.isRequired,
   category: PropTypes.string.isRequired,
+  from: PropTypes.string.isRequired,
+  orderData: PropTypes.object,
 };

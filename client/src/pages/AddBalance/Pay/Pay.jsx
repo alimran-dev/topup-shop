@@ -3,7 +3,7 @@ import PayNew from "./PayNew";
 
 const Pay = () => {
   const location = useLocation();
-  const { provider, category, id, amount, number, fee } = location.state || {};
+  const { provider, category, id, amount, number, fee, from , orderData } = location.state || {};
   console.log(location.state);
 
   if (!location.state) {
@@ -17,6 +17,8 @@ const Pay = () => {
       number={number}
       provider={provider}
       category={category}
+      from={from}
+      orderData={orderData}
     />
   );
 

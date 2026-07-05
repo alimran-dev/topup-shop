@@ -10,7 +10,7 @@ require("dotenv").config();
 const getMethods = async (req, res) => {
   try {
     const { role } = req.user;
-    const {amount} = req.query || {};
+    const {amount, from} = req.query || {};
     const amountValue = parseFloat(amount);
     let filter = {};
     if (role === "user") {
@@ -18,6 +18,11 @@ const getMethods = async (req, res) => {
       if(amountValue){
         filter.minLimit = {$lte: amountValue};
         filter.maxLimit = {$gte: amountValue};
+      }
+      if(from==="direct"){
+        filter.isDirect = true;
+      }else{
+        filter.isDirect = false;
       }
     }
     const result = await paymentMethodCollection
@@ -255,7 +260,8 @@ const addMethod = async (req, res) => {
       status,
       balanceVerify,
       minLimit,
-      maxLimit
+      maxLimit,
+      isDirect
     } = req.body;
     const newMethod = {
       type: "manual",
@@ -268,6 +274,7 @@ const addMethod = async (req, res) => {
       maxLimit: parseInt(maxLimit),
       number,
       balanceVerify,
+      isDirect,
       status,
     };
     const result = await paymentMethodCollection.insertOne(newMethod);
@@ -281,7 +288,7 @@ const addMethod = async (req, res) => {
 const updateMethod = async (req, res) => {
   try {
     const { id } = req.query;
-    const { bonus, special_bonus, fee, number, status, balanceVerify, minLimit, maxLimit } = req.body;
+    const { bonus, special_bonus, fee, number, status, balanceVerify, minLimit, maxLimit, isDirect } = req.body;
     // console.log(req.body);
     const updatedMethod = {
       $set: {
@@ -291,6 +298,7 @@ const updateMethod = async (req, res) => {
         minLimit: parseInt(minLimit),
         maxLimit: parseInt(maxLimit),
         balanceVerify,
+        isDirect,
         status,
       },
     };

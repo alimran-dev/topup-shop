@@ -21,7 +21,7 @@ const AddBalance = () => {
     const amount = parseInt(e.target.amount.value);
     if (isNaN(amount)) setErr("Check the Amount");
     else {
-      navigate("./method", { state: amount });
+      navigate("./method", { state: {amount, from: "addBalance"} });
     }
   };
 
