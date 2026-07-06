@@ -501,13 +501,7 @@ const orderDynamic = async (req, res) => {
         }
         const autoCombo = option?.combo?.reduce((acc, item) => {
           if (item?.quantity > 0) {
-            if (service?.server === "sg") {
-              acc.push({
-                name: item?.name,
-                dollar: item?.dollar,
-                quantity: item?.quantity * quantity,
-              });
-            } else if(service?.server === "unipin") {
+            if(service?.server === "unipin") {
               acc.push({
                 name: item?.name,
                 quantity: item?.quantity * quantity,
@@ -553,17 +547,17 @@ const orderDynamic = async (req, res) => {
 
             return res.send({...result, success: true, price: totalPrice});
           }
-        } else if(service?.server === "my" || service?.server === "indo"){
+        } else if(service?.server === "my" || service?.server === "indo" || service?.server==="sg"){
 
           await axiosAuto.post("/topup",{
             orderid: result?.insertedId,
             playerid: info?.uid,
-            code: service?.server==="my"? "shell": "indo",
+            code: service?.server==="my"? "shell":service?.server==="sg"?"sgshell": "indo",
             url: callbackUrl,
             pacakge: shellPackages.join(','),
-            username: process.env.SHELL_USERNAME,
-            password: process.env.SHELL_PASSWORD,
-            autocode: process.env.SHELL_AUTH_KEY
+            username: service?.server==="sg" ? process.env.SHELL_SG_USERNAME: process.env.SHELL_USERNAME,
+            password: service?.server==="sg" ? process.env.SHELL_SG_PASSWORD:process.env.SHELL_PASSWORD,
+            autocode: service?.server==="sg" ? process.env.SHELL_SG_AUTH_KEY:process.env.SHELL_AUTH_KEY
           })
           return res.send({...result, success: true, price: totalPrice});
         } else if(service?.server === "like"){

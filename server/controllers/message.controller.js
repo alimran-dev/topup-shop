@@ -141,7 +141,7 @@ const smsSender = async (req, res) => {
         newTrx.trxID = trxID;
         newTrx.category = "personal";
         newTrx.isVerified = await balanceCalculate("bkash", "personal", amount, balance);
-      }else if(message.includes("received" && message.includes("from") && !message.includes("payment"))){
+      }else if(message.includes("received") && message.includes("from") && !message.includes("payment")){
         // personal send money from user
         const msgSplit = message.split(" ");
         const amount = parseFloat(msgSplit[4].replace(/,/,""));
@@ -281,7 +281,7 @@ const smsSender = async (req, res) => {
         newTrx.isVerified = await balanceCalculate("nagad", "personal", amount, balance);
       }
     }
-    // console.log(newTrx);
+    console.log(newTrx);
     if (willInsert && newTrx.provider === "bkash" && newTrx.category.length > 0) {
       result = await bkashTrxCollection.insertOne(newTrx);
     } else if (willInsert && newTrx.provider === "nagad" && newTrx.category.length > 0) {

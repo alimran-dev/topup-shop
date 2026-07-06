@@ -6,7 +6,7 @@ const ComboModalRow = ({ item, idx, combo, setCombo, selectedServer }) => {
     const prevCombo = [...combo];
     // console.log(prevCombo, increament);
 
-    if (selectedServer === "sg" || selectedServer === "unipinNormal") {
+    if (selectedServer === "unipinNormal") {
       // For SG server: only one item can be selected with max quantity 1
       if (increament > 0) {
         // Reset all other items to 0 and set this item to 1

@@ -119,10 +119,7 @@ const AddDynamicOption = () => {
       },
     ],
     sg: [
-      { name: "Airdrop 1$", original: "Airdrop 1$", dollar: 1, quantity: 0 },
-      { name: "Airdrop 2$", original: "Airdrop 2$", dollar: 2, quantity: 0 },
-      { name: "Airdrop 3$", original: "Airdrop 3$", dollar: 3, quantity: 0 },
-      { name: "Airdrop 4$", original: "Airdrop 4$", dollar: 4, quantity: 0 },
+      { name: "Weekly Lite", package: "LITE", quantity: 0 }
     ],
     like: [
       {name: "100 Like", package: "100", day: 0},
@@ -182,11 +179,9 @@ const AddDynamicOption = () => {
     } else if (selectedServer === "sg") {
       // For SG server, only one item can be selected with quantity 1
       const selectedItem = combo.find((item) => item.quantity > 0);
-      const totalDollars = selectedItem ? selectedItem.dollar || 0 : 0;
       setComboSummary({
-        diamond: totalDollars,
-        weekly: 0,
-        monthly: 0,
+        package: selectedItem?.package,
+        quantity: selectedItem?.quantity
       });
     } else if(selectedServer === "like"){
       const selectedItem = combo.find((item)=>item?.day>0);
@@ -274,8 +269,8 @@ const AddDynamicOption = () => {
           };
         } else if (selectedServer === "sg") {
           return {
-            name: pack?.original || pack?.name,
-            dollar: pack?.dollar,
+            name: pack?.name,
+            package: pack?.package,
             quantity: pack?.quantity,
           };
         } else if(selectedServer === "unipin" || selectedServer === "unipinNormal") {
@@ -502,15 +497,13 @@ const AddDynamicOption = () => {
                   placeholder={
                     selectedServer === "unipin"
                       ? "Example: 115"
-                      : selectedServer === "sg"
-                      ? "Select airdrop"
                       : "Selected items"
                   }
                   value={
                     (selectedServer === "unipin" || selectedServer === "unipinNormal")
                       ? `D-[${comboSummary?.diamond}] W-[${comboSummary?.weekly}] M-[${comboSummary?.monthly}]`
                       : selectedServer === "sg"
-                      ? `$${comboSummary?.diamond}`
+                      ? `Lite-${comboSummary?.quantity || 0}`
                       : selectedServer === "like"? `P-[${comboSummary?.package || ""}] D-[${comboSummary?.day || 0}] Total-[${comboSummary?.total || 0}]`: `Items-[${comboSummary?.diamond}]`
                   }
                 />

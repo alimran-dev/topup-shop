@@ -15,7 +15,6 @@ const ComboModal = ({
         name: pack?.name,
         value: pack?.value,
         original: pack?.original,
-        dollar: pack?.dollar,
         quantity: 0,
         day: 0,
         package: pack?.package,
