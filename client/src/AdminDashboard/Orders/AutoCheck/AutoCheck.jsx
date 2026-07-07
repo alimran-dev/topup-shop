@@ -1,66 +1,55 @@
-import { useEffect, useState } from "react";
-import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-import Loader from "../../../components/Loader";
-import { useParams } from "react-router-dom";
-import Image from "../../../pages/OrderImages/Image";
-import Swal from "sweetalert2";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import { MdContentCopy } from "react-icons/md";
 
 const AutoCheck = () => {
-  const [data, setData] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const {id} = useParams();
-  const axiosPrivate = useAxiosPrivate();
+  const [codes, setCodes] = useState([]);
+  const [order, setOrder] = useState({});
+  const location = useLocation();
+  const codesRef = useRef(null);
 
   useEffect(()=>{
-    axiosPrivate.get("/auto/order-info",{params: {id}})
-    .then(res=>{
-      console.log(res.data);
-      setData(res.data);
-    })
-    .catch(err=>{
-      console.error("Error fetching data:", err);
-    })
-    .finally(()=>{
-      setIsLoading(false);
-    });
-  },[axiosPrivate, id])
-
-  const handlePendingAgain = () => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This will mark the order as pending again.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, mark as pending",
-      cancelButtonText: "No, cancel",
-      confirmButtonColor: "#FA6023",
-    }).then(async(result) => {
-      if (result.isConfirmed) {
-        try{
-          await axiosPrivate.patch("/auto/update-status", {id, status: "pending"});
-          toast.success("Order marked as pending again.");
-        } catch (error) {
-          toast.error("Failed to mark order as pending.");
-        }
-      } else {
-        toast.error("Action cancelled.");
+    setCodes(location.state?.codes);
+    setOrder(location.state?.order)
+  },[location.state])
+  const handleCopy = async () => {
+    if (codesRef.current) {
+      try {
+        const allCodes = codesRef.current.value.split("\n");
+        // const firstCode = allCodes[0].substring(5);
+        // if (category !== "card") {
+        //   allCodes[0] = firstCode;
+        // }
+        const allCodesMod = allCodes.join("\n");
+        await navigator.clipboard.writeText(allCodesMod);
+        toast.success("Text Copied");
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to Copy");
       }
-    })
+    }
   };
   return (
     <div>
-      <Loader isLoading={isLoading} />
       <div>
-        <button className="button block mx-auto" onClick={handlePendingAgain}>Pending Again</button>
+        <button className="button block mx-auto" onClick={()=>{}}>Pending Again</button>
+        <h2 className="text-xl font-semibold">Unipin Codes:</h2>
+        <textarea
+          disabled
+          value={codes?.join("\n")}
+          name=""
+          ref={codesRef}
+          className="border-2 h-24 w-full rounded px-2 py-0.5"
+        ></textarea>
+        <button
+          onClick={handleCopy}
+          className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
+        >
+          <MdContentCopy className="inline-block" /> Copy All
+        </button>
         <h2 className="text-xl font-semibold">Order Info:</h2>
-        {data && (
-          <pre className="overflow-x-scroll">{JSON.stringify(data?.order, null, 2)}</pre>
-        )}
-        <h2 className="text-xl font-semibold">Screenshots: </h2>
-        {data?.screenshots && (
-          data?.screenshots?.map((img, idx) => <Image img={img} key={idx} />)
-        )}
+        <pre className="overflow-x-scroll">{JSON.stringify(order,null, 2)}</pre>
       </div>
     </div>
   );

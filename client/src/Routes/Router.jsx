@@ -326,7 +326,7 @@ const router = createBrowserRouter([
         element: <Orders />,
       },
       {
-        path: "/dashboard/orders/auto/check/:id",
+        path: "/dashboard/orders/auto/check",
         element: <AutoCheck />,
       },
       {

@@ -310,7 +310,7 @@ const OrderCard = ({ order }) => {
                   {loading ? "Please Wait" : "Update"}
                 </button>
                 {
-                  processedExternally && <Link to={`/dashboard/orders/auto/check/${order?.externalOrderId}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
+                  processedExternally && <Link to={`/dashboard/orders/auto/check`} state={{codes: codes || [], order: externalOrder}} className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
                 }
               </div>
             </div>
