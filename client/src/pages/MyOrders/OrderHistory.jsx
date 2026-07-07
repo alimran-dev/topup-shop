@@ -239,7 +239,7 @@ const OrderHistory = ({ order }) => {
               subCategory === "shell" ||
               subCategory === "card" ||
               subCategory === "unipinNormal" ||
-              (processedExternally && status==="complete") ? (
+              (!processedExternally && status==="complete" && codes?.length) ? (
                 <div>
                   <textarea
                     ref={codesRef}
