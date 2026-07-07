@@ -256,12 +256,12 @@ const OrderCard = ({ order }) => {
         <div className="w-full md:col-span-2 lg:col-span-1 mt-3 lg:mt-0">
           {subCategory === "unipin" ||
           subCategory === "shell" ||
-          subCategory === "card" || processedExternally ? (
+          subCategory === "card" || !processedExternally ? (
             <div>
               {!processedExternally || (processedExternally && status==="complete")?(
                 <textarea
                   disabled
-                  value={processedExternally? externalOrder?.unipins?.join("\n"):codes.join("\n")}
+                  value={codes.join("\n")}
                   name=""
                   ref={codesRef}
                   className="border-2 h-24 w-full rounded px-2 py-0.5"
@@ -275,23 +275,23 @@ const OrderCard = ({ order }) => {
               ></textarea>
               )}
               <div className="w-full flex flex-wrap justify-center items-center gap-2">
-              <button
-                onClick={handleCopy}
-                className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
-              >
-                <MdContentCopy className="inline-block" /> Copy All
-              </button>
-              {processedExternally && status!=="complete" && (
                 <button
-                onClick={handleUpdate}
-                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
-                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {loading ? "Please Wait" : "Update"}
-              </button>)}
-              {
-                processedExternally && <Link to={`/dashboard/orders/auto/check/${order?.externalOrderId}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
-              }
+                  onClick={handleCopy}
+                  className="border-2 border-gray-400 bg-gray-200 px-3 py-1 font-semibold rounded block mx-auto"
+                >
+                  <MdContentCopy className="inline-block" /> Copy All
+                </button>
+                {processedExternally && status!=="complete" && (
+                  <button
+                  onClick={handleUpdate}
+                  disabled={loading || isDisable || status === "cancelled" || status === "complete"}
+                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Please Wait" : "Update"}
+                </button>)}
+                {
+                  processedExternally && <Link to={`/dashboard/orders/auto/check/${order?.externalOrderId}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
+                }
               </div>
             </div>
           ) : (

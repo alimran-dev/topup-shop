@@ -223,11 +223,6 @@ const loginUser = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Invalid request" });
     }
-    const {data} = await axiosCloudflare.post("/turnstile/v0/siteverify",{secret: process.env.TURNSTILE_SECRET, response: turnstileToken, remoteip: req?.ip});
-    // console.log(data);
-    if(data?.success !== true){
-      return res.status(400).send({ success: false, message: "Captcha verification failed" });
-    }
     const user = await userCollection.findOne({ email: email });
     if (!user) {
       return res.send({ success: false, message: "User not found" });
@@ -235,6 +230,11 @@ const loginUser = async (req, res) => {
     const isCorrectPassword = await bcrypt.compare(password, user.password);
     if (!isCorrectPassword) {
       return res.send({ success: false, message: "Wrong Password" });
+    }
+    const {data} = await axiosCloudflare.post("/turnstile/v0/siteverify",{secret: process.env.TURNSTILE_SECRET, response: turnstileToken, remoteip: req?.ip});
+    // console.log(data);
+    if(data?.success !== true){
+      return res.send({ success: false, message: "Captcha verification failed" });
     }
     user.spent = await countSpentMonth(email);
     const { password: pass, reset, verify, ...userDataResponse } = user || {};

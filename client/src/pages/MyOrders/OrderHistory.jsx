@@ -111,7 +111,7 @@ const OrderHistory = ({ order }) => {
           subCategory === "shell" ||
           subCategory === "card" ||
           subCategory === "unipinNormal" ||
-          (processedExternally && status === "complete") ? (
+          (!processedExternally && status === "complete") ? (
             <>
               {codes && (
                 <div className="pt-3">

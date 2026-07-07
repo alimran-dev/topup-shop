@@ -93,17 +93,27 @@ const getAllOrder = async (req, res) => {
       return res.status(401).send({ error: "unauthorized" });
     }
     const [orders, totalOrders] = await Promise.all([
-      orderCollection
-        .find({ email: email }, { sort: { updateTime: -1 } })
-        .skip((pageInt - 1) * limitInt)
-        .limit(limitInt)
-        .project({
-          referHistoryId: 0,
-          coinBonusID: 0,
-          order: 0,
-          screenshots: 0,
-        })
-        .toArray(),
+      orderCollection.aggregate([
+        { $match: { email: email } },
+        { $sort: { updateTime: -1 } },
+        { $skip: (pageInt - 1) * limitInt },
+        { $limit: limitInt },
+        {
+          $project: {
+            referHistoryId: 0,
+            coinBonusID: 0,
+            order: 0,
+            screenshots: 0,
+          },
+        },
+        {
+          $addFields: {
+            codes: {
+              $cond: [{ $eq: ["$isProcessedExternally", true] }, "$$REMOVE", "$codes"],
+            },
+          },
+        },
+      ]).toArray(),
       orderCollection.countDocuments({ email: email }),
     ]);
     res.send({ orders, totalOrders });
@@ -416,7 +426,7 @@ const orderDynamic = async (req, res) => {
         type: "balance",
         info: info,
       };
-      if (isAuto) {
+      if (isAuto && service?.server!=="unipinNormal") {
         order.processedExternally = true;
       }
       if (willHaveQuantity) {
