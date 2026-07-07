@@ -621,6 +621,7 @@ const orderDynamic = async (req, res) => {
             feedback: "",
             info: {...order.info, day: autoComboLike?.day},
             autoResponse: subscribeData,
+            order: subscribeData?.data
           }})
           await likeSubscriptionCollection.updateOne({uid: info?.uid},{$set: {lastTaken: new Date()}}, {upsert: true});
           return res.send({...result, success: true, price: totalPrice});
@@ -1437,7 +1438,7 @@ const orderProcess = async (req, res) => {
 
 const autoServerOrderProcess = async (req, res) => {
   try {
-    const {status, orderid, nickname, content, data} = req.body;
+    const {status, orderid, nickname, content, batch} = req.body;
 
     console.log(req.body);
     
@@ -1461,11 +1462,11 @@ const autoServerOrderProcess = async (req, res) => {
 
     const contentDoc = [...(order?.order || [])];
 
-    if(content?.batch && Array.isArray(content?.batch)){
+    if(batch){
+      contentDoc.push(...batch);
+    }else if(content?.batch && Array.isArray(content?.batch)){
       contentDoc.push(...content?.batch);
-    }else if(data){
-      contentDoc.push(data);
-    } else {
+    }else {
       contentDoc.push(content);
     }
     
