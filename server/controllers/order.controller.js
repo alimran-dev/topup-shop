@@ -1437,7 +1437,7 @@ const orderProcess = async (req, res) => {
 
 const autoServerOrderProcess = async (req, res) => {
   try {
-    const {status, orderid, nickname, content} = req.body;
+    const {status, orderid, nickname, content, data} = req.body;
 
     console.log(req.body);
     
@@ -1463,6 +1463,8 @@ const autoServerOrderProcess = async (req, res) => {
 
     if(content?.batch && Array.isArray(content?.batch)){
       contentDoc.push(...content?.batch);
+    }else if(data){
+      contentDoc.push(data);
     } else {
       contentDoc.push(content);
     }
