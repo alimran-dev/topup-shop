@@ -258,10 +258,10 @@ const OrderCard = ({ order }) => {
           subCategory === "shell" ||
           subCategory === "card" || !processedExternally ? (
             <div>
-              {!processedExternally || (processedExternally && status==="complete")?(
+              {(!processedExternally && codes?.length) ?(
                 <textarea
                   disabled
-                  value={codes.join("\n")}
+                  value={codes?.join("\n")}
                   name=""
                   ref={codesRef}
                   className="border-2 h-24 w-full rounded px-2 py-0.5"
