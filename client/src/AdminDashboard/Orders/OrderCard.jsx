@@ -301,16 +301,18 @@ const OrderCard = ({ order }) => {
                 placeholder="Write your feedback here...."
                 className="border w-full h-24 px-3 py-1"
               ></textarea>
-              <button
-                onClick={handleUpdate}
-                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
-                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed mt-5"
-              >
-                {loading ? "Please Wait" : "Update"}
-              </button>
-              {
+              <div className="w-full flex flex-wrap justify-center items-center gap-2">
+                <button
+                  onClick={handleUpdate}
+                  disabled={loading || isDisable || status === "cancelled" || status === "complete"}
+                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Please Wait" : "Update"}
+                </button>
+                {
                   processedExternally && <Link to={`/dashboard/orders/auto/check/${order?.externalOrderId}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
                 }
+              </div>
             </div>
           )}
         </div>
