@@ -281,14 +281,13 @@ const OrderCard = ({ order }) => {
                 >
                   <MdContentCopy className="inline-block" /> Copy All
                 </button>
-                {processedExternally && status!=="complete" && (
-                  <button
-                  onClick={handleUpdate}
-                  disabled={loading || isDisable || status === "cancelled" || status === "complete"}
-                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {loading ? "Please Wait" : "Update"}
-                </button>)}
+                <button
+                onClick={handleUpdate}
+                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
+                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? "Please Wait" : "Update"}
+              </button>
                 {
                   processedExternally && <Link to={`/dashboard/orders/auto/check/${order?.externalOrderId}`} target="_blank" className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed w-fit ml-2">Auto Check</Link>
                 }
