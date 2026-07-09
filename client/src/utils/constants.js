@@ -5,6 +5,6 @@ export const allLinks={
   accountVerifyTutorial: "https://youtube.com/playlist?list=PLdbvk3gLADUlo8G5hLwoo5P8c2NFwUqSx&si=5P-_kwcluTh57iE0",
   unipinTutorial: "https://youtube.com/playlist?list=PLdbvk3gLADUlRm5asrnO4v-NGPm2VLOFG&si=MqRLCbWUk-SpV5ni",
   referTutorial: "https://youtube.com/playlist?list=PLdbvk3gLADUlUWQrFIL_8rgyInC1qRyU5&si=3yMj2flGXgTTQcNG",
-  productionAPI: "https://api.mezbadeals.com/",
-  demoAPI: "https://demoapi.mezbadeals.com/"
+  productionAPI: "https://api.mezbashop.com/",
+  demoAPI: "https://demoapi.mezbashop.com/"
 }
