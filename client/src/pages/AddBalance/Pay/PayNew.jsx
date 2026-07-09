@@ -26,16 +26,17 @@ const PayNew = ({ id, amount, number, fee, provider, category, from, orderData }
     const trx = { id, trxID };
     axiosPrivate.patch("/balance/add/check", trx).then((res) => {
       setAttempt(res.data.attempt);
+      const amount = res?.data?.amount;
       if (res.data.success) {
         if(from==="direct"){
           axiosPrivate
-        .post("/order/new/dynamic", orderData)
+        .post("/order/new/dynamic", {...orderData, trxID})
         .then((res) => {
           if (res.data.success) {
             toast.success("Order Placed Successfully!");
             setUser({
               ...user,
-              balance: user?.balance,
+              balance: user?.balance+amount-(orderData?.willHaveQuantity?orderData?.price*orderData?.quantity || 0: orderData?.price || 0),
               orders: user?.orders + 1,
               spent: user?.spent + orderData?.willHaveQuantity? (orderData?.price*orderData?.quantity) || 0:orderData?.price || 0,
             });
@@ -50,6 +51,8 @@ const PayNew = ({ id, amount, number, fee, provider, category, from, orderData }
           setIsLoading(false);
           toast.error(err.response.data.error || "Failed to purchase!");
         });
+        }else{
+          setUser({...user,balance: user?.balance+amount});
         }
         toast.success("Payment Verified")
         navigate("/myTransactions");

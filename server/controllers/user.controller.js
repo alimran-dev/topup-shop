@@ -1,6 +1,6 @@
 const { cookieOption } = require("../utils/cookieOption");
 const { dbCollections } = require("../config/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { transporter } = require("../config/nodemailer");

@@ -14,7 +14,7 @@ const TransactionsCard = ({
   const [status, setStatus] = useState(transaction.status);
   const [loading, setLoading] = useState(false);
   const axiosPrivate = useAxiosPrivate();
-  const { _id, method, amount, toPay, willAdd, number, trxID, time, email } =
+  const { _id, method, amount, toPay, willAdd, number, trxID, time, email, paid } =
     transaction || {};
   const date = new Date(time);
 
@@ -108,6 +108,12 @@ const TransactionsCard = ({
         <p>
           <span className="font-semibold">To Pay: </span> {toPay} BDT
         </p>
+        {
+          paid && (<p>
+            <span className="font-semibold">Paid: </span> {paid} BDT
+          </p>)
+        }
+        
         <p>
           <span className="font-semibold">Number: </span> {number}
         </p>

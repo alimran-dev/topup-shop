@@ -362,6 +362,7 @@ const orderDynamic = async (req, res) => {
       isAuto,
       willHaveQuantity,
       quantity,
+      trxID
     } = req.body;
     const orderTime = new Date();
     const emailInToken = req.user?.email;
@@ -426,6 +427,9 @@ const orderDynamic = async (req, res) => {
         type: "balance",
         info: info,
       };
+      if(trxID){
+        order.trxID = trxID;
+      }
       if (isAuto && service?.server!=="unipinNormal") {
         order.processedExternally = true;
       }

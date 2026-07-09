@@ -229,6 +229,7 @@ const checkAddBalance = async (req, res) => {
                 success: true,
                 isBanned: false,
                 attempt: invoice.attempt + 1,
+                amount: invoice?.willAdd,
                 message: "balance added and transaction completed",
               });
             } else {
