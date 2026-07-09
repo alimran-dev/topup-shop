@@ -3,7 +3,7 @@ import AllOrders from "./AllOrders";
 import PendingOrders from "./PendingOrders";
 
 const Orders = () => {
-  const [isAll, setIsAll] = useState(true);
+  const [isAll, setIsAll] = useState(false);
   useEffect(() => {
     window.scrollTo(0, 0);
   },[])

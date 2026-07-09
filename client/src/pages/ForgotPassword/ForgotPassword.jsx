@@ -74,7 +74,7 @@ const ForgotPassword = () => {
             return;
         }
         try {
-            const response = await axiosPublic.patch(`/user/forget?email=${email}&otp=${otp}&newPassword=${newPassword}`);
+            const response = await axiosPublic.patch(`/user/forget?email=${email}&otp=${otp}&newPassword=${encodeURIComponent(newPassword)}`);
 
             if (response.data.success) {
                 toast.success('Password reset successful!');
