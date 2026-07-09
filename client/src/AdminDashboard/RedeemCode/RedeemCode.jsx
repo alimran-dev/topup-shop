@@ -105,7 +105,7 @@ const RedeemCode = () => {
                                 <p>Remaining: <span className="font-medium">{code?.remaining}</span></p>
                             </div>
                             <div className="flex justify-between items-center">
-                                <p>Expires: {new Date(code?.expiredAt)?.toLocaleDateString()}</p>
+                                <p>Expires: {new Date(code?.expiredAt)?.toLocaleDateString("en-GB")}</p>
                             </div>
 
                             <div className="flex justify-between items-center pt-3 text-white text-xs md:text-sm">

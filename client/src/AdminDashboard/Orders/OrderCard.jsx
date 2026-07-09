@@ -242,12 +242,12 @@ const OrderCard = ({ order }) => {
         <div className="border-y py-2 my-2">
           <p>
             <span className="font-bold">Order Time: </span>
-            {orderTimeDate?.toLocaleDateString()} (
+            {orderTimeDate?.toLocaleDateString("en-GB")} (
             {orderTimeDate?.toLocaleTimeString()})
           </p>
           <p>
             <span className="font-bold">Update Time: </span>
-            {updateTimeDate?.toLocaleDateString()} (
+            {updateTimeDate?.toLocaleDateString("en-GB")} (
             {updateTimeDate?.toLocaleTimeString()})
           </p>
         </div>

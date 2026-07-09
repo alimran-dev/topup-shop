@@ -1358,10 +1358,10 @@ const getPending = async (req, res) => {
     const limitInt = parseInt(limit);
     // console.log(pageInt, limitInt);
     const totalOrders = await orderCollection.countDocuments({
-      status: "pending",
+      status: {$nin: ["complete", "cancelled"]},
     });
     const result = await orderCollection
-      .find({ status: {$in: ["pending","failed"]} }, { sort: { updateTime: -1 } })
+      .find({ status: {$nin: ["complete", "cancelled"]} }, { sort: { updateTime: -1 } })
       .skip((pageInt - 1) * limitInt)
       .limit(limitInt)
       .toArray();
