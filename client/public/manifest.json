@@ -1,6 +1,6 @@
 {
-    "name": "Mezba Deals",
-    "short_name": "Mezba Deals",
+    "name": "Mezba Shop",
+    "short_name": "Mezba Shop",
     "description": "Experience a good service for gaming top-up ever in your life.",
     "start_url": "/",
     "display": "standalone",

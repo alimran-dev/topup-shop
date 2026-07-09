@@ -58,9 +58,9 @@ const Navbar = () => {
   return (
     <div className="sticky top-0 left-0 z-20">
       {/* Apply body class when menu is open */}
-      <div className={`flex items-center justify-between px-8 md:px-16 py-2 shadow bg-white ${isOpen ? 'overflow-hidden' : ''}`}>
+      <div className={`flex items-center justify-between px-4 md:px-16 py-2 shadow bg-white ${isOpen ? 'overflow-hidden' : ''}`}>
         <Link to={"/"}>
-          <img src={logo} alt="" className="h-16 md:h-20" />
+          <img src={logo} alt="" className="h-14 md:h-20 w-40 md:w-auto" />
         </Link>
         <div className="flex items-center justify-center gap-5">
           <div className="hidden md:block space-x-6">
