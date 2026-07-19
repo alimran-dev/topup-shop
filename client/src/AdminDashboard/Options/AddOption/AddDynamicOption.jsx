@@ -72,6 +72,7 @@ const AddDynamicOption = () => {
       { name: "Evo 7D", original: "Evo Access 7D", package: "7D", quantity: 0 },
       { name: "Evo 30D", original: "Evo Access 30D", package: "30D", quantity: 0 },
       { name: "Weekly", original: "Weekly Lite", package: "LITE", quantity: 0 },
+      { name: "Less is More", original: "Less is More", package: "lessismore", quantity: 0 },
     ],
     indo: [
       { name: "5 💎", original: "5", package: "5", quantity: 0 },
