@@ -537,6 +537,11 @@ const orderDynamic = async (req, res) => {
         const callbackUrl = `${protocol}://${req.get("host")}/order/auto-server/processing`;
         const result = await orderCollection.insertOne(order);
 
+        // If all combo quantities are 0, skip external API call and keep order as pending
+        if(service?.server !== "unipin" && service?.server !== "unipinNormal" && service?.server !== "like" && (!autoCombo.length || !shellPackages.length)){
+          return res.send({...result, success: true, price: totalPrice});
+        }
+
         if(service?.server==="unipin"){
           if(ucs.length !== totalUnipinToOrder){
             if(ucs.length){
