@@ -5,7 +5,7 @@ import { GrAnnounce, GrTransaction } from "react-icons/gr";
 import { ImBlocked } from "react-icons/im";
 import { IoGridOutline, IoBagHandleOutline } from "react-icons/io5";
 import { LuListTodo } from "react-icons/lu";
-import { MdDevices, MdOutlinePostAdd, MdPayment, MdOutlineNumbers } from "react-icons/md";
+import { MdDevices, MdOutlinePostAdd, MdPayment, MdOutlineNumbers, MdCategory } from "react-icons/md";
 import { TbTableOptions } from "react-icons/tb";
 import { VscAccount } from "react-icons/vsc";
 import { NavLink, useLocation } from "react-router-dom";
@@ -16,6 +16,7 @@ const navItems = [
   { to: "/dashboard", icon: IoGridOutline, label: "Dashboard" },
   { to: "/dashboard/orders", icon: LuListTodo, label: "Orders" },
   { to: "/dashboard/services", icon: IoBagHandleOutline, label: "Services" },
+  { to: "/dashboard/categories", icon: MdCategory, label: "Categories" },
   { to: "/dashboard/options", icon: TbTableOptions, label: "Options" },
   { to: "/dashboard/offersAndProducts", icon: FaStaylinked, label: "Offers & Products" },
   { to: "/dashboard/payments", icon: MdPayment, label: "Payments" },

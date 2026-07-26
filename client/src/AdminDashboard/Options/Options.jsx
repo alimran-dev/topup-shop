@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { allCategories } from "../../utils/categories";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
 import { FiEdit } from "react-icons/fi";
@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import UpdateOption from "./UpdateOption/UpdateOption";
 
 const Options = () => {
+  const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
@@ -17,7 +18,15 @@ const Options = () => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const axiosPrivate = useAxiosPrivate();
-  const categories = allCategories();
+  const axiosPublic = useAxiosPublic();
+
+  // Load categories
+  useEffect(() => {
+    axiosPublic
+      .get("/category")
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error("Failed to load categories:", err));
+  }, [axiosPublic]);
 
   // get subcategories
   useEffect(() => {
@@ -29,7 +38,7 @@ const Options = () => {
           data.map((item) => ({
             id: item._id,
             title: item.title,
-            category: item.category,
+            categoryId: item.categoryId,
             server: item.server,
           })),
         );
@@ -44,7 +53,7 @@ const Options = () => {
   const handleSelectCategory = (e) => {
     const selectedCategory = e.target.value;
     const matchedSubCategories = subCategories.filter(
-      (sub) => sub.category === selectedCategory,
+      (sub) => sub.categoryId === selectedCategory,
     );
     setFilteredSubCategories(matchedSubCategories);
     setSelectedSubCategoryId("");
@@ -160,8 +169,8 @@ const Options = () => {
             </option>
             {categories?.map((category) => (
               <option
-                key={category?.id}
-                value={category?.title}
+                key={category?._id}
+                value={category?._id}
                 className="bg-white hover:bg-red-500 focus:bg-red-500"
               >
                 {category?.title}

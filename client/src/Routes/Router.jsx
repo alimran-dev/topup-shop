@@ -53,6 +53,7 @@ import OffersAndProducts from "../AdminDashboard/OfferAndProducts/OfferAndProduc
 import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProducts/SpecialProductForm/SpecialProductForm";
 import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
 import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
+import Categories from "../AdminDashboard/Categories/Categories";
 import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
 import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
 import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
@@ -372,6 +373,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/addAdvertisement",
         element: <AddAdvertisement />,
+      },
+      {
+        path: "/dashboard/categories",
+        element: <Categories />,
       },
     ],
   },

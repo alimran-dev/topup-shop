@@ -29,9 +29,14 @@ const getService = async (req, res) => {
 
 const getAllServices = async (req, res) => {
   try {
+    const { activeOnly } = req.query;
+    const filter = {};
+    if (activeOnly === "true") {
+      filter.isActive = { $ne: false };
+    }
     const result = await serviceCollection
-      .find()
-      .project({ category: 1, title: 1, image: 1, serial: 1, isAuto: 1, server: 1 })
+      .find(filter)
+      .project({ categoryId: 1, title: 1, image: 1, serial: 1, isAuto: 1, server: 1, isActive: 1 })
       .sort({serial: 1})
       .toArray();
     res.send(result);
@@ -43,11 +48,11 @@ const getAllServices = async (req, res) => {
 
 const addSubCategory = async (req, res) => {
   try {
-    const { title, category, image, tutorialText, tutorialURL, isAuto, server, inputs, rules } =
+    const { title, categoryId, image, tutorialText, tutorialURL, isAuto, server, inputs, rules } =
       req.body;
     if (
       title &&
-      category &&
+      categoryId &&
       image &&
       tutorialText &&
       tutorialURL &&
@@ -57,12 +62,13 @@ const addSubCategory = async (req, res) => {
       const total = await serviceCollection.countDocuments();
       const subCategory = {
         title,
-        category,
+        categoryId: new ObjectId(categoryId),
         image,
         tutorialText,
         tutorialURL,
         isAuto,
         serial: total + 1,
+        isActive: true,
         inputs,
         rules,
         options: [],
@@ -76,7 +82,7 @@ const addSubCategory = async (req, res) => {
     } else {
       console.log(
         title,
-        category,
+        categoryId,
         image,
         tutorialText,
         tutorialURL,
@@ -96,20 +102,21 @@ const updateSubCategory = async (req, res) => {
     const {
       id,
       title,
-      category,
+      categoryId,
       image,
       tutorialText,
       tutorialURL,
       inputs,
       serial,
       rules,
+      isActive,
     } = req.body;
     const newSubCategory = { $set: {} };
     if (title) {
       newSubCategory.$set.title = title;
     }
-    if (category) {
-      newSubCategory.$set.category = category;
+    if (categoryId) {
+      newSubCategory.$set.categoryId = new ObjectId(categoryId);
     }
     if (image) {
       newSubCategory.$set.image = image;
@@ -125,6 +132,9 @@ const updateSubCategory = async (req, res) => {
     }
     if (rules) {
       newSubCategory.$set.rules = rules;
+    }
+    if (isActive !== undefined) {
+      newSubCategory.$set.isActive = isActive;
     }
     newSubCategory.$set.serial = serial || 0;
     const result = await serviceCollection.updateOne(

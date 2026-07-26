@@ -2,13 +2,15 @@ import toast from "react-hot-toast";
 import { uploadImage } from "../../../utils/uploadImage";
 import { useNavigate, useParams } from "react-router-dom";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 
 
 const UpdateSubCategory = () => {
     const { id } = useParams();
-    const [category, setCategory] = useState(null);
+    const [categoryId, setCategoryId] = useState("");
+    const [categories, setCategories] = useState([]);
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [inputs, setInputs] = useState([]);
@@ -18,14 +20,24 @@ const UpdateSubCategory = () => {
     const [tutorialText, setTutorialText] = useState('');
     const [tutorialUrl, setTutorialUrl] = useState('');
     const [serial, setSerial] = useState(0);
+    const [isActive, setIsActive] = useState(true);
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
+    const axiosPublic = useAxiosPublic();
     const navigate = useNavigate();
+
+    // Load categories for the dropdown
+    useEffect(() => {
+        axiosPublic
+            .get("/category")
+            .then((res) => setCategories(res.data))
+            .catch((err) => console.error("Failed to load categories:", err));
+    }, [axiosPublic]);
 
     // load data
     useEffect(() => {
         axiosPrivate.get(`/services/get?id=${id}`).then((res) => {
-            setCategory(res?.data?.category || '');
+            setCategoryId(res?.data?.categoryId || '');
             setSubCategoryName(res?.data?.title || '');
             setTutorialText(res?.data?.tutorialText || '');
             setTutorialUrl(res?.data?.tutorialURL || '');
@@ -34,6 +46,7 @@ const UpdateSubCategory = () => {
             setInputs(res?.data?.inputs || []);
             setValue(res?.data?.rules || '');
             setSerial(res?.data?.serial || 0);
+            setIsActive(res?.data?.isActive !== false);
         })
     }, [axiosPrivate, id]);
 
@@ -80,11 +93,12 @@ const UpdateSubCategory = () => {
             const updatedSubCategory = {
                 id,
                 title: subCategoryName,
-                category,
+                categoryId,
                 tutorialText,
                 tutorialURL: tutorialUrl,
                 inputs,
                 serial,
+                isActive,
                 image: uploadedImage,
                 rules: value,
             };
@@ -119,6 +133,24 @@ const UpdateSubCategory = () => {
                     <input type="text" onChange={(e) => setSubCategoryName(e.target.value)} className="input" value={subCategoryName} placeholder="Type sub-Category name" required />
                 </div>
 
+                {/* category select */}
+                <div>
+                    <label htmlFor="" className="input-label">Category</label>
+                    <select
+                        className="input"
+                        value={categoryId}
+                        onChange={(e) => setCategoryId(e.target.value)}
+                        required
+                    >
+                        <option value="" disabled>Choose one</option>
+                        {categories?.map((cat) => (
+                            <option key={cat?._id} value={cat?._id}>
+                                {cat?.title}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* tutorial text */}
                     <div>
@@ -135,6 +167,17 @@ const UpdateSubCategory = () => {
                 <div>
                     <label htmlFor="serial">Serial</label>
                     <input type="number" onChange={(e)=>setSerial(parseInt(e.target.value))} className="input" value={serial} />
+                </div>
+
+                {/* active toggle */}
+                <div className="flex items-center gap-2.5">
+                    <label className="input-label !m-0">Active: </label>
+                    <input
+                        type="checkbox"
+                        checked={isActive}
+                        onChange={(e) => setIsActive(e.target.checked)}
+                        className="toggle"
+                    />
                 </div>
 
                 {/* inputs */}

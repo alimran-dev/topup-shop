@@ -1,17 +1,27 @@
 import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
-import { allCategories } from "../../../utils/categories";
 import { useNavigate } from "react-router-dom";
 import ComboModal from "./ComboModal";
 
 const AddDynamicOption = () => {
+  const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAutoEnable, setIsAutoEnable] = useState(false);
   const [isOpenCombo, setIsOpenCombo] = useState(false);
   const [selectedServer, setSelectedServer] = useState("");
+  const axiosPublic = useAxiosPublic();
+
+  // Load categories
+  useEffect(() => {
+    axiosPublic
+      .get("/category")
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error("Failed to load categories:", err));
+  }, [axiosPublic]);
 
   // Define combo configurations for different servers
   const comboConfigs = {
@@ -135,7 +145,6 @@ const AddDynamicOption = () => {
     monthly: 0,
   });
   const axiosPrivate = useAxiosPrivate();
-  const categories = allCategories();
   const navigate = useNavigate(null);
 
   // get subcategories
@@ -149,7 +158,7 @@ const AddDynamicOption = () => {
           data.map((item) => ({
             id: item._id,
             title: item.title,
-            category: item.category,
+            categoryId: item.categoryId,
             isAuto: item.isAuto,
             server: item.server,
           }))
@@ -206,7 +215,7 @@ const AddDynamicOption = () => {
   const handleSelectCategory = (e) => {
     const selectedCategory = e.target.value;
     const matchedSubCategories = subCategories.filter(
-      (sub) => sub.category === selectedCategory
+      (sub) => sub.categoryId === selectedCategory
     );
     setFilteredSubCategories(matchedSubCategories);
   };
@@ -380,8 +389,8 @@ const AddDynamicOption = () => {
               </option>
               {categories?.map((category) => (
                 <option
-                  key={category?.id}
-                  value={category?.title}
+                  key={category?._id}
+                  value={category?._id}
                   className="bg-white hover:bg-red-500 focus:bg-red-500"
                 >
                   {category?.title}

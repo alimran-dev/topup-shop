@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { uploadImage } from "../../../utils/uploadImage";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { allCategories } from "../../../utils/categories";
-
-const categories = allCategories();
 
 const AddSubCategory = () => {
+  const [categories, setCategories] = useState([]);
+  const axiosPublic = useAxiosPublic();
+  const axiosPrivate = useAxiosPrivate();
+
+  // Fetch categories on mount
+  useEffect(() => {
+    axiosPublic
+      .get("/category")
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error("Failed to load categories:", err));
+  }, [axiosPublic]);
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [inputs, setInputs] = useState([]);
@@ -17,7 +26,6 @@ const AddSubCategory = () => {
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [isAuto, setIsAuto] = useState(false);
-  const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
 
   // Handle adding a new input label
@@ -59,7 +67,7 @@ const AddSubCategory = () => {
 
       const newSubCategory = {
         title: e.target.title.value,
-        category: e.target.category.value,
+        categoryId: e.target.categoryId.value,
         tutorialText: e.target.tutorialText.value,
         tutorialURL: e.target.tutorialURL.value,
         inputs,
@@ -123,8 +131,8 @@ const AddSubCategory = () => {
             <label htmlFor="" className="input-label">
               Select Category
             </label>
-            <select
-              name="category"
+              <select
+              name="categoryId"
               className="input"
               defaultValue={""}
               required
@@ -133,7 +141,7 @@ const AddSubCategory = () => {
                 Choose one
               </option>
               {categories?.map((category) => (
-                <option key={category?.id} value={category?.title}>
+                <option key={category?._id} value={category?._id}>
                   {category?.title}
                 </option>
               ))}

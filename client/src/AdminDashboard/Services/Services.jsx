@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
-import { allCategories } from "../../utils/categories";
 import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from 'react-hot-toast';
 import { AiFillDelete } from "react-icons/ai";
 import { FaRegEdit } from "react-icons/fa";
@@ -13,9 +13,18 @@ const Services = () => {
 
     const [selectedCategory, setSelectedCategory] = useState("");
     const [services, setServices] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
-    const categories = allCategories();
     const axiosPrivate = useAxiosPrivate();
+    const axiosPublic = useAxiosPublic();
+
+    // Load categories
+    useEffect(() => {
+        axiosPublic
+            .get("/category")
+            .then((res) => setCategories(res.data))
+            .catch((err) => console.error("Failed to load categories:", err));
+    }, [axiosPublic]);
 
     // load services
     useEffect(() => {
@@ -24,7 +33,7 @@ const Services = () => {
                 setLoading(true);
                 try {
                     const { data } = await axiosPrivate.get('/services');
-                    const filteredServices = data.filter(service => service.category === selectedCategory);
+                    const filteredServices = data.filter(service => service.categoryId === selectedCategory);
                     setServices(filteredServices);
                     setLoading(false);
                 } catch (error) {
@@ -84,8 +93,8 @@ const Services = () => {
                 <select onChange={(e) => setSelectedCategory(e.target.value)} className="input cursor-pointer" defaultValue={""}>
                     <option value="" disabled>Choose One</option>
                     {
-                        categories?.map((category, idx) =>
-                            <option key={idx} value={category?.title}>{category?.title}</option>
+                        categories?.map((category) =>
+                            <option key={category?._id} value={category?._id}>{category?.title}</option>
                         )
                     }
                 </select>

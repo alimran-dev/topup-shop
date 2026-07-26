@@ -57,6 +57,7 @@ const run = () => {
   const specialOfferRoutes = require("./routes/specialOffer.route");
   const notificationRoutes = require("./routes/notification.route");
   const autoServerRoutes = require("./routes/autoServer.route");
+  const categoryRoute = require("./routes/category.route");
 
   // routes
   app.use("/auth", authRoute());
@@ -81,6 +82,7 @@ const run = () => {
   app.use("/special", specialOfferRoutes());
   app.use("/notification", notificationRoutes());
   app.use("/auto",autoServerRoutes());
+  app.use("/category", categoryRoute());
 };
 
 connectToDB((err) => {

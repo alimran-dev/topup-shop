@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
-import { allCategories } from "../../utils/categories";
 import { useNavigate } from "react-router-dom";
 
 const FilterOrders = ({
@@ -14,9 +14,18 @@ const FilterOrders = ({
   orderID,
   setOrderID,
 }) => {
-  const categories = allCategories();
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [subCategories, setSubCategories] = useState([]);
+  const axiosPublic = useAxiosPublic();
+
+  // Load categories
+  useEffect(() => {
+    axiosPublic
+      .get("/category")
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error("Failed to load categories:", err));
+  }, [axiosPublic]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
@@ -32,14 +41,14 @@ const FilterOrders = ({
           const data = res?.data || [];
           // console.log("log", res.data);
           const filterSubCategories = data?.filter(
-            (item) => item?.category == selectedCategory
+            (item) => item?.categoryId == selectedCategory
           );
           console.log(filterSubCategories);
           setSubCategories(
             filterSubCategories.map((item) => ({
               id: item._id,
               title: item.title,
-              category: item.category,
+              categoryId: item.categoryId,
             }))
           );
         })
@@ -207,8 +216,8 @@ const FilterOrders = ({
             <option value="" disabled>
               Choose One
             </option>
-            {categories?.map((category, idx) => (
-              <option key={idx} value={category?.title}>
+            {categories?.map((category) => (
+              <option key={category?._id} value={category?._id}>
                 {category?.title}
               </option>
             ))}
