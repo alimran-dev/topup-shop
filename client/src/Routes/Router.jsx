@@ -54,6 +54,8 @@ import SpecialProductForm from "../AdminDashboard/OfferAndProducts/SpecialProduc
 import OfferForm from "../AdminDashboard/OfferAndProducts/Offers/OfferForm/OfferForm";
 import RedeemClaimedList from "../AdminDashboard/RedeemCode/RedeemClaimedList/RedeemClaimedList";
 import Categories from "../AdminDashboard/Categories/Categories";
+import NestedServices from "../pages/NestedServices/NestedServices";
+import AdminNestedServices from "../AdminDashboard/Services/NestedServices/NestedServices";
 import MobileRecharge from "../pages/MobileRecharge/MobileRecharge";
 import CoinProductDetail from "../pages/CoinProductDetail/CoinProductDetail";
 import CoinHistory from "../pages/CoinAndReferral/CoinHistory/CoinHistory";
@@ -86,6 +88,10 @@ const router = createBrowserRouter([
       {
         path: "/subCategory/:id",
         element: <SubCategory />,
+      },
+      {
+        path: "/nested-services/:parentId",
+        element: <NestedServices />,
       },
       {
         path: "/shell",
@@ -377,6 +383,14 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/categories",
         element: <Categories />,
+      },
+      {
+        path: "/dashboard/nested-services/:parentId",
+        element: (
+          <AdminRoute>
+            <AdminNestedServices />
+          </AdminRoute>
+        ),
       },
     ],
   },

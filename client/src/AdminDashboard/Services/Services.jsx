@@ -6,6 +6,7 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from 'react-hot-toast';
 import { AiFillDelete } from "react-icons/ai";
 import { FaRegEdit } from "react-icons/fa";
+import { TbArrowsSplit2 } from "react-icons/tb";
 import Swal from "sweetalert2";
 
 
@@ -49,9 +50,14 @@ const Services = () => {
 
 
     // delete service fn
-    const handleDeleteService = async (id) => {
+    const handleDeleteService = async (id, childCount) => {
+        const warningText = childCount > 0
+            ? `This service has ${childCount} nested sub-service(s). Deleting it will also delete ALL nested sub-services!`
+            : "You won't be able to revert this!";
+
         Swal.fire({
             title: "Are you sure?",
+            text: warningText,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -61,7 +67,7 @@ const Services = () => {
             if (result.isConfirmed) {
                 axiosPrivate.delete(`/services/delete?id=${id}`).then((res) => {
                     if (res.data.acknowledged) {
-                        toast.success('Deleted Successfully!');
+                        toast.success(`Deleted Successfully! ${res.data.deletedDescendants || 0} descendant(s) also removed.`);
                         setServices(prevOptions => prevOptions?.filter((service) => service?._id !== id));
                     }
                     else {
@@ -113,15 +119,34 @@ const Services = () => {
                             <div className="grid grid-cols-2 md:grid-cols-5 items-center gap-8 py-10">
                                 {
                                     services?.map((service, idx) =>
-                                        <div key={idx} className="border border-slate-400 rounded-md shadow-xl">
+                                        <div key={idx} className="border border-slate-400 rounded-md shadow-xl relative">
+                                            {/* Nested child count badge */}
+                                            {service?.childCount > 0 && (
+                                                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center z-10">
+                                                    {service.childCount}
+                                                </div>
+                                            )}
                                             <div className="w-full h-fit">
                                                 <img src={service?.image} className="w-full h-28 md:h-36 object-fill" alt="service image" />
                                             </div>
                                             <h3 className="font-bold px-4 pt-4">{service?.title}</h3>
-                                            <div className="p-3 text-2xl flex items-center gap-5">
+                                            {/* Parent badge */}
+                                            {service?.parentServiceId && (
+                                                <p className="text-xs text-gray-400 px-4">(nested sub-service)</p>
+                                            )}
+                                            <div className="p-3 text-2xl flex items-center gap-3 flex-wrap">
                                                 <Link to={`/dashboard/updateSubCategory/${service?._id}`} className="text-blue-700"><FaRegEdit /></Link>
-                                                <button onClick={() => handleDeleteService(service?._id)} className="text-red-600 text-3xl"><AiFillDelete /></button>
-                                                <span>#{service?.serial}</span>
+                                                <button onClick={() => handleDeleteService(service?._id, service?.childCount || 0)} className="text-red-600 text-3xl"><AiFillDelete /></button>
+                                                <span className="text-sm">#{service?.serial}</span>
+                                                {service?.childCount > 0 && (
+                                                    <Link
+                                                        to={`/dashboard/nested-services/${service?._id}`}
+                                                        className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                                                    >
+                                                        <TbArrowsSplit2 className="inline mr-1" />
+                                                        Manage Children
+                                                    </Link>
+                                                )}
                                             </div>
                                         </div>
                                     )

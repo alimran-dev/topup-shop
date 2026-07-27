@@ -93,6 +93,13 @@ const Services = () => {
                     image={data?.image}
                     path={`/subCategory/${data?._id}`}
                     title={data?.title}
+                    onClick={() => {
+                      if (data?.childCount > 0) {
+                        navigate(`/nested-services/${data?._id}`);
+                      } else {
+                        navigate(`/subCategory/${data?._id}`);
+                      }
+                    }}
                   />
                 </div>
               ))}

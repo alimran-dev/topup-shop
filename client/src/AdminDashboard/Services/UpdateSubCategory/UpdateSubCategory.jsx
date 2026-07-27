@@ -10,7 +10,11 @@ import ReactQuill from "react-quill";
 const UpdateSubCategory = () => {
     const { id } = useParams();
     const [categoryId, setCategoryId] = useState("");
+    const [parentServiceId, setParentServiceId] = useState("");
+    const [childCount, setChildCount] = useState(0);
     const [categories, setCategories] = useState([]);
+    const [allServices, setAllServices] = useState([]);
+    const [selectableParents, setSelectableParents] = useState([]);
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [inputs, setInputs] = useState([]);
@@ -38,6 +42,8 @@ const UpdateSubCategory = () => {
     useEffect(() => {
         axiosPrivate.get(`/services/get?id=${id}`).then((res) => {
             setCategoryId(res?.data?.categoryId || '');
+            setParentServiceId(res?.data?.parentServiceId || '');
+            setChildCount(res?.data?.childCount || 0);
             setSubCategoryName(res?.data?.title || '');
             setTutorialText(res?.data?.tutorialText || '');
             setTutorialUrl(res?.data?.tutorialURL || '');
@@ -49,6 +55,52 @@ const UpdateSubCategory = () => {
             setIsActive(res?.data?.isActive !== false);
         })
     }, [axiosPrivate, id]);
+
+    // Load all services for parent selection
+    useEffect(() => {
+        axiosPrivate
+            .get("/services")
+            .then((res) => setAllServices(res.data))
+            .catch((err) => console.error("Failed to load services:", err));
+    }, [axiosPrivate]);
+
+    // Filter parent options by selected category, exclude self and descendants (to prevent circular refs)
+    useEffect(() => {
+        if (categoryId) {
+            // Collect all descendant IDs to exclude from parent options
+            const collectDescendants = (services, parentId) => {
+                const ids = [];
+                const children = services.filter(
+                    (s) => s.parentServiceId === parentId
+                );
+                children.forEach((child) => {
+                    ids.push(child._id);
+                    ids.push(...collectDescendants(services, child._id));
+                });
+                return ids;
+            };
+            const descendantIds = collectDescendants(allServices, id);
+
+            const filtered = allServices.filter(
+                (s) =>
+                    s.categoryId === categoryId &&
+                    s._id !== id &&
+                    !descendantIds.includes(s._id)
+            );
+            setSelectableParents(filtered);
+
+            // If current parentServiceId is not in the new filtered list, reset it
+            if (
+                parentServiceId &&
+                !filtered.some((s) => s._id === parentServiceId)
+            ) {
+                setParentServiceId("");
+            }
+        } else {
+            setSelectableParents([]);
+            setParentServiceId("");
+        }
+    }, [categoryId, allServices, id, parentServiceId]);
 
     // Handle adding a new input label
     const handleAdd = (e) => {
@@ -94,6 +146,7 @@ const UpdateSubCategory = () => {
                 id,
                 title: subCategoryName,
                 categoryId,
+                parentServiceId: parentServiceId || null,
                 tutorialText,
                 tutorialURL: tutorialUrl,
                 inputs,
@@ -102,6 +155,8 @@ const UpdateSubCategory = () => {
                 image: uploadedImage,
                 rules: value,
             };
+
+            // console.log(updatedSubCategory);
 
             const { data } = await axiosPrivate.patch('/services/update', updatedSubCategory);
 
@@ -114,7 +169,11 @@ const UpdateSubCategory = () => {
                 setLoading(false);
             }
         } catch (error) {
-            toast.error("Error updating service!");
+            const errMsg =
+                error?.response?.data?.error ||
+                error?.response?.data?.message ||
+                "Error updating service!";
+            toast.error(errMsg);
             setLoading(false);
         }
     };
@@ -149,6 +208,30 @@ const UpdateSubCategory = () => {
                             </option>
                         ))}
                     </select>
+                </div>
+
+                {/* Parent Service */}
+                <div>
+                    <label htmlFor="" className="input-label">
+                        Parent Service <span className="text-gray-400 text-sm">(optional — for nested sub-services)</span>
+                    </label>
+                    <select
+                        className="input"
+                        value={parentServiceId}
+                        onChange={(e) => setParentServiceId(e.target.value)}
+                    >
+                        <option value="">None (top-level service)</option>
+                        {selectableParents?.map((service) => (
+                            <option key={service?._id} value={service?._id}>
+                                {service?.title}
+                            </option>
+                        ))}
+                    </select>
+                    {childCount > 0 && parentServiceId && (
+                        <p className="text-xs text-amber-600 mt-1">
+                            ⚠ This service has {childCount} nested sub-service(s). Changing its parent may affect navigation.
+                        </p>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

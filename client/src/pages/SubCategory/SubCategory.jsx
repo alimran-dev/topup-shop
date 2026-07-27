@@ -38,6 +38,8 @@ const SubCategory = () => {
   const [price, setPrice] = useState(0);
   const [inputValues, setInputValues] = useState({});
   const [payMethod, setPayMethod] = useState("wallet");
+  const [parentService, setParentService] = useState(null);
+  const [categoryName, setCategoryName] = useState("");
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
   const { user } = useAuth();
@@ -63,6 +65,27 @@ const SubCategory = () => {
         initialInputs[input] = "";
       });
       setInputValues(initialInputs);
+
+      // Fetch parent service if nested
+      if (res.data?.parentServiceId) {
+        axiosPublic
+          .get(`/services/get?id=${res.data.parentServiceId}`)
+          .then((parentRes) => setParentService(parentRes.data))
+          .catch(() => {});
+      }
+
+      // Fetch category name
+      if (res.data?.categoryId) {
+        axiosPublic
+          .get("/category")
+          .then((catRes) => {
+            const found = catRes.data.find(
+              (c) => c._id === res.data.categoryId
+            );
+            if (found) setCategoryName(found.title);
+          })
+          .catch(() => {});
+      }
     });
     setPrice(selected.price);
   }, [axiosPublic, id, selected?.price]);
@@ -179,6 +202,33 @@ const SubCategory = () => {
   return (
     <div className="flex flex-col gap-5">
       <Loader isLoading={isLoading} />
+
+      {/* Breadcrumb */}
+      {parentService && (
+        <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
+          <Link to="/" className="hover:text-[#FA6023] transition-colors">
+            Home
+          </Link>
+          <span>/</span>
+          {categoryName && (
+            <>
+              <span className="text-gray-500">{categoryName}</span>
+              <span>/</span>
+            </>
+          )}
+          <Link
+            to={`/nested-services/${parentService._id}`}
+            className="hover:text-[#FA6023] transition-colors"
+          >
+            {parentService.title}
+          </Link>
+          <span>/</span>
+          <span className="font-semibold text-gray-800">
+            {allData?.title}
+          </span>
+        </div>
+      )}
+
       <div className="flex items-center gap-3 border-2 py-4 px-6 rounded">
         <img
           src={allData?.image}
@@ -190,7 +240,7 @@ const SubCategory = () => {
             {allData?.title}
           </p>
           <p className="md:text-lg font-medium text-gray-500">
-            {allData?.category}
+            {categoryName || allData?.category}
           </p>
         </div>
       </div>

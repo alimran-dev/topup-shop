@@ -1,10 +1,14 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
-const ServiceCard = ({ image, title, path }) => {
+const ServiceCard = ({ image, title, path, onClick }) => {
   const navigate = useNavigate();
 
   const handleNavigate = () => {
+    if (onClick) {
+      onClick();
+      return;
+    }
     if (title == "Minutes & MB offer") {
       navigate(path, { state: { simCompany: true, cardType: "offerCard" } })
     }
@@ -37,4 +41,5 @@ ServiceCard.propTypes = {
   image: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
 };

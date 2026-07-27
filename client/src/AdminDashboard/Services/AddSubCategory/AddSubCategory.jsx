@@ -5,10 +5,16 @@ import { uploadImage } from "../../../utils/uploadImage";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const AddSubCategory = () => {
+  const [searchParams] = useSearchParams();
+  const preselectedParentId = searchParams.get("parentServiceId") || "";
+
   const [categories, setCategories] = useState([]);
+  const [allServices, setAllServices] = useState([]);
+  const [selectableParents, setSelectableParents] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const axiosPublic = useAxiosPublic();
   const axiosPrivate = useAxiosPrivate();
 
@@ -18,7 +24,25 @@ const AddSubCategory = () => {
       .get("/category")
       .then((res) => setCategories(res.data))
       .catch((err) => console.error("Failed to load categories:", err));
-  }, [axiosPublic]);
+
+    // Fetch all services for parent selection
+    axiosPrivate
+      .get("/services")
+      .then((res) => setAllServices(res.data))
+      .catch((err) => console.error("Failed to load services:", err));
+  }, [axiosPublic, axiosPrivate]);
+
+  // Filter parent options by selected category
+  useEffect(() => {
+    if (selectedCategoryId) {
+      setSelectableParents(
+        allServices.filter((s) => s.categoryId === selectedCategoryId)
+      );
+    } else {
+      setSelectableParents([]);
+    }
+  }, [selectedCategoryId, allServices]);
+
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [inputs, setInputs] = useState([]);
@@ -76,6 +100,11 @@ const AddSubCategory = () => {
         image: uploadedImage,
         rules: value,
       };
+
+      // Include parentServiceId if selected
+      if (e.target.parentServiceId?.value) {
+        newSubCategory.parentServiceId = e.target.parentServiceId.value;
+      }
 
       // call post api
       try {
@@ -136,6 +165,7 @@ const AddSubCategory = () => {
               className="input"
               defaultValue={""}
               required
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
             >
               <option value="" disabled>
                 Choose one
@@ -147,6 +177,30 @@ const AddSubCategory = () => {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Parent Service (optional) */}
+        <div>
+          <label htmlFor="" className="input-label">
+            Parent Service <span className="text-gray-400 text-sm">(optional — for nested sub-services)</span>
+          </label>
+          <select
+            name="parentServiceId"
+            className="input"
+            defaultValue={preselectedParentId}
+          >
+            <option value="">None (top-level service)</option>
+            {selectableParents?.map((service) => (
+              <option key={service?._id} value={service?._id}>
+                {service?.title}
+              </option>
+            ))}
+          </select>
+          {selectedCategoryId && selectableParents.length === 0 && (
+            <p className="text-xs text-gray-500 mt-1">
+              No services in this category yet. Parent selection requires at least one service in the chosen category.
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
