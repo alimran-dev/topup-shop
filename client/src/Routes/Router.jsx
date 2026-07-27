@@ -65,8 +65,7 @@ import AdminCoinHistory from "../AdminDashboard/OfferAndProducts/SpecialProducts
 import ClaimRedeemCode from "../pages/Home/ClaimRedeemCode/ClaimRedeemCode";
 import OrderImages from "../pages/OrderImages/OrderImages";
 import AutoCheck from "../AdminDashboard/Orders/AutoCheck/AutoCheck";
-
-
+import ShopStatus from "../AdminDashboard/ShopStatus/ShopStatus";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -383,6 +382,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/categories",
         element: <Categories />,
+      },
+      {
+        path: "/dashboard/shop-status",
+        element: <ShopStatus />,
       },
       {
         path: "/dashboard/nested-services/:parentId",

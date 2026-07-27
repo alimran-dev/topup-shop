@@ -10,6 +10,7 @@ import { TbTableOptions } from "react-icons/tb";
 import { VscAccount } from "react-icons/vsc";
 import { NavLink, useLocation } from "react-router-dom";
 import { GoCodeSquare } from "react-icons/go";
+import { HiStatusOnline } from "react-icons/hi";
 
 
 const navItems = [
@@ -32,6 +33,7 @@ const navItems = [
   { to: "/dashboard/followUs", icon: FaRegFlag, label: "Follow Us" },
   { to: "/dashboard/devices", icon: MdDevices, label: "Devices" },
   { to: "/dashboard/blockedTrx", icon: ImBlocked, label: "Block Trx" },
+  { to: "/dashboard/shop-status", icon: HiStatusOnline, label: "Auto Status" },
   { to: "/myAccount", icon: VscAccount, label: "My Account" },
 ];
 
