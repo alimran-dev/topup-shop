@@ -95,13 +95,8 @@ const UpdateSubCategory = () => {
             );
             setSelectableParents(filtered);
 
-            // If current parentServiceId is not in the new filtered list, reset it
-            if (
-                parentServiceId &&
-                !filtered.some((s) => s._id === parentServiceId)
-            ) {
-                setParentServiceId("");
-            }
+            // Preserve existing parentServiceId even if not yet in filtered list
+            // (prevents race condition resetting it on initial load)
         } else {
             setSelectableParents([]);
             setParentServiceId("");

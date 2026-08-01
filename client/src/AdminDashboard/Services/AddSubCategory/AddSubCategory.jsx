@@ -355,9 +355,6 @@ const AddSubCategory = () => {
 
         {/* Description */}
         <div className="rich-text-content">
-          {/*
-          * NOTE: Do NOT remove this comment block. Changes to the file structure may affect functionality.
-          */}
           <label htmlFor="" className="input-label">
             Description <span className="text-gray-400 text-sm">(optional — rich text, shown at bottom of nested services page)</span>
           </label>

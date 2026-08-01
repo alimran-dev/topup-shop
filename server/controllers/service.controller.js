@@ -37,6 +37,18 @@ const isAncestorOf = async (serviceId, targetId) => {
   return false;
 };
 
+// Helper: Decode redirectUrl in a service document for API response
+const decodeRedirectUrl = (doc) => {
+  if (doc && doc.redirectUrl) {
+    try {
+      doc.redirectUrl = decodeURI(doc.redirectUrl);
+    } catch {
+      // keep as-is if not encoded
+    }
+  }
+  return doc;
+};
+
 // GET /services/get?id=
 const getService = async (req, res) => {
   try {
@@ -58,7 +70,7 @@ const getService = async (req, res) => {
       ]
     );
 
-        // Use aggregation to include childCount
+    // Use aggregation to include childCount
     const result = await serviceCollection
       .aggregate([
         { $match: { _id: new ObjectId(id) } },
@@ -101,7 +113,7 @@ const getService = async (req, res) => {
       .toArray();
 
     if (result.length > 0) {
-      res.send(result[0]);
+      res.send(decodeRedirectUrl(result[0]));
     } else {
       res.status(404).send({ success: false, error: "Service not found" });
     }
@@ -154,7 +166,7 @@ const getAllServices = async (req, res) => {
         { $sort: { serial: 1 } },
       ])
       .toArray();
-    res.send(result);
+    res.send(result.map(decodeRedirectUrl));
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -203,7 +215,7 @@ const getChildServices = async (req, res) => {
         { $sort: { serial: 1 } },
       ])
       .toArray();
-    res.send(result);
+    res.send(result.map(decodeRedirectUrl));
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -303,7 +315,7 @@ const addSubCategory = async (req, res) => {
         subCategory.description = description;
       }
       if (redirectUrl) {
-        subCategory.redirectUrl = redirectUrl;
+        subCategory.redirectUrl = encodeURI(redirectUrl);
       }
       const result = await serviceCollection.insertOne(subCategory);
       res.send(result);
@@ -377,7 +389,7 @@ const updateSubCategory = async (req, res) => {
       newSubCategory.$set.description = description;
     }
     if (redirectUrl !== undefined && redirectUrl !== "" && redirectUrl !== null) {
-      newSubCategory.$set.redirectUrl = redirectUrl;
+      newSubCategory.$set.redirectUrl = encodeURI(redirectUrl);
     }
 
     newSubCategory.$set.serial = serial || 0;
