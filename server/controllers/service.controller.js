@@ -58,7 +58,7 @@ const getService = async (req, res) => {
       ]
     );
 
-    // Use aggregation to include childCount
+        // Use aggregation to include childCount
     const result = await serviceCollection
       .aggregate([
         { $match: { _id: new ObjectId(id) } },
@@ -92,6 +92,9 @@ const getService = async (req, res) => {
             options: 1,
             createdAt: 1,
             childCount: 1,
+            notice: 1,
+            description: 1,
+            redirectUrl: 1,
           },
         },
       ])
@@ -145,6 +148,7 @@ const getAllServices = async (req, res) => {
             isActive: 1,
             childCount: 1,
             parentServiceId: 1,
+            redirectUrl: 1,
           },
         },
         { $sort: { serial: 1 } },
@@ -193,6 +197,7 @@ const getChildServices = async (req, res) => {
             isActive: 1,
             childCount: 1,
             parentServiceId: 1,
+            redirectUrl: 1,
           },
         },
         { $sort: { serial: 1 } },
@@ -238,6 +243,9 @@ const addSubCategory = async (req, res) => {
       server,
       inputs,
       rules,
+      notice,
+      description,
+      redirectUrl,
     } = req.body;
     if (
       title &&
@@ -288,6 +296,15 @@ const addSubCategory = async (req, res) => {
       if (isAuto) {
         subCategory.server = server || "default";
       }
+      if (notice) {
+        subCategory.notice = notice;
+      }
+      if (description) {
+        subCategory.description = description;
+      }
+      if (redirectUrl) {
+        subCategory.redirectUrl = redirectUrl;
+      }
       const result = await serviceCollection.insertOne(subCategory);
       res.send(result);
     } else {
@@ -323,6 +340,9 @@ const updateSubCategory = async (req, res) => {
       serial,
       rules,
       isActive,
+      notice,
+      description,
+      redirectUrl,
     } = req.body;
     const newSubCategory = { $set: {} };
 
@@ -350,11 +370,34 @@ const updateSubCategory = async (req, res) => {
     if (isActive !== undefined) {
       newSubCategory.$set.isActive = isActive;
     }
+    if (notice !== undefined && notice !== "" && notice !== null) {
+      newSubCategory.$set.notice = notice;
+    }
+    if (description !== undefined && description !== "" && description !== null) {
+      newSubCategory.$set.description = description;
+    }
+    if (redirectUrl !== undefined && redirectUrl !== "" && redirectUrl !== null) {
+      newSubCategory.$set.redirectUrl = redirectUrl;
+    }
 
     newSubCategory.$set.serial = serial || 0;
 
     // Prepare the full update document
     const updateDoc = { $set: newSubCategory.$set };
+
+    // Handle clearing of optional fields
+    if (notice === "" || notice === null) {
+      if (!updateDoc.$unset) updateDoc.$unset = {};
+      updateDoc.$unset.notice = 1;
+    }
+    if (description === "" || description === null) {
+      if (!updateDoc.$unset) updateDoc.$unset = {};
+      updateDoc.$unset.description = 1;
+    }
+    if (redirectUrl === "" || redirectUrl === null) {
+      if (!updateDoc.$unset) updateDoc.$unset = {};
+      updateDoc.$unset.redirectUrl = 1;
+    }
 
     // Handle parentServiceId changes
     if (parentServiceId !== undefined) {

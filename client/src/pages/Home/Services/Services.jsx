@@ -94,6 +94,14 @@ const Services = () => {
                     path={`/subCategory/${data?._id}`}
                     title={data?.title}
                     onClick={() => {
+                      if (data?.redirectUrl) {
+                        if (data.redirectUrl.startsWith("http")) {
+                          window.location.href = data.redirectUrl;
+                        } else {
+                          navigate(data.redirectUrl);
+                        }
+                        return;
+                      }
                       if (data?.childCount > 0) {
                         navigate(`/nested-services/${data?._id}`);
                       } else {

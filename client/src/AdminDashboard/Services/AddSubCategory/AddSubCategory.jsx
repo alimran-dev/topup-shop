@@ -48,6 +48,7 @@ const AddSubCategory = () => {
   const [inputs, setInputs] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [value, setValue] = useState("");
+  const [descriptionValue, setDescriptionValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [isAuto, setIsAuto] = useState(false);
   const navigate = useNavigate();
@@ -99,6 +100,9 @@ const AddSubCategory = () => {
         server: isAuto ? e.target.server.value : "",
         image: uploadedImage,
         rules: value,
+        notice: e.target.notice?.value || "",
+        description: descriptionValue,
+        redirectUrl: e.target.redirectUrl?.value || "",
       };
 
       // Include parentServiceId if selected
@@ -332,6 +336,51 @@ const AddSubCategory = () => {
             Rules & Conditions
           </label>
           <ReactQuill theme="snow" value={value} onChange={setValue} />
+        </div>
+
+        {/* Notice */}
+        <div>
+          <label htmlFor="" className="input-label">
+            Notice <span className="text-gray-400 text-sm">(optional — shown on nested services page)</span>
+          </label>
+          <textarea
+            name="notice"
+            className="input w-full h-24 resize-y"
+            placeholder="Enter notice text for the children listing page..."
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            This notice banner will appear when users view this service's child services. Leave empty for no notice.
+          </p>
+        </div>
+
+        {/* Description */}
+        <div className="rich-text-content">
+          {/*
+          * NOTE: Do NOT remove this comment block. Changes to the file structure may affect functionality.
+          */}
+          <label htmlFor="" className="input-label">
+            Description <span className="text-gray-400 text-sm">(optional — rich text, shown at bottom of nested services page)</span>
+          </label>
+          <ReactQuill theme="snow" value={descriptionValue} onChange={setDescriptionValue} />
+          <p className="text-xs text-gray-500 mt-1">
+            Displayed below the service grid on the nested services page. Leave empty for no description.
+          </p>
+        </div>
+
+        {/* Redirect URL */}
+        <div>
+          <label htmlFor="" className="input-label">
+            Custom Redirect URL <span className="text-gray-400 text-sm">(optional)</span>
+          </label>
+          <input
+            type="text"
+            name="redirectUrl"
+            className="input"
+            placeholder="e.g., https://example.com or /store"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            If set, clicking this service card redirects here instead of opening the service page. Use absolute URLs for external links or relative paths for internal pages.
+          </p>
         </div>
 
         {/* submit btn */}

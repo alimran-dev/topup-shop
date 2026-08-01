@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import ServiceCard from "../Home/Services/ServiceCard";
 import Loader from "../../components/Loader";
+import NoticeView from "../Home/Notice/NoticeView";
 
 const NestedServices = () => {
   const { parentId } = useParams();
@@ -11,6 +12,7 @@ const NestedServices = () => {
   const [category, setCategory] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isNoticeOpen, setIsNoticeOpen] = useState(true);
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
 
@@ -71,6 +73,14 @@ const NestedServices = () => {
   }, [axiosPublic, parentId]);
 
   const handleChildClick = (child) => {
+    if (child?.redirectUrl) {
+      if (child.redirectUrl.startsWith("http")) {
+        window.location.href = child.redirectUrl;
+      } else {
+        navigate(child.redirectUrl);
+      }
+      return;
+    }
     if (child.childCount > 0) {
       navigate(`/nested-services/${child._id}`);
     } else {
@@ -97,7 +107,7 @@ const NestedServices = () => {
   }
 
   return (
-    <div className="md:py-8 space-y-5 md:space-y-10">
+    <div className="md:py-8 space-y-2 md:space-y-5">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
         <Link to="/" className="hover:text-[#FA6023] transition-colors">
@@ -120,6 +130,18 @@ const NestedServices = () => {
         <span className="block border-t-2 border-[#FA6023] flex-1"></span>
       </div>
 
+      {/* Notice Banner */}
+      {parentService?.notice && parentService.notice.trim().length > 0 && (
+        <div className="-my-2 md:-my-2">
+          <NoticeView
+            isOpen={isNoticeOpen}
+            notice={parentService.notice}
+            setIsOpen={setIsNoticeOpen}
+            title="Notice"
+          />
+        </div>
+      )}
+
       {/* Child Services Grid */}
       {children.length > 0 ? (
         <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
@@ -133,6 +155,7 @@ const NestedServices = () => {
                 image={child?.image}
                 path={`/subCategory/${child._id}`}
                 title={child?.title}
+                onClick={() => handleChildClick(child)}
               />
             </div>
           ))}
@@ -146,6 +169,16 @@ const NestedServices = () => {
           >
             ← Go back to Home
           </Link>
+        </div>
+      )}
+
+      {/* Description Section */}
+      {parentService?.description && parentService.description.length > 0 && (
+        <div className="border rounded-md p-3 md:p-6">
+          <div
+            dangerouslySetInnerHTML={{ __html: parentService.description }}
+            className="rich-text-output"
+          />
         </div>
       )}
     </div>
