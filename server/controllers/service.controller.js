@@ -139,14 +139,17 @@ const getAllServices = async (req, res) => {
         {
           $lookup: {
             from: "services",
-            localField: "_id",
-            foreignField: "parentServiceId",
-            as: "children",
+            let: { parentId: "$_id" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$parentServiceId", "$$parentId"] } } },
+              ...(activeOnly === "true" ? [{ $match: { isActive: { $ne: false } } }] : []),
+            ],
+            as: "lookupChildren",
           },
         },
         {
           $addFields: {
-            childCount: { $size: "$children" },
+            childCount: { $size: "$lookupChildren" },
           },
         },
         {
@@ -184,18 +187,21 @@ const getChildServices = async (req, res) => {
     }
     const result = await serviceCollection
       .aggregate([
-        { $match: { parentServiceId: new ObjectId(parentId) } },
+        { $match: { parentServiceId: new ObjectId(parentId), isActive: { $ne: false } } },
         {
           $lookup: {
             from: "services",
-            localField: "_id",
-            foreignField: "parentServiceId",
-            as: "children",
+            let: { parentId: "$_id" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$parentServiceId", "$$parentId"] } } },
+              { $match: { isActive: { $ne: false } } },
+            ],
+            as: "activeChildren",
           },
         },
         {
           $addFields: {
-            childCount: { $size: "$children" },
+            childCount: { $size: "$activeChildren" },
           },
         },
         {
