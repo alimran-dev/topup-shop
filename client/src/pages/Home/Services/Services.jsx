@@ -102,7 +102,10 @@ const Services = () => {
                         }
                         return;
                       }
-                      if (data?.childCount > 0) {
+                      if (
+                        data?.serviceType === "itemListing" ||
+                        data?.childCount > 0
+                      ) {
                         navigate(`/nested-services/${data?._id}`);
                       } else {
                         navigate(`/subCategory/${data?._id}`);

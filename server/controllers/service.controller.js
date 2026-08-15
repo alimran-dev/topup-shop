@@ -2,6 +2,25 @@ const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 
 const serviceCollection = dbCollections.serviceCollection;
+const serviceItemCollection = dbCollections.serviceItemCollection;
+
+// Helper: validate statLabels for an "itemListing" type service.
+// Returns an error string when invalid, or null when valid.
+const validateStatLabels = (statLabels) => {
+  if (
+    !Array.isArray(statLabels) ||
+    statLabels.length !== 4 ||
+    statLabels.some((l) => typeof l !== "string" || !l.trim())
+  ) {
+    return "An Item Listing service requires exactly 4 non-empty stat labels";
+  }
+  return null;
+};
+
+// Helper: stat labels become keys of an order's `info` object, so strip the
+// characters that make MongoDB field names awkward to query ("." and leading "$")
+const sanitizeStatLabels = (statLabels) =>
+  statLabels.map((l) => l.trim().replace(/\./g, " ").replace(/^\$+/, ""));
 
 // Helper: Recursively collect all descendant service IDs for cascade delete
 const getAllDescendantIds = async (parentId) => {
@@ -107,6 +126,8 @@ const getService = async (req, res) => {
             notice: 1,
             description: 1,
             redirectUrl: 1,
+            serviceType: 1,
+            statLabels: 1,
           },
         },
       ])
@@ -164,6 +185,7 @@ const getAllServices = async (req, res) => {
             childCount: 1,
             parentServiceId: 1,
             redirectUrl: 1,
+            serviceType: 1,
           },
         },
         { $sort: { serial: 1 } },
@@ -216,6 +238,7 @@ const getChildServices = async (req, res) => {
             childCount: 1,
             parentServiceId: 1,
             redirectUrl: 1,
+            serviceType: 1,
           },
         },
         { $sort: { serial: 1 } },
@@ -264,6 +287,8 @@ const addSubCategory = async (req, res) => {
       notice,
       description,
       redirectUrl,
+      serviceType,
+      statLabels,
     } = req.body;
     if (
       title &&
@@ -274,6 +299,15 @@ const addSubCategory = async (req, res) => {
       inputs &&
       rules
     ) {
+      // Validate item-listing configuration if that type is selected
+      if (serviceType === "itemListing") {
+        const statLabelError = validateStatLabels(statLabels);
+        if (statLabelError) {
+          return res
+            .status(400)
+            .send({ success: false, error: statLabelError });
+        }
+      }
       // Validate parentServiceId if provided
       if (parentServiceId) {
         const parentService = await serviceCollection.findOne({
@@ -323,6 +357,10 @@ const addSubCategory = async (req, res) => {
       if (redirectUrl) {
         subCategory.redirectUrl = encodeURI(redirectUrl);
       }
+      if (serviceType === "itemListing") {
+        subCategory.serviceType = "itemListing";
+        subCategory.statLabels = sanitizeStatLabels(statLabels);
+      }
       const result = await serviceCollection.insertOne(subCategory);
       res.send(result);
     } else {
@@ -361,6 +399,8 @@ const updateSubCategory = async (req, res) => {
       notice,
       description,
       redirectUrl,
+      serviceType,
+      statLabels,
     } = req.body;
     const newSubCategory = { $set: {} };
 
@@ -415,6 +455,26 @@ const updateSubCategory = async (req, res) => {
     if (redirectUrl === "" || redirectUrl === null) {
       if (!updateDoc.$unset) updateDoc.$unset = {};
       updateDoc.$unset.redirectUrl = 1;
+    }
+
+    // Handle serviceType / statLabels (item listing configuration)
+    if (serviceType !== undefined) {
+      if (serviceType === "itemListing") {
+        const statLabelError = validateStatLabels(statLabels);
+        if (statLabelError) {
+          return res
+            .status(400)
+            .send({ success: false, error: statLabelError });
+        }
+        updateDoc.$set.serviceType = "itemListing";
+        updateDoc.$set.statLabels = sanitizeStatLabels(statLabels);
+      } else {
+        // Reverting to a standard service — drop the listing configuration.
+        // Existing items are kept in the DB but become unreachable via navigation.
+        if (!updateDoc.$unset) updateDoc.$unset = {};
+        updateDoc.$unset.serviceType = 1;
+        updateDoc.$unset.statLabels = 1;
+      }
     }
 
     // Handle parentServiceId changes
@@ -498,6 +558,12 @@ const deleteSubCategory = async (req, res) => {
     // Collect all descendant IDs recursively
     const descendantIds = await getAllDescendantIds(id);
 
+    // Delete listing items belonging to this service and all of its descendants,
+    // otherwise they would be orphaned but still reachable by direct ID.
+    const deletedItems = await serviceItemCollection.deleteMany({
+      serviceId: { $in: [new ObjectId(id), ...descendantIds] },
+    });
+
     // Delete all descendants first
     if (descendantIds.length > 0) {
       await serviceCollection.deleteMany({
@@ -513,6 +579,7 @@ const deleteSubCategory = async (req, res) => {
     res.send({
       ...result,
       deletedDescendants: descendantIds.length,
+      deletedItems: deletedItems.deletedCount || 0,
     });
   } catch (err) {
     console.error("Error: ", err.message);

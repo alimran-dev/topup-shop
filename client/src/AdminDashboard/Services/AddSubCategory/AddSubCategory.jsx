@@ -51,7 +51,13 @@ const AddSubCategory = () => {
   const [descriptionValue, setDescriptionValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [isAuto, setIsAuto] = useState(false);
+  const [serviceType, setServiceType] = useState("standard");
+  const [statLabels, setStatLabels] = useState(["", "", "", ""]);
   const navigate = useNavigate();
+
+  const handleStatLabelChange = (index, value) => {
+    setStatLabels((prev) => prev.map((l, i) => (i === index ? value : l)));
+  };
 
   // Handle adding a new input label
   const handleAdd = (e) => {
@@ -86,6 +92,15 @@ const AddSubCategory = () => {
       return;
     }
 
+    if (
+      serviceType === "itemListing" &&
+      statLabels.some((label) => !label.trim())
+    ) {
+      toast.error("Please fill all 4 stat labels for an Item Listing service!");
+      setLoading(false);
+      return;
+    }
+
     try {
       // upload the image
       const uploadedImage = await uploadImage(image);
@@ -108,6 +123,12 @@ const AddSubCategory = () => {
       // Include parentServiceId if selected
       if (e.target.parentServiceId?.value) {
         newSubCategory.parentServiceId = e.target.parentServiceId.value;
+      }
+
+      // Include item-listing configuration if that type is selected
+      if (serviceType === "itemListing") {
+        newSubCategory.serviceType = "itemListing";
+        newSubCategory.statLabels = statLabels.map((l) => l.trim());
       }
 
       // call post api
@@ -206,6 +227,50 @@ const AddSubCategory = () => {
             </p>
           )}
         </div>
+
+        {/* Service Type */}
+        <div>
+          <label htmlFor="" className="input-label">
+            Service Type
+          </label>
+          <select
+            className="input"
+            value={serviceType}
+            onChange={(e) => setServiceType(e.target.value)}
+          >
+            <option value="standard">Standard (price options)</option>
+            <option value="itemListing">Item Listing (e.g. ID buy)</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Standard shows the usual price-option purchase page. Item Listing
+            shows a grid of individual product cards that are managed separately.
+          </p>
+        </div>
+
+        {/* Stat labels for item listing */}
+        {serviceType === "itemListing" && (
+          <div>
+            <label htmlFor="" className="input-label">
+              Stat Labels <span className="text-gray-400 text-sm">(4 required)</span>
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {statLabels.map((label, idx) => (
+                <input
+                  key={idx}
+                  type="text"
+                  className="input"
+                  placeholder={`Label ${idx + 1}`}
+                  value={label}
+                  onChange={(e) => handleStatLabelChange(idx, e.target.value)}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              These four labels are shown on every item card and detail page under
+              this service (e.g. LVL, Prime LVL, Evo, Like).
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* tutorial text */}

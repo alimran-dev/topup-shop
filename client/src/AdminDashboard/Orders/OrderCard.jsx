@@ -34,8 +34,12 @@ const OrderCard = ({ order }) => {
     info,
     feedback,
     processedExternally,
+    orderType,
     order: externalOrder
   } = order || {};
+  // Item-listing orders are created already "complete", so without this they
+  // could never be cancelled/refunded from the dashboard.
+  const isItemListing = orderType === "itemListing";
   const orderTimeDate = new Date(orderTime);
   const updateTimeDate = new Date(updateTime);
   const [copied, setCopied] = useState({});
@@ -283,7 +287,7 @@ const OrderCard = ({ order }) => {
                 </button>
                 <button
                 onClick={handleUpdate}
-                disabled={loading || isDisable || status === "cancelled" || status === "complete"}
+                disabled={loading || isDisable || status === "cancelled" || (status === "complete" && !isItemListing)}
                 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? "Please Wait" : "Update"}
@@ -304,7 +308,7 @@ const OrderCard = ({ order }) => {
               <div className="w-full flex flex-wrap justify-center items-center gap-2">
                 <button
                   onClick={handleUpdate}
-                  disabled={loading || isDisable || status === "cancelled" || status === "complete"}
+                  disabled={loading || isDisable || status === "cancelled" || (status === "complete" && !isItemListing)}
                   className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded block mx-auto disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? "Please Wait" : "Update"}

@@ -89,6 +89,41 @@ input[type="number"] {
     @apply list-decimal list-outside pl-5;
 }
 
+/* ---- "Sold" watermark on listing cards ---- */
+/* diagonal ribbon: brand gradient + candy stripes + inner highlight */
+.sold-ribbon {
+    background-image:
+        repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.22) 0 12px,
+            rgba(255, 255, 255, 0) 12px 24px
+        ),
+        linear-gradient(90deg, #E61C55 0%, #FA6023 45%, #ffb020 70%, #E61C55 100%);
+    box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.5),
+        inset 0 2px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.28);
+}
+
+/* chunky stamped lettering with a glow + hard shadow for depth */
+.sold-ribbon-text {
+    color: #ffffff;
+    -webkit-text-stroke: 1.5px rgba(120, 0, 30, 0.65);
+    text-shadow:
+        0 2px 0 rgba(120, 0, 30, 0.55),
+        0 0 10px rgba(255, 255, 255, 0.75),
+        0 0 22px rgba(255, 180, 60, 0.7);
+}
+
+/* soft coloured glow bleeding out from behind the ribbon */
+.sold-glow {
+    background: radial-gradient(
+        ellipse at center,
+        rgba(230, 28, 85, 0.45) 0%,
+        rgba(0, 0, 0, 0) 70%
+    );
+}
+
 .username-bg{
     @apply text-base text-white text-center mx-5 py-1.5 rounded-md cursor-pointer;
     background-image: url('./assets/images/utils/username-bg.png');

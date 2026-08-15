@@ -10,8 +10,10 @@ const ConfirmPurchase = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const { user, setUser } = useAuth();
-  const { name, category, selected, inputValues, orderData, quantity, payMethod } =
-    location.state;
+  // location.state is null when this page is opened directly (new tab, bookmark,
+  // shared link), so it must not be destructured blindly.
+  const { name, category, selected, inputValues, orderData, quantity, payMethod, item, service } =
+    location.state || {};
 
   // console.log(orderData);
 
@@ -57,6 +59,49 @@ const ConfirmPurchase = () => {
         .catch((err) => {
           setLoading(false);
           toast.error(err.response.data.error || "Failed to purchase!");
+        });
+    }
+
+    if (name == "itemListing") {
+      const price = item?.offerPrice ?? item?.originalPrice ?? 0;
+      const data = {
+        itemId: item?._id,
+        email: user?.email,
+        orderType: "itemListing",
+      };
+
+      if (payMethod === "direct") {
+        navigate("/addBalance/method", {
+          state: { amount: price, from: "direct", orderData: data },
+        });
+        return;
+      }
+
+      axiosPrivate
+        .post("/order/new/itemListing", data)
+        .then((res) => {
+          if (res.data.success) {
+            toast.success("Order Placed Successfully!");
+            setUser({
+              ...user,
+              balance: user?.balance - res.data.price,
+              orders: user?.orders + 1,
+              spent: user?.spent + res.data.price,
+            });
+            setLoading(false);
+            navigate("/myOrders");
+          } else {
+            setLoading(false);
+            toast.error(res.data.message || "Order Place Failed!");
+          }
+        })
+        .catch((err) => {
+          setLoading(false);
+          toast.error(
+            err?.response?.data?.error ||
+              err?.response?.data?.message ||
+              "Failed to purchase!"
+          );
         });
     }
 
@@ -186,6 +231,21 @@ const ConfirmPurchase = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Nothing to confirm without the purchase details passed by the previous page
+  if (!name) {
+    return (
+      <div className="md:py-5 text-center space-y-3">
+        <h1 className="title">Confirm Purchase</h1>
+        <p className="text-gray-600">
+          This purchase session has expired. Please select your product again.
+        </p>
+        <button onClick={() => navigate("/")} className="button bg-gradient">
+          Go to Home
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="md:py-5">
       <h1 className="title">Confirm Purchase</h1>
@@ -264,6 +324,37 @@ const ConfirmPurchase = () => {
               <span className="w-24 font-semibold">Type</span>
               <span>:</span>
               <span>{orderData?.type}</span>
+            </p>
+          </div>
+        )}
+
+        {/* for item listing (e.g. FF ID buy) */}
+        {name == "itemListing" && (
+          <div className="px-4 py-2">
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">Item</span>
+              <span>:</span>
+              <span>{item?.title}</span>
+            </p>
+            {service?.statLabels?.map((label, idx) => (
+              <p
+                key={idx}
+                className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1 capitalize"
+              >
+                <span className="w-24 font-semibold">{label}</span>
+                <span>:</span>
+                <span>{item?.stats?.[idx] ?? 0}</span>
+              </p>
+            ))}
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">Price</span>
+              <span>:</span>
+              <span>৳{item?.offerPrice ?? item?.originalPrice}</span>
+            </p>
+            <p className="flex items-center gap-2 border-b border-b-slate-300 pb-1 mb-1">
+              <span className="w-24 font-semibold">Payment Method</span>
+              <span>:</span>
+              <span className="capitalize"> {payMethod} </span>
             </p>
           </div>
         )}

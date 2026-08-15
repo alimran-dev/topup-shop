@@ -66,6 +66,9 @@ import ClaimRedeemCode from "../pages/Home/ClaimRedeemCode/ClaimRedeemCode";
 import OrderImages from "../pages/OrderImages/OrderImages";
 import AutoCheck from "../AdminDashboard/Orders/AutoCheck/AutoCheck";
 import ShopStatus from "../AdminDashboard/ShopStatus/ShopStatus";
+import ItemDetails from "../pages/ItemDetails/ItemDetails";
+import ServiceItems from "../AdminDashboard/Services/ServiceItems/ServiceItems";
+import ServiceItemForm from "../AdminDashboard/Services/ServiceItems/ServiceItemForm";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -91,6 +94,10 @@ const router = createBrowserRouter([
       {
         path: "/nested-services/:parentId",
         element: <NestedServices />,
+      },
+      {
+        path: "/item/:itemId",
+        element: <ItemDetails />,
       },
       {
         path: "/shell",
@@ -392,6 +399,22 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AdminNestedServices />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/services/:serviceId/items",
+        element: (
+          <AdminRoute>
+            <ServiceItems />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/services/:serviceId/items/manage/:itemId?",
+        element: (
+          <AdminRoute>
+            <ServiceItemForm />
           </AdminRoute>
         ),
       },

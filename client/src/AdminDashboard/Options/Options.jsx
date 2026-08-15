@@ -15,6 +15,8 @@ const Options = () => {
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
   const [selectedServer, setSelectedServer] = useState("");
+  // Item Listing services hold unique items, not price options
+  const [selectedServiceType, setSelectedServiceType] = useState("");
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const axiosPrivate = useAxiosPrivate();
@@ -40,6 +42,7 @@ const Options = () => {
             title: item.title,
             categoryId: item.categoryId,
             server: item.server,
+            serviceType: item.serviceType,
           })),
         );
       })
@@ -68,6 +71,7 @@ const Options = () => {
     );
     setSelectedSubCategoryId(selectedSubCategoryId);
     setSelectedServer(selectedSubCategory?.server || "");
+    setSelectedServiceType(selectedSubCategory?.serviceType || "");
   };
 
   // load options using subcategory
@@ -215,6 +219,22 @@ const Options = () => {
       {!selectedSubCategoryId ? (
         <div className="py-10 text-center font-bold">
           Please select category and sub-category
+        </div>
+      ) : selectedServiceType === "itemListing" ? (
+        <div className="py-10 text-center space-y-3">
+          <p className="font-bold text-amber-600">
+            This is an Item Listing service — it does not use price options.
+          </p>
+          <p className="text-gray-600">
+            Each product is added as an individual item with its own images,
+            stats and price.
+          </p>
+          <Link
+            to={`/dashboard/services/${selectedSubCategoryId}/items`}
+            className="button bg-gradient inline-flex items-center gap-1"
+          >
+            <FaPlus /> Manage Items
+          </Link>
         </div>
       ) : (
         <>

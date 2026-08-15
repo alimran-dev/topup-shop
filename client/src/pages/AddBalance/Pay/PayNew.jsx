@@ -29,17 +29,33 @@ const PayNew = ({ id, amount, number, fee, provider, category, from, orderData }
       const amount = res?.data?.amount;
       if (res.data.success) {
         if(from==="direct"){
+          // Item-listing purchases are placed through their own endpoint
+          const isItemListing = orderData?.orderType === "itemListing";
+          const orderEndpoint = isItemListing
+            ? "/order/new/itemListing"
+            : "/order/new/dynamic";
           axiosPrivate
-        .post("/order/new/dynamic", {...orderData, trxID})
+        .post(orderEndpoint, {...orderData, trxID})
         .then((res) => {
           if (res.data.success) {
             toast.success("Order Placed Successfully!");
+            if (isItemListing) {
+              // Server reports the charged price for the claimed item
+              const paid = res.data?.price || 0;
+              setUser({
+                ...user,
+                balance: user?.balance + amount - paid,
+                orders: user?.orders + 1,
+                spent: user?.spent + paid,
+              });
+            } else {
             setUser({
               ...user,
               balance: user?.balance+amount-(orderData?.willHaveQuantity?orderData?.price*orderData?.quantity || 0: orderData?.price || 0),
               orders: user?.orders + 1,
               spent: user?.spent + orderData?.willHaveQuantity? (orderData?.price*orderData?.quantity) || 0:orderData?.price || 0,
             });
+            }
             setIsLoading(false);
             navigate("/myOrders");
           } else {

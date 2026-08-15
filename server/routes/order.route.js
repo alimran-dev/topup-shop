@@ -9,6 +9,7 @@ const {
   getPending,
   orderProcess,
   orderDynamic,
+  orderItemListing,
   getLastOrder,
   orderBalanceRecharge,
   orderSpecialOffer,
@@ -30,6 +31,7 @@ const orderRoute = () => {
   router.post("/new/auto/:category", verifyToken, orderAuto);
   router.post("/recharge/offer", verifyToken, orderRechargeOffer);
   router.post("/new/dynamic", verifyToken, orderDynamic);
+  router.post("/new/itemListing", verifyToken, orderItemListing);
   router.post("/new/special", verifyToken, orderSpecialOffer);
   router.post("/recharge/balance", verifyToken, orderBalanceRecharge);
   router.post("/coin/product", verifyToken, orderCoinProduct);

@@ -58,6 +58,7 @@ const run = () => {
   const notificationRoutes = require("./routes/notification.route");
   const autoServerRoutes = require("./routes/autoServer.route");
   const categoryRoute = require("./routes/category.route");
+  const serviceItemRoute = require("./routes/serviceItem.route");
 
   // routes
   app.use("/auth", authRoute());
@@ -83,6 +84,7 @@ const run = () => {
   app.use("/notification", notificationRoutes());
   app.use("/auto",autoServerRoutes());
   app.use("/category", categoryRoute());
+  app.use("/serviceItems", serviceItemRoute());
 };
 
 connectToDB((err) => {

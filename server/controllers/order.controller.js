@@ -17,6 +17,7 @@ const {
   coinSettingCollection,
   coinHistoryCollection,
   likeSubscriptionCollection,
+  serviceItemCollection,
 } = dbCollections || {};
 require("dotenv").config();
 
@@ -29,7 +30,9 @@ const referPurchaseCoin = (user, price, status) => {
         type: "settings",
       });
       if (!coinSettings) {
-        reject({ message: "coin settings not found" });
+        // Must return: without it execution continued with undefined settings,
+        // producing totalCoin = NaN and writing NaN into the referrer's balance.
+        return reject({ message: "coin settings not found" });
       }
       const {
         firstLevelAmount,
@@ -416,7 +419,7 @@ const orderDynamic = async (req, res) => {
       const order = {
         orderID: ordersCount + 1000,
         email: email,
-        category: service?.category,
+        category: service?.categoryId?.toString(),
         subCategory: service?.title,
         name: option.name,
         price: totalPrice,
@@ -666,6 +669,224 @@ const orderDynamic = async (req, res) => {
     }
   } catch (err) {
     console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
+// Purchase of a single unique listing item (serviceType: "itemListing").
+// Unlike orderDynamic, the order is completed immediately — the admin-authored
+// feedback stored on the item is what the buyer receives.
+const orderItemListing = async (req, res) => {
+  try {
+    const { itemId, email, trxID } = req.body || {};
+    const orderTime = new Date();
+    const emailInToken = req.user?.email;
+    if (email !== emailInToken) {
+      return res
+        .cookie("access-token", "", cookieOption(0))
+        .status(401)
+        .send({ message: "unauthorized" });
+    }
+    if (!itemId) {
+      return res.send({ success: false, message: "Invalid request" });
+    }
+
+    const item = await serviceItemCollection.findOne({
+      _id: new ObjectId(itemId),
+    });
+    if (!item) {
+      return res.send({ success: false, message: "Item not found" });
+    }
+    if (item.isActive === false) {
+      return res.send({ success: false, message: "Item is not available" });
+    }
+    if (item.isSold) {
+      return res.send({ success: false, message: "Item is already sold" });
+    }
+
+    const service = await serviceCollection.findOne({
+      _id: new ObjectId(item.serviceId),
+    });
+    if (!service) {
+      return res.send({ success: false, message: "Service not found" });
+    }
+    // The item is only purchasable while its parent service is still an active
+    // item listing. Without this, items stay buyable by direct ID after an admin
+    // deactivates the service or switches it back to a standard service.
+    if (service.isActive === false || service.serviceType !== "itemListing") {
+      return res.send({ success: false, message: "Item is not available" });
+    }
+
+    const user = await userCollection.findOne({ email: email });
+    if (!user) {
+      return res.status(401).send({ error: "User Not Found" });
+    }
+    const totalPrice = item.offerPrice ?? item.originalPrice;
+    if (typeof totalPrice !== "number" || !isFinite(totalPrice) || totalPrice < 0) {
+      return res.send({ success: false, message: "Item price is invalid" });
+    }
+    if (user.balance < totalPrice) {
+      return res.status(400).send({ error: "You don't have enough balance" });
+    }
+
+    // Atomically claim the item so two simultaneous buyers can never both win.
+    const claimResult = await serviceItemCollection.findOneAndUpdate(
+      {
+        _id: new ObjectId(itemId),
+        isSold: { $ne: true },
+        isActive: { $ne: false },
+      },
+      { $set: { isSold: true, soldTo: email, soldAt: new Date() } }
+    );
+    // Driver 6 returns the document directly; guard for the metadata shape too.
+    const claimedItem =
+      claimResult && Object.prototype.hasOwnProperty.call(claimResult, "value")
+        ? claimResult.value
+        : claimResult;
+    if (!claimedItem) {
+      return res
+        .status(409)
+        .send({ success: false, message: "Item is already sold" });
+    }
+
+    // Deduct the balance atomically: the `balance: { $gte: totalPrice }` guard
+    // makes the affordability check and the deduction a single operation, so
+    // concurrent purchases of different items cannot overdraw the account.
+    // If it fails, release the claim so the item is not lost.
+    const userUpdate = await userCollection.updateOne(
+      { email: email, balance: { $gte: totalPrice } },
+      {
+        $inc: {
+          balance: -totalPrice,
+          spent: totalPrice,
+          orders: 1,
+        },
+      }
+    );
+    if (!userUpdate.modifiedCount) {
+      await serviceItemCollection.updateOne(
+        { _id: new ObjectId(itemId) },
+        { $set: { isSold: false }, $unset: { soldTo: 1, soldAt: 1 } }
+      );
+      return res
+        .status(400)
+        .send({ success: false, error: "You don't have enough balance" });
+    }
+
+    const ordersCount = await orderCollection.countDocuments();
+    const statLabels = service.statLabels || [];
+    const info = {};
+    (item.stats || []).forEach((value, idx) => {
+      const label = statLabels[idx];
+      if (label) {
+        info[label] = value;
+      }
+    });
+
+    const order = {
+      orderID: ordersCount + 1000,
+      email: email,
+      category: service?.categoryId?.toString(),
+      subCategory: service?.title,
+      name: item.title,
+      price: totalPrice,
+      orderTime: orderTime,
+      updateTime: new Date(),
+      status: "complete",
+      feedback: item.feedback || "",
+      type: "balance",
+      orderType: "itemListing",
+      itemId: item._id.toString(),
+      info: info,
+    };
+    if (trxID) {
+      order.trxID = trxID;
+    }
+
+    // Persist the order BEFORE any bonus work. The customer has already been
+    // charged and the item claimed, so the order record is the critical piece:
+    // if it cannot be written, undo the charge and release the item rather than
+    // leaving the buyer with no proof of purchase.
+    let result;
+    try {
+      result = await orderCollection.insertOne(order);
+    } catch (insertErr) {
+      console.error("orderItemListing (order insert failed): ", insertErr.message);
+      await userCollection.updateOne(
+        { email: email },
+        { $inc: { balance: totalPrice, spent: -totalPrice, orders: -1 } }
+      );
+      await serviceItemCollection.updateOne(
+        { _id: new ObjectId(itemId) },
+        { $set: { isSold: false }, $unset: { soldTo: 1, soldAt: 1 } }
+      );
+      return res
+        .status(500)
+        .send({ success: false, error: "Internal Server Error" });
+    }
+
+    // The order completes immediately, so bonuses are settled right away instead
+    // of waiting for an admin to process the order. Bonus failures must never
+    // void a paid-for order, so they are non-fatal and recorded after the fact.
+    try {
+      const bonusFields = {};
+      if (user.referredBy && user?.isVerified) {
+        const referHistoryId = await referPurchaseCoin(
+          user,
+          totalPrice,
+          "success"
+        );
+        bonusFields.referHistoryId = referHistoryId;
+      }
+      if (item.coin && user?.isVerified) {
+        const coinHistory = {
+          email: email,
+          name: "Product Purchase Bonus",
+          status: "success",
+          amount: item.coin,
+          createdAt: new Date(),
+          info: {
+            "Product Price": totalPrice,
+          },
+        };
+        const coinHistoryInsert = await coinHistoryCollection.insertOne(
+          coinHistory
+        );
+        bonusFields.coinBonusID = coinHistoryInsert.insertedId.toString();
+        await userCollection.updateOne(
+          { email: email },
+          { $inc: { coins: item.coin } }
+        );
+      }
+      if (Object.keys(bonusFields).length > 0) {
+        await orderCollection.updateOne(
+          { _id: result.insertedId },
+          { $set: bonusFields }
+        );
+      }
+    } catch (bonusErr) {
+      console.error("orderItemListing (bonus settlement): ", bonusErr.message);
+    }
+
+    try {
+      const adminUsers = await userCollection.find({ role: "admin" }).toArray();
+      adminUsers.map((admin) => {
+        if (admin.subscription) {
+          notificationSender(
+            admin.subscription,
+            "New Item Order",
+            item.title,
+            `https://${CONSTANTS.domain}/dashboard/orders`
+          );
+        }
+      });
+    } catch (notifyErr) {
+      console.error("orderItemListing (notification): ", notifyErr.message);
+    }
+
+    res.send({ ...result, success: true, price: totalPrice });
+  } catch (err) {
+    console.error("orderItemListing: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
   }
 };
@@ -1399,11 +1620,20 @@ const orderProcess = async (req, res) => {
     };
     const order = await orderCollection.findOne(filter);
     const result = await orderCollection.updateOne(filter, updateOrder);
-    if (order.coinBonusID) {
+
+    // Settle a coin-bonus record for this status change.
+    // `status` on the coinHistory doc is the source of truth for whether the
+    // coins were actually credited, which makes this safe to run more than once:
+    // completing an already-credited bonus does not credit it twice, and
+    // cancelling a credited bonus (item-listing orders credit at purchase time)
+    // takes the coins back instead of leaving them with the user.
+    const settleCoinBonus = async (bonusId) => {
       const coinHistory = await coinHistoryCollection.findOne({
-        _id: new ObjectId(order.coinBonusID),
+        _id: new ObjectId(bonusId),
       });
-      if (newStatus === "complete") {
+      if (!coinHistory) return;
+      const alreadyCredited = coinHistory.status === "success";
+      if (newStatus === "complete" && !alreadyCredited) {
         await userCollection.updateOne(
           { email: coinHistory.email },
           { $inc: { coins: coinHistory.amount } }
@@ -1414,37 +1644,51 @@ const orderProcess = async (req, res) => {
         );
       }
       if (newStatus === "cancelled") {
+        if (alreadyCredited) {
+          await userCollection.updateOne(
+            { email: coinHistory.email },
+            { $inc: { coins: -coinHistory.amount } }
+          );
+        }
         await coinHistoryCollection.updateOne(
           { _id: coinHistory._id },
           { $set: { status: "cancel" } }
         );
       }
+    };
+
+    if (order.coinBonusID) {
+      await settleCoinBonus(order.coinBonusID);
     }
     if (order.referHistoryId) {
-      const coinHistory = await coinHistoryCollection.findOne({
-        _id: new ObjectId(order.referHistoryId),
-      });
-      if (newStatus === "complete") {
-        await userCollection.updateOne(
-          { email: coinHistory.email },
-          { $inc: { coins: coinHistory.amount } }
-        );
-        await coinHistoryCollection.updateOne(
-          { _id: coinHistory._id },
-          { $set: { status: "success" } }
-        );
-      }
-      if (newStatus === "cancelled") {
-        await coinHistoryCollection.updateOne(
-          { _id: coinHistory._id },
-          { $set: { status: "cancel" } }
-        );
-      }
+      await settleCoinBonus(order.referHistoryId);
     }
-    if (newStatus === "cancelled" && order?.type === "balance") {
+    // Guard on the previous status so cancelling an already-cancelled order
+    // does not refund the customer a second time.
+    const isNewlyCancelled =
+      newStatus === "cancelled" && order?.status !== "cancelled";
+
+    if (isNewlyCancelled && order?.type === "balance") {
       await userCollection.updateOne(
         { email: order.email },
         { $inc: { balance: order.price, spent: -order.price } }
+      );
+    }
+    // Cancelling a listing purchase returns the unique item to the shop, but
+    // hidden rather than immediately back on sale: the previous buyer still has
+    // the delivered credentials in their order, so an admin must rotate them and
+    // re-activate the item deliberately.
+    if (
+      isNewlyCancelled &&
+      order?.orderType === "itemListing" &&
+      order?.itemId
+    ) {
+      await serviceItemCollection.updateOne(
+        { _id: new ObjectId(order.itemId) },
+        {
+          $set: { isSold: false, isActive: false },
+          $unset: { soldTo: 1, soldAt: 1 },
+        }
       );
     }
     res.send(result);
@@ -1587,6 +1831,7 @@ module.exports = {
   getLastOrder,
   orderAuto,
   orderDynamic,
+  orderItemListing,
   orderRechargeOffer,
   orderBalanceRecharge,
   orderSpecialOffer,

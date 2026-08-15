@@ -23,6 +23,7 @@ const OrderHistory = ({ order }) => {
     subCategory,
     info,
     type,
+    orderType,
     processedExternally,
     order: externalOrder,
     screenshots,
@@ -107,11 +108,12 @@ const OrderHistory = ({ order }) => {
               </button>
             </div>
           </div>
-          {subCategory === "unipin" ||
-          subCategory === "shell" ||
-          subCategory === "card" ||
-          subCategory === "unipinNormal" ||
-          (!processedExternally && status === "complete") ? (
+          {orderType !== "itemListing" &&
+          (subCategory === "unipin" ||
+            subCategory === "shell" ||
+            subCategory === "card" ||
+            subCategory === "unipinNormal" ||
+            (!processedExternally && status === "complete")) ? (
             <>
               {codes && (
                 <div className="pt-3">
@@ -135,7 +137,10 @@ const OrderHistory = ({ order }) => {
             <div className="pt-2 mt-3">
               <h4 className="font-bold pb-2">Feedback</h4>
               {feedback ? (
-                <p>{feedback}</p>
+                // pre-wrap so multi-line delivery details keep their formatting
+                <p className="whitespace-pre-wrap break-words normal-case">
+                  {feedback}
+                </p>
               ) : (
                 <p className="text-xs normal-case">Not added yet!</p>
               )}

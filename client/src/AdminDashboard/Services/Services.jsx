@@ -6,7 +6,7 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import toast from 'react-hot-toast';
 import { AiFillDelete } from "react-icons/ai";
 import { FaRegEdit } from "react-icons/fa";
-import { TbArrowsSplit2 } from "react-icons/tb";
+import { TbArrowsSplit2, TbListDetails } from "react-icons/tb";
 import Swal from "sweetalert2";
 
 
@@ -145,6 +145,15 @@ const Services = () => {
                                                     >
                                                         <TbArrowsSplit2 className="inline mr-1" />
                                                         Manage Children
+                                                    </Link>
+                                                )}
+                                                {service?.serviceType === "itemListing" && (
+                                                    <Link
+                                                        to={`/dashboard/services/${service?._id}/items`}
+                                                        className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200"
+                                                    >
+                                                        <TbListDetails className="inline mr-1" />
+                                                        Manage Items
                                                     </Link>
                                                 )}
                                             </div>
