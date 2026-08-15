@@ -53,6 +53,9 @@ const AddSubCategory = () => {
   const [isAuto, setIsAuto] = useState(false);
   const [serviceType, setServiceType] = useState("standard");
   const [statLabels, setStatLabels] = useState(["", "", "", ""]);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [soldPerPage, setSoldPerPage] = useState(20);
+  const [soldTotalLimit, setSoldTotalLimit] = useState(0);
   const navigate = useNavigate();
 
   const handleStatLabelChange = (index, value) => {
@@ -129,6 +132,9 @@ const AddSubCategory = () => {
       if (serviceType === "itemListing") {
         newSubCategory.serviceType = "itemListing";
         newSubCategory.statLabels = statLabels.map((l) => l.trim());
+        newSubCategory.itemsPerPage = itemsPerPage;
+        newSubCategory.soldPerPage = soldPerPage;
+        newSubCategory.soldTotalLimit = soldTotalLimit;
       }
 
       // call post api
@@ -269,6 +275,52 @@ const AddSubCategory = () => {
               These four labels are shown on every item card and detail page under
               this service (e.g. LVL, Prime LVL, Evo, Like).
             </p>
+
+            {/* listing / sold pagination settings */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+              <div>
+                <label className="input-label">Items Per Page</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  className="input"
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(e.target.value)}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Items shown per page in the main listing (max 100).
+                </p>
+              </div>
+              <div>
+                <label className="input-label">Sold Items Per Page</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  className="input"
+                  value={soldPerPage}
+                  onChange={(e) => setSoldPerPage(e.target.value)}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Items shown per page in the Recently Sold section (max 100).
+                </p>
+              </div>
+              <div>
+                <label className="input-label">Total Sold Items Limit</label>
+                <input
+                  type="number"
+                  min="0"
+                  className="input"
+                  value={soldTotalLimit}
+                  onChange={(e) => setSoldTotalLimit(e.target.value)}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Maximum sold items ever shown, across all pages. Use{" "}
+                  <b>0</b> for no limit.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 

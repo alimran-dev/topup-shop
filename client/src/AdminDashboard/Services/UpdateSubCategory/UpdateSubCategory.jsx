@@ -30,6 +30,9 @@ const UpdateSubCategory = () => {
     const [redirectUrl, setRedirectUrl] = useState('');
     const [serviceType, setServiceType] = useState('standard');
     const [statLabels, setStatLabels] = useState(['', '', '', '']);
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+    const [soldPerPage, setSoldPerPage] = useState(20);
+    const [soldTotalLimit, setSoldTotalLimit] = useState(0);
     const [loading, setLoading] = useState(false);
     const axiosPrivate = useAxiosPrivate();
     const axiosPublic = useAxiosPublic();
@@ -68,6 +71,9 @@ const UpdateSubCategory = () => {
                     ? labels
                     : ['', '', '', '']
             );
+            setItemsPerPage(res?.data?.itemsPerPage ?? 20);
+            setSoldPerPage(res?.data?.soldPerPage ?? 20);
+            setSoldTotalLimit(res?.data?.soldTotalLimit ?? 0);
         })
     }, [axiosPrivate, id]);
 
@@ -179,6 +185,9 @@ const UpdateSubCategory = () => {
                 redirectUrl: redirectUrl || null,
                 serviceType: serviceType === 'itemListing' ? 'itemListing' : null,
                 statLabels: serviceType === 'itemListing' ? statLabels.map((l) => l.trim()) : null,
+                itemsPerPage,
+                soldPerPage,
+                soldTotalLimit,
             };
 
             // console.log(updatedSubCategory);
@@ -296,6 +305,51 @@ const UpdateSubCategory = () => {
                         <p className="text-xs text-gray-500 mt-1">
                             Renaming a label only changes the displayed text — existing item values keep their position.
                         </p>
+
+                        {/* listing / sold pagination settings */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+                            <div>
+                                <label className="input-label">Items Per Page</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="100"
+                                    className="input"
+                                    value={itemsPerPage}
+                                    onChange={(e) => setItemsPerPage(e.target.value)}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Items shown per page in the main listing (max 100).
+                                </p>
+                            </div>
+                            <div>
+                                <label className="input-label">Sold Items Per Page</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="100"
+                                    className="input"
+                                    value={soldPerPage}
+                                    onChange={(e) => setSoldPerPage(e.target.value)}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Items shown per page in the Recently Sold section (max 100).
+                                </p>
+                            </div>
+                            <div>
+                                <label className="input-label">Total Sold Items Limit</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className="input"
+                                    value={soldTotalLimit}
+                                    onChange={(e) => setSoldTotalLimit(e.target.value)}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Maximum sold items ever shown, across all pages. Use <b>0</b> for no limit.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 )}
 

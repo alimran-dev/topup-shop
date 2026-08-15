@@ -18,7 +18,7 @@ const ItemCard = ({ item, statLabels, isSold }) => {
         <ImageSwiper
           images={item?.images}
           delayMs={item?.swiperDelay}
-          heightClass="h-48 md:h-44"
+          maxHeightClass="max-h-80 md:max-h-56"
         />
 
         {/* diagonal "Sold" stamp, bottom-left to top-right */}

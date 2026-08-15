@@ -22,6 +22,17 @@ const validateStatLabels = (statLabels) => {
 const sanitizeStatLabels = (statLabels) =>
   statLabels.map((l) => l.trim().replace(/\./g, " ").replace(/^\$+/, ""));
 
+// Helper: coerce an admin-entered count into a sane positive integer.
+// Returns `fallback` when blank/invalid, and clamps to `max`.
+const toCount = (value, fallback, max) => {
+  if (value === undefined || value === null || value === "") return fallback;
+  const n = parseInt(value);
+  if (isNaN(n) || n < 0) return fallback;
+  return max ? Math.min(n, max) : n;
+};
+
+const MAX_PER_PAGE = 100;
+
 // Helper: Recursively collect all descendant service IDs for cascade delete
 const getAllDescendantIds = async (parentId) => {
   const ids = [];
@@ -128,6 +139,9 @@ const getService = async (req, res) => {
             redirectUrl: 1,
             serviceType: 1,
             statLabels: 1,
+            itemsPerPage: 1,
+            soldPerPage: 1,
+            soldTotalLimit: 1,
           },
         },
       ])
@@ -360,6 +374,18 @@ const addSubCategory = async (req, res) => {
       if (serviceType === "itemListing") {
         subCategory.serviceType = "itemListing";
         subCategory.statLabels = sanitizeStatLabels(statLabels);
+        subCategory.itemsPerPage = toCount(
+          req.body.itemsPerPage,
+          20,
+          MAX_PER_PAGE
+        );
+        subCategory.soldPerPage = toCount(
+          req.body.soldPerPage,
+          20,
+          MAX_PER_PAGE
+        );
+        // 0 = show every sold item
+        subCategory.soldTotalLimit = toCount(req.body.soldTotalLimit, 0);
       }
       const result = await serviceCollection.insertOne(subCategory);
       res.send(result);
@@ -468,12 +494,26 @@ const updateSubCategory = async (req, res) => {
         }
         updateDoc.$set.serviceType = "itemListing";
         updateDoc.$set.statLabels = sanitizeStatLabels(statLabels);
+        updateDoc.$set.itemsPerPage = toCount(
+          req.body.itemsPerPage,
+          20,
+          MAX_PER_PAGE
+        );
+        updateDoc.$set.soldPerPage = toCount(
+          req.body.soldPerPage,
+          20,
+          MAX_PER_PAGE
+        );
+        updateDoc.$set.soldTotalLimit = toCount(req.body.soldTotalLimit, 0);
       } else {
         // Reverting to a standard service — drop the listing configuration.
         // Existing items are kept in the DB but become unreachable via navigation.
         if (!updateDoc.$unset) updateDoc.$unset = {};
         updateDoc.$unset.serviceType = 1;
         updateDoc.$unset.statLabels = 1;
+        updateDoc.$unset.itemsPerPage = 1;
+        updateDoc.$unset.soldPerPage = 1;
+        updateDoc.$unset.soldTotalLimit = 1;
       }
     }
 

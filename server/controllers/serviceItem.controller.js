@@ -26,7 +26,8 @@ const getNextItemNumber = async () => {
 const DEFAULT_SWIPER_DELAY = 3000;
 const STAT_COUNT = 4;
 const DEFAULT_LIMIT = 20;
-const MAX_LIMIT = 50;
+// admins may configure a page size up to this
+const MAX_LIMIT = 100;
 
 // Helper: wa.me links accept digits only — no "+", spaces or dashes.
 // The admin is responsible for including the country code (e.g. 8801712345678).
@@ -127,14 +128,39 @@ const getServiceItems = async (req, res) => {
     const limitInt = Math.min(MAX_LIMIT, Math.max(1, parseInt(limit) || DEFAULT_LIMIT));
     const filter = buildBrowseFilter(req.query);
     // The sold showcase is always ordered most-recently-sold first
-    const sortSpec = sold === "true" ? { soldAt: -1, _id: -1 } : buildSort(sort);
+    const isSoldList = sold === "true";
+    const sortSpec = isSoldList ? { soldAt: -1, _id: -1 } : buildSort(sort);
+
+    // The admin can cap how many sold items are ever exposed. Enforced here so
+    // the cap holds across every page, not just the first one.
+    let soldCap = 0;
+    if (isSoldList) {
+      const service = await serviceCollection.findOne(
+        { _id: new ObjectId(serviceId) },
+        { projection: { soldTotalLimit: 1 } }
+      );
+      soldCap = service?.soldTotalLimit > 0 ? service.soldTotalLimit : 0;
+    }
+
+    const skip = (pageInt - 1) * limitInt;
+    // Never read past the cap
+    const effectiveLimit = soldCap
+      ? Math.max(0, Math.min(limitInt, soldCap - skip))
+      : limitInt;
+
+    if (effectiveLimit === 0) {
+      const capped = soldCap
+        ? Math.min(soldCap, await serviceItemCollection.countDocuments(filter))
+        : 0;
+      return res.send({ items: [], totalItems: capped });
+    }
 
     const [items, totalItems] = await Promise.all([
       serviceItemCollection
         .find(filter, {
           sort: sortSpec,
-          skip: (pageInt - 1) * limitInt,
-          limit: limitInt,
+          skip,
+          limit: effectiveLimit,
           projection: {
             serviceId: 1,
             itemNumber: 1,
@@ -152,7 +178,11 @@ const getServiceItems = async (req, res) => {
       serviceItemCollection.countDocuments(filter),
     ]);
 
-    res.send({ items, totalItems });
+    // Report the capped total so the client renders the right number of pages
+    res.send({
+      items,
+      totalItems: soldCap ? Math.min(soldCap, totalItems) : totalItems,
+    });
   } catch (err) {
     console.error("getServiceItems: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });

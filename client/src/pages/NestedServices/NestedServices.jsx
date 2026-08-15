@@ -40,8 +40,11 @@ const NestedServices = () => {
   const navigate = useNavigate();
 
   const isItemListing = parentService?.serviceType === "itemListing";
-  const totalPages = Math.ceil(totalItems / ITEMS_LIMIT);
-  const soldTotalPages = Math.ceil(soldTotal / ITEMS_LIMIT);
+  // page sizes are configured per service by the admin
+  const itemsPerPage = parentService?.itemsPerPage > 0 ? parentService.itemsPerPage : ITEMS_LIMIT;
+  const soldPerPage = parentService?.soldPerPage > 0 ? parentService.soldPerPage : ITEMS_LIMIT;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const soldTotalPages = Math.ceil(soldTotal / soldPerPage);
 
   // This route re-uses the same component when navigating between services, so
   // scroll position and any previous service's sort/filters must be reset —
@@ -121,7 +124,7 @@ const NestedServices = () => {
       const params = new URLSearchParams();
       params.set("serviceId", parentId);
       params.set("page", page);
-      params.set("limit", ITEMS_LIMIT);
+      params.set("limit", itemsPerPage);
       params.set("sort", sort);
       Object.entries(appliedFilters).forEach(([key, value]) => {
         if (value !== "" && value !== undefined && value !== null) {
@@ -130,7 +133,7 @@ const NestedServices = () => {
       });
       return params.toString();
     },
-    [parentId, sort, appliedFilters]
+    [parentId, sort, appliedFilters, itemsPerPage]
   );
 
   // Load filter bounds once the service is known to be an item listing
@@ -177,7 +180,7 @@ const NestedServices = () => {
     setSoldLoading(true);
     axiosPublic
       .get(
-        `/serviceItems?serviceId=${parentId}&sold=true&page=${soldPage}&limit=${ITEMS_LIMIT}`
+        `/serviceItems?serviceId=${parentId}&sold=true&page=${soldPage}&limit=${soldPerPage}`
       )
       .then((res) => {
         if (requestId !== soldRequestRef.current) return;
@@ -193,15 +196,15 @@ const NestedServices = () => {
         if (requestId !== soldRequestRef.current) return;
         setSoldLoading(false);
       });
-  }, [axiosPublic, isItemListing, parentId, soldPage]);
+  }, [axiosPublic, isItemListing, parentId, soldPage, soldPerPage]);
 
   // If the last item on the final page is bought while the user is on it, the
   // page can fall out of range — step back instead of showing an empty grid.
   useEffect(() => {
-    if (totalItems > 0 && page > Math.ceil(totalItems / ITEMS_LIMIT)) {
-      setPage(Math.ceil(totalItems / ITEMS_LIMIT));
+    if (totalItems > 0 && page > Math.ceil(totalItems / itemsPerPage)) {
+      setPage(Math.ceil(totalItems / itemsPerPage));
     }
-  }, [totalItems, page]);
+  }, [totalItems, page, itemsPerPage]);
 
   const handleChildClick = (child) => {
     if (child?.redirectUrl) {

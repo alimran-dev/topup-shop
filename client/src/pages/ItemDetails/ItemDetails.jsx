@@ -154,7 +154,7 @@ const ItemDetails = () => {
         <ImageSwiper
           images={item?.images}
           delayMs={item?.swiperDelay}
-          heightClass="h-56 md:h-96"
+          maxHeightClass="max-h-[75vh]"
         />
       </div>
 
