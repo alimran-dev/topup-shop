@@ -28,6 +28,8 @@ const ServiceItemForm = () => {
   const [feedback, setFeedback] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
+  const [telegramLink, setTelegramLink] = useState("");
+  const [facebookLink, setFacebookLink] = useState("");
   // Left blank on create so the server assigns the next serial automatically
   const [serial, setSerial] = useState("");
   const [isActive, setIsActive] = useState(true);
@@ -74,6 +76,8 @@ const ServiceItemForm = () => {
         setFeedback(data.feedback || "");
         setWhatsappNumber(data.whatsappNumber || "");
         setWhatsappText(data.whatsappText || "");
+        setTelegramLink(data.telegramLink || "");
+        setFacebookLink(data.facebookLink || "");
         setSerial(data.serial ?? "");
         setIsActive(data.isActive !== false);
       })
@@ -166,6 +170,8 @@ const ServiceItemForm = () => {
         feedback,
         whatsappNumber,
         whatsappText,
+        telegramLink,
+        facebookLink,
         isActive,
       };
 
@@ -329,41 +335,79 @@ const ServiceItemForm = () => {
           </p>
         </div>
 
-        {/* admin whatsapp contact */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label className="input-label">
-              Admin WhatsApp Number{" "}
-              <span className="text-gray-400 text-sm">(optional)</span>
-            </label>
-            <input
-              type="text"
-              className="input"
-              placeholder="8801712345678"
-              value={whatsappNumber}
-              onChange={(e) => setWhatsappNumber(e.target.value)}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Must include the country code and no leading &quot;+&quot; or spaces
-              (e.g. <b>8801712345678</b> for Bangladesh). Leave empty to hide the
-              WhatsApp button on this item.
-            </p>
+        {/* admin contact — whatsapp, telegram, facebook */}
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="input-label">
+                Admin WhatsApp Number{" "}
+                <span className="text-gray-400 text-sm">(optional)</span>
+              </label>
+              <input
+                type="text"
+                className="input"
+                placeholder="8801712345678"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Must include the country code and no leading &quot;+&quot; or
+                spaces (e.g. <b>8801712345678</b> for Bangladesh). Leave empty
+                to hide the WhatsApp button on this item.
+              </p>
+            </div>
+            <div>
+              <label className="input-label">
+                WhatsApp Message{" "}
+                <span className="text-gray-400 text-sm">(optional)</span>
+              </label>
+              <textarea
+                className="input w-full h-20 resize-y"
+                placeholder="Hello, I am interested in this ID..."
+                value={whatsappText}
+                onChange={(e) => setWhatsappText(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Pre-filled in the customer&apos;s WhatsApp chat. Mention the item
+                so you know which one they mean.
+              </p>
+            </div>
           </div>
-          <div>
-            <label className="input-label">
-              WhatsApp Message{" "}
-              <span className="text-gray-400 text-sm">(optional)</span>
-            </label>
-            <textarea
-              className="input w-full h-20 resize-y"
-              placeholder="Hello, I am interested in this ID..."
-              value={whatsappText}
-              onChange={(e) => setWhatsappText(e.target.value)}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Pre-filled in the customer&apos;s WhatsApp chat. Mention the item so
-              you know which one they mean.
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="input-label">
+                Admin Telegram{" "}
+                <span className="text-gray-400 text-sm">(optional)</span>
+              </label>
+              <input
+                type="text"
+                className="input"
+                placeholder="@username or https://t.me/username"
+                value={telegramLink}
+                onChange={(e) => setTelegramLink(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Username or full link. Leave empty to hide the Telegram button on
+                this item.
+              </p>
+            </div>
+            <div>
+              <label className="input-label">
+                Admin Facebook{" "}
+                <span className="text-gray-400 text-sm">(optional)</span>
+              </label>
+              <input
+                type="text"
+                className="input"
+                placeholder="https://facebook.com/username"
+                value={facebookLink}
+                onChange={(e) => setFacebookLink(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Username or full link. Leave empty to hide the Facebook button on
+                this item.
+              </p>
+            </div>
           </div>
         </div>
 

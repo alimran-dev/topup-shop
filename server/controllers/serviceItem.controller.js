@@ -97,7 +97,7 @@ const buildSort = (sort) => {
   if (sort === "priceDesc") {
     return { offerPrice: -1, _id: 1 };
   }
-  return { serial: 1, _id: 1 };
+  return { serial: -1, _id: -1 };
 };
 
 // Helper: normalize an incoming stats array into exactly 4 numbers
@@ -219,6 +219,8 @@ const getServiceItem = async (req, res) => {
           isSold: 1,
           whatsappNumber: 1,
           whatsappText: 1,
+          telegramLink: 1,
+          facebookLink: 1,
         },
       }
     );
@@ -307,7 +309,7 @@ const getAdminServiceItems = async (req, res) => {
         .send({ success: false, error: "serviceId is required" });
     }
     const items = await serviceItemCollection
-      .find({ serviceId: new ObjectId(serviceId) }, { sort: { serial: 1, _id: 1 } })
+      .find({ serviceId: new ObjectId(serviceId) }, { sort: { serial: -1, _id: -1 } })
       .toArray();
     res.send(items);
   } catch (err) {
@@ -354,6 +356,8 @@ const addServiceItem = async (req, res) => {
       isActive,
       whatsappNumber,
       whatsappText,
+      telegramLink,
+      facebookLink,
     } = req.body;
 
     if (!serviceId || !title || !Array.isArray(images) || images.length === 0) {
@@ -426,6 +430,8 @@ const addServiceItem = async (req, res) => {
     const cleanWhatsapp = sanitizeWhatsappNumber(whatsappNumber);
     if (cleanWhatsapp) item.whatsappNumber = cleanWhatsapp;
     if (whatsappText) item.whatsappText = whatsappText;
+    if (telegramLink) item.telegramLink = telegramLink;
+    if (facebookLink) item.facebookLink = facebookLink;
 
     const result = await serviceItemCollection.insertOne(item);
     res.send(result);
@@ -455,6 +461,8 @@ const updateServiceItem = async (req, res) => {
       isActive,
       whatsappNumber,
       whatsappText,
+      telegramLink,
+      facebookLink,
     } = req.body;
 
     if (!id) {
@@ -542,6 +550,8 @@ const updateServiceItem = async (req, res) => {
       videoUrl,
       feedback,
       whatsappText,
+      telegramLink,
+      facebookLink,
     };
     Object.entries(optionalText).forEach(([key, val]) => {
       if (val === undefined) return;

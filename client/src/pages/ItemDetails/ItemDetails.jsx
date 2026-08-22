@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { IoInformationCircleOutline } from "react-icons/io5";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp, FaTelegramPlane, FaFacebookF } from "react-icons/fa";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
@@ -53,6 +53,19 @@ const ItemDetails = () => {
           : ""
       }`
     : "";
+  // Telegram/Facebook accept a bare handle or a full link; a handle is
+  // normalized into the platform URL
+  const buildProfileLink = (value, base) => {
+    const v = (value || "").trim();
+    if (!v) return "";
+    if (/^https?:\/\//i.test(v)) return v;
+    return `${base}${v.replace(/^@+/, "")}`;
+  };
+  const telegramLink = buildProfileLink(item?.telegramLink, "https://t.me/");
+  const facebookLink = buildProfileLink(
+    item?.facebookLink,
+    "https://www.facebook.com/"
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -158,8 +171,46 @@ const ItemDetails = () => {
         />
       </div>
 
-      {/* Title + admin WhatsApp contact */}
-      <div className="flex items-start justify-between gap-3">
+      {/* Admin contact row (WhatsApp / Telegram / Facebook) above the title */}
+      <div className="space-y-2">
+        {(whatsappLink || telegramLink || facebookLink) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {whatsappLink && (
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 bg-[#25D366] text-white font-semibold rounded-md px-3 py-1.5 text-xs md:text-sm hover:opacity-90 transition-opacity"
+              >
+                <FaWhatsapp className="text-base md:text-lg" />
+                WhatsApp
+              </a>
+            )}
+            {telegramLink && (
+              <a
+                href={telegramLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 bg-[#229ED9] text-white font-semibold rounded-md px-3 py-1.5 text-xs md:text-sm hover:opacity-90 transition-opacity"
+              >
+                <FaTelegramPlane className="text-base md:text-lg" />
+                Telegram
+              </a>
+            )}
+            {facebookLink && (
+              <a
+                href={facebookLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 bg-[#1877F2] text-white font-semibold rounded-md px-3 py-1.5 text-xs md:text-sm hover:opacity-90 transition-opacity"
+              >
+                <FaFacebookF className="text-base md:text-lg" />
+                Facebook
+              </a>
+            )}
+          </div>
+        )}
+
         <div>
           {item?.itemNumber ? (
             <span className="inline-block bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full mb-1.5 tracking-wide">
@@ -170,17 +221,6 @@ const ItemDetails = () => {
             {item?.title}
           </h1>
         </div>
-        {whatsappLink && (
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 flex items-center gap-1.5 bg-[#25D366] text-white font-semibold rounded-md px-3 py-2 text-xs md:text-sm hover:opacity-90 transition-opacity"
-          >
-            <FaWhatsapp className="text-lg md:text-xl" />
-            Admin Whatsapp
-          </a>
-        )}
       </div>
 
       {/* 4 stats */}
