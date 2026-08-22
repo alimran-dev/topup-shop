@@ -62,6 +62,13 @@ const connectToDB = (cb) => {
       dbCollections.categoryCollection = database.collection("categories");
       dbCollections.serviceItemCollection = database.collection("serviceItems");
       dbCollections.counterCollection = database.collection("counters");
+      dbCollections.subscriptionTypeCollection =
+        database.collection("subscriptionTypes");
+      dbCollections.subscriptionPackageCollection =
+        database.collection("subscriptionPackages");
+      dbCollections.subscriptionCollection = database.collection("subscriptions");
+      dbCollections.subscriptionHistoryCollection =
+        database.collection("subscriptionHistory");
 
       try {
         await dbCollections.unipinCollection.createIndex({code: 1}, {unique: true});
@@ -89,6 +96,41 @@ const connectToDB = (cb) => {
             partialFilterExpression: { itemNumber: { $type: "number" } },
           }
         );
+        // subscription types: stable display ordering
+        await dbCollections.subscriptionTypeCollection.createIndex({ serial: 1 });
+        // subscription packages: catalog / per-type admin list
+        await dbCollections.subscriptionPackageCollection.createIndex({
+          typeId: 1,
+          isActive: 1,
+        });
+        // one subscription per user per type — unique index is the race backstop
+        await dbCollections.subscriptionCollection.createIndex(
+          { email: 1, typeId: 1 },
+          { unique: true }
+        );
+        await dbCollections.subscriptionCollection.createIndex({ email: 1 });
+        await dbCollections.subscriptionCollection.createIndex({ typeId: 1 });
+        // admin subscriber list filters (status + expiry window)
+        await dbCollections.subscriptionCollection.createIndex({
+          status: 1,
+          expiresAt: 1,
+        });
+        // history: admin timeline, per-user timeline, event/type filters
+        await dbCollections.subscriptionHistoryCollection.createIndex({
+          createdAt: -1,
+        });
+        await dbCollections.subscriptionHistoryCollection.createIndex({
+          email: 1,
+          createdAt: -1,
+        });
+        await dbCollections.subscriptionHistoryCollection.createIndex({
+          eventType: 1,
+          createdAt: -1,
+        });
+        await dbCollections.subscriptionHistoryCollection.createIndex({
+          typeId: 1,
+          createdAt: -1,
+        });
         console.log("Indexes created successfully");
       } catch (error) {
         console.log("Failed to create indexes", error?.message);

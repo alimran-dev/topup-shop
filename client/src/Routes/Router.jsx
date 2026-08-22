@@ -69,6 +69,13 @@ import ShopStatus from "../AdminDashboard/ShopStatus/ShopStatus";
 import ItemDetails from "../pages/ItemDetails/ItemDetails";
 import ServiceItems from "../AdminDashboard/Services/ServiceItems/ServiceItems";
 import ServiceItemForm from "../AdminDashboard/Services/ServiceItems/ServiceItemForm";
+import Subscriptions from "../AdminDashboard/Subscriptions/Subscriptions";
+import PackageForm from "../AdminDashboard/Subscriptions/PackageForm";
+import Subscribers from "../AdminDashboard/Subscriptions/Subscribers";
+import SubscriptionHistory from "../AdminDashboard/Subscriptions/SubscriptionHistory";
+import SubscriptionsPage from "../pages/Subscriptions/Subscriptions";
+import SubscriptionConfirm from "../pages/Subscriptions/SubscriptionConfirm";
+import MySubscription from "../pages/Subscriptions/MySubscription";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -102,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: "/shell",
         element: <Shell />,
+      },
+      {
+        path: "/subscriptions",
+        element: <SubscriptionsPage />,
       },
       {
         path: "/cards/:next",
@@ -188,6 +199,22 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <MyOrders />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/subscription/confirm",
+        element: (
+          <PrivateRoute>
+            <SubscriptionConfirm />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/mySubscription",
+        element: (
+          <PrivateRoute>
+            <MySubscription />
           </PrivateRoute>
         ),
       },
@@ -415,6 +442,38 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <ServiceItemForm />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/subscriptions",
+        element: (
+          <AdminRoute>
+            <Subscriptions />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/subscriptions/packages/manage/:id?",
+        element: (
+          <AdminRoute>
+            <PackageForm />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/subscriptions/subscribers",
+        element: (
+          <AdminRoute>
+            <Subscribers />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/subscriptions/history",
+        element: (
+          <AdminRoute>
+            <SubscriptionHistory />
           </AdminRoute>
         ),
       },

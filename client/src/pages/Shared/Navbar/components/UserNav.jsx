@@ -5,11 +5,13 @@ import { MdAccountBalance,MdOutlineLeaderboard ,MdOutlineStorefront } from "reac
 import { IoGridOutline } from "react-icons/io5";
 import { NavLink, useLocation } from "react-router-dom";
 import { BsCoin } from "react-icons/bs";
+import { FaCrown } from "react-icons/fa";
 
 const navItems = [
   { to: "/myAccount", icon: VscAccount, label: "My Account" },
   { to: "/addBalance", icon: MdAccountBalance, label: "Add Balance" },
   { to: "/myOrders", icon: IoGridOutline, label: "My Orders" },
+  { to: "/mySubscription", icon: FaCrown, label: "My Subscription" },
   { to: "/myTransactions", icon: TfiMenuAlt, label: "My Transactions" },
   { to: "/coinsAndReferral", icon: BsCoin, label: "Coins & Referral" },
   { to: "/store", icon: MdOutlineStorefront, label: "Store" },
