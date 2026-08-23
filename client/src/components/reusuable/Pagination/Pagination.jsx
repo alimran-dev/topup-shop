@@ -55,8 +55,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             aria-current={page === currentPage ? "page" : undefined}
             className={`${baseBtn} ${
               page === currentPage
-                ? "bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white border-transparent"
-                : "border-gray-300 hover:border-[#FA6023]"
+                ? "bg-gradient-to-r from-primary to-secondary text-white border-transparent"
+                : "border-gray-300 hover:border-primary"
             }`}
           >
             {page}

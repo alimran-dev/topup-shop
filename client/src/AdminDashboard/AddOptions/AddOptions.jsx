@@ -93,7 +93,7 @@ const AddOptions = () => {
   };
   return (
     <div className="-mt-5 space-y-5">
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
         Add Options
       </h1>
       <form onSubmit={handleAdd} className="space-y-5">
@@ -198,13 +198,13 @@ const AddOptions = () => {
           <p className="text-center font-medium text-red-500 pb-2">{error}</p>
           <button
             type="submit"
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+            className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
           >
             Add
           </button>
         </div>
       </form>
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
         Recharge Options
       </h1>
       <form onSubmit={handleAddRecharge} className="space-y-5">
@@ -395,13 +395,13 @@ const AddOptions = () => {
           <p className="text-center font-medium text-red-500 pb-2">{error2}</p>
           <button
             type="submit"
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+            className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
           >
             Add Offer
           </button>
         </div>
       </form>
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
         Special Offer Options
       </h1>
       <form onSubmit={handleAddOffer} className="space-y-5">
@@ -482,7 +482,7 @@ const AddOptions = () => {
           <p className="text-center font-medium text-red-500 pb-2">{error2}</p>
           <button
             type="submit"
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+            className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
           >
             Add Offer
           </button>

@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
+
+const CENTRAL_SERVERS = ["unipin", "my", "sg", "indo"];
 
 const UpdateOption = ({
   idx,
@@ -12,7 +15,29 @@ const UpdateOption = ({
   screen,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [subTypes, setSubTypes] = useState([]);
+  const [subPrices, setSubPrices] = useState({}); // [typeId] = "" | value-string
   const axiosPrivate = useAxiosPrivate();
+
+  // subscription types for the per-type subscriber price inputs
+  useEffect(() => {
+    axiosPrivate
+      .get("/subscription/admin/types")
+      .then((res) => setSubTypes(res.data || []))
+      .catch(() => {});
+  }, [axiosPrivate]);
+
+  // prefill subscriber prices from the option (reset when option changes)
+  useEffect(() => {
+    setSubPrices(
+      Object.fromEntries(
+        Object.entries(option?.subscriberPrices || {}).map(([k, v]) => [
+          k,
+          String(v),
+        ])
+      )
+    );
+  }, [option?.subscriberPrices]);
 
   // update option fn
   const handleUpdate = (e) => {
@@ -31,6 +56,15 @@ const UpdateOption = ({
     const willHaveQuantity =
       selectedServer === "like" ? false : !!form.willHaveQuantity?.checked;
 
+    // Per-type subscriber prices (empty map -> server removes the field)
+    const subscriberPrices = {};
+    for (const t of subTypes) {
+      const val = subPrices[t._id];
+      if (val !== undefined && val !== "") {
+        subscriberPrices[t._id] = Number(val);
+      }
+    }
+
     const updatedOption = {
       index,
       name,
@@ -40,6 +74,7 @@ const UpdateOption = ({
       coin,
       serial,
       willHaveQuantity,
+      subscriberPrices,
     };
 
     // console.log(updatedOption);
@@ -186,10 +221,56 @@ const UpdateOption = ({
                 />
               </div>
             )}
+            {CENTRAL_SERVERS.includes(selectedServer) ? (
+              <p className="text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                Subscriber prices for this server are managed centrally on the{" "}
+                <Link
+                  to="/dashboard/subscriber-pricing"
+                  className="underline font-semibold"
+                >
+                  Subscriber Pricing
+                </Link>{" "}
+                page — this option's subscriber price is calculated from the
+                per-unit prices automatically.
+              </p>
+            ) : (
+              subTypes.length > 0 && (
+                <div className="space-y-2">
+                  <label className="block text-xl font-medium text-gray-700">
+                    Subscriber Prices (৳){" "}
+                    <span className="text-sm font-normal text-gray-500">
+                      — blank = normal price
+                    </span>
+                  </label>
+                  <div className="flex flex-wrap gap-4">
+                    {subTypes.map((t) => (
+                      <div key={t._id} className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-600">
+                          {t.name}
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          className="block w-40 py-1.5 px-3 font-medium border-2 border-gray-600 rounded-md"
+                          placeholder="Normal price"
+                          value={subPrices[t._id] ?? ""}
+                          onChange={(e) =>
+                            setSubPrices((prev) => ({
+                              ...prev,
+                              [t._id]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
             <div>
               <button
                 type="submit"
-                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+                className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
                 disabled={loading}
               >
                 {loading ? "Please wait" : "Update"}
@@ -211,6 +292,7 @@ UpdateOption.propTypes = {
     coin: PropTypes.number,
     serial: PropTypes.number,
     willHaveQuantity: PropTypes.bool,
+    subscriberPrices: PropTypes.object,
   }),
   selectedSubCategoryId: PropTypes.oneOfType([
     PropTypes.string,

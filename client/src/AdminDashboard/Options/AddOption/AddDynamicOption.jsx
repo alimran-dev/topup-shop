@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ComboModal from "./ComboModal";
 
 const AddDynamicOption = () => {
@@ -13,7 +13,10 @@ const AddDynamicOption = () => {
   const [isAutoEnable, setIsAutoEnable] = useState(false);
   const [isOpenCombo, setIsOpenCombo] = useState(false);
   const [selectedServer, setSelectedServer] = useState("");
+  const [subTypes, setSubTypes] = useState([]);
   const axiosPublic = useAxiosPublic();
+
+  const CENTRAL_SERVERS = ["unipin", "my", "sg", "indo"];
 
   // Load categories
   useEffect(() => {
@@ -146,6 +149,14 @@ const AddDynamicOption = () => {
   });
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate(null);
+
+  // subscription types for the per-type subscriber price inputs
+  useEffect(() => {
+    axiosPrivate
+      .get("/subscription/admin/types")
+      .then((res) => setSubTypes(res.data || []))
+      .catch(() => {});
+  }, [axiosPrivate]);
 
   // get subcategories
   useEffect(() => {
@@ -306,6 +317,18 @@ const AddDynamicOption = () => {
       newOption.combo = newCombo;
     }
 
+    // Per-type subscriber prices (hidden for centrally priced servers)
+    const subscriberPrices = {};
+    for (const t of subTypes) {
+      const val = form[`subscriberPrice_${t._id}`]?.value;
+      if (val !== undefined && val !== "") {
+        subscriberPrices[t._id] = parseInt(val) || 0;
+      }
+    }
+    if (Object.keys(subscriberPrices).length) {
+      newOption.subscriberPrices = subscriberPrices;
+    }
+
     // console.log(newOption);
     // setLoading(false);
 
@@ -324,7 +347,7 @@ const AddDynamicOption = () => {
 
   return (
     <div>
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
         Add Dynamic Option
       </h1>
       <ComboModal
@@ -485,6 +508,48 @@ const AddDynamicOption = () => {
               disabled={selectedServer==="unipinNormal"}
             />
           </div>
+          {isAutoEnable && CENTRAL_SERVERS.includes(selectedServer) ? (
+            <div className="md:col-span-2 space-y-1">
+              <p className="text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                Subscriber prices for this server are managed centrally on the{" "}
+                <Link
+                  to="/dashboard/subscriber-pricing"
+                  className="underline font-semibold"
+                >
+                  Subscriber Pricing
+                </Link>{" "}
+                page — every combo's subscriber price is calculated from the
+                per-unit prices automatically.
+              </p>
+            </div>
+          ) : (
+            subTypes.length > 0 && (
+              <div className="md:col-span-2 space-y-2">
+                <label className="block text-xl font-medium text-gray-700">
+                  Subscriber Prices (৳){" "}
+                  <span className="text-sm font-normal text-gray-500">
+                    — blank = normal price
+                  </span>
+                </label>
+                <div className="flex flex-wrap gap-4">
+                  {subTypes.map((t) => (
+                    <div key={t._id} className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-600">
+                        {t.name}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        name={`subscriberPrice_${t._id}`}
+                        className="block w-40 py-1.5 px-3 font-medium border-2 border-gray-600 rounded-md"
+                        placeholder="Normal price"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          )}
           {isAutoEnable && (
             <div className="space-y-2">
               <label
@@ -533,7 +598,7 @@ const AddDynamicOption = () => {
         <div>
           <button
             type="submit"
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+            className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
             disabled={loading}
           >
             {loading ? "Please wait" : "Add"}

@@ -6,7 +6,7 @@ const CompanyCard = ({ image, title, path, state }) => {
   return (
     <div
       onClick={() => navigate(path,{state: state})}
-      className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full cursor-pointer md:w-64 mx-auto flex flex-col"
+      className="border-2 border-b-2 border-b-primary rounded-lg h-full cursor-pointer md:w-64 mx-auto flex flex-col"
     >
       <img
         src={image}

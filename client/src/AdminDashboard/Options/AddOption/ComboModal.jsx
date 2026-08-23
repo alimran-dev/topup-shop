@@ -35,16 +35,16 @@ const ComboModal = ({
           onClick={handleCloseModal}
           className="absolute right-4 top-4 text-2xl font-semibold cursor-pointer"
         />
-        <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-xl md:text-2xl lg:text-3xl font-bold bg-clip-text text-transparent text-center py-2 mx-auto px-2 md:px-5 capitalize">
+        <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-xl md:text-2xl lg:text-3xl font-bold bg-clip-text text-transparent text-center py-2 mx-auto px-2 md:px-5 capitalize">
           Make a Combo
         </h2>
         <table className="w-full my-2">
           <thead>
             <tr className="text-center">
-              <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+              <th className="border-2 border-primary w-1/2 py-1.5 border-collapse">
                 Package
               </th>
-              <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+              <th className="border-2 border-primary w-1/2 py-1.5 border-collapse">
               {selectedServer === "like" ? "Days": "Quantity"} 
                 
               </th>
@@ -70,7 +70,7 @@ const ComboModal = ({
             onClick={() => {
               setIsOpenCombo(false);
             }}
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white py-1.5 rounded px-5 block mx-auto mt-2.5"
+            className="bg-gradient-to-r from-primary to-secondary text-white py-1.5 rounded px-5 block mx-auto mt-2.5"
           >
             Confirm
           </button>

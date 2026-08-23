@@ -104,21 +104,30 @@ const Navbar = () => {
           {user ? (
             <div className="flex items-center gap-3">
               {!isAdmin && !isAdminLoading ? (
-                <span className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-3 text-lg text-white font-semibold rounded flex items-center">
+                <span className="bg-gradient-to-r from-primary to-secondary py-1.5 px-3 text-lg text-white font-semibold rounded flex items-center">
                   <TbCurrencyTaka /> {(user?.balance)?.toFixed(2) || 0}
                 </span>
               ) : null}
 
-              <img
-                onClick={() => setIsOpen(!isOpen)}
-                src={user?.photo || avatar}
-                alt=""
-                className="w-12 h-12 bg-slate-400 rounded-full cursor-pointer user-avatar"
-                onError={(e) => {
-                  e.target.onerror = null; // prevents looping
-                  e.target.src = avatar; // fallback image
-                }}
-              />
+              <div className="flex flex-col items-center gap-1">
+                <img
+                  onClick={() => setIsOpen(!isOpen)}
+                  src={user?.photo || avatar}
+                  alt=""
+                  className={`w-12 h-12 bg-slate-400 rounded-full cursor-pointer user-avatar ${
+                    user?.subscriptionTheme ? "user-avatar-ring" : ""
+                  }`}
+                  onError={(e) => {
+                    e.target.onerror = null; // prevents looping
+                    e.target.src = avatar; // fallback image
+                  }}
+                />
+                {user?.subscriptionTheme?.typeName ? (
+                  <span className="text-[9px] leading-none font-semibold text-white bg-slate-800/90 px-1.5 py-0.5 rounded-full max-w-[4.5rem] truncate">
+                    {user.subscriptionTheme.typeName}
+                  </span>
+                ) : null}
+              </div>
               {/* Menu Container */}
               <div
                 onClick={() => setIsOpen(!isOpen)}
@@ -141,6 +150,11 @@ const Navbar = () => {
                     <p className="text-lg font-bold text-gray-800">
                       <UserName name={user?.name} isVerified={user?.isVerified} />
                     </p>
+                    {user?.subscriptionTheme?.typeName ? (
+                      <span className="text-[10px] leading-none font-semibold text-white bg-slate-800/90 px-1.5 py-0.5 rounded-full w-fit">
+                        {user.subscriptionTheme.typeName}
+                      </span>
+                    ) : null}
                     <p className="font-medium overflow-hidden">
                       {user?.email}
                     </p>
@@ -148,21 +162,21 @@ const Navbar = () => {
                 </div>
                 <button
                   onClick={handleLogOut}
-                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto"
+                  className="bg-gradient-to-r from-primary to-secondary py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto"
                 >
                   Log Out
                 </button>
-                <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
+                <hr className="my-3 border-t-2 border-primary border-opacity-60" />
                 {isAdmin ? (
                   <AdminNav setIsOpen={setIsOpen} />
                 ) : (
                   <UserNav setIsOpen={setIsOpen} />
                 )}
-                <hr className="my-3 border-t-2 border-[#FA6023] border-opacity-60" />
+                <hr className="my-3 border-t-2 border-primary border-opacity-60" />
                 <Link
                   to={allLinks.whatsappSupport || "#"}
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit mx-auto"
+                  className="flex items-center gap-2 bg-gradient-to-r from-primary to-secondary py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit mx-auto"
                 >
                   <BiSupport /> Support
                 </Link>
@@ -171,7 +185,7 @@ const Navbar = () => {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded"
+              className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded"
             >
               Login
             </button>

@@ -222,7 +222,7 @@ const TelegramPackagesForm = ({ category }) => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+          className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
         >
           Submit
         </button>

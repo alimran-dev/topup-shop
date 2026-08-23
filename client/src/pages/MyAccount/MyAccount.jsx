@@ -165,34 +165,34 @@ const MyAccount = () => {
           <VerifyUser user={user} />
         </div>
         <Link to={allLinks.accountVerifyTutorial || "#"} target="_blank" className={`${user?.isVerified?"hidden":"flex"} items-center justify-center gap-1 text-xs text-blue-500 font-semibold`}><AiFillYoutube className="text-red-500 text-xl" /> কিভাবে ভেরিফাই করবেন?</Link>
-        <p className="text-center text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 capitalize">
+        <p className="text-center text-4xl font-bold bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3 capitalize">
           <UserName name={user?.name} isVerified={user?.isVerified} />
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 my-8">
-        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+        <div className="flex-1 border-2 border-primary p-3 rounded-md flex flex-col items-center">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
             Balance
           </p>
-          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-            <TbCurrencyTaka className="text-[#FA6023]" />
+          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text font-semibold">
+            <TbCurrencyTaka className="text-primary" />
             {parseFloat(user?.balance).toFixed(2) || 0}
           </p>
         </div>
-        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+        <div className="flex-1 border-2 border-primary p-3 rounded-md flex flex-col items-center">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
             Last Month Spent
           </p>
-          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
-            <TbCurrencyTaka className="text-[#FA6023]" />
+          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text font-semibold">
+            <TbCurrencyTaka className="text-primary" />
             {user?.spent || 0}
           </p>
         </div>
-        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+        <div className="flex-1 border-2 border-primary p-3 rounded-md flex flex-col items-center">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
             Total Orders
           </p>
-          <p className="text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
+          <p className="text-3xl  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text font-semibold">
             {user?.orders || 0}
           </p>
         </div>
@@ -220,7 +220,7 @@ const MyAccount = () => {
       {/* Edit User and Change Pass */}
       <div className="grid md:grid-cols-2 gap-5 lg:gap-10 py-3">
         <div className="flex-1 border-2 rounded-md py-5">
-          <h2 className="text-center text-3xl lg:text-4xl mx-3 font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+          <h2 className="text-center text-3xl lg:text-4xl mx-3 font-bold bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3">
             Edit User Information
           </h2>
           <form onSubmit={handleUpdateUser}>
@@ -281,7 +281,7 @@ const MyAccount = () => {
               )}
               <button
                 type="submit"
-                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto"
+                className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto"
               >
                 Update
               </button>
@@ -289,7 +289,7 @@ const MyAccount = () => {
           </form>
         </div>
         <div className="flex-1 border-2 rounded-md py-5">
-          <h2 className="text-center text-3xl lg:text-4xl mx-3 font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+          <h2 className="text-center text-3xl lg:text-4xl mx-3 font-bold bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3">
             Change Password
           </h2>
           <form onSubmit={handleChangePass}>
@@ -380,7 +380,7 @@ const MyAccount = () => {
                   {changePassError}
                 </p>
               )}
-              <button className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto">
+              <button className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 lg:text-lg text-white font-semibold rounded block mx-auto">
                 Change Password
               </button>
             </div>

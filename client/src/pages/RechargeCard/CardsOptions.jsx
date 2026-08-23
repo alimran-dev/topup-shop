@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAxiosPublicCredentials from "../../hooks/useAxiosPublicCredentials";
 import { useEffect, useRef, useState } from "react";
 import Loader from "../../components/Loader";
 // import { MdArrowOutward } from "react-icons/md";
@@ -35,7 +35,7 @@ const CardsOptions = () => {
   const [price, setPrice] = useState(0);
   const [error, setError] = useState("");
   const location = useLocation();
-  const axiosPublic = useAxiosPublic();
+  const axiosPublicCredentials = useAxiosPublicCredentials();
   const { user } = useAuth();
   const [mobileNumber, setMobileNumber] = useState("");
   const [rechargeType, setRechargeType] = useState("prepaid");
@@ -43,7 +43,8 @@ const CardsOptions = () => {
   const purchaseRef = useRef(null);
 
   useEffect(() => {
-    axiosPublic
+    // Credentials included so logged-in subscribers get their effective prices
+    axiosPublicCredentials
       .get(
         `/option/all?category=recharge&id=${location.state?.id}&docName=${location.state?.docName}`
       )
@@ -53,7 +54,7 @@ const CardsOptions = () => {
       });
     setPrice(selected.price * quantity);
   }, [
-    axiosPublic,
+    axiosPublicCredentials,
     location.state?.docName,
     location.state?.id,
     quantity,
@@ -278,14 +279,17 @@ const CardsOptions = () => {
                   </p>
                 </>
               )}
-              <p className="text-sm flex gap-1">
-                <IoInformationCircleOutline className="text-lg" />
-                বোনাস কয়েনঃ
-                <span className="flex items-center font-semibold text-red-600">
-                  <Coin />
-                  {selected?.coin || 0}
-                </span>
-              </p>
+              {/* subscribers earn no bonus coins — hide the row while ordering */}
+              {!user?.hasActiveSubscription && (
+                <p className="text-sm flex gap-1">
+                  <IoInformationCircleOutline className="text-lg" />
+                  বোনাস কয়েনঃ
+                  <span className="flex items-center font-semibold text-red-600">
+                    <Coin />
+                    {selected?.coin || 0}
+                  </span>
+                </p>
+              )}
               <p className="text-sm flex gap-1">
                 <IoInformationCircleOutline className="text-lg" />
                 প্রোডাক্টের মোট মূল্যঃ
@@ -315,7 +319,7 @@ const CardsOptions = () => {
                 <div className="space-y-3">
                   <button
                     onClick={handlePurchase}
-                    className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                    className="bg-gradient-to-r from-primary to-secondary w-full py-1.5 px-5 rounded-md font-semibold text-white"
                   >
                     Purchase
                   </button>
@@ -323,7 +327,7 @@ const CardsOptions = () => {
                     to={"/addBalance"}
                     className="block p-3 rounded border-2"
                   >
-                    <button className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2">
+                    <button className="border-2 border-primary px-4 py-0.5 rounded font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent block mx-auto w-fit mt-2">
                       Add Balance
                     </button>
                     <div className="flex justify-center items-center py-3">
@@ -348,7 +352,7 @@ const CardsOptions = () => {
                 <Link
                   to={"/login"}
                   state={location.pathname}
-                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                  className="bg-gradient-to-r from-primary to-secondary block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white"
                 >
                   Login
                 </Link>

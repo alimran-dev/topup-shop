@@ -32,9 +32,9 @@ const Services = () => {
       {/* -------- recharge and offers services (hardcoded) --------- */}
       <div>
         <div className="flex items-center justify-center">
-          <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
+          <span className="block border-t-2 border-primary flex-1 translate-y-1/2"></span>
           <h1 className="title px-4">Recharge and Offers</h1>
-          <span className="block border-t-2 border-[#FA6023] flex-1"></span>
+          <span className="block border-t-2 border-primary flex-1"></span>
         </div>
         <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
           <div className="flex-1">
@@ -82,9 +82,9 @@ const Services = () => {
         return (
           <div key={category._id}>
             <div className="flex items-center justify-center">
-              <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
+              <span className="block border-t-2 border-primary flex-1 translate-y-1/2"></span>
               <h1 className="title px-4">{category.title}</h1>
-              <span className="block border-t-2 border-[#FA6023] flex-1"></span>
+              <span className="block border-t-2 border-primary flex-1"></span>
             </div>
             <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">
               {categoryServices.map((data) => (

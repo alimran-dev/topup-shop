@@ -2,7 +2,7 @@
   display: inline-flex;
   border: double 8px transparent;
   background-image: linear-gradient(#94A3B8, #94A3B8),
-    radial-gradient(circle at top left, #fa6023c5,#E61C55);
+    radial-gradient(circle at top left, rgb(var(--theme-primary) / 0.77), rgb(var(--theme-secondary)));
   background-origin: border-box;
   background-clip: content-box, border-box;
 }

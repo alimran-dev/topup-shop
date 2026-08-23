@@ -110,7 +110,7 @@ const ItemFilters = ({ statLabels, bounds, sort, setSort, onApply, onReset }) =>
             <button
               type="button"
               onClick={handleApply}
-              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white px-4 py-1.5 rounded text-sm font-semibold"
+              className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-1.5 rounded text-sm font-semibold"
             >
               Apply
             </button>

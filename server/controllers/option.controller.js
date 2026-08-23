@@ -1,6 +1,10 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { CONSTANTS } = require("../utils/constants");
+const {
+  getActiveSubscriberTiers,
+  augmentOptionsForSubscriber,
+} = require("../utils/subscriberPricing");
 const unipinCollection = dbCollections.unipinCollection;
 const idcodeCollection = dbCollections.idcodeCollection;
 const weeklyMonthlyCollection = dbCollections.weeklyMonthlyCollection;
@@ -9,6 +13,20 @@ const airdropCollection = dbCollections.airdropCollection;
 const lessIsMoreCollection = dbCollections.lessIsMoreCollection;
 const rechargeCollection = dbCollections.rechargeCollection;
 const serviceCollection = dbCollections.serviceCollection;
+
+// Per-type subscriber prices from admin forms: keep only finite numbers >= 0.
+// Blank/absent values drop the key; null means "nothing to store".
+const sanitizeSubscriberPrices = (subscriberPrices) => {
+  if (!subscriberPrices || typeof subscriberPrices !== "object") return null;
+  const clean = {};
+  for (const [typeId, value] of Object.entries(subscriberPrices)) {
+    if (value === null || value === undefined || value === "") continue;
+    const num = Number(value);
+    if (!isFinite(num) || num < 0) continue;
+    clean[typeId] = num;
+  }
+  return Object.keys(clean).length ? clean : null;
+};
 
 const getOption = async (req, res) => {
   try {
@@ -50,6 +68,7 @@ const getOption = async (req, res) => {
         category: 1,
         description: 1,
         subCategory: 1,
+        subscriberPrices: 1,
         stock: {
           $cond: {
             if: {
@@ -139,6 +158,7 @@ const getAllOption = async (req, res) => {
         category: 1,
         subCategory: 1,
         description: 1,
+        subscriberPrices: 1,
         stock: {
           $cond: {
             if: {
@@ -194,6 +214,30 @@ const getAllOption = async (req, res) => {
         }
         return a.uc - b.uc;
       });
+    }
+    // Subscriber prices for recharge options (offer/card docs): a logged-in
+    // non-admin user with an active subscription sees the effective price;
+    // everyone else gets the raw per-type map stripped from the response.
+    if (
+      category === "recharge" &&
+      Array.isArray(result) &&
+      result.length > 0 &&
+      req.user?.email &&
+      req.user?.role !== "admin"
+    ) {
+      const activeTiers = await getActiveSubscriberTiers(req.user.email);
+      if (activeTiers.length) {
+        result = await augmentOptionsForSubscriber(
+          result,
+          null,
+          activeTiers,
+          null
+        );
+      } else {
+        result.forEach((doc) => delete doc.subscriberPrices);
+      }
+    } else if (category === "recharge" && Array.isArray(result)) {
+      result.forEach((doc) => delete doc.subscriberPrices);
     }
     res.send(result);
   } catch (err) {
@@ -265,8 +309,16 @@ const addOption = async (req, res) => {
         result = await lessIsMoreCollection.insertOne(optionManual);
       }
     } else if (category === "recharge") {
-      const { docName, name, price, description, category, operator, stock } =
-        req.body || {};
+      const {
+        docName,
+        name,
+        price,
+        description,
+        category,
+        operator,
+        stock,
+        subscriberPrices,
+      } = req.body || {};
       const priceInt = parseInt(price);
       const stockInt = parseInt(stock);
       if (
@@ -280,7 +332,7 @@ const addOption = async (req, res) => {
         return res.status(400).send({ message: "Invalid docName" });
       } else if (isNaN(priceInt) || priceInt < 0) {
         return res.status(400).send({ message: "Invalid price" });
-      } else if (docName.includes("Offer") && isNaN(stockInt) && stockInt < 0) {
+      } else if (docName.includes("Offer") && (isNaN(stockInt) || stockInt < 0)) {
         return res.status(400).send({ message: "Invalid stock" });
       }
       const companyDb = await rechargeCollection.findOne({
@@ -300,6 +352,8 @@ const addOption = async (req, res) => {
       };
       if (category === "card") rechargeOption.codes = [];
       else if (category === "offer") rechargeOption.stock = stockInt;
+      const cleanPrices = sanitizeSubscriberPrices(subscriberPrices);
+      if (cleanPrices) rechargeOption.subscriberPrices = cleanPrices;
       result = await rechargeCollection.insertOne(rechargeOption);
     } else {
       return res.send({ message: "category not matched" });
@@ -313,7 +367,7 @@ const addOption = async (req, res) => {
 
 const addDynamicOption = async (req, res) => {
   try {
-    const { name, price, id, coin, stock, isAuto, willHaveQuantity, combo } = req.body;
+    const { name, price, id, coin, stock, isAuto, willHaveQuantity, combo, subscriberPrices } = req.body;
     const priceInt = parseInt(price);
     const coinInt = parseInt(coin);
     const stockInt=parseInt(stock);
@@ -334,6 +388,8 @@ const addDynamicOption = async (req, res) => {
       if(isAuto){
         newOption.combo=combo;
       }
+      const cleanPrices = sanitizeSubscriberPrices(subscriberPrices);
+      if (cleanPrices) newOption.subscriberPrices = cleanPrices;
       if(isAuto!==service?.isAuto){
         return res.send({ success: false, message: "Auto status mismatch" });
       }
@@ -380,6 +436,18 @@ const updateOption = async (req, res) => {
         updatedOption.$set.stock = stockInt;
       }
     }
+    // Subscriber prices are only meaningful for recharge docs (offer/card).
+    if (category === "recharge") {
+      const cleanPrices = sanitizeSubscriberPrices(req.body.subscriberPrices);
+      if (cleanPrices) {
+        updatedOption.$set.subscriberPrices = cleanPrices;
+      } else {
+        updatedOption.$unset = {
+          ...(updatedOption.$unset || {}),
+          subscriberPrices: "",
+        };
+      }
+    }
     let result;
     if (category === "unipin") {
       result = await unipinCollection.updateOne(filter, updatedOption);
@@ -405,7 +473,7 @@ const updateOption = async (req, res) => {
 
 const updateDynamicOption = async (req, res) => {
   try {
-    const { id, index, name, price, coin, stock, serial, willHaveQuantity } = req.body;
+    const { id, index, name, price, coin, stock, serial, willHaveQuantity, subscriberPrices } = req.body;
     const priceInt = parseInt(price);
     const coinInt = parseInt(coin);
     console.log(willHaveQuantity);
@@ -429,6 +497,12 @@ const updateDynamicOption = async (req, res) => {
     service.options[parseInt(index)].coin = coinInt;
     service.options[parseInt(index)].serial= parseInt(serial);
     service.options[parseInt(index)].willHaveQuantity = willHaveQuantity;
+    const cleanPrices = sanitizeSubscriberPrices(subscriberPrices);
+    if (cleanPrices) {
+      service.options[parseInt(index)].subscriberPrices = cleanPrices;
+    } else {
+      delete service.options[parseInt(index)].subscriberPrices;
+    }
     const result = await serviceCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { options: service.options } }

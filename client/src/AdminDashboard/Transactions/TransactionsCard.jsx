@@ -158,7 +158,7 @@ const TransactionsCard = ({
         </div>
         <button
           type="submit"
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white font-semibold px-3 py-1 rounded block mx-auto md:mx-0 disabled:opacity-70"
+          className="bg-gradient-to-r from-primary to-secondary text-white font-semibold px-3 py-1 rounded block mx-auto md:mx-0 disabled:opacity-70"
           disabled={status === "completed"}
         >
           {loading?"Please wait": "Update"}

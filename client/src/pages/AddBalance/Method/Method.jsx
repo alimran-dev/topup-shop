@@ -26,7 +26,7 @@ const Method = () => {
   
   return (
     <div>
-      <h2 className="text-center text-3xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-1.5">
+      <h2 className="text-center text-3xl md:text-5xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-1.5">
         Payment method
       </h2>
       {err && (
@@ -34,7 +34,7 @@ const Method = () => {
           <p className="text-center text-lg font-semibold">{err} </p>
           <Link
             to={"/myTransactions"}
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-3 rounded text-white font-medium"
+            className="bg-gradient-to-r from-primary to-secondary px-3 rounded text-white font-medium"
           >
             Pay Now
           </Link>

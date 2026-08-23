@@ -8,6 +8,8 @@ const UpdateDelete = () => {
   const [option, setOption] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [stock, setStock] = useState(null);
+  const [subTypes, setSubTypes] = useState([]);
+  const [subPrices, setSubPrices] = useState({}); // [typeId] = "" | value-string
   const axiosPrivate = useAxiosPrivate();
   const { category, id } = useParams();
   const navigate = useNavigate();
@@ -17,6 +19,13 @@ const UpdateDelete = () => {
   const stockRef = useRef(null);
   const coinRef = useRef(null);
   const location = useLocation();
+
+  useEffect(() => {
+    axiosPrivate
+      .get("/subscription/admin/types")
+      .then((res) => setSubTypes(res.data || []))
+      .catch(() => {});
+  }, [axiosPrivate]);
 
 
   const handleUpdate = () => {
@@ -30,6 +39,16 @@ const UpdateDelete = () => {
 
 
       const updatedOption = { id, category: `${category === "cards" ? "recharge" : category}`, name, price, description, coin, ...(option?.subCategory === "offer" && { type: "offer", stock }) };
+      if (category === "cards") {
+        const subscriberPrices = {};
+        for (const t of subTypes) {
+          const val = subPrices[t._id];
+          if (val !== undefined && val !== "") {
+            subscriberPrices[t._id] = Number(val);
+          }
+        }
+        updatedOption.subscriberPrices = subscriberPrices;
+      }
 
       console.log(updatedOption);
       axiosPrivate.patch("/option/admin/update", updatedOption).then((res) => {
@@ -57,7 +76,7 @@ const UpdateDelete = () => {
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete!",
     }).then((result) => {
@@ -85,7 +104,7 @@ const UpdateDelete = () => {
       title: `${stock ? "Stock Out?" : "In Stock?"}`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
     }).then((result) => {
@@ -121,6 +140,14 @@ const UpdateDelete = () => {
         setIsLoading(false);
         setOption(res.data);
         setStock(res.data?.stock);
+        setSubPrices(
+          Object.fromEntries(
+            Object.entries(res.data?.subscriberPrices || {}).map(([k, v]) => [
+              k,
+              String(v),
+            ])
+          )
+        );
       });
   }, [axiosPrivate, category, id, location.state?.docName]);
 
@@ -131,7 +158,7 @@ const UpdateDelete = () => {
   return (
     <div className="-mt-5">
       <Loader isLoading={isLoading} />
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
         Update or Delete [{category}]
       </h1>
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-5 mt-5">
@@ -225,6 +252,38 @@ const UpdateDelete = () => {
             defaultValue={option?.coin}
           />
         </div>
+        {category === "cards" && subTypes.length > 0 && (
+          <div className="md:col-span-3 space-y-2">
+            <label className="block text-xl font-medium text-gray-700">
+              Subscriber Prices (৳){" "}
+              <span className="text-sm font-normal text-gray-500">
+                — blank = normal price
+              </span>
+            </label>
+            <div className="flex flex-wrap gap-4">
+              {subTypes.map((t) => (
+                <div key={t._id} className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-600">
+                    {t.name}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="block w-40 py-1.5 px-3 font-medium border-2 border-gray-600 rounded-md"
+                    placeholder="Normal price"
+                    value={subPrices[t._id] ?? ""}
+                    onChange={(e) =>
+                      setSubPrices((prev) => ({
+                        ...prev,
+                        [t._id]: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 w-fit mt-3 mx-auto">
         <button
@@ -259,7 +318,7 @@ const UpdateDelete = () => {
         )}
         <button
           onClick={handleUpdate}
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded"
+          className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded"
         >
           Update
         </button>

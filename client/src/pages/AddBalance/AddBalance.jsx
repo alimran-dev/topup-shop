@@ -67,7 +67,7 @@ const AddBalance = () => {
             )}
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-white font-semibold rounded mt-2"
+              className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-white font-semibold rounded mt-2"
             >
               Click To Add
             </button>

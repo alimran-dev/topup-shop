@@ -11,7 +11,7 @@ const ItemCard = ({ item, statLabels, isSold }) => {
     item.offerPrice < item.originalPrice;
 
   return (
-    <div className="border-2 border-slate-200 border-b-4 border-b-[#FA6023] rounded-xl overflow-hidden flex flex-col h-full">
+    <div className="border-2 border-slate-200 border-b-4 border-b-primary rounded-xl overflow-hidden flex flex-col h-full">
       {/* images — `isolate` keeps the overlay's z-index inside this card so it
           can never stack above the sticky navbar / bottom nav (both z-20) */}
       <div className="relative isolate">
@@ -82,7 +82,7 @@ const ItemCard = ({ item, statLabels, isSold }) => {
               {item?.originalPrice}
             </span>
           )}
-          <span className="flex items-center text-base md:text-lg font-bold text-[#E61C55]">
+          <span className="flex items-center text-base md:text-lg font-bold text-secondary">
             <TbCurrencyTaka />
             {item?.offerPrice ?? item?.originalPrice}
           </span>
@@ -91,7 +91,7 @@ const ItemCard = ({ item, statLabels, isSold }) => {
         {/* details button */}
         <button
           onClick={() => navigate(`/item/${item?._id}`)}
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 rounded-md text-sm font-semibold text-white"
+          className="bg-gradient-to-r from-primary to-secondary w-full py-1.5 rounded-md text-sm font-semibold text-white"
         >
           Details
         </button>

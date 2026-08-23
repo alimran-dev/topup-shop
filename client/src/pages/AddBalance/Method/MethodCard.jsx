@@ -81,7 +81,7 @@ const MethodCard = ({ method, amount, setErr, from, orderData }) => {
         alt="provider"
         className="mx-auto h-16 md:h-20"
       />
-      <p className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 md:text-lg text-white text-center font-medium md:font-semibold rounded-b flex flex-col items-center justify-center">
+      <p className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 md:text-lg text-white text-center font-medium md:font-semibold rounded-b flex flex-col items-center justify-center">
         Pay {Amount || 0} BDT{" "}
         <span className="text-xs capitalize">( {category} )</span>
       </p>

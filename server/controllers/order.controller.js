@@ -6,6 +6,12 @@ const { CONSTANTS } = require("../utils/constants");
 const { axiosAuto } = require("../utils/axiosAuto");
 const {axiosLike} = require("../utils/AxiosLike")
 const {
+  getActiveSubscriberTiers,
+  getUnitPricesByServer,
+  getUnitNormalPricesByServer,
+  computeOptionSubscriberPrice,
+} = require("../utils/subscriberPricing");
+const {
   orderCollection,
   unipinCollection,
   shellCollection,
@@ -247,7 +253,23 @@ const orderAuto = async (req, res) => {
         .status(400)
         .send({ error: "Requested quantity exceeds available codes" });
     }
-    const orderPrice = option.price * quantity;
+    // Subscriber-effective unit price for recharge cards only; the legacy
+    // unipin/shell branches keep the normal price.
+    let effectiveUnitPrice = option.price;
+    // activeTiers doubles as the "has valid subscription" signal for the
+    // coin guard below (a subscribed user earns no product-purchase coins).
+    // Computed for EVERY category — the guard applies to unipin/shell too.
+    const activeTiers = await getActiveSubscriberTiers(email);
+    if (category === "card") {
+      const resolved = await computeOptionSubscriberPrice(
+        option,
+        null,
+        activeTiers,
+        null
+      );
+      effectiveUnitPrice = resolved?.price ?? option.price;
+    }
+    const orderPrice = effectiveUnitPrice * quantity;
     const user = await userCollection.findOne({ email: email });
     if (!user) {
       return res.status(401).send({ error: "User Not Found" });
@@ -310,13 +332,13 @@ const orderAuto = async (req, res) => {
       if (user.referredBy && user?.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
-          option.price,
+          effectiveUnitPrice,
           "success"
         );
         // console.log('referHistoryId--', referHistoryId?.toString());
         order.referHistoryId = referHistoryId;
       }
-      if (option.coin && user?.isVerified) {
+      if (option.coin && user?.isVerified && !activeTiers?.length) {
         const coinHistory = {
           email: email,
           name: "Product Purchase Bonus",
@@ -324,7 +346,7 @@ const orderAuto = async (req, res) => {
           amount: option.coin * quantity,
           createdAt: new Date(),
           info: {
-            "Product Price": option.price,
+            "Product Price": effectiveUnitPrice,
           },
         };
         const coinHistoryInsert = await coinHistoryCollection.insertOne(
@@ -386,7 +408,36 @@ const orderDynamic = async (req, res) => {
       return res.send({ success: false, message: "Invalid UID" });
     }
     const option = service.options[parseInt(index)];
-    if (!option || option.name !== name || option.price !== parseInt(price)) {
+    if (!option || option.name !== name) {
+      return res.send({ success: false, message: "Invalid option" });
+    }
+    // Subscriber-effective unit price (server-authoritative): combos resolve
+    // from the central per-unit prices (mix rule: priced units apply, unpriced
+    // units keep their normal unit price), manual per-option maps override.
+    const activeTiers = await getActiveSubscriberTiers(email);
+    let unitPricesByKey = null;
+    let unitNormalsByKey = null;
+    // Unit-price maps only matter for subscribers — skip the two extra
+    // queries for plain users (computeOptionSubscriberPrice returns null
+    // without active tiers either way).
+    if (service.isAuto && activeTiers.length) {
+      [unitPricesByKey, unitNormalsByKey] = await Promise.all([
+        getUnitPricesByServer(service.server),
+        getUnitNormalPricesByServer(service.server),
+      ]);
+    }
+    const resolved = await computeOptionSubscriberPrice(
+      option,
+      service.server,
+      activeTiers,
+      unitPricesByKey,
+      unitNormalsByKey
+    );
+    const effectivePrice = resolved?.price ?? option.price;
+    // Number() (not parseInt): subscriber prices can be non-integers (decimal
+    // admin prices, or half-unit normal prices like 19/2 = 9.5) — parseInt
+    // would truncate and reject the exact price the catalog showed.
+    if (effectivePrice !== Number(price)) {
       return res.send({ success: false, message: "Invalid option" });
     }
     if (option.stock <= 0) {
@@ -394,8 +445,8 @@ const orderDynamic = async (req, res) => {
     }
     const user = await userCollection.findOne({ email: email });
     const totalPrice = willHaveQuantity
-      ? option.price * quantity
-      : option.price;
+      ? effectivePrice * quantity
+      : effectivePrice;
     if (willHaveQuantity && quantity <= 0) {
       return res.status(400).send({ error: "Invalid quantity" });
     }
@@ -443,13 +494,13 @@ const orderDynamic = async (req, res) => {
       if (user.referredBy && user?.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
-          option.price,
+          effectivePrice,
           "pending"
         );
         // console.log('referHistoryId--', referHistoryId?.toString());
         order.referHistoryId = referHistoryId;
       }
-      if (option.coin && user?.isVerified) {
+      if (option.coin && user?.isVerified && !activeTiers?.length) {
         const coinHistory = {
           email: email,
           name: "Product Purchase Bonus",
@@ -457,7 +508,7 @@ const orderDynamic = async (req, res) => {
           amount: option.coin,
           createdAt: new Date(),
           info: {
-            "Product Price": option.price,
+            "Product Price": effectivePrice,
           },
         };
         const coinHistoryInsert = await coinHistoryCollection.insertOne(
@@ -489,7 +540,12 @@ const orderDynamic = async (req, res) => {
             if(item?.quantity>0){
               totalUnipinToOrder += (item?.quantity * quantity);
               for(let i=0;i<item?.quantity * quantity; i++){
-                const uc = await unipinCollection.findOneAndDelete({uc: item?.uc});
+                // Guard: without a real uc, `{uc: undefined}` matches ANY doc
+                // missing the field and would delete a random code — real
+                // combo rows are {name, quantity} only, so this can never
+                // auto-fulfill; skip and let the order stay pending.
+                if (!item?.uc) break;
+                const uc = await unipinCollection.findOneAndDelete({uc: item.uc});
                 if(!uc) break;
                 ucs.push(uc);
               }
@@ -838,7 +894,10 @@ const orderItemListing = async (req, res) => {
         );
         bonusFields.referHistoryId = referHistoryId;
       }
-      if (item.coin && user?.isVerified) {
+      // Item listings have no subscriber pricing, so the subscription signal
+      // is computed here: a subscribed buyer earns no product-purchase coins.
+      const activeTiers = await getActiveSubscriberTiers(email);
+      if (item.coin && user?.isVerified && !activeTiers?.length) {
         const coinHistory = {
           email: email,
           name: "Product Purchase Bonus",
@@ -913,7 +972,16 @@ const orderRechargeOffer = async (req, res) => {
     if (option.stock === 0) {
       return res.send({ success: false, message: "Stock out" });
     }
-    if (option.price > user.balance) {
+    // Subscriber-effective price from the manual per-option map
+    const activeTiers = await getActiveSubscriberTiers(email);
+    const resolved = await computeOptionSubscriberPrice(
+      option,
+      null,
+      activeTiers,
+      null
+    );
+    const chargePrice = resolved?.price ?? option.price;
+    if (chargePrice > user.balance) {
       return res.send({
         success: false,
         message: "You don't have enough balance",
@@ -923,8 +991,8 @@ const orderRechargeOffer = async (req, res) => {
       { email: email },
       {
         $set: {
-          balance: user.balance - option.price,
-          spent: user.spent + option.price,
+          balance: user.balance - chargePrice,
+          spent: user.spent + chargePrice,
           orders: user.orders + 1,
         },
       }
@@ -941,7 +1009,7 @@ const orderRechargeOffer = async (req, res) => {
         category: "Recharge and Offers",
         subCategory: "Recharge Offer",
         name: `${option.name}`,
-        price: option.price,
+        price: chargePrice,
         orderTime: orderTime,
         updateTime: new Date(),
         status: "pending",
@@ -962,14 +1030,14 @@ const orderRechargeOffer = async (req, res) => {
       if (user.referredBy && user?.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
-          option.price,
+          chargePrice,
           "pending"
         );
         // console.log('referHistoryId--', referHistoryId?.toString());
         order.referHistoryId = referHistoryId;
       }
 
-      if (option.coin && user?.isVerified) {
+      if (option.coin && user?.isVerified && !activeTiers?.length) {
         const coinHistory = {
           email: email,
           name: "Product Purchase Bonus",
@@ -977,7 +1045,7 @@ const orderRechargeOffer = async (req, res) => {
           amount: option.coin,
           createdAt: new Date(),
           info: {
-            "Product Price": option.price,
+            "Product Price": chargePrice,
           },
         };
         const coinHistoryInsert = await coinHistoryCollection.insertOne(
@@ -999,7 +1067,7 @@ const orderRechargeOffer = async (req, res) => {
         }
       });
       const result = await orderCollection.insertOne(order);
-      return res.send({ ...result, success: true, price: option.price });
+      return res.send({ ...result, success: true, price: chargePrice });
     }
     res.send({ success: false, message: "Something went wrong" });
   } catch (err) {

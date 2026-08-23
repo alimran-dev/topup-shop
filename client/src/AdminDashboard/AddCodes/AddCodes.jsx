@@ -158,14 +158,14 @@ const AddCodes = () => {
         resetTextarea={resetTextarea}
         setInputs={setInputs}
       />
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
         Add Codes
       </h1>
       <div className="space-y-3 py-3">
         <textarea
           onChange={(e) => setInputs(e.target.value)}
           ref={textareaRef}
-          className="border-2 focus:outline-[#FA6023] w-full md:w-2/3 h-40 md:h-60 block mx-auto rounded-md px-3 py-2"
+          className="border-2 focus:outline-primary w-full md:w-2/3 h-40 md:h-60 block mx-auto rounded-md px-3 py-2"
           placeholder={`BDMB-T-S-00000000 0000-0000-0000-0000
 UPBD-Q-S-00000000 0000-0000-0000-0000`}
         ></textarea>
@@ -173,12 +173,12 @@ UPBD-Q-S-00000000 0000-0000-0000-0000`}
           <button
             onClick={() => setSelected("unipin")}
             className={`flex items-center gap-1 px-3 py-1.5 font-semibold rounded-l-md border-[3px] ${
-              selected == "unipin" ? "border-[#FA6023]" : "border-gray-400"
+              selected == "unipin" ? "border-primary" : "border-gray-400"
             }`}
           >
             <span
               className={`border-[5px] rounded-full ${
-                selected == "unipin" ? "border-[#FA6023]" : ""
+                selected == "unipin" ? "border-primary" : ""
               }`}
             ></span>
             Unipin
@@ -186,12 +186,12 @@ UPBD-Q-S-00000000 0000-0000-0000-0000`}
           <button
             onClick={() => setSelected("shell")}
             className={`flex items-center gap-1 px-3 py-1.5 font-semibold border-[3px] ${
-              selected == "shell" ? "border-[#FA6023] z-10" : "border-gray-400"
+              selected == "shell" ? "border-primary z-10" : "border-gray-400"
             }`}
           >
             <span
               className={`border-[5px] rounded-full ${
-                selected == "shell" ? "border-[#FA6023]" : ""
+                selected == "shell" ? "border-primary" : ""
               }`}
             ></span>
             Garena Shell
@@ -199,12 +199,12 @@ UPBD-Q-S-00000000 0000-0000-0000-0000`}
           <button
             onClick={() => setSelected("cards")}
             className={`flex items-center gap-1 px-3 py-1.5 font-semibold rounded-r-md border-[3px] ${
-              selected == "cards" ? "border-[#FA6023] z-10" : "border-gray-400"
+              selected == "cards" ? "border-primary z-10" : "border-gray-400"
             }`}
           >
             <span
               className={`border-[5px] rounded-full ${
-                selected == "cards" ? "border-[#FA6023]" : ""
+                selected == "cards" ? "border-primary" : ""
               }`}
             ></span>
             Cards
@@ -212,7 +212,7 @@ UPBD-Q-S-00000000 0000-0000-0000-0000`}
         </div>
         <button
           onClick={handleCheck}
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
+          className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded block mx-auto"
         >
           Check
         </button>

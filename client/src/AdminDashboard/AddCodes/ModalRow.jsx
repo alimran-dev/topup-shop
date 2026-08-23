@@ -4,10 +4,10 @@ const ModalRow = ({ item }) => {
   return (
     <>
       <tr className="text-center">
-        <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+        <td className="border-2 border-primary w-1/2 font-medium py-1.5 border-collapse">
           {item.uc} UC
         </td>
-        <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+        <td className="border-2 border-primary w-1/2 font-medium py-1.5 border-collapse">
           {item.codes.length}
         </td>
       </tr>

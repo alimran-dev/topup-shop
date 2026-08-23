@@ -26,16 +26,16 @@ const AddModal = ({
           onClick={() => setIsOpen(false)}
           className="absolute right-4 top-4 text-2xl font-semibold cursor-pointer"
         />
-        <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+        <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
           {selected}
         </h2>
         <table className="w-full my-3">
           <thead>
             <tr className="text-center">
-              <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+              <th className="border-2 border-primary w-1/2 py-1.5 border-collapse">
                 UC
               </th>
-              <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+              <th className="border-2 border-primary w-1/2 py-1.5 border-collapse">
                 Quantity
               </th>
             </tr>
@@ -47,10 +47,10 @@ const AddModal = ({
               }
             })}
             <tr className="text-center">
-              <td className="border-2 border-[#FA6023] w-1/2 font-bold py-1.5 border-collapse">
+              <td className="border-2 border-primary w-1/2 font-bold py-1.5 border-collapse">
                 Total
               </td>
-              <td className="border-2 border-[#FA6023] w-1/2 font-bold py-1.5 border-collapse">
+              <td className="border-2 border-primary w-1/2 font-bold py-1.5 border-collapse">
                 {codesArray.reduce((acc, item) => {
                   return acc + item.codes.length;
                 }, 0)}
@@ -62,12 +62,12 @@ const AddModal = ({
           <button
             onClick={() => setIsUploadToAuto(true)}
             className={`flex items-center gap-1 px-3 py-1.5 font-semibold rounded-l-md border-[3px] ${
-              isUploadToAuto ? "border-[#FA6023]" : "border-gray-400"
+              isUploadToAuto ? "border-primary" : "border-gray-400"
             }`}
           >
             <span
               className={`border-[5px] rounded-full ${
-                isUploadToAuto ? "border-[#FA6023]" : ""
+                isUploadToAuto ? "border-primary" : ""
               }`}
             ></span>
             Auto Server
@@ -75,12 +75,12 @@ const AddModal = ({
           <button
             onClick={() => setIsUploadToAuto(false)}
             className={`flex items-center gap-1 px-3 py-1.5 font-semibold rounded-r-md border-[3px] ${
-              !isUploadToAuto ? "border-[#FA6023] z-10" : "border-gray-400"
+              !isUploadToAuto ? "border-primary z-10" : "border-gray-400"
             }`}
           >
             <span
               className={`border-[5px] rounded-full ${
-                !isUploadToAuto ? "border-[#FA6023]" : ""
+                !isUploadToAuto ? "border-primary" : ""
               }`}
             ></span>
             Main Server
@@ -89,7 +89,7 @@ const AddModal = ({
         <div>
           <button
             onClick={handleAdd}
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white py-1.5 rounded px-5 block mx-auto mt-2.5"
+            className="bg-gradient-to-r from-primary to-secondary text-white py-1.5 rounded px-5 block mx-auto mt-2.5"
           >
             Add All
           </button>

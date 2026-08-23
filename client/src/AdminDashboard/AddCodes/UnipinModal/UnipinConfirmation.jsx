@@ -60,7 +60,7 @@ const UnipinConfirmation = ({
           onClick={() => setIsOpenUnipinConfirmation(false)}
           className="absolute right-4 top-4 text-2xl font-semibold cursor-pointer"
         />
-        <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+        <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
           Confirmation
         </h2>
         <p className="text-center">

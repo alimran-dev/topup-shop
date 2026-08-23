@@ -70,6 +70,9 @@ const SubscriptionConfirm = () => {
           toast.success("Subscription purchased successfully!");
           setUser({
             ...user,
+            hasActiveSubscription: true,
+            // winning-tier theme (server-computed) — applies instantly
+            subscriptionTheme: res.data.subscriptionTheme,
             balance: user?.balance - res.data.price,
             spent: (user?.spent || 0) + res.data.price,
           });
@@ -97,19 +100,19 @@ const SubscriptionConfirm = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h2 className="text-xl md:text-3xl uppercase bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent font-bold text-center">
+      <h2 className="text-xl md:text-3xl uppercase bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-bold text-center">
         Confirm Subscription Purchase
       </h2>
 
       {/* package summary */}
-      <div className="border-2 border-slate-200 border-b-4 border-b-[#FA6023] rounded-xl p-5 mt-6">
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#E61C55]">
+      <div className="border-2 border-slate-200 border-b-4 border-b-primary rounded-xl p-5 mt-6">
+        <span className="text-xs font-semibold uppercase tracking-wide text-secondary">
           {typeName || pkg.typeName}
         </span>
         <h3 className="text-lg font-bold mt-1">{pkg.name}</h3>
         <p className="text-sm text-gray-500 mt-1">{formatDuration(pkg)}</p>
         <div className="flex justify-between items-center mt-3">
-          <p className="text-2xl font-bold text-[#E61C55]">৳{pkg.price}</p>
+          <p className="text-2xl font-bold text-secondary">৳{pkg.price}</p>
           <p className="text-sm text-gray-500">
             Balance: ৳{user?.balance || 0}
           </p>
@@ -134,7 +137,7 @@ const SubscriptionConfirm = () => {
         <label className="flex items-start gap-2 cursor-pointer mt-4">
           <input
             type="checkbox"
-            className="checkbox checkbox-sm checkbox-primary mt-0.5"
+            className="checkbox checkbox-sm checked:border-primary [--chkbg:rgb(var(--theme-primary))] [--chkfg:#fff] mt-0.5"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
           />
@@ -145,7 +148,7 @@ const SubscriptionConfirm = () => {
       </div>
 
       <button
-        className="w-full bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white font-semibold rounded-md py-2.5 mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-md py-2.5 mt-5 disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={submitting || !agreed}
         onClick={handleConfirm}
       >

@@ -25,7 +25,7 @@ const SelectOptions = ({
   };
   return (
     <div>
-      <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+      <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
         {`${selectedCompany?.name} ${
           selectedCategory === "mbCard"
             ? "MB Card"
@@ -48,7 +48,7 @@ const SelectOptions = ({
       </div>
       <button
         onClick={handleContinue}
-        className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-4 py-1 text-white font-semibold rounded-md block mx-auto mt-4"
+        className="bg-gradient-to-r from-primary to-secondary px-4 py-1 text-white font-semibold rounded-md block mx-auto mt-4"
       >
         Continue
       </button>

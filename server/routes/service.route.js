@@ -9,13 +9,14 @@ const {
   checkHasChildren,
 } = require("../controllers/service.controller");
 const { verifyAdmin } = require("../middlewares/verifyAdmin");
+const { verifyTokenOptional } = require("../middlewares/verifyTokenOptional");
 
 const router = express.Router();
 
 const serviceRoute = () => {
   // /services
   router.get("/", getAllServices);
-  router.get("/get", getService);
+  router.get("/get", verifyTokenOptional, getService);
   router.get("/children", getChildServices);
   router.get("/has-children", checkHasChildren);
   router.post("/new", verifyAdmin, addSubCategory);

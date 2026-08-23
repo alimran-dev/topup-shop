@@ -11,7 +11,7 @@ const BlockTrxCard = ({ trx, blockTrxs, setBlockTrxs, setIsLoading }) => {
       text: `Unblock ${trxID}?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       cancelButtonColor: "#d33",
       confirmButtonText: "Unblock",
     }).then((result) => {
@@ -38,7 +38,7 @@ const BlockTrxCard = ({ trx, blockTrxs, setBlockTrxs, setIsLoading }) => {
     });
   };
   return (
-    <div className="flex flex-col border-2 border-[#E61C55] w-fit p-4 rounded-md space-y-1.5">
+    <div className="flex flex-col border-2 border-secondary w-fit p-4 rounded-md space-y-1.5">
       <p className="capitalize">
         <span className="font-semibold">Provider: </span> {provider}
       </p>
@@ -51,7 +51,7 @@ const BlockTrxCard = ({ trx, blockTrxs, setBlockTrxs, setIsLoading }) => {
       <button
         onClick={handleUnblock}
         type="submit"
-        className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white font-semibold px-3 py-1 rounded-md"
+        className="bg-gradient-to-r from-primary to-secondary text-white font-semibold px-3 py-1 rounded-md"
       >
         Unblock
       </button>

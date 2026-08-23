@@ -33,7 +33,7 @@ const AddServices = () => {
               onClick={() => handleCategoryClick(item.id)}
               className={`p-4 rounded-md font-medium text-lg ${
                 selectedCategory === item.id
-                  ? "bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white"
+                  ? "bg-gradient-to-r from-primary to-secondary text-white"
                   : "bg-gray-200 text-gray-800"
               }`}
             >
@@ -46,7 +46,7 @@ const AddServices = () => {
       <div className="bg-white shadow-md rounded-lg p-6">
         {selectedCategory === 1 && (
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-[#fa6023]">
+            <h2 className="text-2xl font-bold mb-4 text-primary">
               Recharge & Offers
             </h2>
 
@@ -55,7 +55,7 @@ const AddServices = () => {
         )}
         {selectedCategory === 2 && (
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-[#fa6023]">
+            <h2 className="text-2xl font-bold mb-4 text-primary">
               FF Topup & Unipin
             </h2>
             <TopupAndUnipinForm category={"FF Topup & Unipin"} />
@@ -63,7 +63,7 @@ const AddServices = () => {
         )}
         {selectedCategory === 3 && (
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-[#fa6023]">
+            <h2 className="text-2xl font-bold mb-4 text-primary">
               Telegram Packages
             </h2>
             <TelegramPackagesForm category={"Telegram Packages"} />
@@ -71,7 +71,7 @@ const AddServices = () => {
         )}
         {selectedCategory === 4 && (
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-[#fa6023]">
+            <h2 className="text-2xl font-bold mb-4 text-primary">
               Like - Follow - Subscribe
             </h2>
             <LikeFollowSubscribeForm category={"Like - Follow - Subscribe"} />
@@ -79,7 +79,7 @@ const AddServices = () => {
         )}
         {selectedCategory === 5 && (
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-[#fa6023]">
+            <h2 className="text-2xl font-bold mb-4 text-primary">
               Subscription
             </h2>
             <SubscriptionForm category={"Subscription"} />

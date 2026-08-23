@@ -3,16 +3,16 @@ import PropTypes from "prop-types";
 const DataTable = ({title, thead, data, category, total}) => {
   return (
     <div>
-          <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+          <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
             {title}
           </h2>
           <table className="w-full my-3">
             <thead>
               <tr className="text-center">
-                <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+                <th className="border-2 border-primary w-1/2 py-1.5 border-collapse">
                   {thead?.first}
                 </th>
-                <th className="border-2 border-[#FA6023] w-1/2 py-1.5 border-collapse">
+                <th className="border-2 border-primary w-1/2 py-1.5 border-collapse">
                   {thead?.second}
                 </th>
               </tr>
@@ -22,11 +22,11 @@ const DataTable = ({title, thead, data, category, total}) => {
                 // if (category!=="auto" && item.codes) {
                   return (
                     <tr className="text-center" key={idx}>
-                      <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+                      <td className="border-2 border-primary w-1/2 font-medium py-1.5 border-collapse">
                         {category==="unipins" && `${item?.uc} UC`}
                         {(category==="shells" || category==="auto") && `${item?.name}`}
                       </td>
-                      <td className="border-2 border-[#FA6023] w-1/2 font-medium py-1.5 border-collapse">
+                      <td className="border-2 border-primary w-1/2 font-medium py-1.5 border-collapse">
                         {(category==="unipins" || category==="shells") && `${item.codes}`}
                         {category==="auto" && `${item?.count}`}
                       </td>
@@ -35,10 +35,10 @@ const DataTable = ({title, thead, data, category, total}) => {
                 // }
               })}
               <tr className="text-center">
-                <td className="border-2 border-[#FA6023] w-1/2 font-bold py-1.5 border-collapse">
+                <td className="border-2 border-primary w-1/2 font-bold py-1.5 border-collapse">
                   Total
                 </td>
-                <td className="border-2 border-[#FA6023] w-1/2 font-bold py-1.5 border-collapse">
+                <td className="border-2 border-primary w-1/2 font-bold py-1.5 border-collapse">
                   {(category==="unipins" || category==="shells") && data?.reduce((acc, item) => {
                     return acc + item.codes;
                   }, 0)}

@@ -60,6 +60,7 @@ const run = () => {
   const categoryRoute = require("./routes/category.route");
   const serviceItemRoute = require("./routes/serviceItem.route");
   const subscriptionRoute = require("./routes/subscription.route");
+  const subscriberPriceRoute = require("./routes/subscriberPrice.route");
 
   // routes
   app.use("/auth", authRoute());
@@ -87,6 +88,7 @@ const run = () => {
   app.use("/category", categoryRoute());
   app.use("/serviceItems", serviceItemRoute());
   app.use("/subscription", subscriptionRoute());
+  app.use("/subscriber-prices", subscriberPriceRoute());
 };
 
 connectToDB((err) => {

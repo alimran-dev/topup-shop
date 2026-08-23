@@ -17,13 +17,13 @@ const Option = ({ option, selected, setSelected }) => {
       onClick={handleClick}
       className={`border-2 rounded-t cursor-pointer flex flex-col relative pt-2 mt-2 ${
         selected.id === _id
-          ? "bg-gradient-to-b from-[#E61C55] to-[#FA6023] text-white"
+          ? "bg-gradient-to-b from-secondary to-primary text-white"
           : ""
       }`}
     >
       {!inStock && (
         <p
-          className={`absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white px-2 py-0.5 rounded text-xs border whitespace-nowrap bg-[#E61C55]`}
+          className={`absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white px-2 py-0.5 rounded text-xs border whitespace-nowrap bg-secondary`}
         >
           Stock Out
         </p>
@@ -35,7 +35,7 @@ const Option = ({ option, selected, setSelected }) => {
       <div
         className={`text-center border-t rounded ${
           selected.id === _id
-            ? "bg-gradient-to-b from-[#FA6023] to-[#E61C55]"
+            ? "bg-gradient-to-b from-primary to-secondary"
             : ""
         }`}
       >

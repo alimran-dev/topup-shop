@@ -61,7 +61,7 @@ const TransactionCard = ({ transaction }) => {
               <></> :
               <button
                 onClick={handleContinue}
-                className={`bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-2.5 py-1 rounded text-white font-medium mx-auto block mt-1.5 ${status !== "pending" ? "hidden" : ""
+                className={`bg-gradient-to-r from-primary to-secondary px-2.5 py-1 rounded text-white font-medium mx-auto block mt-1.5 ${status !== "pending" ? "hidden" : ""
                   }`}
               >
                 Continue
@@ -107,7 +107,7 @@ const TransactionCard = ({ transaction }) => {
             <></> :
             <button
               onClick={handleContinue}
-              className={`bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-2.5 py-1 rounded text-white font-medium mx-auto block mt-1.5 ${status !== "pending" ? "hidden" : ""
+              className={`bg-gradient-to-r from-primary to-secondary px-2.5 py-1 rounded text-white font-medium mx-auto block mt-1.5 ${status !== "pending" ? "hidden" : ""
                 }`}
             >
               Continue

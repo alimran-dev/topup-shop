@@ -7,7 +7,7 @@ const InfinityLoader = () => {
         visible={true}
         height="50"
         width="50"
-        strokeColor="#FA6023"
+        strokeColor="rgb(var(--theme-primary))"
         strokeWidth="5"
         animationDuration="0.75"
         ariaLabel="rotating-lines-loading"

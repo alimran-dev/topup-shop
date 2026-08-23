@@ -28,7 +28,7 @@ const PWAInstallPrompt = () => {
               </button>
               <button
                 onClick={installPWA}
-                className="px-4 py-1.5 bg-[#FA6023] text-white text-sm rounded-lg hover:bg-[#e5541f] transition-colors font-medium"
+                className="px-4 py-1.5 bg-primary text-white text-sm rounded-lg hover:brightness-95 transition-colors font-medium"
               >
                 Install
               </button>

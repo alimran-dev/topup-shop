@@ -1,6 +1,15 @@
 const { ObjectId } = require("mongodb");
 const { cookieOption } = require("../utils/cookieOption");
 const { dbCollections } = require("../config/db");
+const { computeEffectiveStatus } = require("../utils/subscriptionStatus");
+const {
+  THEME_COLOR_RE,
+  DEFAULT_THEME,
+  getSubscriptionTheme,
+} = require("../utils/subscriberPricing");
+
+const isHexColor = (value) =>
+  typeof value === "string" && THEME_COLOR_RE.test(value);
 
 const subscriptionTypeCollection = dbCollections.subscriptionTypeCollection;
 const subscriptionPackageCollection = dbCollections.subscriptionPackageCollection;
@@ -18,16 +27,6 @@ const durationToDays = (duration, unit) =>
   duration * (unit === "months" ? DAYS_IN_MONTH : 1);
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-// Effective status is derived on every read (no cron, no scheduled writes):
-// a "suspended" sub past its expiry still reports suspended — the admin action
-// is the more recent fact; resuming it will then immediately read as expired.
-const computeEffectiveStatus = (sub, now = new Date()) => {
-  if (sub.status === "cancelled") return "cancelled";
-  if (sub.status === "suspended") return "suspended";
-  if (sub.expiresAt <= now) return "expired";
-  return "active";
-};
 
 const daysRemaining = (sub, now = new Date()) =>
   sub.expiresAt ? Math.max(0, Math.ceil((sub.expiresAt - now) / MS_PER_DAY)) : 0;
@@ -58,7 +57,7 @@ const getCatalog = async (req, res) => {
         .toArray(),
       subscriptionPackageCollection
         .find({ isActive: { $ne: false } })
-        .sort({ typeName: 1, createdAt: -1 })
+        .sort({ price: 1, createdAt: -1, _id: 1 })
         .toArray(),
     ]);
     res.send({ types, packages });
@@ -87,17 +86,31 @@ const getAdminTypes = async (req, res) => {
 
 const addType = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, primaryColor, secondaryColor } = req.body;
     if (!name || !String(name).trim()) {
       return res
         .status(400)
         .send({ success: false, message: "Type name is required" });
+    }
+    if (primaryColor !== undefined && !isHexColor(primaryColor)) {
+      return res.status(400).send({
+        success: false,
+        message: "Primary color must be a hex color like #FA6023",
+      });
+    }
+    if (secondaryColor !== undefined && !isHexColor(secondaryColor)) {
+      return res.status(400).send({
+        success: false,
+        message: "Secondary color must be a hex color like #E61C55",
+      });
     }
     const total = await subscriptionTypeCollection.countDocuments();
     const type = {
       name: String(name).trim(),
       serial: total + 1,
       isActive: true,
+      primaryColor: primaryColor || DEFAULT_THEME.primaryColor,
+      secondaryColor: secondaryColor || DEFAULT_THEME.secondaryColor,
       createdAt: new Date(),
     };
     const result = await subscriptionTypeCollection.insertOne(type);
@@ -110,7 +123,8 @@ const addType = async (req, res) => {
 
 const updateType = async (req, res) => {
   try {
-    const { id, name, serial, isActive } = req.body;
+    const { id, name, serial, isActive, primaryColor, secondaryColor } =
+      req.body;
     if (!id) {
       return res
         .status(400)
@@ -118,8 +132,33 @@ const updateType = async (req, res) => {
     }
     const updateFields = { $set: {} };
     if (name !== undefined) updateFields.$set.name = String(name).trim();
-    if (serial !== undefined) updateFields.$set.serial = serial;
+    if (serial !== undefined) {
+      if (!Number.isInteger(serial) || serial <= 0) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Serial must be a positive whole number" });
+      }
+      updateFields.$set.serial = serial;
+    }
     if (isActive !== undefined) updateFields.$set.isActive = isActive;
+    if (primaryColor !== undefined) {
+      if (!isHexColor(primaryColor)) {
+        return res.status(400).send({
+          success: false,
+          message: "Primary color must be a hex color like #FA6023",
+        });
+      }
+      updateFields.$set.primaryColor = primaryColor;
+    }
+    if (secondaryColor !== undefined) {
+      if (!isHexColor(secondaryColor)) {
+        return res.status(400).send({
+          success: false,
+          message: "Secondary color must be a hex color like #E61C55",
+        });
+      }
+      updateFields.$set.secondaryColor = secondaryColor;
+    }
     if (Object.keys(updateFields.$set).length === 0) {
       return res
         .status(400)
@@ -570,11 +609,17 @@ const purchaseSubscription = async (req, res) => {
         await subscriptionHistoryCollection.insertOne(historyEvent);
       eventId = historyResult.insertedId.toString();
 
+      // After the upsert so a first-ever purchase resolves immediately. If the
+      // user holds a higher-serial active tier of another type, that tier's
+      // theme wins (same rule as ads/pricing).
+      const subscriptionTheme = await getSubscriptionTheme(email);
+
       res.send({
         success: true,
         price: pkg.price,
         newExpiresAt: updatedSub.expiresAt,
         subscription: updatedSub,
+        subscriptionTheme,
         eventId,
       });
     } catch (innerErr) {
@@ -651,12 +696,14 @@ const getMySubscriptionHistory = async (req, res) => {
     const filter = { email };
     const totalItems =
       await subscriptionHistoryCollection.countDocuments(filter);
-    const items = await subscriptionHistoryCollection
+    const docs = await subscriptionHistoryCollection
       .find(filter)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .toArray();
+    // adminEmail is confidential — never expose it to the user panel
+    const items = docs.map(({ adminEmail, ...rest }) => rest);
     res.send({ items, totalItems });
   } catch (err) {
     console.error("getMySubscriptionHistory: ", err.message);
@@ -869,6 +916,7 @@ const getAdminHistory = async (req, res) => {
 };
 
 module.exports = {
+  computeEffectiveStatus,
   getCatalog,
   getAdminTypes,
   addType,

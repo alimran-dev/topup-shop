@@ -28,7 +28,7 @@ const SimCompanies = () => {
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <h2 className="text-center text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3 -mt-5 w-fit mx-auto">
+      <h2 className="text-center text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3 -mt-5 w-fit mx-auto">
         Choose a Sim
       </h2>
       <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center items-stretch gap-2 md:gap-5 my-5">

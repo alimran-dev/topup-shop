@@ -69,6 +69,8 @@ const connectToDB = (cb) => {
       dbCollections.subscriptionCollection = database.collection("subscriptions");
       dbCollections.subscriptionHistoryCollection =
         database.collection("subscriptionHistory");
+      dbCollections.subscriberPriceCollection =
+        database.collection("subscriberPrices");
 
       try {
         await dbCollections.unipinCollection.createIndex({code: 1}, {unique: true});
@@ -131,6 +133,18 @@ const connectToDB = (cb) => {
           typeId: 1,
           createdAt: -1,
         });
+        // subscriber pricing: one price doc per (server, unitKey)
+        await dbCollections.subscriberPriceCollection.createIndex(
+          { server: 1, unitKey: 1 },
+          { unique: true }
+        );
+        // popup ads: one ad per role — multikey unique guarantees each role
+        // value appears in at most one doc's roles array. Legacy docs without
+        // a `roles` field produce no index entries, so creation succeeds.
+        await dbCollections.adsCollection.createIndex(
+          { roles: 1 },
+          { unique: true }
+        );
         console.log("Indexes created successfully");
       } catch (error) {
         console.log("Failed to create indexes", error?.message);

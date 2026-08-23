@@ -82,7 +82,7 @@ const Payments = () => {
       <h2 className="title">
         Payment Management
       </h2>
-      <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
+      <div className="flex-1 border-2 border-primary p-3 rounded-md flex flex-col items-center">
           <form className="space-y-2 grid md:grid-cols-2 gap-5 items-center justify-center md:justify-between" onSubmit={handleUpdateBalance}>
             <div>
               <label htmlFor="input-label">Bkash Personal Balance: </label>
@@ -301,7 +301,7 @@ const Payments = () => {
           </div>
           <button
             type="submit"
-            className="block mx-auto bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-5 py-1 mt-1.5 text-lg font-semibold text-white rounded"
+            className="block mx-auto bg-gradient-to-r from-primary to-secondary px-5 py-1 mt-1.5 text-lg font-semibold text-white rounded"
           >
             Add
           </button>

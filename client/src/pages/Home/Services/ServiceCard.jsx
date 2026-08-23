@@ -20,7 +20,7 @@ const ServiceCard = ({ image, title, path, onClick }) => {
   return (
     <div
       onClick={handleNavigate}
-      className="border-2 border-slate-200 border-b-4 border-b-[#FA6023] rounded-xl h-full cursor-pointer md:w-64 mx-auto flex flex-col"
+      className="border-2 border-slate-200 border-b-4 border-b-primary rounded-xl h-full cursor-pointer md:w-64 mx-auto flex flex-col"
     >
       <img
         src={image}

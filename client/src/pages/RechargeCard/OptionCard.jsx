@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 const OptionCard = ({ option, selected, setSelected, purchaseRef }) => {
 
-  const { _id, name, price, description, stock: inStock, coin, subCategory } = option || {};
+  const { _id, name, price, description, stock: inStock, coin, subCategory, regularPrice, subscriberTier } = option || {};
   console.log(subCategory);
   const handleSelect = () => {
     if (inStock===null || inStock) {
@@ -24,13 +24,13 @@ const OptionCard = ({ option, selected, setSelected, purchaseRef }) => {
     <div
       onClick={handleSelect}
       className={`border-2 rounded-t cursor-pointer flex flex-col relative pt-2 mt-2 ${selected.id === _id
-        ? "bg-gradient-to-b from-[#E61C55] to-[#FA6023] text-white"
+        ? "bg-gradient-to-b from-secondary to-primary text-white"
         : ""
         }`}
     >
       {inStock!==null && !inStock && (
         <p
-          className={`absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white px-2 py-0.5 rounded text-xs border whitespace-nowrap bg-[#E61C55]`}
+          className={`absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white px-2 py-0.5 rounded text-xs border whitespace-nowrap bg-secondary`}
         >
           Stock Out
         </p>
@@ -41,12 +41,25 @@ const OptionCard = ({ option, selected, setSelected, purchaseRef }) => {
       </p>
       <div
         className={`text-center border-t rounded ${selected.id === _id
-          ? "bg-gradient-to-b from-[#FA6023] to-[#E61C55]"
+          ? "bg-gradient-to-b from-primary to-secondary"
           : ""
           }`}
       >
-        <p className="inline-flex items-center font-medium">{subCategory==="offer" && <span className="text-xs">অফার মূল্য</span>}
-          <TbCurrencyTaka /> {price}
+        <p className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 font-medium px-2 py-0.5">
+          {subCategory==="offer" && <span className="text-xs opacity-80">অফার মূল্য</span>}
+          {subscriberTier && regularPrice != null && (
+            <>
+              <span className="line-through text-xs opacity-60 inline-flex items-center">
+                <TbCurrencyTaka className="text-[10px]" /> {regularPrice}
+              </span>
+              <span className="text-[9px] font-semibold bg-white text-primary border border-primary/30 rounded-full px-1.5 py-[2px] shadow-sm whitespace-nowrap">
+                {subscriberTier}
+              </span>
+            </>
+          )}
+          <span className="inline-flex items-center font-bold">
+            <TbCurrencyTaka /> {price}
+          </span>
         </p>
       </div>
     </div>

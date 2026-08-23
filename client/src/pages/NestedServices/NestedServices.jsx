@@ -244,9 +244,9 @@ const NestedServices = () => {
     <div className="md:py-8 space-y-2 md:space-y-5">
       {/* Section Title */}
       <div className="flex items-center justify-center">
-        <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
+        <span className="block border-t-2 border-primary flex-1 translate-y-1/2"></span>
         <h1 className="title px-4">{parentService?.title}</h1>
-        <span className="block border-t-2 border-[#FA6023] flex-1"></span>
+        <span className="block border-t-2 border-primary flex-1"></span>
       </div>
 
       {/* Notice Banner */}
@@ -341,9 +341,9 @@ const NestedServices = () => {
       {isItemListing && soldTotal > 0 && (
         <div ref={soldTopRef} className="space-y-3 my-5 scroll-mt-4">
           <div className="flex items-center justify-center">
-            <span className="block border-t-2 border-[#FA6023] flex-1 translate-y-1/2"></span>
+            <span className="block border-t-2 border-primary flex-1 translate-y-1/2"></span>
             <h2 className="title px-4">Recently Sold</h2>
-            <span className="block border-t-2 border-[#FA6023] flex-1"></span>
+            <span className="block border-t-2 border-primary flex-1"></span>
           </div>
 
           {soldLoading ? (

@@ -24,7 +24,7 @@ const UpdateSpecialOption = () => {
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-3">
         Special Offer Options
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">

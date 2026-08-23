@@ -11,7 +11,7 @@ const DevicesCard = ({ device, devices, setDevices, setIsLoading }) => {
       text: `Delete ${name}?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       cancelButtonColor: "#d33",
       confirmButtonText: "Delete",
     }).then((result) => {
@@ -36,7 +36,7 @@ const DevicesCard = ({ device, devices, setDevices, setIsLoading }) => {
     });
   };
   return (
-    <div className="border-2 border-[#E61C55] w-fit px-5 py-3 space-y-2.5 rounded-md">
+    <div className="border-2 border-secondary w-fit px-5 py-3 space-y-2.5 rounded-md">
       <p>
         <span className="font-semibold">Device Name: </span> {name}
       </p>
@@ -45,7 +45,7 @@ const DevicesCard = ({ device, devices, setDevices, setIsLoading }) => {
       </p>
       <button
         onClick={handleDelete}
-        className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-3 py-1 font-medium text-white rounded-md block mx-auto"
+        className="bg-gradient-to-r from-primary to-secondary px-3 py-1 font-medium text-white rounded-md block mx-auto"
       >
         Delete
       </button>

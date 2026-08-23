@@ -10,13 +10,13 @@ const SelectCategory = ({ company, setSelectedCategory, setNext }) => {
   };
   return (
     <div>
-      <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+      <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
         Select Category [{company.name}]
       </h2>
       <div className="flex flex-wrap gap-4">
         <div
           onClick={() => handleSelectCategory("mbCard")}
-          className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
+          className="border-2 border-b-2 border-b-primary rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
         >
           <img
             src={mbCard}
@@ -31,7 +31,7 @@ const SelectCategory = ({ company, setSelectedCategory, setNext }) => {
         </div>
         <div
           onClick={() => handleSelectCategory("minCard")}
-          className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
+          className="border-2 border-b-2 border-b-primary rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
         >
           <img
             src={minCard}
@@ -46,7 +46,7 @@ const SelectCategory = ({ company, setSelectedCategory, setNext }) => {
         </div>
         <div
           onClick={() => handleSelectCategory("balanceCard")}
-          className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
+          className="border-2 border-b-2 border-b-primary rounded-lg h-full w-24 md:w-28 cursor-pointer mx-auto flex flex-col"
         >
           <img
             src={balanceCard}

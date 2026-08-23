@@ -25,7 +25,7 @@ const eventLabel = (eventType) =>
   }[eventType] || eventType);
 
 const formatDate = (date) =>
-  date ? new Date(date).toLocaleString() : "—";
+  date ? new Date(date).toLocaleDateString("en-GB") : "—";
 
 const LIMIT = 5;
 
@@ -81,7 +81,7 @@ const MySubscription = () => {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Loader isLoading={isLoading} />
 
-      <h2 className="text-xl md:text-3xl uppercase bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent font-bold text-center">
+      <h2 className="text-xl md:text-3xl uppercase bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-bold text-center">
         My Subscription
       </h2>
 
@@ -95,7 +95,7 @@ const MySubscription = () => {
             </span>
             <Link
               to={"/subscriptions"}
-              className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent"
+              className="border-2 border-primary px-4 py-0.5 rounded font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
             >
               Subscribe
             </Link>
@@ -105,11 +105,11 @@ const MySubscription = () => {
           {subscriptions.map((sub) => (
             <div
               key={sub._id}
-              className="border-2 border-slate-200 border-b-4 border-b-[#FA6023] rounded-xl p-5"
+              className="border-2 border-slate-200 border-b-4 border-b-primary rounded-xl p-5"
             >
               <div className="flex justify-between items-start gap-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#E61C55]">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-secondary">
                     {sub.typeName}
                   </p>
                   <p className="text-sm text-gray-500 mt-0.5">
@@ -152,6 +152,23 @@ const MySubscription = () => {
                   </p>
                 )}
               </div>
+              {/* active subs can extend (purchase extends expiry from
+                  max(now, expiresAt)); suspended is excluded — admin must
+                  resume before the user can buy again */}
+              {(sub.effectiveStatus === "active" ||
+                sub.effectiveStatus === "cancelled" ||
+                sub.effectiveStatus === "expired") && (
+                <Link
+                  to="/subscriptions"
+                  className="block text-center bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold rounded-md py-1.5 mt-4"
+                >
+                  {sub.effectiveStatus === "active"
+                    ? "Extend"
+                    : sub.effectiveStatus === "cancelled"
+                    ? "Buy Again"
+                    : "Renew"}
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -176,7 +193,7 @@ const MySubscription = () => {
                   <span
                     className={`badge ${
                       item.eventType === "purchase"
-                        ? "badge-primary"
+                        ? "bg-primary text-white border-primary"
                         : item.eventType === "suspend"
                         ? "badge-warning"
                         : item.eventType === "resume"
@@ -214,8 +231,7 @@ const MySubscription = () => {
                   ) : (
                     <>
                       <p className="text-xs text-gray-500">
-                        by {item.adminEmail || "admin"}
-                        {item.note ? ` · ${item.note}` : ""}
+                        {item.note ? `Note: ${item.note}` : "by admin"}
                       </p>
                       {item.newExpiresAt && (
                         <p className="text-xs text-gray-500">

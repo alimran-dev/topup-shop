@@ -51,9 +51,9 @@ const MyOrders = () => {
     <div>
       <Loader isLoading={isLoading} />
       <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-5">
-        <h2 className="text-xl md:text-2xl uppercase bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent font-bold ">Order History</h2>
+        <h2 className="text-xl md:text-2xl uppercase bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-bold ">Order History</h2>
         <Link
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit block"
+          className="bg-gradient-to-r from-primary to-secondary py-1 md:py-1.5 px-5 lg:text-lg text-white font-semibold rounded w-fit block"
           target="_blank"
           to={"https://shop.garena.my/app/100067/idlogin"}
         >
@@ -83,7 +83,7 @@ const MyOrders = () => {
             <span className="text-3xl font-medium">No Order Data</span>
             <Link
               to={"/topup"}
-              className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent"
+              className="border-2 border-primary px-4 py-0.5 rounded font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
             >
               Order
             </Link>

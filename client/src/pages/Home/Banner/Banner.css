@@ -2,11 +2,11 @@
     position: static;
 }
 .swiper-pagination-bullet {
-  background-color: #fa6023;
+  background-color: rgb(var(--theme-primary));
 }
 .swiper-button-prev,
 .swiper-button-next {
-  color: #fa6023;
+  color: rgb(var(--theme-primary));
   background-color: white;
   width: 45px;
   height: 45px;

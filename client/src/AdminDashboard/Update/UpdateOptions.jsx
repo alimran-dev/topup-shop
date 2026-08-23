@@ -7,7 +7,7 @@ import rechargeOffer from "../../assets/images/recharge-offer.jpeg";
 const UpdateOptions = () => {
   return (
     <div className="-mt-5">
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
         Select to Update
       </h1>
       <div className="grid grid-cols-3 md:flex md:flex-wrap justify-center gap-2 md:gap-5 my-5">

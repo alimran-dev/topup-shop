@@ -114,19 +114,19 @@ const SignUp = () => {
         className="w-full md:w-96 border block mx-auto px-5 pb-5 shadow-md"
       >
         <div>
-          <h2 className="text-3xl text-center font-bold py-5 bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent w-fit mx-auto">
+          <h2 className="text-3xl text-center font-bold py-5 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent w-fit mx-auto">
             Sign Up
           </h2>
           <button
             onClick={handleGoogle}
-            className="flex items-center justify-center w-full py-1.5 px-3 border border-[#FA6023] rounded font-medium gap-1"
+            className="flex items-center justify-center w-full py-1.5 px-3 border border-primary rounded font-medium gap-1"
           >
             <FcGoogle className="text-xl" /> Login with Google
           </button>
           <div className="flex items-center gap-1.5">
-            <span className="block border-b-2 border-[#FA6023] flex-1"></span>
+            <span className="block border-b-2 border-primary flex-1"></span>
             <h3 className="text-lg font-medium">OR</h3>
-            <span className="block border-b-2 border-[#FA6023] flex-1"></span>
+            <span className="block border-b-2 border-primary flex-1"></span>
           </div>
         </div>
         <div className="space-y-1">
@@ -235,7 +235,7 @@ const SignUp = () => {
         <Turnstile sitekey={import.meta.env.VITE_TURNSTILE_KEY} theme="light" className="w-fit mx-auto mt-2" onVerify={(token)=>setTurnstileToken(token)} />
         <button
           type="submit"
-          className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-[#FA6023] to-[#E61C55] my-3 rounded-md"
+          className="w-full py-1 px-3 font-semibold text-white bg-gradient-to-r from-primary to-secondary my-3 rounded-md"
         >
           Sign Up
         </button>

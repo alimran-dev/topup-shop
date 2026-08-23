@@ -16,9 +16,18 @@ const Subscriptions = () => {
   const [types, setTypes] = useState([]);
   const [packages, setPackages] = useState([]);
   const [newTypeName, setNewTypeName] = useState("");
+  const [newTypeColors, setNewTypeColors] = useState({
+    primary: "#FA6023",
+    secondary: "#E61C55",
+  });
   const [typeFilter, setTypeFilter] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  // inline row edits (serial + theme colors) — drafts stage values until the
+  // per-row Save button commits both in one PATCH
+  const [serialDrafts, setSerialDrafts] = useState({});
+  const [colorDrafts, setColorDrafts] = useState({});
+  const [savingId, setSavingId] = useState("");
   const axiosPrivate = useAxiosPrivate();
 
   const loadTypes = () =>
@@ -58,11 +67,17 @@ const Subscriptions = () => {
       return;
     }
     axiosPrivate
-      .post("/subscription/admin/types", { name: newTypeName.trim() })
+      .post("/subscription/admin/types", {
+        name: newTypeName.trim(),
+        // server expects primaryColor/secondaryColor (per-field hex)
+        primaryColor: newTypeColors.primary,
+        secondaryColor: newTypeColors.secondary,
+      })
       .then((res) => {
         if (res.data?.insertedId) {
           toast.success("Type added successfully!");
           setNewTypeName("");
+          setNewTypeColors({ primary: "#FA6023", secondary: "#E61C55" });
           loadTypes();
         } else {
           toast.error("Something went wrong!");
@@ -70,6 +85,112 @@ const Subscriptions = () => {
       })
       .catch(() => toast.error("Failed to add type!"));
   };
+
+  // Inline row editor: serial + theme-color inputs stage drafts; the row's
+  // explicit Save button commits both in one PATCH (updateType $sets only
+  // the provided fields). Drafts survive a failed save so the admin can fix
+  // and retry.
+  const hasDraft = (type) =>
+    !!serialDrafts[type._id] || !!colorDrafts[type._id];
+
+  const saveRow = (type) => {
+    const serialDraft = serialDrafts[type._id];
+    const colorDraft = colorDrafts[type._id];
+    const body = { id: type._id };
+    if (serialDraft !== undefined && serialDraft.trim()) {
+      const serial = Number(serialDraft);
+      if (!Number.isInteger(serial) || serial <= 0) {
+        toast.error("Serial must be a positive whole number!");
+        return;
+      }
+      if (serial !== type.serial) body.serial = serial;
+    }
+    const primaryColor = colorDraft?.primary ?? type.primaryColor ?? "#FA6023";
+    const secondaryColor =
+      colorDraft?.secondary ?? type.secondaryColor ?? "#E61C55";
+    if (
+      colorDraft &&
+      (primaryColor !== (type.primaryColor ?? "#FA6023") ||
+        secondaryColor !== (type.secondaryColor ?? "#E61C55"))
+    ) {
+      body.primaryColor = primaryColor;
+      body.secondaryColor = secondaryColor;
+    }
+    if (Object.keys(body).length === 1) {
+      toast.error("No changes to save!");
+      return;
+    }
+    setSavingId(type._id);
+    axiosPrivate
+      .patch("/subscription/admin/types", body)
+      .then((res) => {
+        if (res.data?.acknowledged) {
+          toast.success("Type updated!");
+          setSerialDrafts((prev) => {
+            const next = { ...prev };
+            delete next[type._id];
+            return next;
+          });
+          setColorDrafts((prev) => {
+            const next = { ...prev };
+            delete next[type._id];
+            return next;
+          });
+          loadTypes(); // refetches so the serial-sorted order updates
+        }
+      })
+      .catch((err) => {
+        toast.error(err?.response?.data?.message || "Failed to update type!");
+      })
+      .finally(() => setSavingId(""));
+  };
+
+  const serialInput = (type) => (
+    <input
+      type="number"
+      min="1"
+      step="1"
+      className="w-20 border border-slate-300 rounded px-1.5 py-0.5 focus:outline-none focus:border-primary disabled:opacity-60"
+      value={serialDrafts[type._id] ?? type.serial}
+      disabled={savingId === type._id}
+      onChange={(e) =>
+        setSerialDrafts((prev) => ({ ...prev, [type._id]: e.target.value }))
+      }
+      onKeyDown={(e) => {
+        if (e.key === "Enter") saveRow(type);
+      }}
+    />
+  );
+
+  const colorInput = (type, key) => (
+    <input
+      type="color"
+      className="w-9 h-7 rounded border border-slate-300 cursor-pointer disabled:opacity-60"
+      value={
+        colorDrafts[type._id]?.[key] ??
+        type[key === "primary" ? "primaryColor" : "secondaryColor"] ??
+        (key === "primary" ? "#FA6023" : "#E61C55")
+      }
+      disabled={savingId === type._id}
+      onChange={(e) =>
+        setColorDrafts((prev) => ({
+          ...prev,
+          [type._id]: { ...prev[type._id], [key]: e.target.value },
+        }))
+      }
+    />
+  );
+
+  const saveButton = (type) => (
+    <button
+      title="Save serial & color changes"
+      className="px-3 py-1 rounded text-xs font-semibold bg-gradient text-white disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+      disabled={savingId === type._id || !hasDraft(type)}
+      onClick={() => saveRow(type)}
+    >
+      {savingId === type._id ? "Saving..." : "Save"}
+    </button>
+  );
 
   const handleRenameType = (type) => {
     Swal.fire({
@@ -199,16 +320,16 @@ const Subscriptions = () => {
     <div className="max-w-6xl mx-auto px-4">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-5">
         <h2 className="title !text-xl md:!text-4xl">Subscriptions</h2>
-        <div className="flex gap-3">
+        <div className="flex w-full md:w-auto gap-3">
           <Link
             to="/dashboard/subscriptions/subscribers"
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-white font-semibold"
+            className="button bg-gradient inline-flex items-center gap-2 flex-1 md:flex-none justify-center"
           >
             <FaUsers /> Subscribers
           </Link>
           <Link
             to="/dashboard/subscriptions/history"
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-secondary text-white font-semibold"
+            className="button bg-gradient inline-flex items-center gap-2 flex-1 md:flex-none justify-center"
           >
             <FaHistory /> History
           </Link>
@@ -218,42 +339,130 @@ const Subscriptions = () => {
       {/* Types */}
       <div className="border border-slate-200 rounded-md shadow-sm p-5 mb-6">
         <h3 className="text-lg font-semibold mb-3">Subscription Types</h3>
-        <form onSubmit={handleAddType} className="flex gap-3 mb-4 max-w-md">
+        <form
+          onSubmit={handleAddType}
+          className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4 max-w-xl"
+        >
           <input
             type="text"
-            className="input"
+            className="input sm:flex-1"
             placeholder="e.g. Reseller"
             value={newTypeName}
             onChange={(e) => setNewTypeName(e.target.value)}
           />
-          <button type="submit" className="button bg-primary text-white">
+          <label className="flex items-center gap-1.5 text-sm text-gray-600">
+            Primary
+            <input
+              type="color"
+              className="w-9 h-7 rounded border border-slate-300 cursor-pointer"
+              value={newTypeColors.primary}
+              onChange={(e) =>
+                setNewTypeColors((prev) => ({
+                  ...prev,
+                  primary: e.target.value,
+                }))
+              }
+            />
+          </label>
+          <label className="flex items-center gap-1.5 text-sm text-gray-600">
+            Secondary
+            <input
+              type="color"
+              className="w-9 h-7 rounded border border-slate-300 cursor-pointer"
+              value={newTypeColors.secondary}
+              onChange={(e) =>
+                setNewTypeColors((prev) => ({
+                  ...prev,
+                  secondary: e.target.value,
+                }))
+              }
+            />
+          </label>
+          <button type="submit" className="button bg-gradient shrink-0 flex items-center gap-2">
             <FaPlus /> Add Type
           </button>
         </form>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 text-left">
-                <th className="py-2 pr-4">Name</th>
-                <th className="py-2 pr-4">Serial</th>
-                <th className="py-2 pr-4">Status</th>
-                <th className="py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {types.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="py-4 text-center text-gray-400">
-                    No subscription types yet. Add your first type above.
-                  </td>
-                </tr>
-              )}
+        {types.length === 0 ? (
+          <p className="py-4 text-center text-gray-400">
+            No subscription types yet. Add your first type above.
+          </p>
+        ) : (
+          <>
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left">
+                    <th className="py-2 pr-4">Name</th>
+                    <th className="py-2 pr-4">Serial</th>
+                    <th className="py-2 pr-4">Colors</th>
+                    <th className="py-2 pr-4">Status</th>
+                    <th className="py-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {types.map((type) => (
+                    <tr key={type._id} className="border-b border-slate-100">
+                      <td className="py-2 pr-4">{type.name}</td>
+                      <td className="py-2 pr-4">{serialInput(type)}</td>
+                      <td className="py-2 pr-4">
+                        <div className="flex items-center gap-1.5">
+                          {colorInput(type, "primary")}
+                          {colorInput(type, "secondary")}
+                        </div>
+                      </td>
+                      <td className="py-2 pr-4">
+                        <span
+                          className={`badge ${
+                            type.isActive === false
+                              ? "badge-error"
+                              : "badge-success"
+                          }`}
+                        >
+                          {type.isActive === false ? "Inactive" : "Active"}
+                        </span>
+                      </td>
+                      <td className="py-2">
+                        <div className="flex items-center gap-3">
+                          {saveButton(type)}
+                          <button
+                            title="Rename"
+                            onClick={() => handleRenameType(type)}
+                            className="text-primary hover:opacity-70"
+                          >
+                            <FaRegEdit />
+                          </button>
+                          <label className="flex items-center gap-1 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="toggle toggle-sm checked:bg-primary checked:border-primary checked:text-primary"
+                              checked={type.isActive !== false}
+                              onChange={() => handleToggleType(type)}
+                            />
+                          </label>
+                          <button
+                            title="Delete"
+                            onClick={() => handleDeleteType(type)}
+                            className="text-red-500 hover:opacity-70"
+                          >
+                            <AiFillDelete />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* mobile cards */}
+            <div className="md:hidden space-y-3">
               {types.map((type) => (
-                <tr key={type._id} className="border-b border-slate-100">
-                  <td className="py-2 pr-4">{type.name}</td>
-                  <td className="py-2 pr-4">{type.serial}</td>
-                  <td className="py-2 pr-4">
+                <div
+                  key={type._id}
+                  className="p-3 border border-slate-200 shadow-md rounded-md space-y-2"
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <h3 className="font-bold">{type.name}</h3>
                     <span
                       className={`badge ${
                         type.isActive === false
@@ -263,38 +472,44 @@ const Subscriptions = () => {
                     >
                       {type.isActive === false ? "Inactive" : "Active"}
                     </span>
-                  </td>
-                  <td className="py-2">
-                    <div className="flex items-center gap-3">
-                      <button
-                        title="Rename"
-                        onClick={() => handleRenameType(type)}
-                        className="text-primary hover:opacity-70"
-                      >
-                        <FaRegEdit />
-                      </button>
-                      <label className="flex items-center gap-1 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="toggle toggle-sm toggle-primary"
-                          checked={type.isActive !== false}
-                          onChange={() => handleToggleType(type)}
-                        />
-                      </label>
-                      <button
-                        title="Delete"
-                        onClick={() => handleDeleteType(type)}
-                        className="text-red-500 hover:opacity-70"
-                      >
-                        <AiFillDelete />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  </div>
+                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                    Serial: {serialInput(type)}
+                  </p>
+                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                    Colors: {colorInput(type, "primary")}
+                    {colorInput(type, "secondary")}
+                  </p>
+                  <div className="flex items-center gap-4 pt-1">
+                    {saveButton(type)}
+                    <button
+                      title="Rename"
+                      onClick={() => handleRenameType(type)}
+                      className="text-primary hover:opacity-70"
+                    >
+                      <FaRegEdit />
+                    </button>
+                    <label className="flex items-center gap-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-sm checked:bg-primary checked:border-primary checked:text-primary"
+                        checked={type.isActive !== false}
+                        onChange={() => handleToggleType(type)}
+                      />
+                    </label>
+                    <button
+                      title="Delete"
+                      onClick={() => handleDeleteType(type)}
+                      className="text-red-500 hover:opacity-70"
+                    >
+                      <AiFillDelete />
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Packages */}
@@ -303,7 +518,7 @@ const Subscriptions = () => {
           <h3 className="text-lg font-semibold">Subscription Packages</h3>
           <Link
             to="/dashboard/subscriptions/packages/manage"
-            className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-white font-semibold"
+            className="button bg-gradient inline-flex items-center gap-2 w-full sm:w-auto justify-center"
           >
             <FaPlus /> Add Package
           </Link>
@@ -331,33 +546,83 @@ const Subscriptions = () => {
           />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 text-left">
-                <th className="py-2 pr-4">Name</th>
-                <th className="py-2 pr-4">Type</th>
-                <th className="py-2 pr-4">Duration</th>
-                <th className="py-2 pr-4">Price (৳)</th>
-                <th className="py-2 pr-4">Status</th>
-                <th className="py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {packages.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-4 text-center text-gray-400">
-                    No packages found.
-                  </td>
-                </tr>
-              )}
+        {packages.length === 0 ? (
+          <p className="py-4 text-center text-gray-400">No packages found.</p>
+        ) : (
+          <>
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left">
+                    <th className="py-2 pr-4">Name</th>
+                    <th className="py-2 pr-4">Type</th>
+                    <th className="py-2 pr-4">Duration</th>
+                    <th className="py-2 pr-4">Price (৳)</th>
+                    <th className="py-2 pr-4">Status</th>
+                    <th className="py-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {packages.map((pkg) => (
+                    <tr key={pkg._id} className="border-b border-slate-100">
+                      <td className="py-2 pr-4">{pkg.name}</td>
+                      <td className="py-2 pr-4">{pkg.typeName}</td>
+                      <td className="py-2 pr-4">{formatDuration(pkg)}</td>
+                      <td className="py-2 pr-4">{pkg.price}</td>
+                      <td className="py-2 pr-4">
+                        <span
+                          className={`badge ${
+                            pkg.isActive === false
+                              ? "badge-error"
+                              : "badge-success"
+                          }`}
+                        >
+                          {pkg.isActive === false ? "Inactive" : "Active"}
+                        </span>
+                      </td>
+                      <td className="py-2">
+                        <div className="flex items-center gap-3">
+                          <Link
+                            title="Edit"
+                            to={`/dashboard/subscriptions/packages/manage/${pkg._id}`}
+                            className="text-primary hover:opacity-70"
+                          >
+                            <FaRegEdit />
+                          </Link>
+                          <label className="flex items-center gap-1 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="toggle toggle-sm checked:bg-primary checked:border-primary checked:text-primary"
+                              checked={pkg.isActive !== false}
+                              onChange={() => handleTogglePackage(pkg)}
+                            />
+                          </label>
+                          <button
+                            title="Delete"
+                            onClick={() => handleDeletePackage(pkg)}
+                            className="text-red-500 hover:opacity-70"
+                          >
+                            <AiFillDelete />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* mobile cards */}
+            <div className="md:hidden space-y-3">
               {packages.map((pkg) => (
-                <tr key={pkg._id} className="border-b border-slate-100">
-                  <td className="py-2 pr-4">{pkg.name}</td>
-                  <td className="py-2 pr-4">{pkg.typeName}</td>
-                  <td className="py-2 pr-4">{formatDuration(pkg)}</td>
-                  <td className="py-2 pr-4">{pkg.price}</td>
-                  <td className="py-2 pr-4">
+                <div
+                  key={pkg._id}
+                  className="p-3 border border-slate-200 shadow-md rounded-md space-y-2"
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <h3 className="font-bold">{pkg.name}</h3>
+                      <p className="text-sm text-gray-500">{pkg.typeName}</p>
+                    </div>
                     <span
                       className={`badge ${
                         pkg.isActive === false
@@ -367,38 +632,39 @@ const Subscriptions = () => {
                     >
                       {pkg.isActive === false ? "Inactive" : "Active"}
                     </span>
-                  </td>
-                  <td className="py-2">
-                    <div className="flex items-center gap-3">
-                      <Link
-                        title="Edit"
-                        to={`/dashboard/subscriptions/packages/manage/${pkg._id}`}
-                        className="text-primary hover:opacity-70"
-                      >
-                        <FaRegEdit />
-                      </Link>
-                      <label className="flex items-center gap-1 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="toggle toggle-sm toggle-primary"
-                          checked={pkg.isActive !== false}
-                          onChange={() => handleTogglePackage(pkg)}
-                        />
-                      </label>
-                      <button
-                        title="Delete"
-                        onClick={() => handleDeletePackage(pkg)}
-                        className="text-red-500 hover:opacity-70"
-                      >
-                        <AiFillDelete />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {formatDuration(pkg)} · ৳{pkg.price}
+                  </p>
+                  <div className="flex items-center gap-4 pt-1">
+                    <Link
+                      title="Edit"
+                      to={`/dashboard/subscriptions/packages/manage/${pkg._id}`}
+                      className="text-primary hover:opacity-70"
+                    >
+                      <FaRegEdit />
+                    </Link>
+                    <label className="flex items-center gap-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-sm checked:bg-primary checked:border-primary checked:text-primary"
+                        checked={pkg.isActive !== false}
+                        onChange={() => handleTogglePackage(pkg)}
+                      />
+                    </label>
+                    <button
+                      title="Delete"
+                      onClick={() => handleDeletePackage(pkg)}
+                      className="text-red-500 hover:opacity-70"
+                    >
+                      <AiFillDelete />
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

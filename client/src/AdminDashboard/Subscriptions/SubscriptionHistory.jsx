@@ -15,14 +15,14 @@ const eventLabel = (eventType) =>
 
 const eventBadge = (eventType) =>
   ({
-    purchase: "badge-primary",
+    purchase: "bg-primary text-white border-primary",
     suspend: "badge-warning",
     resume: "badge-success",
     cancel: "badge-error",
   }[eventType] || "badge-ghost");
 
 const formatDate = (date) =>
-  date ? new Date(date).toLocaleString() : "—";
+  date ? new Date(date).toLocaleDateString("en-GB") : "—";
 
 const SubscriptionHistory = () => {
   const [items, setItems] = useState([]);
@@ -115,77 +115,121 @@ const SubscriptionHistory = () => {
         />
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto border border-slate-200 rounded-md shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr className="border-b border-slate-200 text-left">
-              <th className="py-3 px-4">Date &amp; Time</th>
-              <th className="py-3 px-4">Event</th>
-              <th className="py-3 px-4">User</th>
-              <th className="py-3 px-4">Type</th>
-              <th className="py-3 px-4">Details</th>
-              <th className="py-3 px-4">Note</th>
-              <th className="py-3 px-4">Agreed T&amp;C</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr>
-                <td colSpan={7} className="py-6 text-center text-gray-400">
-                  Loading...
-                </td>
-              </tr>
-            )}
-            {!loading && items.length === 0 && (
-              <tr>
-                <td colSpan={7} className="py-6 text-center text-gray-400">
-                  No history found.
-                </td>
-              </tr>
-            )}
+      {/* Desktop table */}
+      {loading ? (
+        <p className="py-6 text-center text-gray-400">Loading...</p>
+      ) : items.length === 0 ? (
+        <p className="py-6 text-center text-gray-400">No history found.</p>
+      ) : (
+        <>
+          <div className="hidden md:block overflow-x-auto border border-slate-200 rounded-md shadow-sm">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr className="border-b border-slate-200 text-left">
+                  <th className="py-3 px-4">Date &amp; Time</th>
+                  <th className="py-3 px-4">Event</th>
+                  <th className="py-3 px-4">User</th>
+                  <th className="py-3 px-4">Type</th>
+                  <th className="py-3 px-4">Details</th>
+                  <th className="py-3 px-4">Note</th>
+                  <th className="py-3 px-4">Agreed T&amp;C</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item._id} className="border-b border-slate-100">
+                    <td className="py-3 px-4">{formatDate(item.createdAt)}</td>
+                    <td className="py-3 px-4">
+                      <span className={`badge ${eventBadge(item.eventType)}`}>
+                        {eventLabel(item.eventType)}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">{item.email}</td>
+                    <td className="py-3 px-4">{item.typeName}</td>
+                    <td className="py-3 px-4">
+                      {item.eventType === "purchase" ? (
+                        <div>
+                          <p className="font-medium">{item.packageName}</p>
+                          <p className="text-xs text-gray-500">
+                            ৳{item.price} · {item.durationDays} days
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-500">
+                          by {item.adminEmail || "admin"}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">{item.note || "—"}</td>
+                    <td className="py-3 px-4">
+                      {item.agreement ? (
+                        <button
+                          className="text-primary hover:opacity-70 text-xs font-semibold"
+                          onClick={() => showAgreement(item.agreement)}
+                        >
+                          View T&amp;C
+                        </button>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
             {items.map((item) => (
-              <tr key={item._id} className="border-b border-slate-100">
-                <td className="py-3 px-4">{formatDate(item.createdAt)}</td>
-                <td className="py-3 px-4">
+              <div
+                key={item._id}
+                className="p-3 border border-slate-200 shadow-md rounded-md space-y-2"
+              >
+                <div className="flex justify-between items-start gap-2">
                   <span className={`badge ${eventBadge(item.eventType)}`}>
                     {eventLabel(item.eventType)}
                   </span>
-                </td>
-                <td className="py-3 px-4">{item.email}</td>
-                <td className="py-3 px-4">{item.typeName}</td>
-                <td className="py-3 px-4">
+                  <span className="text-xs text-gray-500">
+                    {formatDate(item.createdAt)}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-500 space-y-1">
+                  <p>
+                    <span className="text-gray-900 font-medium">
+                      {item.typeName}
+                    </span>{" "}
+                    · {item.email}
+                  </p>
                   {item.eventType === "purchase" ? (
-                    <div>
-                      <p className="font-medium">{item.packageName}</p>
-                      <p className="text-xs text-gray-500">
-                        ৳{item.price} · {item.durationDays} days
+                    <>
+                      <p>
+                        <span className="text-gray-900 font-medium">
+                          {item.packageName}
+                        </span>{" "}
+                        · ৳{item.price} · {item.durationDays} days
                       </p>
-                    </div>
+                      {item.agreement && (
+                        <button
+                          className="text-primary hover:opacity-70 text-xs font-semibold"
+                          onClick={() => showAgreement(item.agreement)}
+                        >
+                          View Agreed T&amp;C
+                        </button>
+                      )}
+                    </>
                   ) : (
-                    <span className="text-xs text-gray-500">
+                    <p className="text-xs">
                       by {item.adminEmail || "admin"}
-                    </span>
+                      {item.note ? ` · ${item.note}` : ""}
+                    </p>
                   )}
-                </td>
-                <td className="py-3 px-4">{item.note || "—"}</td>
-                <td className="py-3 px-4">
-                  {item.agreement ? (
-                    <button
-                      className="text-primary hover:opacity-70 text-xs font-semibold"
-                      onClick={() => showAgreement(item.agreement)}
-                    >
-                      View T&amp;C
-                    </button>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </>
+      )}
 
       <Pagination
         currentPage={page}

@@ -82,12 +82,12 @@ const BlockTrx = () => {
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <h2 className="text-center text-2xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text pb-3">
+      <h2 className="text-center text-2xl md:text-5xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text pb-3">
         Block Transaction
       </h2>
       <form
         onSubmit={handleBlock}
-        className="flex flex-col border-2 border-[#E61C55] w-fit mx-auto p-4 rounded-md space-y-1.5"
+        className="flex flex-col border-2 border-secondary w-fit mx-auto p-4 rounded-md space-y-1.5"
       >
         <div>
           <label htmlFor="provider" className="font-semibold">
@@ -115,25 +115,25 @@ const BlockTrx = () => {
             name="trxID"
             type="text"
             required
-            className="border-2 px-3 py-1 w-full rounded-md focus:outline-[#E61C55]"
+            className="border-2 px-3 py-1 w-full rounded-md focus:outline-secondary"
             placeholder="Enter TrxID"
           />
         </div>
         <button
           type="submit"
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white font-semibold px-3 py-1 rounded-md"
+          className="bg-gradient-to-r from-primary to-secondary text-white font-semibold px-3 py-1 rounded-md"
         >
           Block
         </button>
       </form>
-      <h2 className="text-center text-2xl md:text-4xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+      <h2 className="text-center text-2xl md:text-4xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3">
         All blocked TrxID
       </h2>
       <div>
         <input
           onChange={handleSearch}
           type="text"
-          className="border-2 border-gray-400 focus:outline-[#E61C55] px-3 py-1.5 rounded-md mx-auto block w-full md:w-fit"
+          className="border-2 border-gray-400 focus:outline-secondary px-3 py-1.5 rounded-md mx-auto block w-full md:w-fit"
           placeholder="Search TrxID"
         />
         <div>

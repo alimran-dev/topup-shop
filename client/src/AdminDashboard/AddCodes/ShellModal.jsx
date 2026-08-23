@@ -54,10 +54,10 @@ const ShellModal = ({
           onClick={() => setIsOpenShell(false)}
           className="absolute right-4 top-4 text-2xl font-semibold cursor-pointer"
         />
-        <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+        <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
           Garena Shell
         </h2>
-        <p className="text-center bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text text-xl font-semibold">
+        <p className="text-center bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text text-xl font-semibold">
           Total: {shellCodes.length}
         </p>
         <div className="w-full grid grid-cols-2 gap-4 my-3">
@@ -76,7 +76,7 @@ const ShellModal = ({
           )}
           <button
             onClick={handleAddCodes}
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white py-1.5 rounded px-5 block mx-auto"
+            className="bg-gradient-to-r from-primary to-secondary text-white py-1.5 rounded px-5 block mx-auto"
           >
             Add All
           </button>

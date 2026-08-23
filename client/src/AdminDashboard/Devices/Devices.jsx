@@ -46,7 +46,7 @@ const Devices = () => {
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <h2 className="text-center text-2xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text pb-3">
+      <h2 className="text-center text-2xl md:text-5xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text pb-3">
         Device Management
       </h2>
       <form
@@ -61,7 +61,7 @@ const Devices = () => {
             name="name"
             type="text"
             required
-            className="border-2 border-gray-400 focus:outline-[#E61C55] px-3 py-1.5 rounded-md"
+            className="border-2 border-gray-400 focus:outline-secondary px-3 py-1.5 rounded-md"
             placeholder="Enter Device Name"
           />
         </div>
@@ -73,18 +73,18 @@ const Devices = () => {
             name="id"
             type="text"
             required
-            className="border-2 border-gray-400 focus:outline-[#E61C55] px-3 py-1.5 rounded-md"
+            className="border-2 border-gray-400 focus:outline-secondary px-3 py-1.5 rounded-md"
             placeholder="Enter device ID"
           />
         </div>
         <button
           type="submit"
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] font-semibold text-white px-3 py-1.5 rounded-md"
+          className="bg-gradient-to-r from-primary to-secondary font-semibold text-white px-3 py-1.5 rounded-md"
         >
           Add Device
         </button>
       </form>
-      <h2 className="text-center text-2xl md:text-4xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+      <h2 className="text-center text-2xl md:text-4xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3">
         All added devices
       </h2>
       <div className="flex flex-wrap items-stretch justify-center gap-3">
@@ -103,7 +103,7 @@ const Devices = () => {
           <span className="text-3xl font-medium">No Device</span>
           <button
             onClick={() => window.location.reload()}
-            className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent"
+            className="border-2 border-primary px-4 py-0.5 rounded font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
           >
             Reload
           </button>

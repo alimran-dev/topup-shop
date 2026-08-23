@@ -73,6 +73,7 @@ import Subscriptions from "../AdminDashboard/Subscriptions/Subscriptions";
 import PackageForm from "../AdminDashboard/Subscriptions/PackageForm";
 import Subscribers from "../AdminDashboard/Subscriptions/Subscribers";
 import SubscriptionHistory from "../AdminDashboard/Subscriptions/SubscriptionHistory";
+import SubscriberPricing from "../AdminDashboard/SubscriberPricing/SubscriberPricing";
 import SubscriptionsPage from "../pages/Subscriptions/Subscriptions";
 import SubscriptionConfirm from "../pages/Subscriptions/SubscriptionConfirm";
 import MySubscription from "../pages/Subscriptions/MySubscription";
@@ -474,6 +475,14 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <SubscriptionHistory />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/subscriber-pricing",
+        element: (
+          <AdminRoute>
+            <SubscriberPricing />
           </AdminRoute>
         ),
       },

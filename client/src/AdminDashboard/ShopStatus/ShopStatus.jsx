@@ -50,7 +50,7 @@ const ShopStatus = () => {
 
   const SectionCard = ({ title, icon, children }) => (
     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-      <div className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-6 py-4">
+      <div className="bg-gradient-to-r from-primary to-secondary px-6 py-4">
         <h2 className="text-white text-xl font-semibold flex items-center gap-2">
           {icon}
           {title}
@@ -64,7 +64,7 @@ const ShopStatus = () => {
     <div>
       <Loader isLoading={isLoading} />
 
-      <h1 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text mb-8">
+      <h1 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text mb-8">
         Auto Status
       </h1>
 

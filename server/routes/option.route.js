@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { verifyAdmin } = require("../middlewares/verifyAdmin");
+const { verifyTokenOptional } = require("../middlewares/verifyTokenOptional");
 const {
   getOption,
   getAllOption,
@@ -16,7 +17,7 @@ const {
 const optionRoute = () => {
   // /option/
   router.get("/", getOption);
-  router.get("/all", getAllOption);
+  router.get("/all", verifyTokenOptional, getAllOption);
 
   // admin
   router.post("/admin/add/:category", verifyAdmin, addOption);

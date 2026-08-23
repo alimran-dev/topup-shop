@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Default brand theme (orange→pink). Values MUST stay space-separated R G B
+   triplets — tailwind.config.js consumes them via rgb(var(--theme-*) / …).
+   ThemeProvider overrides these per subscription type for subscribed users. */
+:root {
+  --theme-primary: 250 96 35; /* #FA6023 */
+  --theme-secondary: 230 28 85; /* #E61C55 */
+}
+
 
 body{
     @apply bg-white text-black;
@@ -45,15 +53,15 @@ input[type="number"] {
   
 
 .title{
-    @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit uppercase text-xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto py-3 md:mb-4;
+    @apply bg-gradient-to-r from-primary to-secondary w-fit uppercase text-xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto py-3 md:mb-4;
 }
 
 /* bg colors */
 .bg-gradient{
-    @apply bg-gradient-to-r from-[#FA6023] to-[#E61C55];
+    @apply bg-gradient-to-r from-primary to-secondary;
 }
 .option-bg{
-    @apply bg-gradient-to-b from-[#E61C55] to-[#FA6023] text-white;
+    @apply bg-gradient-to-b from-secondary to-primary text-white;
 }
 
 /* input */
@@ -98,7 +106,7 @@ input[type="number"] {
             rgba(255, 255, 255, 0.22) 0 12px,
             rgba(255, 255, 255, 0) 12px 24px
         ),
-        linear-gradient(90deg, #E61C55 0%, #FA6023 45%, #ffb020 70%, #E61C55 100%);
+        linear-gradient(90deg, rgb(var(--theme-secondary)) 0%, rgb(var(--theme-primary)) 45%, #ffb020 70%, rgb(var(--theme-secondary)) 100%);
     box-shadow:
         0 10px 26px rgba(0, 0, 0, 0.5),
         inset 0 2px 0 rgba(255, 255, 255, 0.55),
@@ -119,7 +127,7 @@ input[type="number"] {
 .sold-glow {
     background: radial-gradient(
         ellipse at center,
-        rgba(230, 28, 85, 0.45) 0%,
+        rgb(var(--theme-secondary) / 0.45) 0%,
         rgba(0, 0, 0, 0) 70%
     );
 }

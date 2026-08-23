@@ -1,5 +1,12 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
+const {
+  CENTRAL_SERVERS,
+  getActiveSubscriberTiers,
+  getUnitPricesByServer,
+  getUnitNormalPricesByServer,
+  augmentOptionsForSubscriber,
+} = require("../utils/subscriberPricing");
 
 const serviceCollection = dbCollections.serviceCollection;
 const serviceItemCollection = dbCollections.serviceItemCollection;
@@ -148,7 +155,41 @@ const getService = async (req, res) => {
       .toArray();
 
     if (result.length > 0) {
-      res.send(decodeRedirectUrl(result[0]));
+      const service = decodeRedirectUrl(result[0]);
+
+      // Subscriber pricing: logged-in non-admin users with an active
+      // subscription see effective prices (admins and guests keep normal).
+      if (req.user?.email && req.user?.role !== "admin") {
+        const activeTiers = await getActiveSubscriberTiers(req.user.email);
+        if (activeTiers.length > 0 && service.options?.length) {
+          // Auto services resolve combos from central unit prices (mix rule:
+          // priced units apply, unpriced units keep their normal unit price).
+          // unipinNormal combos reuse the unipin unit prices.
+          let unitPrices = null;
+          let unitNormals = null;
+          if (service.isAuto) {
+            [unitPrices, unitNormals] = await Promise.all([
+              getUnitPricesByServer(service.server),
+              getUnitNormalPricesByServer(service.server),
+            ]);
+          }
+          service.options = await augmentOptionsForSubscriber(
+            service.options,
+            service.server,
+            activeTiers,
+            unitPrices,
+            unitNormals
+          );
+        } else if (service.options?.length) {
+          // Non-admin user without an active subscription: hide raw maps
+          service.options.forEach((opt) => delete opt.subscriberPrices);
+        }
+      } else if (service.options?.length && req.user?.role !== "admin") {
+        // Guest: hide raw maps (admins keep them for form prefill)
+        service.options.forEach((opt) => delete opt.subscriberPrices);
+      }
+
+      res.send(service);
     } else {
       res.status(404).send({ success: false, error: "Service not found" });
     }

@@ -55,7 +55,7 @@ const Users = () => {
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5">
         All Users({totalUsers})
       </h1>
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 my-4">

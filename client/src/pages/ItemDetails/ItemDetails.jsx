@@ -213,7 +213,7 @@ const ItemDetails = () => {
 
         <div>
           {item?.itemNumber ? (
-            <span className="inline-block bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full mb-1.5 tracking-wide">
+            <span className="inline-block bg-gradient-to-r from-primary to-secondary text-white text-xs md:text-sm font-bold px-3 py-1 rounded-full mb-1.5 tracking-wide">
               Item No: #{item.itemNumber}
             </span>
           ) : null}
@@ -276,13 +276,14 @@ const ItemDetails = () => {
                 {item?.originalPrice}
               </span>
             )}
-            <span className="flex items-center text-xl font-bold text-[#E61C55]">
+            <span className="flex items-center text-xl font-bold text-secondary">
               <TbCurrencyTaka />
               {price}
             </span>
           </div>
 
-          {item?.coin > 0 && (
+          {/* subscribers earn no bonus coins — hide the row while ordering */}
+          {item?.coin > 0 && !user?.hasActiveSubscription && (
             <p className="text-sm flex gap-1">
               <IoInformationCircleOutline className="text-lg" />
               বোনাস কয়েনঃ
@@ -347,7 +348,7 @@ const ItemDetails = () => {
               </div>
               <button
                 onClick={handlePurchase}
-                className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                className="bg-gradient-to-r from-primary to-secondary w-full py-1.5 px-5 rounded-md font-semibold text-white"
               >
                 Purchase
               </button>
@@ -356,7 +357,7 @@ const ItemDetails = () => {
             <Link
               to={"/login"}
               state={location.pathname}
-              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white"
+              className="bg-gradient-to-r from-primary to-secondary block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white"
             >
               Login
             </Link>

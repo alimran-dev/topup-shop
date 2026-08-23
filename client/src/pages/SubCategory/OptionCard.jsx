@@ -4,7 +4,7 @@ import { TbCurrencyTaka } from 'react-icons/tb';
 
 const OptionCard = ({ idx, option, selected, setSelected, purchaseRef }) => {
 
-    const { name, price, stock, coin, willHaveQuantity } = option || {};
+    const { name, price, stock, coin, willHaveQuantity, regularPrice, subscriberTier } = option || {};
 
     const handleSelect = () => {
         if (!stock === null || !stock == 0) {
@@ -35,10 +35,31 @@ const OptionCard = ({ idx, option, selected, setSelected, purchaseRef }) => {
                 className={`border-[5px] rounded-full p-0.5 ${selected?.idx === idx ? "option-bg" : ""
                     }`}
             ></span>
-            <span className="font-bold flex-1">{name}</span>
-            <span className="font-bold flex justify-end items-center">
-                <TbCurrencyTaka className="text-xs translate-x-[2px] mt-[1px]" />
-                {price}
+            <span className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center md:gap-3">
+                <span className="font-bold line-clamp-2 md:line-clamp-none md:flex-1 md:min-w-0">
+                    {name}
+                </span>
+                {/* Mobile: prices + subscription tag move to their own line
+                    under the name (still all inline together, so tagged and
+                    untagged tiles stay the same height); desktop keeps the
+                    single-row layout. */}
+                <span className="flex items-center justify-end gap-1.5 md:shrink-0">
+                    {subscriberTier && regularPrice != null && (
+                        <span className="line-through text-[10px] font-normal opacity-60 flex items-center">
+                            <TbCurrencyTaka className="text-[9px] mt-[1px]" />
+                            {regularPrice}
+                        </span>
+                    )}
+                    <span className="flex items-center">
+                        <TbCurrencyTaka className="text-xs translate-x-[2px] mt-[1px]" />
+                        {price}
+                    </span>
+                    {subscriberTier && regularPrice != null && (
+                        <span className="text-[9px] font-semibold bg-white text-primary border border-primary/30 rounded-full px-1.5 py-[2px] shadow-sm whitespace-nowrap">
+                            {subscriberTier}
+                        </span>
+                    )}
+                </span>
             </span>
         </div>
     );

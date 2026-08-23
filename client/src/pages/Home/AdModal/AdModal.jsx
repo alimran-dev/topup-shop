@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import useAxiosPublicCredentials from "../../../hooks/useAxiosPublicCredentials";
 
 const AdModal = () => {
   const modalRef = useRef(null);
   const [ads, setAds] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const axiosPublic = useAxiosPublic();
+  // Credentials included so the server can personalize the ad per user
+  // (highest active subscription type, or the "normal" ad for everyone else).
+  const axiosPublic = useAxiosPublicCredentials();
 
   // Fetch ad data from the API
   useEffect(() => {

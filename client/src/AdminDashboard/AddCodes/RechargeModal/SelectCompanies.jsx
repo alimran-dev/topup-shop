@@ -7,7 +7,7 @@ const SelectCompanies = ({ companies, setSelectedCompany, setNext }) => {
   };
   return (
     <div>
-      <h2 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
+      <h2 className="bg-gradient-to-r from-primary to-secondary w-fit text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent text-center py-3 mx-auto px-2 md:px-5 capitalize">
         Select Operator
       </h2>
       <div className="grid grid-cols-3 gap-3">
@@ -15,7 +15,7 @@ const SelectCompanies = ({ companies, setSelectedCompany, setNext }) => {
           <div
             key={company._id}
             onClick={() => handleSelectCompany(company)}
-            className="border-2 border-b-2 border-b-[#FA6023] rounded-lg h-full w-full cursor-pointer mx-auto flex flex-col"
+            className="border-2 border-b-2 border-b-primary rounded-lg h-full w-full cursor-pointer mx-auto flex flex-col"
           >
             <img
               src={company.logo}

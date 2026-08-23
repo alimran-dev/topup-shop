@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAxiosPublicCredentials from "../../hooks/useAxiosPublicCredentials";
 import {
   TbCurrencyTaka,
   TbSquareRoundedNumber1Filled,
@@ -40,6 +41,7 @@ const SubCategory = () => {
   const [payMethod, setPayMethod] = useState("wallet");
   const [categoryName, setCategoryName] = useState("");
   const axiosPublic = useAxiosPublic();
+  const axiosPublicCredentials = useAxiosPublicCredentials();
   const axiosPrivate = useAxiosPrivate();
   const { user } = useAuth();
   const location = useLocation();
@@ -53,7 +55,8 @@ const SubCategory = () => {
     // console.log(inputValues);
 
   useEffect(() => {
-    axiosPublic.get(`/services/get?id=${id}`).then((res) => {
+    // Credentials included so logged-in subscribers get their effective prices
+    axiosPublicCredentials.get(`/services/get?id=${id}`).then((res) => {
       setAllData(res?.data);
       setOptions(res.data.options);
       setIsLoading(false);
@@ -79,7 +82,7 @@ const SubCategory = () => {
       }
     });
     setPrice(selected.price);
-  }, [axiosPublic, id, selected?.price]);
+  }, [axiosPublicCredentials, id, selected?.price]);
 
   //   console.log(allData);
 
@@ -358,14 +361,17 @@ const SubCategory = () => {
                   </p>
                 </>
               )}
-              <p className="text-sm flex gap-1">
-                <IoInformationCircleOutline className="text-lg" />
-                বোনাস কয়েনঃ
-                <span className="flex items-center font-semibold text-red-600">
-                  <Coin />
-                  {selected?.coin || 0}
-                </span>
-              </p>
+              {/* subscribers earn no bonus coins — hide the row while ordering */}
+              {!user?.hasActiveSubscription && (
+                <p className="text-sm flex gap-1">
+                  <IoInformationCircleOutline className="text-lg" />
+                  বোনাস কয়েনঃ
+                  <span className="flex items-center font-semibold text-red-600">
+                    <Coin />
+                    {selected?.coin || 0}
+                  </span>
+                </p>
+              )}
               <p className="text-sm flex gap-1">
                 <IoInformationCircleOutline className="text-lg" />
                 প্রোডাক্টের মোট মূল্যঃ
@@ -400,7 +406,7 @@ const SubCategory = () => {
                   </div>
                   <button
                     onClick={handleProceedToConfirmation}
-                    className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                    className="bg-gradient-to-r from-primary to-secondary w-full py-1.5 px-5 rounded-md font-semibold text-white"
                   >
                     Purchase
                   </button>
@@ -409,7 +415,7 @@ const SubCategory = () => {
                 <Link
                   to={"/login"}
                   state={location.pathname}
-                  className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white"
+                  className="bg-gradient-to-r from-primary to-secondary block text-center w-full py-1.5 px-5 rounded-md font-semibold text-white"
                 >
                   Login
                 </Link>
@@ -420,7 +426,7 @@ const SubCategory = () => {
           {/* add balance */}
           {user && (
             <Link to={"/addBalance"} className="block p-3 rounded border-2">
-              <button className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent block mx-auto w-fit mt-2">
+              <button className="border-2 border-primary px-4 py-0.5 rounded font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent block mx-auto w-fit mt-2">
                 Add Balance
               </button>
               <div className="flex justify-center items-center py-3">

@@ -55,7 +55,7 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
       title: `Delete ${number}`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
     }).then((result) => {
@@ -264,7 +264,7 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
         <div className="flex justify-center gap-4 mt-2">
           <button
             type="submit"
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-5 py-1 text-lg font-semibold text-white rounded"
+            className="bg-gradient-to-r from-primary to-secondary px-5 py-1 text-lg font-semibold text-white rounded"
           >
             Update
           </button>

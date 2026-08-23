@@ -22,7 +22,7 @@ const LowerNav = () => {
             <NavLink
               to={"/"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -33,7 +33,7 @@ const LowerNav = () => {
             <NavLink
               to={"/dashboard/addCodes"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -44,7 +44,7 @@ const LowerNav = () => {
             <NavLink
               to={"/dashboard/users"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -55,7 +55,7 @@ const LowerNav = () => {
             <NavLink
               to={"/dashboard/orders"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -67,7 +67,7 @@ const LowerNav = () => {
               to={"/dashboard"}
               end
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -81,7 +81,7 @@ const LowerNav = () => {
             <NavLink
               to={"/"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -92,7 +92,7 @@ const LowerNav = () => {
             <NavLink
               to={"/topup"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -103,7 +103,7 @@ const LowerNav = () => {
             <NavLink
               to={"/addBalance"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -114,7 +114,7 @@ const LowerNav = () => {
             <NavLink
               to={"/myOrders"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -125,7 +125,7 @@ const LowerNav = () => {
             <NavLink
               to={"/myAccount"}
               className={({ isActive, isPending }) =>
-                isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+                isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
@@ -144,7 +144,7 @@ const LowerNav = () => {
           <NavLink
             to={"/"}
             className={({ isActive, isPending }) =>
-              isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+              isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
             }
           >
             <div className="flex flex-col items-center">
@@ -155,7 +155,7 @@ const LowerNav = () => {
           <NavLink
             to={"/topup"}
             className={({ isActive, isPending }) =>
-              isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+              isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
             }
           >
             <div className="flex flex-col items-center">
@@ -166,7 +166,7 @@ const LowerNav = () => {
           <NavLink
             to={"/contact"}
             className={({ isActive, isPending }) =>
-              isPending ? "pending" : isActive ? "text-[#FA6023] flex-1" : "flex-1"
+              isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
             }
           >
             <div className="flex flex-col items-center">

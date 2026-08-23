@@ -126,7 +126,7 @@ const UserCard = ({ user, setIsLoading }) => {
         />
         <button
           type="submit"
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-3 py-1 text-white font-semibold rounded-r h-8"
+          className="bg-gradient-to-r from-primary to-secondary px-3 py-1 text-white font-semibold rounded-r h-8"
         >
           Add Fund
         </button>

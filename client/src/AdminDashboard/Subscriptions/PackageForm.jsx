@@ -158,7 +158,7 @@ const PackageForm = () => {
           onChange={(e) => setName(e.target.value)}
         />
 
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <div>
             <label className="input-label">Duration</label>
             <input
@@ -210,7 +210,7 @@ const PackageForm = () => {
         <label className="flex items-center gap-2 mt-5 cursor-pointer">
           <input
             type="checkbox"
-            className="checkbox checkbox-sm checkbox-primary"
+            className="checkbox checkbox-sm checked:border-primary [--chkbg:rgb(var(--theme-primary))] [--chkfg:#fff]"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
           />
@@ -220,7 +220,7 @@ const PackageForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className="button bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white mt-6 w-full"
+          className="button bg-gradient-to-r from-primary to-secondary text-white mt-6 w-full"
         >
           {loading ? "Saving..." : isEdit ? "Update Package" : "Add Package"}
         </button>

@@ -14,7 +14,9 @@ const {
   coinSettingCollection,
   coinHistoryCollection,
   referHistoryCollection,
+  subscriptionCollection,
 } = dbCollections || {};
+const { getSubscriptionTheme } = require("../utils/subscriberPricing");
 require("dotenv").config();
 
 const countSpentMonth = async (email) => {
@@ -57,6 +59,20 @@ const userProfile = async (req, res) => {
     }
     if (result) {
       result.spent = await countSpentMonth(email);
+      // Mirrors computeEffectiveStatus: only status "active" with a future
+      // expiresAt counts (suspended/cancelled/expired do not). Client uses
+      // this to hide bonus-coin rows while placing orders for subscribers.
+      result.hasActiveSubscription = !!(
+        await subscriptionCollection.findOne({
+          email,
+          status: "active",
+          expiresAt: { $gt: new Date() },
+        })
+      );
+      // Winning-tier theme for the top bar + site-wide theming. Effective
+      // status (suspended/cancelled/expired → null) — intentionally stricter
+      // than hasActiveSubscription above.
+      result.subscriptionTheme = await getSubscriptionTheme(email);
     }
     res.send(result);
   } catch (err) {
@@ -237,6 +253,8 @@ const loginUser = async (req, res) => {
       return res.send({ success: false, message: "Captcha verification failed" });
     }
     user.spent = await countSpentMonth(email);
+    // So the theme applies immediately after login (no reload needed).
+    user.subscriptionTheme = await getSubscriptionTheme(email);
     const { password: pass, reset, verify, ...userDataResponse } = user || {};
     const token = jwt.sign(
       { email, role: user.role },
@@ -527,8 +545,15 @@ const updateUser = async (req, res) => {
       updateUser
     );
     if (isUpdated.modifiedCount > 0) {
-      const user = await userCollection.findOne({ email: email });
+      // Same projection as userProfile/loginUser — never send the password
+      // hash (or reset/verify tokens) back to the client.
+      const user = await userCollection.findOne(
+        { email: email },
+        { projection: { password: 0, reset: 0, verify: 0 } }
+      );
       user.spent = await countSpentMonth(email);
+      // Recompute so a profile save doesn't reset the active theme.
+      user.subscriptionTheme = await getSubscriptionTheme(email);
       res.send(user);
     } else {
       res.status(501).send({ error: "Internal server Error" });

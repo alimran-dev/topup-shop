@@ -50,7 +50,7 @@ const UpdateSpOptionItem = () => {
       title: `${inStock2 ? "Stock Out?" : "In Stock?"}`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
     }).then((result) => {
@@ -81,7 +81,7 @@ const UpdateSpOptionItem = () => {
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete!",
     }).then((result) => {
@@ -103,7 +103,7 @@ const UpdateSpOptionItem = () => {
   return (
     <div>
       <Loader isLoading={isLoading} />
-      <h1 className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
+      <h1 className="bg-gradient-to-r from-primary to-secondary w-fit text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent text-center mx-auto px-2 md:px-5 py-4">
         Update or Delete [{server}]
       </h1>
       <form onSubmit={handleUpdate} className="space-y-5">
@@ -183,7 +183,7 @@ const UpdateSpOptionItem = () => {
             )}
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] py-1.5 px-5 text-lg text-white font-semibold rounded"
+              className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 text-lg text-white font-semibold rounded"
             >
               Update
             </button>

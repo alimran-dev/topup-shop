@@ -78,7 +78,7 @@ const Transactions = () => {
       text: `Reset ${method} method`,
       icon: "warning",
       showCancelButton: false,
-      confirmButtonColor: "#E61C55",
+      confirmButtonColor: "rgb(var(--theme-secondary))",
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -117,47 +117,47 @@ const Transactions = () => {
     <div>
       <Loader isLoading={isLoading} />
       <div className="flex gap-5 flex-wrap">
-        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+        <div className="flex-1 border-2 border-primary p-3 rounded-md flex flex-col items-center">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
             Bkash
           </p>
-          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
+          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text font-semibold">
             {bkash || 0}
-            <TbCurrencyTaka className="text-[#FA6023]" />
+            <TbCurrencyTaka className="text-primary" />
           </p>
           <button
             onClick={() => handleResetMethod("bkash")}
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white font-semibold px-3 py-1 rounded"
+            className="bg-gradient-to-r from-primary to-secondary text-white font-semibold px-3 py-1 rounded"
           >
             Reset
           </button>
         </div>
-        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+        <div className="flex-1 border-2 border-primary p-3 rounded-md flex flex-col items-center">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
             Nagad
           </p>
-          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
+          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text font-semibold">
             {nagad || 0}
-            <TbCurrencyTaka className="text-[#FA6023]" />
+            <TbCurrencyTaka className="text-primary" />
           </p>
           <button
             onClick={() => handleResetMethod("nagad")}
-            className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-white font-semibold px-3 py-1 rounded"
+            className="bg-gradient-to-r from-primary to-secondary text-white font-semibold px-3 py-1 rounded"
           >
             Reset
           </button>
         </div>
-        <div className="flex-1 border-2 border-[#FA6023] p-3 rounded-md flex flex-col items-center">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text">
+        <div className="flex-1 border-2 border-primary p-3 rounded-md flex flex-col items-center">
+          <p className="text-2xl md:text-3xl lg:text-4xl font-semibold w-max  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
             Today&apos;s Admin Add
           </p>
-          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text font-semibold">
+          <p className="flex items-center justify-center w-fit text-3xl  bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text font-semibold">
             {adminAdd || 0}
-            <TbCurrencyTaka className="text-[#FA6023]" />
+            <TbCurrencyTaka className="text-primary" />
           </p>
         </div>
       </div>
-      <h2 className="text-center text-2xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+      <h2 className="text-center text-2xl md:text-5xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3">
         All Transactions
       </h2>
       <div
@@ -167,13 +167,13 @@ const Transactions = () => {
         <input
           type="text"
           onChange={(e) => setSearchTrx(e.target.value)}
-          className="border px-3 py-1 rounded border-gray-400 focus:outline-[#FA6023]"
+          className="border px-3 py-1 rounded border-gray-400 focus:outline-primary"
           placeholder="Trx ID"
         />
         <input
           type="text"
           onChange={(e) => setSearchEmail(e.target.value)}
-          className="border px-3 py-1 rounded border-gray-400 focus:outline-[#FA6023]"
+          className="border px-3 py-1 rounded border-gray-400 focus:outline-primary"
           placeholder="Email"
         />
       </div>
@@ -203,7 +203,7 @@ const Transactions = () => {
           <span className="text-3xl font-medium">No transactions</span>
           <button
             onClick={() => window.location.reload()}
-            className="border-2 border-[#FA6023] px-4 py-0.5 rounded font-bold bg-gradient-to-r from-[#FA6023] to-[#E61C55] bg-clip-text text-transparent"
+            className="border-2 border-primary px-4 py-0.5 rounded font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
           >
             Reload
           </button>

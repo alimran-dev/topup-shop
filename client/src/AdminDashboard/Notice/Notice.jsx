@@ -72,38 +72,38 @@ const Notice = () => {
   return (
     <div>
       <Loader isLoading={isLoadingNotice || isLoadingOffer} />
-      <h2 className="text-center text-3xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+      <h2 className="text-center text-3xl md:text-5xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3">
         Update Notice
       </h2>
       <form onSubmit={handleNotice}>
         <textarea
           name="notice"
           id=""
-          className="border-2 border-[#FA6023] focus:outline-[#E61C55] rounded-md w-full md:w-3/5 mx-auto block px-3 py-2 h-40 md:h-44"
+          className="border-2 border-primary focus:outline-secondary rounded-md w-full md:w-3/5 mx-auto block px-3 py-2 h-40 md:h-44"
           placeholder="Type your notice here"
           defaultValue={notice?.notice}
         ></textarea>
         <button
           type="submit"
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-3 py-1.5 text-white font-medium rounded-md block mx-auto my-3"
+          className="bg-gradient-to-r from-primary to-secondary px-3 py-1.5 text-white font-medium rounded-md block mx-auto my-3"
         >
           Update
         </button>
       </form>
-      <h2 className="text-center text-3xl md:text-5xl font-bold px-4 bg-gradient-to-r from-[#FA6023] to-[#E61C55] text-transparent bg-clip-text py-3">
+      <h2 className="text-center text-3xl md:text-5xl font-bold px-4 bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text py-3">
         Offer Notice Update
       </h2>
       <form onSubmit={handleOffer}>
         <textarea
           name="offer"
           id=""
-          className="border-2 border-[#FA6023] focus:outline-[#E61C55] rounded-md w-full md:w-3/5 mx-auto block px-3 py-2 h-40 md:h-44"
+          className="border-2 border-primary focus:outline-secondary rounded-md w-full md:w-3/5 mx-auto block px-3 py-2 h-40 md:h-44"
           placeholder="Type your offer here"
           defaultValue={offer?.offer}
         ></textarea>
         <button
           type="submit"
-          className="bg-gradient-to-r from-[#FA6023] to-[#E61C55] px-3 py-1.5 text-white font-medium rounded-md block mx-auto my-3"
+          className="bg-gradient-to-r from-primary to-secondary px-3 py-1.5 text-white font-medium rounded-md block mx-auto my-3"
         >
           Update
         </button>

@@ -10,21 +10,21 @@ const UpdateItemOption = ({ option }) => {
       className={`flex items-center gap-3 py-2 px-3 rounded relative border-2 border-gray-400 cursor-pointer`}
     >
       {subCategory === "unipin" || subCategory === "shell" ? (
-        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 text-sm rounded bg-[#FA6023] text-white w-max">
+        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 text-sm rounded bg-primary text-white w-max">
           {stock ? `In Stock: ${stock}` : stock === 0 ? "Stock Out" : ""}
         </span>
       ) : (
         <></>
       )}
       {category === "idcode" && (
-        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 text-sm rounded bg-[#FA6023] text-white w-max">
+        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 text-sm rounded bg-primary text-white w-max">
           {stock ? "" : "Stock Out"}
         </span>
       )}
 
       <span className={`border-[5px] rounded-full p-0.5`}></span>
       <span className="font-bold flex-1 text-gray-500">{name}</span>
-      <span className="text-[#FA6023] font-bold">{price} TK</span>
+      <span className="text-primary font-bold">{price} TK</span>
     </div>
   );
 };
