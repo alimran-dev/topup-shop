@@ -1,11 +1,45 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { axiosBkash } = require("../utils/axiosBkash");
+const {
+  NORMAL_ROLE,
+  getAudience,
+  isMethodAvailable,
+  getReceivedAmount,
+} = require("../utils/paymentMethod");
 const paymentMethodCollection = dbCollections.paymentMethodCollection;
 const paymentMethodSummaryCollection =
   dbCollections.paymentMethodSummaryCollection;
-const { transactionCollection, userCollection } = dbCollections || {};
+const { transactionCollection, userCollection, subscriptionTypeCollection } =
+  dbCollections || {};
 require("dotenv").config();
+
+// allowedRoles entries: "normal" and/or existing subscription-type ids.
+// Returns { ok: true, roles: null } for blank (everyone), { ok: true,
+// roles: [...] } for a valid list, { ok: false } otherwise.
+const validateRoles = async (roles) => {
+  if (!Array.isArray(roles) || !roles.length) return { ok: true, roles: null };
+  const list = [...new Set(roles)];
+  if (list.some((r) => typeof r !== "string" || !r.trim())) return { ok: false };
+  const typeIds = [];
+  for (const r of list) {
+    if (r === NORMAL_ROLE) continue;
+    if (!ObjectId.isValid(r)) return { ok: false };
+    typeIds.push(new ObjectId(r));
+  }
+  if (!typeIds.length) return { ok: true, roles: list };
+  const typeDocs = await subscriptionTypeCollection
+    .find({ _id: { $in: typeIds } })
+    .project({ _id: 1 })
+    .toArray();
+  const found = new Set(typeDocs.map((t) => t._id.toString()));
+  if (!typeIds.every((id) => found.has(id.toString()))) return { ok: false };
+  return { ok: true, roles: list };
+};
+
+// Daily-hours field: 0-23 integer, or blank (""/null/undefined) = unbounded.
+const validateHour = (h) =>
+  h === "" || h == null || (Number.isInteger(Number(h)) && Number(h) >= 0 && Number(h) <= 23);
 
 const getMethods = async (req, res) => {
   try {
@@ -30,46 +64,56 @@ const getMethods = async (req, res) => {
       .project({ lastTime: 0, expires_in: 0, id_token: 0, refresh_token: 0 })
       .toArray();
 
-    // Calculate today's completed transaction amounts for each payment method
+    // Completed transactions for these methods — one query, JS sums for
+    // today's total (admin cards) and received-since-reset (limit counter).
     const methodIds = result.map((method) => method._id.toString());
     const today = new Date();
     const startOfDay = new Date(
       today.getFullYear(),
       today.getMonth(),
       today.getDate()
-    );
+    ).getTime();
+    const txns = methodIds.length
+      ? await transactionCollection
+          .find({ methodID: { $in: methodIds }, status: "completed" })
+          .project({ methodID: 1, amount: 1, time: 1 })
+          .toArray()
+      : [];
 
-    const transactionSummary = await transactionCollection
-      .aggregate([
-        {
-          $match: {
-            methodID: { $in: methodIds },
-            status: "completed",
-            time: { $gte: startOfDay },
-          },
-        },
-        {
-          $group: {
-            _id: "$methodID",
-            totalAmount: { $sum: "$amount" },
-          },
-        },
-      ])
-      .toArray();
-
-    // Create a map for quick lookup
-    const summaryMap = {};
-    transactionSummary.forEach((item) => {
-      summaryMap[item._id] = item.totalAmount;
+    const enriched = result.map((method) => {
+      const idStr = method._id.toString();
+      const resetAt = method.receivedResetAt
+        ? new Date(method.receivedResetAt).getTime()
+        : null;
+      let totalAmount = 0;
+      let received = 0;
+      for (const t of txns) {
+        if (t.methodID !== idStr) continue;
+        const tTime = new Date(t.time).getTime();
+        if (tTime >= startOfDay) totalAmount += t.amount;
+        if (!resetAt || tTime >= resetAt) received += t.amount;
+      }
+      return {
+        ...method,
+        totalAmount,
+        received,
+        limitHit:
+          method.receivingLimit != null && received >= method.receivingLimit,
+      };
     });
 
-    // Add totalAmount to each payment method
-    const resultWithTotals = result.map((method) => ({
-      ...method,
-      totalAmount: summaryMap[method._id.toString()] || 0,
-    }));
-
-    res.send(resultWithTotals);
+    if (role === "user") {
+      // Customer view: hide methods the viewer cannot use right now —
+      // role gating (allowedRoles vs active tiers), daily-hours window,
+      // and auto-inactive by receiving limit. All computed, never written.
+      const audience = await getAudience(req.user?.email);
+      res.send(
+        enriched.filter((m) => isMethodAvailable(m, audience, m.received))
+      );
+    } else {
+      // Admin view: everything, with limit state attached for the UI.
+      res.send(enriched);
+    }
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });
@@ -106,6 +150,24 @@ const bkashCreatePayment = async (req, res) => {
   try {
     const { email, amount } = req.body || {};
     const token = req.token;
+    const paymentMethod = await paymentMethodCollection.findOne({
+      type: "auto",
+    });
+    if (!paymentMethod) {
+      return res.send({ success: false, message: "Payment method not found" });
+    }
+    // Same availability gate as the manual methods: status + roles + daily
+    // hours + receiving limit (computed). Blocks e.g. a limit-hit bKash.
+    // The gate runs BEFORE the pending-transaction cleanup below — a blocked
+    // request must not destroy the user's pending record.
+    const audience = await getAudience(email);
+    const received = await getReceivedAmount(
+      paymentMethod._id?.toString(),
+      paymentMethod.receivedResetAt
+    );
+    if (!isMethodAvailable(paymentMethod, audience, received)) {
+      return res.send({ success: false, message: "Payment method is not available" });
+    }
     const pendingCount = await transactionCollection.countDocuments({
       email,
       status: "pending",
@@ -115,12 +177,6 @@ const bkashCreatePayment = async (req, res) => {
         email: email,
         status: "pending",
       });
-    }
-    const paymentMethod = await paymentMethodCollection.findOne({
-      type: "auto",
-    });
-    if (!paymentMethod) {
-      return res.send({ success: false, message: "Payment method not found" });
     }
     const user = await userCollection.findOne({ email: email });
     if (!user) {
@@ -261,8 +317,37 @@ const addMethod = async (req, res) => {
       balanceVerify,
       minLimit,
       maxLimit,
-      isDirect
+      isDirect,
+      allowedRoles,
+      receivingLimit,
+      activeStartHour,
+      activeEndHour
     } = req.body;
+    const rolesCheck = await validateRoles(allowedRoles);
+    if (!rolesCheck.ok) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Invalid allowed roles" });
+    }
+    if (
+      !validateHour(activeStartHour) ||
+      !validateHour(activeEndHour)
+    ) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Active hours must be 0-23 or blank" });
+    }
+    // Same numeric check as updateMethod — NaN would silently disable the
+    // limit, a negative value would make the method permanently unavailable.
+    let limitValue;
+    if (receivingLimit !== "" && receivingLimit != null) {
+      limitValue = parseFloat(receivingLimit);
+      if (!isFinite(limitValue) || limitValue < 0) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Invalid receiving limit" });
+      }
+    }
     const newMethod = {
       type: "manual",
       provider,
@@ -276,6 +361,15 @@ const addMethod = async (req, res) => {
       balanceVerify,
       isDirect,
       status,
+      // Optional new gates — absent = everyone / unlimited / always
+      ...(rolesCheck.roles && { allowedRoles: rolesCheck.roles }),
+      ...(limitValue !== undefined && { receivingLimit: limitValue }),
+      ...(activeStartHour !== "" && activeStartHour != null && {
+        activeStartHour: parseInt(activeStartHour),
+      }),
+      ...(activeEndHour !== "" && activeEndHour != null && {
+        activeEndHour: parseInt(activeEndHour),
+      }),
     };
     const result = await paymentMethodCollection.insertOne(newMethod);
     res.send(result);
@@ -288,7 +382,7 @@ const addMethod = async (req, res) => {
 const updateMethod = async (req, res) => {
   try {
     const { id } = req.query;
-    const { bonus, special_bonus, fee, number, status, balanceVerify, minLimit, maxLimit, isDirect } = req.body;
+    const { bonus, special_bonus, fee, number, status, balanceVerify, minLimit, maxLimit, isDirect, allowedRoles, receivingLimit, activeStartHour, activeEndHour } = req.body;
     // console.log(req.body);
     const updatedMethod = {
       $set: {
@@ -301,9 +395,64 @@ const updateMethod = async (req, res) => {
         isDirect,
         status,
       },
+      $unset: {},
     };
     if (number) {
       updatedMethod.$set.number = number;
+    }
+    // Optional gates — blank clears the field (everyone / unlimited / always)
+    if (Array.isArray(allowedRoles)) {
+      const rolesCheck = await validateRoles(allowedRoles);
+      if (!rolesCheck.ok) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Invalid allowed roles" });
+      }
+      if (rolesCheck.roles) {
+        updatedMethod.$set.allowedRoles = rolesCheck.roles;
+      } else {
+        updatedMethod.$unset.allowedRoles = "";
+      }
+    }
+    if (receivingLimit !== undefined) {
+      if (receivingLimit === "" || receivingLimit == null) {
+        updatedMethod.$unset.receivingLimit = "";
+      } else {
+        const v = parseFloat(receivingLimit);
+        if (!isFinite(v) || v < 0) {
+          return res
+            .status(400)
+            .send({ success: false, message: "Invalid receiving limit" });
+        }
+        updatedMethod.$set.receivingLimit = v;
+      }
+    }
+    if (activeStartHour !== undefined) {
+      if (!validateHour(activeStartHour)) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Active hours must be 0-23 or blank" });
+      }
+      if (activeStartHour === "" || activeStartHour == null) {
+        updatedMethod.$unset.activeStartHour = "";
+      } else {
+        updatedMethod.$set.activeStartHour = parseInt(activeStartHour);
+      }
+    }
+    if (activeEndHour !== undefined) {
+      if (!validateHour(activeEndHour)) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Active hours must be 0-23 or blank" });
+      }
+      if (activeEndHour === "" || activeEndHour == null) {
+        updatedMethod.$unset.activeEndHour = "";
+      } else {
+        updatedMethod.$set.activeEndHour = parseInt(activeEndHour);
+      }
+    }
+    if (!Object.keys(updatedMethod.$unset).length) {
+      delete updatedMethod.$unset;
     }
     const filter = { _id: new ObjectId(id) };
     const result = await paymentMethodCollection.updateOne(
@@ -365,6 +514,26 @@ const methodReset = async (req, res) => {
   }
 };
 
+// Admin reset of the receiving-limit counter. Moves the received baseline to
+// now — the method is instantly under its limit again (computed model, no
+// status write needed). receivedResetAt is stored per method doc.
+const resetReceivingLimit = async (req, res) => {
+  try {
+    const { id } = req.query;
+    if (!id || !ObjectId.isValid(id)) {
+      return res.status(400).send({ success: false, message: "Invalid id" });
+    }
+    const result = await paymentMethodCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { receivedResetAt: new Date() } }
+    );
+    res.send(result);
+  } catch (err) {
+    console.error("Error: ", err.message);
+    res.status(500).send({ success: false, error: "Internal Server Error" });
+  }
+};
+
 const adjustBalance = async (req, res) => {
   try {
     const { bkashPersonal, bkashAgent, bkashMerchant, nagadPersonal, nagadAgent } = req.body;
@@ -406,4 +575,5 @@ module.exports = {
   methodSummary,
   methodReset,
   adjustBalance,
+  resetReceivingLimit,
 };

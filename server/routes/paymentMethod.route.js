@@ -10,6 +10,7 @@ const {
   methodSummary,
   methodReset,
   adjustBalance,
+  resetReceivingLimit,
   bkashCreatePayment,
   bkashCallback,
   getTodaysAdminAdd,
@@ -32,6 +33,8 @@ const paymentMethodRoute = () => {
   router.get("/method/admin/balance/summary", verifyAdmin, methodSummary);
   router.patch("/method/admin/balance/reset", verifyAdmin, methodReset);
   router.patch("/method/admin/balance/adjust", verifyAdmin, adjustBalance);
+  // receiving-limit counter reset (admin)
+  router.patch("/method/admin/limit/reset", verifyAdmin, resetReceivingLimit);
   return router;
 };
 

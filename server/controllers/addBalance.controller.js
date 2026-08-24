@@ -1,6 +1,11 @@
 const { ObjectId } = require("mongodb");
 const { dbCollections } = require("../config/db");
 const { CONSTANTS } = require("../utils/constants");
+const {
+  getAudience,
+  getReceivedAmount,
+  isMethodAvailable,
+} = require("../utils/paymentMethod");
 const transactionCollection = dbCollections.transactionCollection;
 const paymentMethodCollection = dbCollections.paymentMethodCollection;
 const userCollection = dbCollections.userCollection;
@@ -47,6 +52,19 @@ const addBalance = async (req, res) => {
     const method = await paymentMethodCollection.findOne({
       _id: new ObjectId(id),
     });
+    // Server-side availability backstop (the list already hides ineligible
+    // methods): role gating + daily hours + receiving limit. 403 when the
+    // method is not usable by this user right now.
+    const audience = await getAudience(email);
+    const received = await getReceivedAmount(
+      method?._id?.toString(),
+      method?.receivedResetAt
+    );
+    if (!isMethodAvailable(method, audience, received)) {
+      return res
+        .status(403)
+        .send({ success: false, message: "Payment method is not available" });
+    }
     const { provider, category, bonus, fee, number, special_bonus, balanceVerify } =
       method || {};
     let willAdd = parseFloat((amount + (amount * bonus) / 100).toFixed(2));

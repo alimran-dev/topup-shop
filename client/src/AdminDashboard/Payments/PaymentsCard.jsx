@@ -1,12 +1,47 @@
 import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 import bkashLogo from "../../assets/images/bkash.png";
 
 const PaymentsCard = ({ method, methods, setMethods }) => {
   const axiosPrivate = useAxiosPrivate();
   const { _id, provider, category, bonus, special_bonus, fee, number, status, type, minLimit, maxLimit, balanceVerify, isDirect } =
     method || {};
+  const [allowedRoles, setAllowedRoles] = useState(method?.allowedRoles || []);
+  const [subTypes, setSubTypes] = useState([]);
+
+  // subscription types for the allowed-purchasers checkbox group
+  useEffect(() => {
+    axiosPrivate
+      .get("/subscription/admin/types")
+      .then((res) => setSubTypes(res.data || []))
+      .catch(() => {});
+  }, [axiosPrivate]);
+
+  // reset the receiving-limit counter — method recovers instantly
+  const handleResetLimit = () => {
+    axiosPrivate
+      .patch(`/payment/method/admin/limit/reset?id=${_id}`)
+      .then((res) => {
+        // acknowledged is true even for a no-op (stale id) — only a real
+        // modifiedCount means the baseline actually moved.
+        if (res.data.modifiedCount > 0) {
+          Swal.fire({
+            toast: true,
+            title: "Receiving limit reset!",
+            icon: "success",
+            position: "top",
+            showConfirmButton: false,
+            timer: 3000,
+          });
+          axiosPrivate.get("/payment/methods").then((res) => setMethods(res.data));
+        } else {
+          toast.error("Failed to reset limit!");
+        }
+      });
+  };
 
   const handleUpdateMethod = (e) => {
     e.preventDefault();
@@ -24,6 +59,11 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
       method.number = form.number.value;
       method.balanceVerify = form.balanceVerify.value;
     }
+    // Optional gates — empty array = everyone; blank = unlimited / always
+    method.allowedRoles = allowedRoles;
+    method.receivingLimit = form.receivingLimit?.value || "";
+    method.activeStartHour = form.activeStartHour?.value || "";
+    method.activeEndHour = form.activeEndHour?.value || "";
 
     axiosPrivate
       .patch(`/payment/method/admin/update?id=${_id}`, method)
@@ -257,8 +297,105 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
               </div>
             <div className="">
               <p className="font-semibold">Total Amount: <span className="text-gray-600">{method?.totalAmount || 0} BDT</span></p>
+              {method?.receivingLimit != null && (
+                <p className="font-semibold">
+                  Received: <span className="text-gray-600">{method?.received || 0}</span> /{" "}
+                  <span className="text-gray-600">{method?.receivingLimit} BDT</span>
+                </p>
+              )}
+              {method?.limitHit && (
+                <p className="font-semibold text-red-600">
+                  ⛔ Limit hit — hidden from users until reset
+                </p>
+              )}
             </div>
-            
+            <div>
+              <label htmlFor="receivingLimit" className="font-semibold mr-2">
+                Receiving Limit (৳):{" "}
+                <span className="text-xs text-gray-400">(blank = unlimited)</span>
+              </label>
+              <input
+                defaultValue={method?.receivingLimit ?? ""}
+                name="receivingLimit"
+                type="number"
+                step={0.01}
+                className="border px-3 py-1 rounded w-full md:w-fit"
+                placeholder="e.g. 50000"
+              />
+            </div>
+            <div>
+              <label htmlFor="activeStartHour" className="font-semibold mr-2">
+                Active From Hour (0-23):{" "}
+                <span className="text-xs text-gray-400">(blank = always)</span>
+              </label>
+              <input
+                defaultValue={method?.activeStartHour ?? ""}
+                name="activeStartHour"
+                type="number"
+                min={0}
+                max={23}
+                step={1}
+                className="border px-3 py-1 rounded w-full md:w-fit"
+                placeholder="e.g. 9"
+              />
+            </div>
+            <div>
+              <label htmlFor="activeEndHour" className="font-semibold mr-2">
+                Active To Hour (0-23):{" "}
+                <span className="text-xs text-gray-400">(blank = always)</span>
+              </label>
+              <input
+                defaultValue={method?.activeEndHour ?? ""}
+                name="activeEndHour"
+                type="number"
+                min={0}
+                max={23}
+                step={1}
+                className="border px-3 py-1 rounded w-full md:w-fit"
+                placeholder="e.g. 21"
+              />
+            </div>
+
+          </div>
+        </div>
+        <div className="my-3">
+          <label className="font-semibold mr-2">
+            Allowed Purchasers{" "}
+            <span className="text-xs text-gray-400">
+              (none selected = everyone)
+            </span>
+          </label>
+          <div className="flex flex-wrap gap-4 mt-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={allowedRoles.includes("normal")}
+                onChange={(e) =>
+                  setAllowedRoles((prev) =>
+                    e.target.checked
+                      ? [...prev, "normal"]
+                      : prev.filter((r) => r !== "normal")
+                  )
+                }
+              />
+              Normal user
+            </label>
+            {subTypes.map((t) => (
+              <label key={t._id} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={allowedRoles.includes(t._id)}
+                  onChange={(e) =>
+                    setAllowedRoles((prev) =>
+                      e.target.checked
+                        ? [...prev, t._id]
+                        : prev.filter((r) => r !== t._id)
+                    )
+                  }
+                />
+                {t.name}
+              </label>
+            ))}
           </div>
         </div>
         <div className="flex justify-center gap-4 mt-2">
@@ -267,6 +404,13 @@ const PaymentsCard = ({ method, methods, setMethods }) => {
             className="bg-gradient-to-r from-primary to-secondary px-5 py-1 text-lg font-semibold text-white rounded"
           >
             Update
+          </button>
+          <button
+            type="button"
+            onClick={handleResetLimit}
+            className="px-5 py-1 text-lg font-semibold bg-amber-500 text-white rounded"
+          >
+            Reset Limit
           </button>
           {type != "auto" && (
             <button

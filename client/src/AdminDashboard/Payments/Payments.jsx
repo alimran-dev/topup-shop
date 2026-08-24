@@ -8,12 +8,22 @@ const Payments = () => {
   const [methods, setMethods] = useState([]);
   const [provider, setProvider] = useState("bkash");
   const [balanceData, setBalanceData] = useState({ bkashPersonal: 0, bkashAgent: 0, bkashMerchant: 0, nagadPersonal: 0, nagadAgent: 0 });
+  const [allowedRoles, setAllowedRoles] = useState([]);
+  const [subTypes, setSubTypes] = useState([]);
   const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
     axiosPrivate.get("/payment/methods").then((res) => {
       setMethods(res.data);
     });
+  }, [axiosPrivate]);
+
+  // subscription types for the allowed-purchasers checkbox group
+  useEffect(() => {
+    axiosPrivate
+      .get("/subscription/admin/types")
+      .then((res) => setSubTypes(res.data || []))
+      .catch(() => {});
   }, [axiosPrivate]);
 
 
@@ -32,7 +42,17 @@ const Payments = () => {
     const minLimit = parseInt(form.minLimit.value);
     const maxLimit = parseInt(form.maxLimit.value);
     const isDirect = form.isDirect.checked;
-    const method = { provider, category, bonus, specialBonus, fee, number, status, balanceVerify, minLimit, maxLimit, isDirect };
+    const receivingLimit = form.receivingLimit.value;
+    const activeStartHour = form.activeStartHour.value;
+    const activeEndHour = form.activeEndHour.value;
+    const method = {
+      provider, category, bonus, specialBonus, fee, number, status, balanceVerify, minLimit, maxLimit, isDirect,
+      // Optional gates — none selected = everyone; blank = unlimited/always
+      ...(allowedRoles.length && { allowedRoles }),
+      ...(receivingLimit !== "" && { receivingLimit: Number(receivingLimit) }),
+      ...(activeStartHour !== "" && { activeStartHour: Number(activeStartHour) }),
+      ...(activeEndHour !== "" && { activeEndHour: Number(activeEndHour) }),
+    };
     axiosPrivate.post("/payment/method/admin/add", method).then((res) => {
       if (res.data.insertedId) {
         toast.success("Payment method added");
@@ -297,6 +317,89 @@ const Payments = () => {
                   required
                 />
               </div>
+              <div>
+                <label htmlFor="receivingLimit" className="font-semibold mr-2">
+                  Receiving Limit (৳):{" "}
+                  <span className="text-xs text-gray-400">(blank = unlimited)</span>
+                </label>
+                <input
+                  name="receivingLimit"
+                  type="number"
+                  step={0.01}
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="e.g. 50000"
+                />
+              </div>
+              <div>
+                <label htmlFor="activeStartHour" className="font-semibold mr-2">
+                  Active From Hour (0-23):{" "}
+                  <span className="text-xs text-gray-400">(blank = always)</span>
+                </label>
+                <input
+                  name="activeStartHour"
+                  type="number"
+                  min={0}
+                  max={23}
+                  step={1}
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="e.g. 9"
+                />
+              </div>
+              <div>
+                <label htmlFor="activeEndHour" className="font-semibold mr-2">
+                  Active To Hour (0-23):{" "}
+                  <span className="text-xs text-gray-400">(blank = always)</span>
+                </label>
+                <input
+                  name="activeEndHour"
+                  type="number"
+                  min={0}
+                  max={23}
+                  step={1}
+                  className="border px-3 py-1 rounded w-full md:w-fit"
+                  placeholder="e.g. 21"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="mt-3">
+            <label className="font-semibold mr-2">
+              Allowed Purchasers{" "}
+              <span className="text-xs text-gray-400">
+                (none selected = everyone)
+              </span>
+            </label>
+            <div className="flex flex-wrap gap-4 mt-1">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={allowedRoles.includes("normal")}
+                  onChange={(e) =>
+                    setAllowedRoles((prev) =>
+                      e.target.checked
+                        ? [...prev, "normal"]
+                        : prev.filter((r) => r !== "normal")
+                    )
+                  }
+                />
+                Normal user
+              </label>
+              {subTypes.map((t) => (
+                <label key={t._id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={allowedRoles.includes(t._id)}
+                    onChange={(e) =>
+                      setAllowedRoles((prev) =>
+                        e.target.checked
+                          ? [...prev, t._id]
+                          : prev.filter((r) => r !== t._id)
+                      )
+                    }
+                  />
+                  {t.name}
+                </label>
+              ))}
             </div>
           </div>
           <button
