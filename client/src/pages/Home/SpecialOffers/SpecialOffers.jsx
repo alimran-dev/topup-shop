@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { Link } from "react-router-dom";
-import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import useAxiosPublicCredentials from "../../../hooks/useAxiosPublicCredentials";
 import Coin from "../../../components/reusuable/Coin/Coin";
 
 
@@ -16,7 +16,7 @@ const SpecialOffers = () => {
     const [offers, setoffers] = useState([]);
     const [loading, setLoading] = useState(false);
     const swiperRef = useRef(null);
-    const axiosPublic = useAxiosPublic();
+    const axiosPublic = useAxiosPublicCredentials();
 
     // load offers
     useEffect(() => {
@@ -63,7 +63,24 @@ const SpecialOffers = () => {
                             {offers?.map(offer => (
                                 <SwiperSlide key={offer?._id}>
                                     <div className="block">
-                                        <div className="bg-white rounded-md p-4 text-center border border-gray-300 h-full flex flex-col justify-center relative">
+                                        <div className="bg-white rounded-md p-4 text-center border border-gray-300 h-full flex flex-col justify-center relative"
+                                            style={offer?.highlightColors ? { borderColor: offer.highlightColors.primaryColor, boxShadow: `0 0 0 2px ${offer.highlightColors.primaryColor}33` } : undefined}
+                                        >
+                                            {offer?.highlightColors && (
+                                                <span
+                                                    className="absolute top-2 left-2 text-white text-[10px] md:text-xs font-semibold badge"
+                                                    style={{ backgroundColor: offer.highlightColors.primaryColor }}
+                                                >
+                                                    For {offer.highlightColors.typeName} Members
+                                                </span>
+                                            )}
+                                            {offer?.canPurchase === false && (
+                                                <span
+                                                    className={`absolute left-2 text-[10px] md:text-xs font-semibold badge badge-warning ${offer?.highlightColors ? "top-9" : "top-2"}`}
+                                                >
+                                                    Subscribers Only
+                                                </span>
+                                            )}
                                             <p className={`absolute top-2 right-2 text-white text-[10px] md:text-xs font-semibold badge ${offer?.stock > 0 ? 'badge-success' : 'badge-error'}`}>
                                                 {offer?.stock > 0 ? "In Stock" : "Stock Out"}
                                             </p>

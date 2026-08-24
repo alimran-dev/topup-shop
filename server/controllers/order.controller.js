@@ -1187,16 +1187,55 @@ const orderSpecialOffer = async (req, res) => {
     if (!option.isActive) {
       return res.status(400).send({ message: "Offer is not active now" });
     }
-    if (!option?.isAuto && Object.keys(info).length !== option.inputs.length) {
+    // Subscriber-type restriction — "see it, can't buy" (server-enforced).
+    // Audience = the buyer's ACTIVE subscriber type ids, else ["normal"]
+    // (plain users and admins). Absent/empty allowedRoles ⇒ everyone can buy.
+    if (option.allowedRoles?.length) {
+      const tiers = await getActiveSubscriberTiers(email);
+      const audience =
+        req.user?.role === "admin" || !tiers?.length
+          ? ["normal"]
+          : tiers.map((t) => t.typeId);
+      if (!option.allowedRoles.some((r) => audience.includes(r))) {
+        return res.status(403).send({
+          success: false,
+          message: "This offer is only for selected members",
+        });
+      }
+    }
+    if (!option?.isAuto && Object.keys(info || {}).length !== option.inputs.length) {
       return res.status(400).send({ message: "Invalid order" });
     }
     const emailClaimCount = option.claimedBy.filter(
       (claimedEmail) => claimedEmail === email
     ).length;
-    if (emailClaimCount + quantity > option.maxClaim) {
+    // Blank/absent maxClaim ⇒ unlimited per email (any stored number — incl.
+    // 0, which means "no purchases" — stays a real cap).
+    if (option.maxClaim != null && emailClaimCount + quantity > option.maxClaim) {
       return res
         .status(400)
         .send({ message: "You already claimed this offer" });
+    }
+    // Per-input-value cap: each input field counted INDEPENDENTLY, globally
+    // across all buyers. Auto offers count the player UID (their info only
+    // carries uid). Blank/absent maxClaimPerInput ⇒ unlimited.
+    if (option.maxClaimPerInput != null) {
+      const claimedValues = option.claimedValues || [];
+      const fields = option?.isAuto
+        ? [{ field: "uid", value: info?.uid }]
+        : (option.inputs || []).map((f) => ({ field: f, value: info?.[f] }));
+      for (const { field, value } of fields) {
+        if (!value) continue;
+        const count = claimedValues.filter(
+          (e) => e?.values?.[field] === value
+        ).length;
+        if (count + quantity > option.maxClaimPerInput) {
+          return res.status(400).send({
+            success: false,
+            message: "This input value reached the purchase limit",
+          });
+        }
+      }
     }
     if (option.stock <= 0) {
       return res.status(400).send({ message: "Stock out" });
@@ -1248,56 +1287,6 @@ const orderSpecialOffer = async (req, res) => {
         order.quantity = quantity;
         order.info.quantity = quantity;
       }
-      if(option?.isAuto){
-        const autoCombo = option?.combo?.reduce((acc, item) => {
-          if (item?.quantity > 0) {
-            if (option?.autoServer === "indo") {
-              acc.push({
-                name: item?.name,
-                label: item?.label,
-                quantity: item?.quantity * quantity,
-              });
-            } else if (option?.autoServer === "sg") {
-              acc.push({
-                name: item?.name,
-                dollar: item?.dollar,
-                quantity: item?.quantity * quantity,
-              });
-            } else {
-              acc.push({
-                name: item?.name,
-                quantity: item?.quantity * quantity,
-              });
-            }
-          }
-          return acc;
-        }, []);
-        const protocol =
-          req.secure ||
-          req.get("x-forwarded-proto") === "https" ||
-          process.env.PROJECT_ENV !== "development"
-            ? "https"
-            : "http";
-        // console.log("autoCombo: ", autoCombo, "quantity: ", quantity);
-        const autoDoc = {
-          uid: info?.uid,
-          option: autoCombo,
-          callback: `${protocol}://${req.get(
-            "host"
-          )}/order/auto-server/processing`,
-          server: option?.autoServer,
-          email: "mezbakhan65@gmail.com",
-        };
-        if (option?.autoServer === "sg") {
-          autoDoc.dollar = autoCombo[0]?.dollar || 0;
-        }
-        try {
-          const { data } = await axiosAuto.post("/new-order", autoDoc);
-          order.externalOrderId = data?.orderId;
-        } catch (err) {
-          console.error("orderDynamic: ", err.message);
-        }
-      }
       if (user.referredBy && option.type === "balance" && user.isVerified) {
         const referHistoryId = await referPurchaseCoin(
           user,
@@ -1311,9 +1300,27 @@ const orderSpecialOffer = async (req, res) => {
         stock: option.stock - quantity,
       };
       const emailsToAdd = Array(quantity || 1).fill(email);
+      const claimUpdate = {
+        $set: updatedDoc,
+        $push: { claimedBy: { $each: emailsToAdd } },
+      };
+      // Record input values for the per-input cap (global across buyers) —
+      // only when a cap is set, so legacy offers keep just claimedBy.
+      if (option.maxClaimPerInput != null) {
+        const valuesEntry = option?.isAuto
+          ? { values: { uid: info?.uid } }
+          : {
+              values: Object.fromEntries(
+                (option.inputs || []).map((f) => [f, info?.[f]])
+              ),
+            };
+        claimUpdate.$push.claimedValues = {
+          $each: Array(quantity || 1).fill(valuesEntry),
+        };
+      }
       await specialOfferCollection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: updatedDoc, $push: { claimedBy: { $each: emailsToAdd } } }
+        claimUpdate
       );
       const adminUsers = await userCollection.find({ role: "admin" }).toArray();
       adminUsers.map((admin) => {
@@ -1326,7 +1333,117 @@ const orderSpecialOffer = async (req, res) => {
           );
         }
       });
+      // Insert the order FIRST so the auto-server callback (which matches by
+      // _id) can resolve it. The old code called /new-order BEFORE inserting
+      // and never sent our own orderid, so auto offers could never complete.
       const result = await orderCollection.insertOne(order);
+      if (option?.isAuto) {
+        const protocol =
+          req.secure ||
+          req.get("x-forwarded-proto") === "https" ||
+          process.env.PROJECT_ENV !== "development"
+            ? "https"
+            : "http";
+        const callbackUrl = `${protocol}://${req.get(
+          "host"
+        )}/order/auto-server/processing`;
+        if (option?.autoServer === "unipin") {
+          // Pull one code per combo unit × quantity; shortage → reinsert the
+          // pulled codes and keep the order pending (mirrors orderDynamic).
+          const ucs = [];
+          let totalUnipinToOrder = 0;
+          for (const item of option?.combo || []) {
+            if (item?.quantity > 0) {
+              totalUnipinToOrder += item?.quantity * quantity;
+              for (let i = 0; i < item?.quantity * quantity; i++) {
+                // Guard: rows without a real uc are skipped — {uc: undefined}
+                // matches ANY doc missing the field and would delete a random
+                // code (review-hardened, same as orderDynamic).
+                if (!item?.uc) break;
+                const uc = await unipinCollection.findOneAndDelete({
+                  uc: item.uc,
+                });
+                if (!uc) break;
+                ucs.push(uc);
+              }
+            }
+          }
+          if (ucs.length !== totalUnipinToOrder) {
+            if (ucs.length) {
+              await unipinCollection.insertMany(ucs);
+            }
+          } else {
+            const ucsArr = ucs.map((uc) => uc?.code);
+            await orderCollection.updateOne(
+              { _id: new ObjectId(result.insertedId) },
+              { $set: { codes: ucsArr } }
+            );
+            while (ucsArr.length) {
+              const ucsToClaim = ucsArr.splice(0, 5);
+              await axiosAuto.post("/topup", {
+                orderid: result?.insertedId,
+                playerid: info?.uid,
+                code: ucsToClaim.join(","),
+                url: callbackUrl,
+              });
+            }
+          }
+        } else {
+          // my / indo / sg — shell packages path
+          const shellPackages = [];
+          const autoCombo = option?.combo?.reduce((acc, item) => {
+            if (item?.quantity > 0) {
+              acc.push({
+                name: item?.name,
+                package: item?.package,
+                quantity: item?.quantity * quantity,
+              });
+              for (let i = 0; i < item?.quantity * quantity || 0; i++) {
+                shellPackages.push(item?.package);
+              }
+            }
+            return acc;
+          }, []);
+          // All combo quantities 0 → keep the order pending, skip the API call
+          if (autoCombo.length && shellPackages.length) {
+            const autoOrderData = {
+              orderid: result?.insertedId,
+              playerid: info?.uid,
+              code:
+                option?.autoServer === "my"
+                  ? "shell"
+                  : option?.autoServer === "sg"
+                  ? "sgshell"
+                  : "indo",
+              url: callbackUrl,
+              pacakge: shellPackages.join(","),
+              username:
+                option?.autoServer === "sg"
+                  ? process.env.SHELL_SG_USERNAME
+                  : process.env.SHELL_USERNAME,
+              password:
+                option?.autoServer === "sg"
+                  ? process.env.SHELL_SG_PASSWORD
+                  : process.env.SHELL_PASSWORD,
+              autocode:
+                option?.autoServer === "sg"
+                  ? process.env.SHELL_SG_AUTH_KEY
+                  : process.env.SHELL_AUTH_KEY,
+            };
+            const isLessIsMore = shellPackages.includes("lessismore");
+            if (isLessIsMore) {
+              autoOrderData.code = "lessismore";
+              autoOrderData.mode = "single";
+              delete autoOrderData.pacakge;
+            }
+            try {
+              await axiosAuto.post("/topup", autoOrderData);
+            } catch (err) {
+              console.error("orderSpecialOffer auto: ", err.message);
+            }
+          }
+        }
+      }
       return res.send({
         ...result,
         success: true,

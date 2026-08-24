@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { TbCurrencyTaka } from "react-icons/tb";
 import { FaExternalLinkAlt, FaMinus, FaPlus } from "react-icons/fa";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAxiosPublicCredentials from "../../hooks/useAxiosPublicCredentials";
 import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
@@ -20,7 +20,7 @@ const SpecialOfferDetails = () => {
   const [usernameChecked, setUsernameChecked] = useState(false);
   const [autoUid, setAutoUid] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const axiosPublic = useAxiosPublic();
+  const axiosPublic = useAxiosPublicCredentials();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
 
@@ -151,7 +151,17 @@ const SpecialOfferDetails = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="py-10 px-6 bg-white rounded-lg border border-slate-300 text-center relative">
+      <div
+        className="py-10 px-6 bg-white rounded-lg border border-slate-300 text-center relative"
+        style={
+          offer?.highlightColors
+            ? {
+                borderColor: offer.highlightColors.primaryColor,
+                boxShadow: `0 0 0 2px ${offer.highlightColors.primaryColor}33`,
+              }
+            : undefined
+        }
+      >
         <p
           className={`absolute top-2 right-2 text-white text-[10px] md:text-xs font-semibold badge ${
             offer?.stock > 0 ? "badge-success" : "badge-error"
@@ -159,6 +169,14 @@ const SpecialOfferDetails = () => {
         >
           {offer?.stock > 0 ? "In Stock" : "Stock Out"}
         </p>
+        {offer?.highlightColors && (
+          <p
+            className="absolute top-2 left-2 text-white text-[10px] md:text-xs font-semibold badge"
+            style={{ backgroundColor: offer.highlightColors.primaryColor }}
+          >
+            For {offer.highlightColors.typeName} Members
+          </p>
+        )}
         <img
           src={offer?.image}
           className="w-full h-32 md:h-72 object-fill"
@@ -252,10 +270,17 @@ const SpecialOfferDetails = () => {
           <button
             type="submit"
             className="mt-4 px-6 py-2 bg-primary text-white rounded-md"
-            disabled={btnLoading}
+            disabled={btnLoading || offer?.canPurchase === false}
           >
             {btnLoading ? "Loading..." : "Purchase"}
           </button>
+          {offer?.canPurchase === false && (
+            <p className="mt-3 text-sm font-semibold text-error">
+              {offer?.highlightColors?.typeName
+                ? `Only for ${offer.highlightColors.typeName} members`
+                : "This offer is only for selected members"}
+            </p>
+          )}
         </form>
         <div className="mt-5 md:mt-10 text-blue-700 font-semibold">
           <Link

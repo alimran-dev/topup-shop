@@ -4,83 +4,7 @@ import { uploadImage } from "../../../../utils/uploadImage";
 import toast, { Toaster } from "react-hot-toast";
 import useAxiosPrivate from "../../../../hooks/useAxiosPrivate";
 import ComboModal from "../../../Options/AddOption/ComboModal";
-
-// Define combo configurations for different servers
-const comboConfigs = {
-  unipin: [
-    { name: "25 💎", original: "25 Diamond", value: 25, quantity: 0 },
-    { name: "50 💎", original: "50 Diamond", value: 50, quantity: 0 },
-    { name: "115 💎", original: "115 Diamond", value: 115, quantity: 0 },
-    { name: "240 💎", original: "240 Diamond", value: 240, quantity: 0 },
-    { name: "610 💎", original: "610 Diamond", value: 610, quantity: 0 },
-    { name: "1240 💎", original: "1240 Diamond", value: 1240, quantity: 0 },
-    { name: "2530 💎", original: "2530 Diamond", value: 2530, quantity: 0 },
-    { name: "Weekly", original: "Weekly Membership", value: 0, quantity: 0 },
-    { name: "Monthly", original: "Monthly Membership", value: 0, quantity: 0 },
-  ],
-  my: [
-    {
-      name: "LU Pass - 6",
-      original: "Level Up Package - Level 6",
-      quantity: 0,
-    },
-    {
-      name: "LU Pass - 10",
-      original: "Level Up Package - Level 10",
-      quantity: 0,
-    },
-    {
-      name: "LU Pass - 15",
-      original: "Level Up Package - Level 15",
-      quantity: 0,
-    },
-    {
-      name: "LU Pass - 20",
-      original: "Level Up Package - Level 20",
-      quantity: 0,
-    },
-    {
-      name: "LU Pass - 25",
-      original: "Level Up Package - Level 25",
-      quantity: 0,
-    },
-    {
-      name: "LU Pass - 30",
-      original: "Level Up Package - Level 30",
-      quantity: 0,
-    },
-    { name: "Evo 3D", original: "Evo Access 3D", quantity: 0 },
-    { name: "Evo 7D", original: "Evo Access 7D", quantity: 0 },
-    { name: "Evo 30D", original: "Evo Access 30D", quantity: 0 },
-    { name: "Weekly", original: "Weekly Lite", quantity: 0 },
-  ],
-  indo: [
-    { name: "5 💎", original: "5", quantity: 0 },
-    { name: "50 💎", original: "50", quantity: 0 },
-    { name: "70 💎", original: "70", quantity: 0 },
-    { name: "140 💎", original: "140", quantity: 0 },
-    { name: "355 💎", original: "355", quantity: 0 },
-    { name: "720 💎", original: "720", quantity: 0 },
-    { name: "7290 💎", original: "7.290", quantity: 0 },
-    { name: "36500 💎", original: "36.500", quantity: 0 },
-    { name: "73100 💎", original: "73.100", quantity: 0 },
-    { name: "BP Card", original: "BP Card", quantity: 0 },
-    { name: "Monthly", original: "Member Bulanan", quantity: 0 },
-    { name: "Weekly", original: "Member Mingguan", quantity: 0 },
-    { name: "LU Pass - 6", original: "Level Up Pass - Level 6", quantity: 0 },
-    { name: "LU Pass - 10", original: "Level Up Pass - Level 10", quantity: 0 },
-    { name: "LU Pass - 15", original: "Level Up Pass - Level 15", quantity: 0 },
-    { name: "LU Pass - 20", original: "Level Up Pass - Level 20", quantity: 0 },
-    { name: "LU Pass - 25", original: "Level Up Pass - Level 25", quantity: 0 },
-    { name: "LU Pass - 30", original: "Level Up Pass - Level 30", quantity: 0 },
-  ],
-  sg: [
-    { name: "Airdrop 1$", original: "Airdrop 1$", dollar: 1, quantity: 0 },
-    { name: "Airdrop 2$", original: "Airdrop 2$", dollar: 2, quantity: 0 },
-    { name: "Airdrop 3$", original: "Airdrop 3$", dollar: 3, quantity: 0 },
-    { name: "Airdrop 4$", original: "Airdrop 4$", dollar: 4, quantity: 0 },
-  ],
-};
+import comboConfigs, { comboRows } from "../../../Options/AddOption/comboConfigs";
 
 const OfferForm = () => {
   const { id } = useParams(); // ID for editing
@@ -92,7 +16,7 @@ const OfferForm = () => {
   const [isOpenCombo, setIsOpenCombo] = useState(false);
   const [selectedAutoServer, setSelectedAutoServer] = useState("");
 
-  const [combo, setCombo] = useState(comboConfigs.unipin);
+  const [combo, setCombo] = useState(() => comboRows("unipin"));
   const [comboSummary, setComboSummary] = useState({
     diamond: 0,
     weekly: 0,
@@ -111,8 +35,20 @@ const OfferForm = () => {
     inputs: "",
     isAuto: false,
     maxClaim: "",
+    maxClaimPerInput: "",
     willHaveQuantity: false,
+    allowedRoles: [],
+    highlightTypeId: "",
   });
+  const [subTypes, setSubTypes] = useState([]);
+
+  // subscription types for the allowed-purchasers + highlight selectors
+  useEffect(() => {
+    axiosPrivate
+      .get("/subscription/admin/types")
+      .then((res) => setSubTypes(res.data || []))
+      .catch(() => {});
+  }, [axiosPrivate]);
 
   // Fetch existing offer data if editing
   useEffect(() => {
@@ -137,7 +73,7 @@ const OfferForm = () => {
             setSelectedAutoServer(data.autoServer);
             if (comboConfigs[data.autoServer]) {
               const existingCombo = data.combo || [];
-              const serverCombo = [...comboConfigs[data.autoServer]];
+              const serverCombo = comboRows(data.autoServer);
               // Restore combo quantities if they exist
               serverCombo.forEach((item) => {
                 const existingItem = existingCombo.find(
@@ -172,13 +108,11 @@ const OfferForm = () => {
         monthly: totalMonthly,
       });
     } else if (selectedAutoServer === "sg") {
-      // For sg server, only one item can be selected with quantity 1
+      // For sg server (shell), only one item can be selected with quantity 1
       const selectedItem = combo.find((item) => item.quantity > 0);
-      const totalDollars = selectedItem ? selectedItem.dollar || 0 : 0;
       setComboSummary({
-        diamond: totalDollars,
-        weekly: 0,
-        monthly: 0,
+        package: selectedItem?.package,
+        quantity: selectedItem?.quantity,
       });
     } else {
       // For other servers (my, indo), just count total items
@@ -208,9 +142,9 @@ const OfferForm = () => {
     } else if (name === "autoServer") {
       setSelectedAutoServer(value);
       if (comboConfigs[value]) {
-        setCombo([...comboConfigs[value]]);
+        setCombo(comboRows(value));
       } else {
-        setCombo([...comboConfigs.unipin]);
+        setCombo(comboRows("unipin"));
       }
       setFormData({
         ...formData,
@@ -258,8 +192,19 @@ const OfferForm = () => {
         image: imageUrl,
         price: Number(formData.price),
         stock: Number(formData.stock),
-        maxClaim: Number(formData.maxClaim || 0),
         inputs: formData.inputs.split(",").map((input) => input.trim()),
+        // Optional caps — blank means unlimited, so send only when non-blank
+        ...(formData.maxClaim !== "" && { maxClaim: Number(formData.maxClaim) }),
+        ...(formData.maxClaimPerInput !== "" && {
+          maxClaimPerInput: Number(formData.maxClaimPerInput),
+        }),
+        // Optional restriction + highlight — absent ⇒ everyone / no highlight
+        ...(formData.allowedRoles?.length && {
+          allowedRoles: formData.allowedRoles,
+        }),
+        ...(formData.highlightTypeId && {
+          highlightTypeId: formData.highlightTypeId,
+        }),
         ...(id && { isActive: formData.isActive }),
         ...(id && { sequence: formData.sequence }),
         ...(formData.autoServer && { autoServer: formData.autoServer }),
@@ -268,24 +213,34 @@ const OfferForm = () => {
         }),
       };
 
-      // Add combo data if auto is enabled
+      // Add combo data if auto is enabled (same shapes as normal dynamic
+      // options — carries uc/package so the auto server gets real unit codes)
       if (formData.isAuto && selectedAutoServer) {
         const newCombo = combo.map((pack) => {
-          if (selectedAutoServer === "my" || selectedAutoServer === "indo") {
+          if (selectedAutoServer === "indo") {
             return {
               name: pack?.original || pack?.name,
               label: pack?.name,
+              package: pack?.package,
               quantity: pack?.quantity,
             };
           } else if (selectedAutoServer === "sg") {
             return {
+              name: pack?.name,
+              package: pack?.package,
+              quantity: pack?.quantity,
+            };
+          } else if (selectedAutoServer === "unipin") {
+            return {
               name: pack?.original || pack?.name,
-              dollar: pack?.dollar,
+              uc: pack?.uc,
               quantity: pack?.quantity,
             };
           } else {
+            // my
             return {
               name: pack?.original || pack?.name,
+              package: pack?.package,
               quantity: pack?.quantity,
             };
           }
@@ -441,7 +396,12 @@ const OfferForm = () => {
             </div>
 
             <div>
-              <label htmlFor="maxClaim">Max Claim:</label>
+              <label htmlFor="maxClaim">
+                Max Claim Per Email:{" "}
+                <span className="text-xs text-gray-400">
+                  (blank = unlimited)
+                </span>
+              </label>
               <input
                 type="number"
                 id="maxClaim"
@@ -449,7 +409,25 @@ const OfferForm = () => {
                 className="input"
                 value={formData.maxClaim}
                 onChange={handleChange}
-                placeholder="Max Claim"
+                placeholder="Max Claim Per Email"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="maxClaimPerInput">
+                Max Claim Per Input Value:{" "}
+                <span className="text-xs text-gray-400">
+                  (blank = unlimited)
+                </span>
+              </label>
+              <input
+                type="number"
+                id="maxClaimPerInput"
+                name="maxClaimPerInput"
+                className="input"
+                value={formData.maxClaimPerInput}
+                onChange={handleChange}
+                placeholder="Each input field counted separately"
               />
             </div>
 
@@ -496,8 +474,6 @@ const OfferForm = () => {
                 >
                   {selectedAutoServer === "unipin"
                     ? "Total Diamond:"
-                    : selectedAutoServer === "sg"
-                    ? "Selected Airdrop:"
                     : "Combo Items:"}
                 </label>
                 <div className="flex">
@@ -510,15 +486,13 @@ const OfferForm = () => {
                     placeholder={
                       selectedAutoServer === "unipin"
                         ? "Example: 115"
-                        : selectedAutoServer === "sg"
-                        ? "Select airdrop"
                         : "Selected items"
                     }
                     value={
                       selectedAutoServer === "unipin"
                         ? `D-[${comboSummary?.diamond}] W-[${comboSummary?.weekly}] M-[${comboSummary?.monthly}]`
                         : selectedAutoServer === "sg"
-                        ? `$${comboSummary?.diamond}`
+                        ? `Lite-${comboSummary?.quantity || 0}`
                         : `Items-[${comboSummary?.diamond}]`
                     }
                   />
@@ -557,6 +531,80 @@ const OfferForm = () => {
                 onChange={handleChange}
                 placeholder="Enter inputs, separated by commas"
               />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="input-label">
+                Allowed Purchasers{" "}
+                <span className="text-xs text-gray-400">
+                  (none selected = everyone)
+                </span>
+              </label>
+              <div className="flex flex-wrap gap-4 mt-1">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.allowedRoles?.includes("normal")}
+                    onChange={(e) => {
+                      const next = e.target.checked
+                        ? [...(formData.allowedRoles || []), "normal"]
+                        : (formData.allowedRoles || []).filter(
+                            (r) => r !== "normal"
+                          );
+                      setFormData({ ...formData, allowedRoles: next });
+                    }}
+                  />
+                  Normal user
+                </label>
+                {subTypes.map((t) => (
+                  <label
+                    key={t._id}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.allowedRoles?.includes(t._id)}
+                      onChange={(e) => {
+                        const next = e.target.checked
+                          ? [...(formData.allowedRoles || []), t._id]
+                          : (formData.allowedRoles || []).filter(
+                              (r) => r !== t._id
+                            );
+                        setFormData({ ...formData, allowedRoles: next });
+                      }}
+                    />
+                    {t.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="input-label">
+                Highlight Color Type{" "}
+                <span className="text-xs text-gray-400">
+                  (optional — from the allowed purchasers above)
+                </span>
+              </label>
+              <select
+                name="highlightTypeId"
+                className="input"
+                value={formData.highlightTypeId || ""}
+                onChange={handleChange}
+              >
+                <option value="">None</option>
+                {subTypes
+                  .filter(
+                    (t) =>
+                      formData.allowedRoles?.includes(t._id) ||
+                      t._id === formData.highlightTypeId
+                  )
+                  .map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.name}
+                    </option>
+                  ))}
+              </select>
             </div>
           </div>
 
