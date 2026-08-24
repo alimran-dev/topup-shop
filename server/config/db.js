@@ -71,6 +71,7 @@ const connectToDB = (cb) => {
         database.collection("subscriptionHistory");
       dbCollections.subscriberPriceCollection =
         database.collection("subscriberPrices");
+      dbCollections.siteSettingCollection = database.collection("siteSettings");
 
       try {
         await dbCollections.unipinCollection.createIndex({code: 1}, {unique: true});

@@ -5,6 +5,7 @@ import UserName from "../../../components/reusuable/UserName/UserName";
 
 const LastOrders = () => {
     const [lastOrders, setLastOrders] = useState([]);
+    const [showPrice, setShowPrice] = useState(true);
     const [loading, setLoading] = useState(false);
     const axiosPublic = useAxiosPublic();
 
@@ -13,7 +14,8 @@ const LastOrders = () => {
             setLoading(true);
             try {
                 const { data } = await axiosPublic.get("/order/last");
-                setLastOrders(data);
+                setLastOrders(data?.orders || []);
+                setShowPrice(data?.showPrice !== false);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching last orders:", error);
@@ -35,7 +37,10 @@ const LastOrders = () => {
                         <>
                             {lastOrders?.length > 0 ? (
                                 lastOrders?.map((order) => (
-                                    <div key={order?._id} className="flex justify-between items-center text-xs md:text-sm py-3 border-b">
+                                    <div key={order?._id}
+                                        className="flex justify-between items-center text-xs md:text-sm py-3 border-b"
+                                        style={order?.highlightColors ? { borderLeft: `4px solid ${order.highlightColors.primaryColor}`, background: `linear-gradient(90deg, ${order.highlightColors.primaryColor}14, transparent 60%)` } : undefined}
+                                    >
                                         <div className="col-span-2 md:col-span-1 flex items-center gap-2">
                                             {
                                                 order?.photo ?
@@ -44,14 +49,21 @@ const LastOrders = () => {
                                                     <Avatar />
                                             }
                                             <div>
-                                            <UserName name={order?.name} isVerified={order?.isVerified} iconClass="w-4 h-4" />
+                                                <UserName name={order?.name} isVerified={order?.isVerified} iconClass="w-4 h-4" />
                                                 <p className="text-center text-[10px] text-xs">
-                                                    {order?.package} {order?.quantity ? `[x${order?.quantity}]`: ""} - {order?.type==="balance" ? `৳${order?.price}`:<span className="text-green-500 font-semibold">Free</span>}
+                                                    {order?.package} {order?.quantity ? `[x${order?.quantity}]` : ""} - {showPrice ? (order?.type === "balance" ? `৳${order?.price}` : <span className="text-green-500 font-semibold">Free</span>) : <span>*****</span>}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <div className="flex justify-end">
+                                        <div className="flex items-center gap-2">
+                                            {order?.highlightColors && (
+                                                <span className="badge text-white text-[10px] font-semibold"
+                                                    style={{ backgroundColor: order.highlightColors.primaryColor }}
+                                                >
+                                                    {order.highlightColors.typeName}
+                                                </span>
+                                            )}
                                             <div className={`${order?.status === 'pending' ? 'bg-yellow-500' : order?.status === 'complete' ? 'bg-green-500' : order?.status === 'cancelled' ? 'bg-red-500' : 'bg-gray-300'} px-3 py-1 w-20 text-center text-white capitalize rounded-full text-[10px]`}>
                                                 • {order?.status}
                                             </div>

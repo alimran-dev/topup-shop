@@ -10,6 +10,7 @@ const {
   getUnitPricesByServer,
   getUnitNormalPricesByServer,
   computeOptionSubscriberPrice,
+  getSubscriptionThemesForEmails,
 } = require("../utils/subscriberPricing");
 const {
   orderCollection,
@@ -24,6 +25,7 @@ const {
   coinHistoryCollection,
   likeSubscriptionCollection,
   serviceItemCollection,
+  siteSettingCollection,
 } = dbCollections || {};
 require("dotenv").config();
 
@@ -190,6 +192,7 @@ const getLastOrder = async (req, res) => {
             "userDetails.name": 1,
             "userDetails.photo": 1,
             "userDetails.isVerified": 1,
+            "userDetails.email": 1,
           },
         },
         {
@@ -202,11 +205,27 @@ const getLastOrder = async (req, res) => {
             name: "$userDetails.name",
             photo: "$userDetails.photo",
             isVerified: "$userDetails.isVerified",
+            email: "$userDetails.email",
           },
         },
       ])
       .toArray();
-    res.send(orders);
+
+    // Most-valued (highest-priority active) subscription theme per order
+    // owner — batch-resolved, one query pair for the whole feed.
+    const themes = await getSubscriptionThemesForEmails(
+      orders.map((o) => o.email)
+    );
+
+    // Home-tile settings: whether the price is masked. Absent doc ⇒ shown.
+    const settings = await siteSettingCollection.findOne({ type: "settings" });
+
+    const result = orders.map(({ email, ...order }) => {
+      const theme = themes.get(email);
+      if (theme) order.highlightColors = theme;
+      return order;
+    });
+    res.send({ orders: result, showPrice: settings?.lastOrderShowPrice !== false });
   } catch (err) {
     console.error("Error: ", err.message);
     res.status(500).send({ success: false, error: "Internal Server Error" });

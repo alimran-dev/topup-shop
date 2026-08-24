@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { FaPlus, FaUsersCog, FaRegImage,FaRegFlag ,FaStaylinked, FaCrown, FaTags } from "react-icons/fa";
-import { FiUsers } from "react-icons/fi";
+import { FiUsers, FiSettings } from "react-icons/fi";
 import { GrAnnounce, GrTransaction } from "react-icons/gr";
 import { ImBlocked } from "react-icons/im";
 import { IoGridOutline, IoBagHandleOutline } from "react-icons/io5";
@@ -24,6 +24,7 @@ const navItems = [
   { to: "/dashboard/offersAndProducts", icon: FaStaylinked, label: "Offers & Products" },
   { to: "/dashboard/payments", icon: MdPayment, label: "Payments" },
   { to: "/dashboard/referral", icon: FiUsers, label: "Referral" },
+  { to: "/dashboard/site-settings", icon: FiSettings, label: "Site Settings" },
   { to: "/dashboard/transactions", icon: GrTransaction, label: "Transactions" },
   { to: "/dashboard/banner", icon: FaRegImage, label: "Banner" },
   { to: "/dashboard/addCodes", icon: MdOutlinePostAdd, label: "Add Codes" },

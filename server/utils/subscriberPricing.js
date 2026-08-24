@@ -76,6 +76,47 @@ const getSubscriptionTheme = async (email) => {
   };
 };
 
+// Batch variant of getSubscriptionTheme: highest-priority ACTIVE tier theme
+// per email → Map(email → { typeName, primaryColor, secondaryColor }).
+// Emails without an effective-active subscription (or whose type was deleted)
+// are simply absent from the map. One subscriptions fetch + one
+// subscriptionTypes fetch regardless of the number of emails — the public
+// last-orders feed calls this per request.
+const getSubscriptionThemesForEmails = async (emails) => {
+  const list = [...new Set((emails || []).filter(Boolean))];
+  if (!list.length) return new Map();
+  const now = new Date();
+  const subs = await subscriptionCollection
+    .find({ email: { $in: list } })
+    .toArray();
+  const activeIdsByEmail = new Map();
+  for (const sub of subs) {
+    if (computeEffectiveStatus(sub, now) !== "active") continue;
+    const typeId = sub.typeId?.toString
+      ? sub.typeId.toString()
+      : String(sub.typeId);
+    if (!activeIdsByEmail.has(sub.email)) activeIdsByEmail.set(sub.email, []);
+    activeIdsByEmail.get(sub.email).push(typeId);
+  }
+  if (!activeIdsByEmail.size) return new Map();
+  const types = await subscriptionTypeCollection
+    .find({})
+    .sort({ serial: -1, createdAt: 1, _id: 1 })
+    .toArray();
+  const result = new Map();
+  for (const [email, activeIds] of activeIdsByEmail) {
+    const active = new Set(activeIds);
+    const top = types.find((t) => active.has(t._id.toString()));
+    if (!top) continue;
+    result.set(email, {
+      typeName: top.name,
+      primaryColor: top.primaryColor || DEFAULT_THEME.primaryColor,
+      secondaryColor: top.secondaryColor || DEFAULT_THEME.secondaryColor,
+    });
+  }
+  return result;
+};
+
 // Lowest price among the user's active tiers for the given prices map.
 // pricesMap = { [typeIdString]: number }. Returns { price, tierName } or null
 // when no active tier has a numeric price.
@@ -228,6 +269,7 @@ module.exports = {
   getActiveSubscriberTiers,
   getHighestActiveTier,
   getSubscriptionTheme,
+  getSubscriptionThemesForEmails,
   resolveSubscriberPrice,
   getUnitPricesByServer,
   getUnitNormalPricesByServer,

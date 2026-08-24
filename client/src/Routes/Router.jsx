@@ -47,6 +47,7 @@ import Confirmation from "../pages/AddBalance/Confirmation/Confirmation";
 import LeaderBoard from "../pages/LeaderBoard/LeaderBoard";
 import Referral from "../AdminDashboard/Referral/Referral";
 import History from "../AdminDashboard/Referral/History/History";
+import SiteSettings from "../AdminDashboard/SiteSettings/SiteSettings";
 import Store from "../pages/Store/Store";
 import SpecialOfferDetails from "../pages/SpecialOfferDetails/SpecialOfferDetails";
 import OffersAndProducts from "../AdminDashboard/OfferAndProducts/OfferAndProducts";
@@ -377,6 +378,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard/referral",
         element: <Referral />,
+      },
+      {
+        path: "/dashboard/site-settings",
+        element: <SiteSettings />,
       },
       {
         path: "/dashboard/referral/history",
