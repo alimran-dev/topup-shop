@@ -1,10 +1,67 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import { FaPlus, FaRegEdit, FaUsers, FaHistory } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+
+// Normalizes any "#RGB", "#RRGGBB", "RGB" or "RRGGBB" input to "#rrggbb",
+// or null when the text isn't a valid hex color.
+const toHex = (value) => {
+  let hex = String(value || "").trim().replace(/^#/, "");
+  if (/^[0-9a-fA-F]{3}$/.test(hex))
+    hex = hex.split("").map((c) => c + c).join("");
+  return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toLowerCase()}` : null;
+};
+
+// Native color inputs show a hex text box on desktop, but Android's picker
+// has no hex entry — pair the swatch with a hex text field so exact colors
+// can be typed (or pasted) on any device.
+const ColorField = ({ value, onChange, disabled }) => {
+  const [text, setText] = useState(value);
+  useEffect(() => setText(value), [value]);
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <input
+        type="color"
+        className="w-9 h-7 rounded border border-slate-300 cursor-pointer disabled:opacity-60"
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <input
+        type="text"
+        className="w-24 border border-slate-300 rounded px-1.5 py-0.5 text-xs font-mono focus:outline-none focus:border-primary disabled:opacity-60"
+        value={text}
+        disabled={disabled}
+        placeholder="#RRGGBB"
+        title="Hex color, e.g. #FA6023"
+        onChange={(e) => {
+          const next = e.target.value;
+          setText(next);
+          const valid = toHex(next);
+          if (valid) onChange(valid);
+        }}
+        onBlur={() => setText(value)}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          const valid = toHex(text);
+          if (valid) onChange(valid);
+          setText(valid || value);
+        }}
+      />
+    </span>
+  );
+};
+
+ColorField.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+};
 
 const formatDuration = (pkg) => {
   const n = pkg.duration;
@@ -163,19 +220,17 @@ const Subscriptions = () => {
   );
 
   const colorInput = (type, key) => (
-    <input
-      type="color"
-      className="w-9 h-7 rounded border border-slate-300 cursor-pointer disabled:opacity-60"
+    <ColorField
       value={
         colorDrafts[type._id]?.[key] ??
         type[key === "primary" ? "primaryColor" : "secondaryColor"] ??
         (key === "primary" ? "#FA6023" : "#E61C55")
       }
       disabled={savingId === type._id}
-      onChange={(e) =>
+      onChange={(v) =>
         setColorDrafts((prev) => ({
           ...prev,
-          [type._id]: { ...prev[type._id], [key]: e.target.value },
+          [type._id]: { ...prev[type._id], [key]: v },
         }))
       }
     />
@@ -352,29 +407,19 @@ const Subscriptions = () => {
           />
           <label className="flex items-center gap-1.5 text-sm text-gray-600">
             Primary
-            <input
-              type="color"
-              className="w-9 h-7 rounded border border-slate-300 cursor-pointer"
+            <ColorField
               value={newTypeColors.primary}
-              onChange={(e) =>
-                setNewTypeColors((prev) => ({
-                  ...prev,
-                  primary: e.target.value,
-                }))
+              onChange={(v) =>
+                setNewTypeColors((prev) => ({ ...prev, primary: v }))
               }
             />
           </label>
           <label className="flex items-center gap-1.5 text-sm text-gray-600">
             Secondary
-            <input
-              type="color"
-              className="w-9 h-7 rounded border border-slate-300 cursor-pointer"
+            <ColorField
               value={newTypeColors.secondary}
-              onChange={(e) =>
-                setNewTypeColors((prev) => ({
-                  ...prev,
-                  secondary: e.target.value,
-                }))
+              onChange={(v) =>
+                setNewTypeColors((prev) => ({ ...prev, secondary: v }))
               }
             />
           </label>
