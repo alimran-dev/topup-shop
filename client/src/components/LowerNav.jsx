@@ -1,10 +1,13 @@
 import { AiOutlineHome, AiOutlineSolution } from "react-icons/ai";
-import { GiRollingEnergy } from "react-icons/gi";
 import { NavLink } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import avatar from "../assets/images/avater.png";
 import { IoGridOutline } from "react-icons/io5";
-import { MdAccountBalance, MdOutlinePostAdd } from "react-icons/md";
+import {
+  MdAccountBalance,
+  MdOutlinePostAdd,
+  MdOutlineSubscriptions,
+} from "react-icons/md";
 import useIsAdmin from "../hooks/useIsAdmin";
 import { FaUsersCog } from "react-icons/fa";
 import { LuListTodo } from "react-icons/lu";
@@ -90,14 +93,14 @@ const LowerNav = () => {
               </div>
             </NavLink>
             <NavLink
-              to={"/topup"}
+              to={"/subscriptions"}
               className={({ isActive, isPending }) =>
                 isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
               }
             >
               <div className="flex flex-col items-center">
-                <GiRollingEnergy className="text-2xl" />
-                <p className="text-xs font-medium">Top-Up</p>
+                <MdOutlineSubscriptions className="text-2xl" />
+                <p className="text-xs font-medium text-center">Subscriptions</p>
               </div>
             </NavLink>
             <NavLink
@@ -153,14 +156,14 @@ const LowerNav = () => {
             </div>
           </NavLink>
           <NavLink
-            to={"/topup"}
+            to={"/subscriptions"}
             className={({ isActive, isPending }) =>
               isPending ? "pending" : isActive ? "text-primary flex-1" : "flex-1"
             }
           >
             <div className="flex flex-col items-center">
-              <GiRollingEnergy className="text-3xl" />
-              <p className="text-xs font-medium">Top-Up</p>
+              <MdOutlineSubscriptions className="text-3xl" />
+              <p className="text-xs font-medium text-center">Subscriptions</p>
             </div>
           </NavLink>
           <NavLink
