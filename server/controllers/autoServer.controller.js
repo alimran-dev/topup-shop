@@ -3,6 +3,10 @@ const { axiosAuto } = require("../utils/axiosAuto");
 const getUsername = async (req, res) => {
   try {
     const { uid } = req.query || {};
+    if(typeof uid !== "string" || uid.length<7 || uid.length>13){
+      res.status(400).send("Please enter valid UID");
+      return;
+    }
     const { data } = await axiosAuto.get("/nickname", { params: { uid } });
     res.send(data);
   } catch (err) {
