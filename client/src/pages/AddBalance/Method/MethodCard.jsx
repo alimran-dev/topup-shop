@@ -83,7 +83,7 @@ const MethodCard = ({ method, amount, setErr, from, orderData }) => {
       />
       <p className="bg-gradient-to-r from-primary to-secondary py-1.5 px-5 md:text-lg text-white text-center font-medium md:font-semibold rounded-b flex flex-col items-center justify-center">
         Pay {Amount || 0} BDT{" "}
-        <span className="text-xs capitalize">( {category} )</span>
+        <span className="text-xs capitalize">( {category==="merchant"?"payment":category} )</span>
       </p>
     </div>
   );

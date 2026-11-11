@@ -1,6 +1,11 @@
 import { TbCurrencyTaka } from "react-icons/tb";
 import bkash from "../../../assets/images/bkash.png";
 import nagad from "../../../assets/images/nagad.png";
+import bkashPersonal from "../../../assets/images/payment/bkash-personal.jpeg";
+import bkashPayment from "../../../assets/images/payment/bkash-payment.jpeg";
+import bkashAgent from "../../../assets/images/payment/bkash-agent.jpeg";
+import nagadPersonal from "../../../assets/images/payment/nagad-personal.jpeg";
+import nagadAgent from "../../../assets/images/payment/nagad-agent.jpeg";
 import logo from "../../../assets/topup-logo-crop.png";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
@@ -12,7 +17,20 @@ import Loader from "../../../components/Loader";
 import useAuth from "../../../hooks/useAuth";
 import toast from "react-hot-toast";
 
+const paymentImages = {
+  bkash: {
+    personal: bkashPersonal,
+    merchant: bkashPayment,
+    agent: bkashAgent,
+  },
+  nagad: {
+    personal: nagadPersonal,
+    agent: nagadAgent,
+  },
+};
+
 const PayNew = ({ id, amount, number, fee, provider, category, from, orderData }) => {
+  const paymentImage = paymentImages[provider]?.[category];
   const [err, setErr] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
@@ -160,6 +178,58 @@ const PayNew = ({ id, amount, number, fee, provider, category, from, orderData }
           <h2 className="text-xl font-bold text-center py-2.5">
             ট্রানজেকশন আইডি দিন
           </h2>
+          {paymentImage && (
+          <img
+            src={paymentImage}
+            alt={`${provider} ${category}`}
+            className="w-full rounded-md shadow-md h-24"
+          />
+        )}
+        <div
+          className={`rounded-md shadow-lg text-white px-5 py-2 my-2 ${
+            provider === "bkash"
+              ? "bg-[#af0850]"
+              : "bg-[#8b060a]"
+          }`}
+        >
+          <p className="text-xs md:text-sm font-medium opacity-90 text-center">
+            প্রাপক নম্বর (
+            {category === "personal"
+              ? "পার্সোনাল"
+              : category === "agent"
+              ? "এজেন্ট"
+              : "পেমেন্ট"}
+            )
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <p className="text-xl md:text-2xl font-bold tracking-wider">
+              {number}
+            </p>
+            <MdContentCopy
+              onClick={handleCopy}
+              className="text-lg md:text-xl cursor-pointer text-white/80 hover:text-white transition"
+            />
+          </div>
+        </div>
+        <div
+          className={`rounded-md shadow-lg text-white px-5 py-2 my-2 ${
+            provider === "bkash"
+              ? "bg-[#af0850]"
+              : "bg-[#8b060a]"
+          }`}
+        >
+         <p className="flex items-center justify-center text-xl font-semibold t">
+            <TbCurrencyTaka className="text-lg font-bold" /> {amount}
+          </p>
+          {fee > 0 ? (
+            <p className="text-center text-xs text-red-200">
+              {fee.toFixed(2)}% ফি যুক্ত হয়েছে
+            </p>
+          ) : (
+            <></>
+          )}
+        </div>
+
           <input
             type="text"
             name="trxID"
